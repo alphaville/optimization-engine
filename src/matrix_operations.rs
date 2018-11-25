@@ -40,7 +40,8 @@ pub fn norm2(a: &Vec<f64>) -> f64 {
 /// Calculate the infinity-norm of a vector
 #[inline(always)]
 pub fn norm_inf(a: &Vec<f64>) -> f64 {
-    a.iter().fold(0.0, |max, x| x.abs().max(max))
+    a.iter()
+        .fold(0.0, |current_max, x| x.abs().max(current_max))
 }
 
 #[cfg(test)]
