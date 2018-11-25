@@ -1,6 +1,6 @@
 //! # lipschitz
 //!
-//! The lipschitz estimator used by the optimization algorithm.
+//! The `lipschitz` estimator used by the optimization algorithm.
 //!
 //! # Examples
 //!
@@ -16,6 +16,7 @@
 //!
 //!
 
+#[derive(Debug)]
 pub struct LipschitzEstimator {
     current_position_delta: Vec<f64>,
     df_current_position_delta: Vec<f64>,
@@ -34,8 +35,13 @@ impl LipschitzEstimator {
     pub fn estimate() -> f64 {
         0.0
     }
+}
 
-    fn get_delta() -> f64 {
-        0.0
-    }
+#[cfg(test)]
+mod tests {
+    use crate::*;
+
+    // #[test]
+    // fn testing() {
+    // }
 }
