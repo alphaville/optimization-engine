@@ -17,16 +17,16 @@
 //!
 
 #[derive(Debug)]
-pub struct LipschitzEstimator {
+pub struct Estimator {
     current_position_delta: Vec<f64>,
     df_current_position_delta: Vec<f64>,
 }
 
-impl LipschitzEstimator {
-    pub fn new(problem_size: usize) -> LipschitzEstimator {
+impl Estimator {
+    pub fn new(problem_size: usize) -> Estimator {
         assert!(problem_size > 0);
 
-        LipschitzEstimator {
+        Estimator {
             current_position_delta: vec![0.0; problem_size],
             df_current_position_delta: vec![0.0; problem_size],
         }

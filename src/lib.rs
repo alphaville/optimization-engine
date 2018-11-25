@@ -22,12 +22,13 @@
 mod contraints;
 mod lbfgs;
 mod lipschitz;
+mod matrix_operations;
 mod optimizer;
 mod proximal_gradient_descent;
 
 #[derive(Debug)]
 pub struct PANOC {
-    lip_est: LipschitzEstimator,
+    lip_est: lipschitz::Estimator,
     buffers: Buffers,
 }
 
@@ -39,24 +40,4 @@ pub struct Buffers {
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::*;
-
-    // #[test]
-    // #[should_panic]
-    // fn lbfgs_panic_problem_size() {
-    //     let _ = LBFGS::new(0, 5);
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn lbfgs_panic_buffer_size() {
-    //     let _ = LBFGS::new(5, 0);
-    // }
-
-    // #[test]
-    // fn lbfgs_test() {
-    //     let l = LBFGS::new(3, 5);
-    //     println!("LBFGS instance: {:#?}", l);
-    // }
-}
+mod tests {}
