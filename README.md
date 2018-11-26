@@ -4,6 +4,8 @@
 > The solver only needs the cost function and gradient to be available, and the recommended way
 > to generate these functions are via [CasADi](https://web.casadi.org/) generated functions.
 
+Active WIP.
+
 [PANOC solver]: https://arxiv.org/pdf/1709.06487.pdf
 
 ## License
