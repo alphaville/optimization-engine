@@ -16,32 +16,48 @@
 //!
 //!
 
+use num::{Float, Zero};
+use std::iter::Sum;
+use std::ops::{Add, Mul};
+
 /// Calculate the inner product of two vectors
 #[inline(always)]
-pub fn inner_product(a: &[f64], b: &[f64]) -> f64 {
+pub fn inner_product<T>(a: &[T], b: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
     assert!(a.len() == b.len());
 
-    a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
+    a.iter().zip(b.iter()).map(|(x, y)| (*x) * (*y)).sum()
 }
 
 /// Calculate the 2-norm of a vector
 #[inline(always)]
-pub fn norm1(a: &[f64]) -> f64 {
+pub fn norm1<T>(a: &[T]) -> T
+where
+    T: Float + Sum<T> + Add<T, Output = T>,
+{
     a.iter().map(|x| x.abs()).sum()
 }
 
 /// Calculate the 2-norm of a vector
 #[inline(always)]
-pub fn norm2(a: &[f64]) -> f64 {
-    let norm: f64 = a.iter().map(|x| x * x).sum();
+pub fn norm2<T>(a: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
+    let norm: T = a.iter().map(|x| (*x) * (*x)).sum();
     norm.sqrt()
 }
 
 /// Calculate the infinity-norm of a vector
 #[inline(always)]
-pub fn norm_inf(a: &[f64]) -> f64 {
+pub fn norm_inf<T>(a: &[T]) -> T
+where
+    T: Float + Zero,
+{
     a.iter()
-        .fold(0.0, |current_max, x| x.abs().max(current_max))
+        .fold(T::zero(), |current_max, x| x.abs().max(current_max))
 }
 
 #[cfg(test)]

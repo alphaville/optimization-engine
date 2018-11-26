@@ -19,6 +19,8 @@
 //!
 //!
 
+extern crate num;
+
 mod contraints;
 mod lbfgs;
 mod lipschitz;
