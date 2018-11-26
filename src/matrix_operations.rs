@@ -18,7 +18,7 @@
 
 /// Calculate the inner product of two vectors
 #[inline(always)]
-pub fn inner_product(a: &Vec<f64>, b: &Vec<f64>) -> f64 {
+pub fn inner_product(a: &[f64], b: &[f64]) -> f64 {
     assert!(a.len() == b.len());
 
     a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
@@ -26,20 +26,20 @@ pub fn inner_product(a: &Vec<f64>, b: &Vec<f64>) -> f64 {
 
 /// Calculate the 2-norm of a vector
 #[inline(always)]
-pub fn norm1(a: &Vec<f64>) -> f64 {
+pub fn norm1(a: &[f64]) -> f64 {
     a.iter().map(|x| x.abs()).sum()
 }
 
 /// Calculate the 2-norm of a vector
 #[inline(always)]
-pub fn norm2(a: &Vec<f64>) -> f64 {
+pub fn norm2(a: &[f64]) -> f64 {
     let norm: f64 = a.iter().map(|x| x * x).sum();
     norm.sqrt()
 }
 
 /// Calculate the infinity-norm of a vector
 #[inline(always)]
-pub fn norm_inf(a: &Vec<f64>) -> f64 {
+pub fn norm_inf(a: &[f64]) -> f64 {
     a.iter()
         .fold(0.0, |current_max, x| x.abs().max(current_max))
 }
