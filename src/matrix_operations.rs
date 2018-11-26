@@ -35,7 +35,7 @@ where
 #[inline(always)]
 pub fn norm1<T>(a: &[T]) -> T
 where
-    T: Float + Sum<T> + Add<T, Output = T>,
+    T: Float + Sum<T>,
 {
     a.iter().map(|x| x.abs()).sum()
 }
