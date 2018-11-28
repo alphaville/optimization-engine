@@ -27,6 +27,7 @@ mod lipschitz;
 mod matrix_operations;
 mod optimizer;
 mod proximal_gradient_descent;
+mod buffer;
 
 #[derive(Debug)]
 pub struct PANOC {
