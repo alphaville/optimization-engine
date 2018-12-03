@@ -19,19 +19,16 @@
 //!
 //!
 
+extern crate lipschitz_estimator;
 extern crate num;
 
-mod buffer;
-pub mod contraints;
-mod lbfgs;
-mod lipschitz;
-mod matrix_operations;
+pub mod constraints;
+pub mod matrix_operations;
 mod optimizer;
-mod proximal_gradient_descent;
+pub mod proximal_gradient_descent;
 
 #[derive(Debug)]
 pub struct PANOC {
-    lip_est: lipschitz::Estimator,
     buffers: Buffers,
 }
 
@@ -43,4 +40,16 @@ pub struct Buffers {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+
+    fn modify_u(u: &mut [f64]) {
+        u.iter_mut().for_each(|x| *x += 1.0);
+    }
+
+    #[test]
+    fn testme() {
+        let mut u = vec![0.0_f64; 10];
+        modify_u(&mut u);
+        modify_u(&mut u);
+    }
+}

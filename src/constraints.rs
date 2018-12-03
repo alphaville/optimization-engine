@@ -1,20 +1,37 @@
+/// A set which can be used as a constraint
+///
+/// This trait defines an abstract function that allows to compute projections
+/// on the set
 pub trait Constraint {
+    /// Projection onto the set
+    ///
+    /// The given vector `x` is updated with the projection on the set
     fn project(&self, x: &mut [f64]);
 }
 
+///
+/// A rectangle
+///
+/// A set of the form `{x : xmin <= x <= xmax}`, where `<=` is meant in the
+/// element-wise sense and either of `xmin` and `xmax` can be equal to infinity.
 pub struct Rectangle {
     xmin: Option<Vec<f64>>,
     xmax: Option<Vec<f64>>,
 }
 
 impl Rectangle {
+    ///
+    /// Construct a new rectangle with given `xmin` and `xmax`
     pub fn new(xmin_: Vec<f64>, xmax_: Vec<f64>) -> Rectangle {
         Rectangle {
             xmin: Some(xmin_),
             xmax: Some(xmax_),
         }
     }
-
+    ///
+    /// Construct a new rectangle with given `xmin` and no `xmax`
+    ///
+    /// Essentially, this is a halfspace
     pub fn new_only_xmin(xmin_: Vec<f64>) -> Rectangle {
         Rectangle {
             xmin: Some(xmin_),
@@ -22,6 +39,10 @@ impl Rectangle {
         }
     }
 
+    ///
+    /// Construct a new rectangle with given `xmax` and no `xmin`
+    ///
+    /// Essentially, this is a halfspace
     pub fn new_only_xmax(xmax_: Vec<f64>) -> Rectangle {
         Rectangle {
             xmin: None,
@@ -54,12 +75,15 @@ impl Constraint for Rectangle {
     }
 }
 
+/// A Eucledian ball
 pub struct Ball2 {
     centre: Option<Vec<f64>>,
     radius: f64,
 }
 
 impl Ball2 {
+    ///
+    /// Construct a new ball centered at the origin with given radius
     pub fn new_at_origin_with_radius(radius_: f64) -> Ball2 {
         assert!(radius_ > 0.0);
         Ball2 {
@@ -68,6 +92,8 @@ impl Ball2 {
         }
     }
 
+    ///
+    /// Construct a new Eucledian ball with given centre and radius
     pub fn new(centre_: Vec<f64>, radius_: f64) -> Ball2 {
         assert!(radius_ > 0.0);
         Ball2 {
