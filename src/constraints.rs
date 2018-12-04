@@ -108,7 +108,8 @@ impl Constraint for Ball2 {
         if self.centre.is_none() {
             let norm_x = crate::matrix_operations::norm2(x);
             if norm_x > self.radius {
-                x.iter_mut().for_each(|x_| *x_ /= norm_x);
+                let norm_over_radius = norm_x / self.radius;
+                x.iter_mut().for_each(|x_| *x_ /= norm_over_radius);
             }
         } else {
             let mut norm_difference = 0.0;

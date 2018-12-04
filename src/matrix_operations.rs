@@ -18,7 +18,7 @@
 
 use num::{Float, Zero};
 use std::iter::Sum;
-use std::ops::{Add, Mul};
+use std::ops::Mul;
 
 /// Calculate the inner product of two vectors
 #[inline(always)]
@@ -60,6 +60,18 @@ where
         .fold(T::zero(), |current_max, x| x.abs().max(current_max))
 }
 
+#[inline(always)]
+pub fn norm_inf_diff<T>(a: &[T], b: &[T]) -> T
+where
+    T: Float + Zero,
+{
+    a.iter()
+        .zip(b.iter())
+        .fold(T::zero(), |current_max, (x, y)| {
+            (*x - *y).abs().max(current_max)
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -95,5 +107,13 @@ mod tests {
             matrix_operations::norm_inf(&vec![1.0, -8.0, -3.0, 0.0]),
             8.0
         );
+    }
+
+    #[test]
+    fn norm_inf_diff() {
+        let x = [1.0, 2.0, 1.0];
+        let y = [-4.0, 0.0, 3.0];
+        let norm_diff = matrix_operations::norm_inf_diff(&x, &y);
+        assert_eq!(5.0, norm_diff);
     }
 }
