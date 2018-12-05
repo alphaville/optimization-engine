@@ -1,6 +1,36 @@
 //! Optimisation algorithms
 //!
+//! ## Example: Forward-Backward Splitting
 //!
+//! ```
+//! use panoc_rs::optimizer::*;
+//! use panoc_rs::constraints::Ball2;
+//!
+//! fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
+//!     *cost = u[0] * u[0] + 2. * u[1] * u[1] + u[0] - u[1] + 3.0;
+//!     0
+//! }
+//!
+//! fn my_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
+//!     grad[0] = u[0] + u[1] + 1.0;
+//!     grad[1] = u[0] + 2. * u[1] - 1.0;
+//!     0
+//! }
+//!
+//! fn main() {
+//!     let radius = 0.2;
+//!     let box_constraints = Ball2::new_at_origin_with_radius(radius);
+//!     let problem = Problem::new(box_constraints, my_gradient, my_cost);
+//!     let gamma = 0.1;
+//!     let tolerance = 1e-6;
+//!     let mut fbs_cache = FBSCache::new(2, gamma, tolerance);
+//!     let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+//!     let mut u = [0.0; 2];
+//!     let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+//!     let status = optimizer.solve(&mut u);
+//!     assert!(status.has_converged());
+//! }
+//! ```
 use crate::constraints;
 use crate::matrix_operations;
 
@@ -74,6 +104,7 @@ pub trait Optimizer {
     /// solves a given problem and updates the initial estimate `u` with the solution
     ///
     /// Returns the solver status
+    ///
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus;
 }
 
@@ -91,6 +122,8 @@ pub trait Optimizer {
 pub trait AlgorithmEngine {
     /// Take a step of the algorithm and return `true` only if the iterations should continue
     fn step(&mut self, &mut [f64]) -> bool;
+
+    fn init(&mut self, &mut [f64]);
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -129,7 +162,7 @@ where
     /// - `constraints` constraints
     /// - `cost_gradient` gradient of the cost function
     /// - `cost` cost function
-    /// - `n` dimension of the vector of decision variables
+    ///
     pub fn new(
         constraints: ConstraintType,
         cost_gradient: GradientType,
@@ -147,7 +180,7 @@ where
 
 /// Cache for the forward-backward splitting (FBS), or projected gradient, algorithm
 ///
-///
+/// This struct allocates memory needed for the FBS algorithm
 pub struct FBSCache {
     work_gradient_u: Vec<f64>,
     work_u_previous: Vec<f64>,
@@ -167,11 +200,11 @@ impl FBSCache {
     /// ## Memory allocation
     ///
     /// This method allocates new memory (which it owns, of course). You should avoid
-    /// constructing instances of `FBSEngine`  in a loop or in any way more than
+    /// constructing instances of `FBSCache`  in a loop or in any way more than
     /// absolutely necessary
     ///
     /// If you need to call an optimizer more than once, perhaps with different
-    /// parameters, then construct an `FBSEngine` only once
+    /// parameters, then construct an `FBSCache` only once
     ///
     pub fn new(n: usize, gamma: f64, tolerance: f64) -> FBSCache {
         FBSCache {
@@ -186,6 +219,8 @@ impl FBSCache {
 
 /* ---------------------------------------------------------------------------- */
 
+/// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
+///
 pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
@@ -203,6 +238,16 @@ where
     CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
+    /// Constructor for instances of `FBSEngine`
+    ///
+    /// ## Arguments
+    ///
+    /// - `problem` problem definition (cost function, gradient of the cost, constraints)
+    /// - mutable reference to a `cache` a cache (which is created once); the cache is reuseable
+    ///
+    /// ## Returns
+    ///
+    /// An new instance of `FBSEngine`
     pub fn new(
         problem: Problem<GradientType, ConstraintType, CostType>,
         cache: &'a mut FBSCache,
@@ -262,6 +307,8 @@ where
             matrix_operations::norm_inf_diff(u_current, &self.cache.work_u_previous);
         self.cache.norm_fpr > self.cache.tolerance
     }
+
+    fn init(&mut self, _u_current: &mut [f64]) {}
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -271,6 +318,10 @@ where
 /// Note that an `FBSOptimizer` holds a reference to an instance of `FBSEngine`
 /// which needs to be created externally. A mutable reference to that `FBSEgnine`
 /// is provided to the optimizer.
+///
+/// The `FBSEngine` is supposed to be updated whenever you need to solve
+/// a different optimization problem.
+///
 ///
 pub struct FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
@@ -336,6 +387,7 @@ where
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
+        self.fbs_engine.init(u);
         let mut num_iter: usize = 0;
         while self.fbs_engine.step(u) && num_iter < self.max_iter {
             num_iter += 1;
@@ -355,6 +407,40 @@ where
             self.fbs_engine.cache.norm_fpr,
             cost_value,
         )
+    }
+}
+
+/* ---------------------------------------------------------------------------- */
+
+pub struct PANOCCache {
+    lbfgs: lbfgs::Estimator,
+    gradient_u: Vec<f64>,
+    u_half_step: Vec<f64>,
+    direction_lbfgs: Vec<f64>,
+    rhs_ls: f64,
+    lhs_ls: f64,
+    fixed_point_residual: Vec<f64>,
+    gamma: f64,
+    tolerance: f64,
+    norm_fpr: f64,
+    tau: f64,
+}
+
+impl PANOCCache {
+    pub fn new(n: usize, gamma: f64, tolerance: f64, lbfgs_mem: usize) -> PANOCCache {
+        PANOCCache {
+            gradient_u: vec![0.0; n],
+            u_half_step: vec![0.0; n],
+            fixed_point_residual: vec![0.0; n],
+            direction_lbfgs: vec![0.0; n],
+            gamma: gamma,
+            tolerance: tolerance,
+            norm_fpr: std::f64::INFINITY,
+            lbfgs: lbfgs::Estimator::new(n, lbfgs_mem),
+            lhs_ls: 0.0,
+            rhs_ls: 0.0,
+            tau: 1.0,
+        }
     }
 }
 
@@ -384,49 +470,54 @@ mod tests {
 
     #[test]
     fn fbs_step_no_constraints() {
-        // let no_constraints = constraints::NoConstraints::new();
-        // let problem = Problem::new(no_constraints, my_gradient, my_cost, N_DIM);
-        // let gamma = 0.1;
-        // let tolerance = 1e-6;
-        // let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
-        // let mut u = [1.0, 3.0];
-        // assert_eq!(true, fbs_step.step(&mut u));
-        // assert_eq!([0.5, 2.4], u);
-        // assert_eq!([1., 3.], *fbs_step.work_u_previous);
+        let no_constraints = constraints::NoConstraints::new();
+        let problem = Problem::new(no_constraints, my_gradient, my_cost);
+        let gamma = 0.1;
+        let tolerance = 1e-6;
+        let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
+        {
+            let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+            let mut u = [1.0, 3.0];
+            assert_eq!(true, fbs_step.step(&mut u));
+            assert_eq!([0.5, 2.4], u);
+        }
+        assert_eq!([1., 3.], *fbs_cache.work_u_previous);
     }
 
-    // #[test]
-    // fn fbs_step_ball_constraints() {
-    //     let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
-    //     let problem = Problem::new(no_constraints, my_gradient, my_cost, N_DIM);
-    //     let gamma = 0.1;
-    //     let tolerance = 1e-6;
-    //     let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
+    #[test]
+    fn fbs_step_ball_constraints() {
+        let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
+        let problem = Problem::new(no_constraints, my_gradient, my_cost);
+        let gamma = 0.1;
+        let tolerance = 1e-6;
+        let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
+        let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
 
-    //     let mut u = [1.0, 3.0];
+        let mut u = [1.0, 3.0];
 
-    //     assert_eq!(true, fbs_step.step(&mut u));
-    //     assert!((u[0] - 0.020395425411200).abs() < 1e-14);
-    //     assert!((u[1] - 0.097898041973761).abs() < 1e-14);
-    // }
+        assert_eq!(true, fbs_step.step(&mut u));
+        assert!((u[0] - 0.020395425411200).abs() < 1e-14);
+        assert!((u[1] - 0.097898041973761).abs() < 1e-14);
+    }
 
-    // #[test]
-    // fn solve_fbs() {
-    //     let radius = 0.2;
-    //     let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-    //     let problem = Problem::new(box_constraints, my_gradient, my_cost, N_DIM);
-    //     let gamma = 0.1;
-    //     let tolerance = 1e-6;
-    //     let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
-    //     let mut u = [0.0; N_DIM];
-    //     let mut optimizer = FBSOptimizer::new(&mut fbs_step);
-    //     let status = optimizer.solve(&mut u);
-    //     assert!(status.has_converged());
-    //     assert!(status.get_norm_fpr() < tolerance);
-    //     assert!(status.get_number_iterations() <= MAX_ITER);
-    //     assert!((-0.14896 - u[0]).abs() < 1e-4);
-    //     assert!((0.13346 - u[1]).abs() < 1e-4);
-    // }
+    #[test]
+    fn solve_fbs() {
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let gamma = 0.1;
+        let tolerance = 1e-6;
+        let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
+        let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+        let mut u = [0.0; N_DIM];
+        let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+        let status = optimizer.solve(&mut u);
+        assert!(status.has_converged());
+        assert!(status.get_norm_fpr() < tolerance);
+        assert!(status.get_number_iterations() <= MAX_ITER);
+        assert!((-0.14896 - u[0]).abs() < 1e-4);
+        assert!((0.13346 - u[1]).abs() < 1e-4);
+    }
 
     #[test]
     fn solve_fbs_many_times() {
@@ -435,7 +526,7 @@ mod tests {
         let tolerance = 1e-6;
 
         // The cache is constructed ONCE. This step allocates memory.
-        let mut cache = FBSCache::new(N_DIM, gamma, tolerance);
+        let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
 
         let mut u = [0.0; 2];
 
@@ -445,7 +536,7 @@ mod tests {
             // The problem is surely update at every execution of NMPC
             let problem = Problem::new(box_constraints, my_gradient, my_cost);
             // Construct a new Engine; this does not allocate any memory
-            let mut fbs_step = FBSEngine::new(problem, &mut cache);
+            let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
             // Here comes the new initial condition
             u[0] = 2.0 * _i as f64;
             u[1] = -_i as f64;
@@ -454,6 +545,11 @@ mod tests {
             let status = optimizer.solve(&mut u);
             assert!(status.get_norm_fpr() < tolerance);
         }
+    }
+
+    #[test]
+    fn make_panoc_cache() {
+        let _panoc_cache = PANOCCache::new(N_DIM, 0.1, 1e-6, 5);
     }
 
 }
