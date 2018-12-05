@@ -25,7 +25,6 @@ extern crate num;
 pub mod constraints;
 pub mod matrix_operations;
 pub mod optimizer;
-pub mod proximal_gradient_descent;
 
 #[derive(Debug)]
 pub struct PANOC {
