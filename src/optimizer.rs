@@ -5,7 +5,7 @@ use crate::constraints;
 use crate::matrix_operations;
 
 // default maximum number of iterations
-static MAX_ITER: usize = 100_usize;
+const MAX_ITER: usize = 100_usize;
 
 /* ---------------------------------------------------------------------------- */
 
@@ -352,46 +352,6 @@ where
 
 /* ---------------------------------------------------------------------------- */
 
-// struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
-// where
-//     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-//     CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-//     ConstraintType: constraints::Constraint + 'a,
-// {
-//     problem: &'a Problem<GradientType, ConstraintType, CostType>,
-//     work_gradient_u: Vec<f64>,
-//     lbfgs: lbfgs::Estimator,
-//     work_u_previous: Vec<f64>,
-//     gamma: f64,
-//     tolerance: f64,
-//     norm_fpr: f64,
-// }
-
-// impl<'a, GradientType, ConstraintType, CostType>
-//     PANOCStep<'a, GradientType, ConstraintType, CostType>
-// where
-//     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-//     CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-//     ConstraintType: constraints::Constraint + 'a,
-// {
-//     pub fn new(
-//         problem: &'a Problem<GradientType, ConstraintType, CostType>,
-//         gamma: f64,
-//         tolerance: f64,
-//         mem: usize,
-//     ) -> PANOCStep<'a, GradientType, ConstraintType, CostType> {
-//         PANOCStep {
-//             problem: problem,
-//             lbfgs: lbfgs::Estimator::new(problem.n, mem),
-//             work_gradient_u: vec![0.0; problem.n],
-//             work_u_previous: vec![0.0; problem.n],
-//             gamma: gamma,
-//             tolerance: tolerance,
-//             norm_fpr: std::f64::INFINITY,
-//         }
-//     }
-// }
-
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
@@ -400,6 +360,8 @@ mod tests {
 
     use super::*;
     use crate::constraints;
+
+    const N_DIM: usize = 2;
 
     fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
         *cost = u[0] * u[0] + 2. * u[1] * u[1] + u[0] - u[1] + 3.0;
@@ -415,7 +377,7 @@ mod tests {
     #[test]
     fn fbs_step_no_constraints() {
         let no_constraints = constraints::NoConstraints::new();
-        let problem = Problem::new(no_constraints, my_gradient, my_cost, 2);
+        let problem = Problem::new(no_constraints, my_gradient, my_cost, N_DIM);
         let gamma = 0.1;
         let tolerance = 1e-6;
         let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
@@ -428,7 +390,7 @@ mod tests {
     #[test]
     fn fbs_step_ball_constraints() {
         let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
-        let problem = Problem::new(no_constraints, my_gradient, my_cost, 2);
+        let problem = Problem::new(no_constraints, my_gradient, my_cost, N_DIM);
         let gamma = 0.1;
         let tolerance = 1e-6;
         let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
@@ -441,46 +403,41 @@ mod tests {
     }
 
     #[test]
-    fn solve_problem() {
-        // Define constraints
+    fn solve_fbs() {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+        let problem = Problem::new(box_constraints, my_gradient, my_cost, N_DIM);
+        let gamma = 0.1;
+        let tolerance = 1e-6;
+        let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
+        let mut u = [0.0; N_DIM];
+        let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+        let status = optimizer.solve(&mut u);
+        assert!(status.has_converged());
+        assert!(status.get_norm_fpr() < tolerance);
+        assert!(status.get_number_iterations() <= MAX_ITER);
+        assert!((-0.14896 - u[0]).abs() < 1e-4);
+        assert!((0.13346 - u[1]).abs() < 1e-4);
+    }
 
-        // Define problem
+    #[test]
+    fn solve_fbs_many_times() {
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
         let problem = Problem::new(box_constraints, my_gradient, my_cost, 2);
-
-        // Solver parameters
         let gamma = 0.1;
         let tolerance = 1e-6;
         let max_iter = 100;
-
-        // Construct step
-        // Note: this construction allocates memory!
         let mut fbs_step = FBSEngine::new(problem, gamma, tolerance);
-
         let mut u = [0.0; 2];
 
-        // Construct optimizer
-        {
+        for _i in 1..10 {
+            u[0] = 2.0 * _i as f64;
+            u[1] = -_i as f64;
             let mut optimizer = FBSOptimizer::new(&mut fbs_step);
             optimizer.with_max_iter(max_iter);
-
-            // Solve
             let status = optimizer.solve(&mut u);
-
-            // Check solution status
-            assert!(status.has_converged());
             assert!(status.get_norm_fpr() < tolerance);
-            assert!(status.get_number_iterations() <= max_iter);
-        }
-        {
-            let mut optimizer = FBSOptimizer::new(&mut fbs_step);
-            optimizer.with_max_iter(max_iter);
-
-            // Solve again starting at the solution
-            let status = optimizer.solve(&mut u);
-            assert_eq!(0, status.get_number_iterations());
-            assert!(matrix_operations::norm2(&u) <= radius); // check feasibility
         }
     }
 
