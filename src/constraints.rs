@@ -1,3 +1,5 @@
+//! Constraints and projections
+
 /// A set which can be used as a constraint
 ///
 /// This trait defines an abstract function that allows to compute projections
@@ -132,6 +134,9 @@ impl Constraint for Ball2 {
     }
 }
 
+/* ---------------------------------------------------------------------------- */
+/*          TESTS                                                               */
+/* ---------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
     use super::*;
