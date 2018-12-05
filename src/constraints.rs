@@ -11,6 +11,19 @@ pub trait Constraint {
     fn project(&self, x: &mut [f64]);
 }
 
+/// The whole space, no constraints
+pub struct NoConstraints {}
+
+impl NoConstraints {
+    pub fn new() -> NoConstraints {
+        NoConstraints {}
+    }
+}
+
+impl Constraint for NoConstraints {
+    fn project(&self, _x: &mut [f64]) {}
+}
+
 ///
 /// A rectangle
 ///
@@ -177,5 +190,13 @@ mod tests {
         let ball = Ball2::new(centre.to_vec(), radius);
         ball.project(&mut x);
         println!("x = {:?}", x);
+    }
+
+    #[test]
+    fn no_constraints() {
+        let mut x = [1.0, 2.0, 3.0];
+        let whole_space = NoConstraints::new();
+        whole_space.project(&mut x);
+        assert_eq!([1., 2., 3.], x);
     }
 }

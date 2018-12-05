@@ -12,3 +12,4 @@ version = "0.1.0"
 [dependencies]
 num = "0.2.0"
 lipschitz_estimator = {path = "../lipschitz_estimator"}
+lbfgs = {path = "../lbfgs-rs"}
