@@ -1,6 +1,8 @@
+//! Optimisation algorithms
+//!
+//!
 use crate::constraints;
 use crate::matrix_operations;
-use crate::proximal_gradient_descent::ProjectedGradient;
 
 // default maximum number of iterations
 static MAX_ITER: usize = 100_usize;
@@ -10,13 +12,13 @@ static MAX_ITER: usize = 100_usize;
 /// Solver status
 pub struct SolverStatus {
     /// whether the algorithm has converged
-    pub converged: bool,
+    converged: bool,
     /// number of iterations for convergence
-    pub num_iter: usize,
+    num_iter: usize,
     /// norm of the fixed-point residual (FPR)
-    pub fpr_norm: f64,
+    fpr_norm: f64,
     /// cost value
-    pub cost_value: f64,
+    cost_value: f64,
 }
 
 impl SolverStatus {
@@ -28,6 +30,22 @@ impl SolverStatus {
             fpr_norm: fpr_norm,
             cost_value: cost_value,
         }
+    }
+
+    pub fn has_converged(&self) -> bool {
+        self.converged
+    }
+
+    pub fn get_number_iterations(&self) -> usize {
+        self.num_iter
+    }
+
+    pub fn get_norm_fpr(&self) -> f64 {
+        self.fpr_norm
+    }
+
+    pub fn get_cost_value(&self) -> f64 {
+        self.cost_value
     }
 }
 
@@ -43,7 +61,9 @@ pub trait Optimizer {
 
 /* ---------------------------------------------------------------------------- */
 
+/// A step of an algorithm
 pub trait AlgorithmStep {
+    /// Take a step of the algorithm and return `true` only if the iterations should continue
     fn step(&mut self, &mut [f64]) -> bool;
 }
 
@@ -96,12 +116,12 @@ where
     CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
-    pub problem: &'a Problem<GradientType, ConstraintType, CostType>,
-    pub work_gradient_u: Vec<f64>,
-    pub work_u_previous: Vec<f64>,
-    pub gamma: f64,
-    pub tolerance: f64,
-    pub norm_fpr: f64,
+    problem: &'a Problem<GradientType, ConstraintType, CostType>,
+    work_gradient_u: Vec<f64>,
+    work_u_previous: Vec<f64>,
+    gamma: f64,
+    tolerance: f64,
+    norm_fpr: f64,
 }
 
 impl<'a, GradientType, ConstraintType, CostType> FBSStep<'a, GradientType, ConstraintType, CostType>
@@ -246,71 +266,45 @@ where
 
 /* ---------------------------------------------------------------------------- */
 
-// struct PANOCCache {
-//     work_gradient_u: Vec<f64>,
-//     work_u_previous: Vec<f64>,
-//     lbfgs: lbfgs::Estimator,
-// }
+struct PANOCStep<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
+    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    ConstraintType: constraints::Constraint + 'a,
+{
+    problem: &'a Problem<GradientType, ConstraintType, CostType>,
+    work_gradient_u: Vec<f64>,
+    lbfgs: lbfgs::Estimator,
+    work_u_previous: Vec<f64>,
+    gamma: f64,
+    tolerance: f64,
+    norm_fpr: f64,
+}
 
-// impl PANOCCache {
-//     fn new(n: usize, mem: usize) -> PANOCCache {
-//         PANOCCache {
-//             work_gradient_u: vec![0.0; n],
-//             work_u_previous: vec![0.0; n],
-//             lbfgs: lbfgs::Estimator::new(n, mem),
-//         }
-//     }
-// }
-
-/* ---------------------------------------------------------------------------- */
-
-/// Solves a given problem using PANOC
-// pub struct PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
-// where
-//     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'life,
-//     CostType: Fn(&[f64], &mut f64) -> i32 + 'life,
-//     ConstraintType: constraints::Constraint + 'life,
-// {
-//     problem: &'life Problem<GradientType, ConstraintType, CostType>,
-//     cache: PANOCCache,
-// }
-
-// impl<'life, GradientType, ConstraintType, CostType>
-//     PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
-// where
-//     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'life,
-//     CostType: Fn(&[f64], &mut f64) -> i32 + 'life,
-//     ConstraintType: constraints::Constraint + 'life,
-// {
-//     pub fn new(
-//         problem: &'life Problem<GradientType, ConstraintType, CostType>,
-//         mem: usize,
-//     ) -> PANOCOptimizer<'life, GradientType, ConstraintType, CostType> {
-//         PANOCOptimizer {
-//             problem: problem,
-//             cache: PANOCCache::new(problem.n, mem),
-//         }
-//     }
-// }
-
-// impl<'life, GradientType, ConstraintType, CostType> Optimizer
-//     for PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
-// where
-//     GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'life,
-//     CostType: Fn(&[f64], &mut f64) -> i32 + 'life,
-//     ConstraintType: constraints::Constraint + 'life,
-// {
-//     fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
-//         let mut lip_estimator = lipschitz_estimator::LipschitzEstimator::new(
-//             u,
-//             &self.problem.gradf,
-//             &mut self.cache.work_gradient_u,
-//         );
-//         let lipshitz_constant = lip_estimator.estimate_local_lipschitz();
-//         SolverStatus::new(true, 1, lipshitz_constant, 0.0)
-//     }
-// }
-
+impl<'a, GradientType, ConstraintType, CostType>
+    PANOCStep<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
+    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    ConstraintType: constraints::Constraint + 'a,
+{
+    pub fn new(
+        problem: &'a Problem<GradientType, ConstraintType, CostType>,
+        gamma: f64,
+        tolerance: f64,
+        mem: usize,
+    ) -> PANOCStep<'a, GradientType, ConstraintType, CostType> {
+        PANOCStep {
+            problem: problem,
+            lbfgs: lbfgs::Estimator::new(problem.n, mem),
+            work_gradient_u: vec![0.0; problem.n],
+            work_u_previous: vec![0.0; problem.n],
+            gamma: gamma,
+            tolerance: tolerance,
+            norm_fpr: std::f64::INFINITY,
+        }
+    }
+}
 
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
@@ -362,27 +356,64 @@ mod tests {
 
     #[test]
     fn solve_problem() {
-        let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
+        // Define constraints
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+
+        // Define problem
         let problem = Problem::new(box_constraints, my_gradient, my_cost, 2);
+
+        // Solver parameters
         let gamma = 0.1;
         let tolerance = 1e-6;
+        let max_iter = 100;
+
+        // Construct optimizer
         let mut optimizer = FBSOptimizer::new(&problem, gamma, tolerance);
-        optimizer.with_max_iter(10000);
+        optimizer.with_max_iter(max_iter);
+
+        // Solve
         let mut u = [0.0; 2];
         let status = optimizer.solve(&mut u);
-        assert!(status.converged);
+
+        // Check solution status
+        assert!(status.has_converged());
+        assert!(status.get_norm_fpr() < tolerance);
+        assert!(status.get_number_iterations() <= max_iter);
+
+        // Solve again starting at the solution
         let status = optimizer.solve(&mut u);
-        assert_eq!(0, status.num_iter);
-        assert!(matrix_operations::norm2(&u) <= 0.2);
+        assert_eq!(0, status.get_number_iterations());
+        assert!(matrix_operations::norm2(&u) <= radius); // check feasibility
     }
 
-    // #[test]
-    // fn make_panoc() {
-    //     let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
-    //     let problem = Problem::new(box_constraints, my_gradient, my_cost, 2);
-    //     let mut panoc = PANOCOptimizer::new(&problem, 5);
-    //     let mut u = [0.0; 2];
-    //     panoc.solve(&mut u);
-    // }
+    #[test]
+    fn make_panoc() {
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
+        let problem = Problem::new(box_constraints, my_gradient, my_cost, 2);
+
+        let gamma = 0.1;
+        let tolerance = 1e-6;
+        let mem = 5;
+        let mut panoc_step = PANOCStep::new(&problem, gamma, tolerance, mem);
+
+        println!(
+            "{:?}",
+            panoc_step
+                .lbfgs
+                .update_hessian(&[1., 1.], &[2., 3.], 1., 1e-6)
+        );
+
+        println!(
+            "{:?}",
+            panoc_step
+                .lbfgs
+                .update_hessian(&[1.01, 1.1], &[2., 3.05], 1., 1e-6)
+        );
+
+        let mut p = [1.1, 0.4];
+        panoc_step.lbfgs.apply_hessian(&mut p);
+        println!("p = {:?}", p);
+    }
 
 }
