@@ -36,8 +36,10 @@ use crate::matrix_operations;
 
 // default maximum number of iterations
 const MAX_ITER: usize = 100_usize;
+const GAMMA_L_COEFF: f64 = 0.95;
+const SIGMA_COEFF: f64 = 0.49;
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// Solver status
 ///
@@ -97,7 +99,7 @@ impl SolverStatus {
     }
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// A general optimizer
 pub trait Optimizer {
@@ -108,7 +110,7 @@ pub trait Optimizer {
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus;
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// Engine supporting an algorithm
 ///
@@ -126,7 +128,7 @@ pub trait AlgorithmEngine {
     fn init(&mut self, &mut [f64]);
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// Definition of an optimisation problem
 ///
@@ -176,7 +178,7 @@ where
     }
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// Cache for the forward-backward splitting (FBS), or projected gradient, algorithm
 ///
@@ -217,7 +219,7 @@ impl FBSCache {
     }
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
 ///
@@ -275,7 +277,8 @@ where
         self.problem.constraints.project(u_current);
     }
 }
-/* ---------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------------------------- */
 
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for FBSEngine<'a, GradientType, ConstraintType, CostType>
@@ -311,7 +314,7 @@ where
     fn init(&mut self, _u_current: &mut [f64]) {}
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
 /// Optimiser using forward-backward splitting iterations (projected gradient)
 ///
@@ -350,22 +353,12 @@ where
     }
 
     /// Sets the tolerance
-    pub fn with_epsilon(
+    pub fn with_tolerance(
         &mut self,
         tolerance: f64,
     ) -> &mut FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
         assert!(tolerance > 0.0);
         self.fbs_engine.cache.tolerance = tolerance;
-        self
-    }
-
-    /// Sets parameter gamma
-    pub fn with_gamma(
-        &mut self,
-        gamma: f64,
-    ) -> &mut FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
-        assert!(gamma > 0.0);
-        self.fbs_engine.cache.gamma = gamma;
         self
     }
 
@@ -410,13 +403,16 @@ where
     }
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
+/// Cache for PANOC
 pub struct PANOCCache {
     lbfgs: lbfgs::Estimator,
     gradient_u: Vec<f64>,
     u_half_step: Vec<f64>,
+    gradient_step: Vec<f64>,
     direction_lbfgs: Vec<f64>,
+    u_plus: Vec<f64>,
     rhs_ls: f64,
     lhs_ls: f64,
     fixed_point_residual: Vec<f64>,
@@ -424,31 +420,167 @@ pub struct PANOCCache {
     tolerance: f64,
     norm_fpr: f64,
     tau: f64,
+    lipschitz_constant: f64,
+    sigma: f64,
+    cost_value: f64,
 }
 
 impl PANOCCache {
-    pub fn new(n: usize, gamma: f64, tolerance: f64, lbfgs_mem: usize) -> PANOCCache {
+    pub fn new(n: usize, tolerance: f64, lbfgs_mem: usize) -> PANOCCache {
+        assert!(tolerance > 0., "tolerance must be positive");
         PANOCCache {
             gradient_u: vec![0.0; n],
             u_half_step: vec![0.0; n],
             fixed_point_residual: vec![0.0; n],
             direction_lbfgs: vec![0.0; n],
-            gamma: gamma,
+            gradient_step: vec![0.0; n],
+            u_plus: vec![0.0; n],
+            gamma: 0.0,
             tolerance: tolerance,
             norm_fpr: std::f64::INFINITY,
             lbfgs: lbfgs::Estimator::new(n, lbfgs_mem),
             lhs_ls: 0.0,
             rhs_ls: 0.0,
             tau: 1.0,
+            lipschitz_constant: 0.0,
+            sigma: 0.0,
+            cost_value: 0.0,
         }
     }
 }
 
-/* ---------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------- */
 
-/* ---------------------------------------------------------------------------- */
-/*          TESTS                                                               */
-/* ---------------------------------------------------------------------------- */
+pub struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
+    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    ConstraintType: constraints::Constraint + 'a,
+{
+    problem: Problem<GradientType, ConstraintType, CostType>,
+    cache: &'a mut PANOCCache,
+}
+
+impl<'a, GradientType, ConstraintType, CostType>
+    PANOCEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
+    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    ConstraintType: constraints::Constraint + 'a,
+{
+    pub fn new(
+        problem: Problem<GradientType, ConstraintType, CostType>,
+        cache: &'a mut PANOCCache,
+    ) -> PANOCEngine<'a, GradientType, ConstraintType, CostType> {
+        PANOCEngine {
+            problem: problem,
+            cache: cache,
+        }
+    }
+
+    fn estimate_loc_lip(&mut self, u: &mut [f64]) {
+        let mut lipest = crate::lipschitz_estimator::LipschitzEstimator::new(
+            u,
+            &self.problem.gradf,
+            &mut self.cache.gradient_u,
+        );
+        lipest.with_delta(1e-10).with_epsilon(1e-10);
+        self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
+    }
+
+    fn gradient_step(&mut self, u_current: &[f64]) {
+        // take a gradient step: gradient_step = u_current - gamma * gradient
+        let gamma = self.cache.gamma;
+        self.cache
+            .gradient_step
+            .iter_mut()
+            .zip(u_current.iter())
+            .zip(self.cache.gradient_u.iter())
+            .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
+    }
+
+    fn half_step(&mut self, u_current: &mut [f64]) {
+        self.cache.u_half_step.copy_from_slice(u_current);
+        self.problem
+            .constraints
+            .project(&mut self.cache.u_half_step);
+        // u_half_step = projection(gradient_step)
+    }
+
+    fn update_lipschitz_constant(&mut self) {}
+
+    fn line_search_condition(&mut self) -> bool {
+        //let gamma = self.cache.gamma;
+        //let tau = self.cache.tau;
+        false
+    }
+}
+
+impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
+    for PANOCEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
+    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    ConstraintType: constraints::Constraint + 'a,
+{
+    fn step(&mut self, u_current: &mut [f64]) -> bool {
+        let gamma = self.cache.gamma;
+        // compute the fixed point residual
+        self.cache
+            .fixed_point_residual
+            .iter_mut()
+            .zip(u_current.iter())
+            .zip(self.cache.u_half_step.iter())
+            .for_each(|((fpr, u), uhalf)| *fpr = (u - uhalf) / gamma);
+        // compute the norm of FPR
+        self.cache.norm_fpr = matrix_operations::norm2(&self.cache.fixed_point_residual);
+        // exit if the norm of the fpr is adequetely small
+        if self.cache.norm_fpr < self.cache.tolerance {
+            return false;
+        }
+        // update the LBFGS buffer
+        self.cache
+            .lbfgs
+            .update_hessian(&self.cache.gradient_u, u_current, 1.0, 1e-10);
+        // compute an LBFGS direction
+        self.cache
+            .lbfgs
+            .apply_hessian(&mut self.cache.direction_lbfgs);
+        // compute dist squared
+        let dist_squared = self
+            .cache
+            .gradient_step
+            .iter()
+            .zip(self.cache.u_half_step.iter())
+            .map(|(g, uh)| (*g - *uh).powi(2))
+            .sum::<f64>();
+        // compute LHS
+        self.cache.rhs_ls = self.cache.cost_value
+            - (self.cache.gamma / 2.0) * matrix_operations::norm2(&self.cache.gradient_u)
+            + dist_squared
+            - self.cache.sigma
+            + self.cache.norm_fpr.powi(2);
+
+        self.cache.tau = 1.0;
+
+        // perform line search
+
+        false
+    }
+
+    fn init(&mut self, u_current: &mut [f64]) {
+        self.estimate_loc_lip(u_current); // computes the gradient as well
+        (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
+        self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
+        self.cache.sigma = (1.0 - GAMMA_L_COEFF) * SIGMA_COEFF * self.cache.gamma;
+        self.gradient_step(u_current);
+        self.half_step(u_current);
+    }
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/*          TESTS                                                                                */
+/* --------------------------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
 
@@ -476,9 +608,9 @@ mod tests {
         let tolerance = 1e-6;
         let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
         {
-            let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+            let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
             let mut u = [1.0, 3.0];
-            assert_eq!(true, fbs_step.step(&mut u));
+            assert_eq!(true, fbs_engine.step(&mut u));
             assert_eq!([0.5, 2.4], u);
         }
         assert_eq!([1., 3.], *fbs_cache.work_u_previous);
@@ -491,11 +623,11 @@ mod tests {
         let gamma = 0.1;
         let tolerance = 1e-6;
         let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
-        let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+        let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
 
         let mut u = [1.0, 3.0];
 
-        assert_eq!(true, fbs_step.step(&mut u));
+        assert_eq!(true, fbs_engine.step(&mut u));
         assert!((u[0] - 0.020395425411200).abs() < 1e-14);
         assert!((u[1] - 0.097898041973761).abs() < 1e-14);
     }
@@ -508,9 +640,9 @@ mod tests {
         let gamma = 0.1;
         let tolerance = 1e-6;
         let mut fbs_cache = FBSCache::new(N_DIM, gamma, tolerance);
-        let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+        let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
         let mut u = [0.0; N_DIM];
-        let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+        let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
         let status = optimizer.solve(&mut u);
         assert!(status.has_converged());
         assert!(status.get_norm_fpr() < tolerance);
@@ -536,20 +668,31 @@ mod tests {
             // The problem is surely update at every execution of NMPC
             let problem = Problem::new(box_constraints, my_gradient, my_cost);
             // Construct a new Engine; this does not allocate any memory
-            let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
+            let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
             // Here comes the new initial condition
             u[0] = 2.0 * _i as f64;
             u[1] = -_i as f64;
             // Create a new optimizer...
-            let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+            let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
             let status = optimizer.solve(&mut u);
             assert!(status.get_norm_fpr() < tolerance);
         }
     }
 
     #[test]
-    fn make_panoc_cache() {
-        let _panoc_cache = PANOCCache::new(N_DIM, 0.1, 1e-6, 5);
+    fn make_panoc_init() {
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let mut panoc_cache = PANOCCache::new(N_DIM, 1e-6, 5);
+        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+        let mut u = [0.75, -1.4];
+        panoc_engine.init(&mut u);
+        println!("Lip = {}", panoc_engine.cache.lipschitz_constant);
+        println!("gamma = {}", panoc_engine.cache.gamma);
+        println!("sigma = {}", panoc_engine.cache.sigma);
+
+        panoc_engine.step(&mut u);
     }
 
 }
