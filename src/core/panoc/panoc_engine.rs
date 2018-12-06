@@ -139,12 +139,18 @@ where
     fn step(&mut self, u_current: &mut [f64]) -> bool {
         // compute the fixed point residual
         self.compute_fpr(u_current);
+
         // compute the norm of FPR
         self.cache.norm_fpr = matrix_operations::norm2(&self.cache.fixed_point_residual);
+
         // exit if the norm of the fpr is adequetely small
         if self.cache.norm_fpr < self.cache.tolerance {
             return false;
         }
+
+        // update lipschitz constant
+        self.update_lipschitz_constant();
+
         // compute LBFGS direction (update LBFGS buffer)
         self.lbfgs_direction(u_current);
 
@@ -176,6 +182,9 @@ where
     }
 }
 
+/* --------------------------------------------------------------------------------------------- */
+/*       TESTS                                                                                   */
+/* --------------------------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
 

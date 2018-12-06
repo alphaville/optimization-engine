@@ -9,8 +9,8 @@
 //! ## Example: Forward-Backward Splitting
 //!
 //! ```
-//! use panoc_rs::core::*;
-//! use panoc_rs::core::fbs::*;
+//! use panoc_rs::core::{Problem,Optimizer};
+//! use panoc_rs::core::fbs::{FBSCache,FBSEngine,FBSOptimizer};
 //! use panoc_rs::constraints::Ball2;
 //!
 //! fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
@@ -28,7 +28,7 @@
 //!     let radius = 0.2;
 //!     let box_constraints = Ball2::new_at_origin_with_radius(radius);
 //!     let problem = Problem::new(box_constraints, my_gradient, my_cost);
-//!     let gamma = 0.1;
+//!     let gamma = 0.3;
 //!     let tolerance = 1e-6;
 //!     let mut fbs_cache = FBSCache::new(2, gamma, tolerance);
 //!     let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
@@ -100,16 +100,6 @@ mod tests {
     use crate::constraints;
 
     const N_DIM: usize = 2;
-
-    fn assert_ae(x: f64, y: f64, tol: f64) {
-        assert!((x - y).abs() < tol);
-    }
-
-    fn assert_array_ae(x: &[f64], y: &[f64], tol: f64) {
-        x.iter()
-            .zip(y.iter())
-            .for_each(|(xi, yi)| assert!((*xi - *yi).abs() < tol));
-    }
 
     fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
         *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
