@@ -795,4 +795,21 @@ mod tests {
         println!("cache = {:#?}", &panoc_cache);
     }
 
+    #[test]
+    fn compute_fpr() {
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let mut panoc_cache = PANOCCache::new(N_DIM, 1e-6, 5);
+        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+        let mut u = [0.75, -1.4];
+        panoc_engine.init(&mut u);
+        panoc_engine.compute_fpr(&mut u);
+        assert_array_ae(
+            &[1.518846520766933, -3.547107660006376],
+            &panoc_engine.cache.fixed_point_residual,
+            1e-9,
+        );
+    }
+
 }
