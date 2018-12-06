@@ -210,6 +210,13 @@ impl FBSCache {
     /// If you need to call an optimizer more than once, perhaps with different
     /// parameters, then construct an `FBSCache` only once
     ///
+    /// This method will allocate memory for `2*n + 3` floats
+    ///
+    /// ## Panics
+    ///
+    /// This method will panic if there is no available memory for the required allocation
+    /// (capacity overflow)
+    ///
     pub fn new(n: usize, gamma: f64, tolerance: f64) -> FBSCache {
         FBSCache {
             work_gradient_u: vec![0.0; n],
@@ -355,6 +362,10 @@ where
     }
 
     /// Sets the tolerance
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified tolerance is not positive
     pub fn with_tolerance(
         &mut self,
         tolerance: f64,
@@ -609,6 +620,7 @@ where
     }
 }
 
+/// Implementation of the `step` and `init` methods of [trait.AlgorithmEngine.html]
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
@@ -616,6 +628,9 @@ where
     CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
+    /// PANOC step
+    ///
+    /// Performs a step of PANOC, including the line search
     fn step(&mut self, u_current: &mut [f64]) -> bool {
         // compute the fixed point residual
         self.compute_fpr(u_current);
@@ -628,23 +643,31 @@ where
         // compute LBFGS direction (update LBFGS buffer)
         self.lbfgs_direction(u_current);
 
-        // compute dist squared
+        // compute the right hand side of the line search
         self.compute_rhs_ls();
 
-        self.cache.tau = 1.0;
-
         // perform line search
+        self.cache.tau = 1.0;
         while self.line_search_condition() {}
         false
     }
 
+    /// Initialization of PANOC
+    ///
+    /// Computes a number of essential quantities before the start of PANOC iterations
+    ///
+    /// There include the computation of the cost and gradient of the cost at the initial
+    /// point, the computation of an initial estimation of the Lipschitz constant of the
+    /// gradient of the cost at the initial point, initial estimates for `gamma` and `sigma`,
+    /// a gradient step and a half step (projected gradient step)
+    ///
     fn init(&mut self, u_current: &mut [f64]) {
         (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
-        self.estimate_loc_lip(u_current); // computes the gradient as well
+        self.estimate_loc_lip(u_current); // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) * SIGMA_COEFF * self.cache.gamma;
-        self.gradient_step(u_current);
-        self.half_step();
+        self.gradient_step(u_current); // updated self.cache.gradient_step
+        self.half_step(); // updates self.cache.u_half_step
     }
 }
 
