@@ -84,16 +84,16 @@ where
             .project(&mut self.cache.u_half_step);
     }
 
-    fn lbfgs_direction(&mut self, u_current: &mut [f64]) {
+    fn lbfgs_direction(&mut self) {
         // update the LBFGS buffer
         self.cache
             .lbfgs
-            .update_hessian(&self.cache.gradient_u, u_current, 1.0, 1e-10);
-        // update LBFGS buffer
+            .update_hessian(&self.cache.gradient_u, &self.cache.fixed_point_residual);
+        // direction ← fpr
         self.cache
             .direction_lbfgs
             .copy_from_slice(&self.cache.fixed_point_residual);
-        // compute an LBFGS direction
+        // compute an LBFGS direction, that is direction ← H(fpr)
         self.cache
             .lbfgs
             .apply_hessian(&mut self.cache.direction_lbfgs);
@@ -152,7 +152,7 @@ where
         self.update_lipschitz_constant();
 
         // compute LBFGS direction (update LBFGS buffer)
-        self.lbfgs_direction(u_current);
+        self.lbfgs_direction();
 
         // compute the right hand side of the line search
         self.compute_rhs_ls();
