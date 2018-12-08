@@ -18,7 +18,7 @@
 
 use num::{Float, Zero};
 use std::iter::Sum;
-use std::ops::{Add, Mul};
+use std::ops::Mul;
 
 /// Calculate the inner product of two vectors
 #[inline(always)]
@@ -46,8 +46,18 @@ pub fn norm2<T>(a: &[T]) -> T
 where
     T: Float + Sum<T> + Mul<T, Output = T>,
 {
-    let norm: T = a.iter().map(|x| (*x) * (*x)).sum();
+    let norm: T = norm2_squared(a);
     norm.sqrt()
+}
+
+/// Calculate the 2-norm of a vector
+#[inline(always)]
+pub fn norm2_squared<T>(a: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
+    let norm: T = a.iter().map(|x| (*x) * (*x)).sum();
+    norm
 }
 
 /// Calculate the infinity-norm of a vector
@@ -60,6 +70,23 @@ where
         .fold(T::zero(), |current_max, x| x.abs().max(current_max))
 }
 
+/// Computes the infinity norm of the difference of two vectors
+#[inline(always)]
+pub fn norm_inf_diff<T>(a: &[T], b: &[T]) -> T
+where
+    T: Float + Zero,
+{
+    assert_eq!(a.len(), b.len());
+    a.iter()
+        .zip(b.iter())
+        .fold(T::zero(), |current_max, (x, y)| {
+            (*x - *y).abs().max(current_max)
+        })
+}
+
+/* ---------------------------------------------------------------------------- */
+/*          TESTS                                                               */
+/* ---------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -95,5 +122,23 @@ mod tests {
             matrix_operations::norm_inf(&vec![1.0, -8.0, -3.0, 0.0]),
             8.0
         );
+    }
+
+    #[test]
+    fn norm_inf_diff() {
+        let x = [1.0, 2.0, 1.0];
+        let y = [-4.0, 0.0, 3.0];
+        let norm_diff = matrix_operations::norm_inf_diff(&x, &y);
+        assert_eq!(5.0, norm_diff);
+        assert_eq!(0.0, matrix_operations::norm_inf_diff(&x, &x));
+        assert_eq!(0.0, matrix_operations::norm_inf_diff(&[], &[]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn norm_inf_diff_panic() {
+        let x = [1.0, 2.0, 3.0];
+        let y = [0.0, 3.0];
+        let _ = matrix_operations::norm_inf_diff(&x, &y);
     }
 }

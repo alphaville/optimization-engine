@@ -11,3 +11,7 @@ version = "0.1.0"
 
 [dependencies]
 num = "0.2.0"
+lbfgs = {path = "../lbfgs-rs"}
+
+[dev-dependencies]
+unit_test_utils = "*"

@@ -1,3 +1,10 @@
 /target
 **/*.rs.bk
 Cargo.lock
+.vscode/
+src/main.rs
+design/panoc-only.png
+*.m
+*.autosave
+*~
+

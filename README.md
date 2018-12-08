@@ -2,7 +2,7 @@
 
 > `panoc` is a library for solving nonlinear optimization problems, utilizing the [PANOC solver].
 > The solver only needs the cost function and gradient to be available, and the recommended way
-> to generate these functions are via [CasADi](https://web.casadi.org/) generated functions.
+> to generate these functions are via [CasADi](https://web.casadi.org/) 
 
 Active WIP.
 
@@ -17,6 +17,15 @@ Licensed under either of
 - MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
+
+## UML
+
+### FBS UML
+![fbs uml](design/fbs.png)
+
+### PANOC UML
+![panoc uml](design/panoc.png)
+
 
 ### Contribution
 
