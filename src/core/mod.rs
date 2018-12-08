@@ -5,8 +5,8 @@ use crate::constraints;
 
 pub mod fbs;
 pub mod panoc;
-mod problem;
-mod solver_status;
+pub mod problem;
+pub mod solver_status;
 
 /// Solver status
 ///

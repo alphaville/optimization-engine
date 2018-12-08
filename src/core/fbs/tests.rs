@@ -1,20 +1,11 @@
-
 use super::super::*;
 use super::*;
 use crate::constraints;
 
 const N_DIM: usize = 2;
 
-fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
-    *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
-    0
-}
-
-fn my_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
-    grad[0] = u[0] + u[1] + 1.0;
-    grad[1] = u[0] + 2. * u[1] - 1.0;
-    0
-}
+#[cfg(test)]
+use mocks::*;
 
 #[test]
 fn fbs_step_no_constraints() {
@@ -26,10 +17,17 @@ fn fbs_step_no_constraints() {
     {
         let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
         let mut u = [1.0, 3.0];
-        assert_eq!(true, fbs_engine.step(&mut u));
+        assert!(fbs_engine.step(&mut u));
         assert_eq!([0.5, 2.4], u);
+        unit_test_utils::assert_nearly_equal_array(&[0.5, 2.4], &u, 1e-10, 1e-14, "u");
     }
-    assert_eq!([1., 3.], *fbs_cache.work_u_previous);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1., 3.],
+        &fbs_cache.work_u_previous,
+        1e-10,
+        1e-14,
+        "fbs_cache.work_u_previous",
+    );
 }
 
 #[test]
@@ -43,9 +41,14 @@ fn fbs_step_ball_constraints() {
 
     let mut u = [1.0, 3.0];
 
-    assert_eq!(true, fbs_engine.step(&mut u));
-    assert!((u[0] - 0.020395425411200).abs() < 1e-14);
-    assert!((u[1] - 0.097898041973761).abs() < 1e-14);
+    assert!(fbs_engine.step(&mut u));
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.020395425411200, 0.097898041973761],
+        &u,
+        1e-8,
+        1e-14,
+        "u",
+    );
 }
 
 #[test]
@@ -62,8 +65,7 @@ fn solve_fbs() {
     let status = optimizer.solve(&mut u);
     assert!(status.has_converged());
     assert!(status.get_norm_fpr() < tolerance);
-    assert!((-0.14896 - u[0]).abs() < 1e-4);
-    assert!((0.13346 - u[1]).abs() < 1e-4);
+    unit_test_utils::assert_nearly_equal_array(&[-0.14896, 0.13346], &u, 1e-4, 1e-5, "u");
 }
 
 #[test]

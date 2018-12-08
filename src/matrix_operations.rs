@@ -46,8 +46,18 @@ pub fn norm2<T>(a: &[T]) -> T
 where
     T: Float + Sum<T> + Mul<T, Output = T>,
 {
-    let norm: T = a.iter().map(|x| (*x) * (*x)).sum();
+    let norm: T = norm2_squared(a);
     norm.sqrt()
+}
+
+/// Calculate the 2-norm of a vector
+#[inline(always)]
+pub fn norm2_squared<T>(a: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
+    let norm: T = a.iter().map(|x| (*x) * (*x)).sum();
+    norm
 }
 
 /// Calculate the infinity-norm of a vector

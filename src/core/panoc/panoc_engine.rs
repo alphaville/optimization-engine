@@ -9,6 +9,7 @@ const GAMMA_L_COEFF: f64 = 0.95;
 const SIGMA_COEFF: f64 = 0.49;
 const DELTA_LIPSCHITZ: f64 = 1e-10;
 const EPSILON_LIPSCHITZ: f64 = 1e-10;
+const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -50,7 +51,7 @@ where
         self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
     }
 
-    fn compute_fpr(&mut self, u_current: &mut [f64]) {
+    fn compute_fpr(&mut self, u_current: &[f64]) {
         // compute the FPR:
         // fpr ← (u - u_half_step) / gamma
         let gamma = self.cache.gamma;
@@ -86,9 +87,12 @@ where
 
     fn lbfgs_direction(&mut self) {
         // update the LBFGS buffer
-        self.cache
-            .lbfgs
-            .update_hessian(&self.cache.gradient_u, &self.cache.fixed_point_residual);
+        self.cache.lbfgs.update_hessian(
+            &self.cache.gradient_u,
+            &self.cache.fixed_point_residual,
+            0.,
+            0.,
+        );
         // direction ← fpr
         self.cache
             .direction_lbfgs
@@ -116,7 +120,30 @@ where
             + self.cache.norm_fpr.powi(2);
     }
 
-    fn update_lipschitz_constant(&mut self) {}
+    fn lipschitz_update(&mut self, cost_u_half_step: f64, norm_fpr_squared: f64) -> bool {
+        cost_u_half_step
+            > (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
+                - self.cache.gamma * matrix_operations::inner_product(
+                    &self.cache.gradient_u,
+                    &self.cache.fixed_point_residual,
+                )
+                + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared
+    }
+
+    fn update_lipschitz_constant(&mut self, u_current: &[f64]) {
+        let mut cost_u_half_step = 0.0;
+        (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+        let mut norm_fpr_squared = self.cache.norm_fpr.powi(2);
+        while self.lipschitz_update(cost_u_half_step, norm_fpr_squared) {
+            self.cache.lipschitz_constant *= 2.0;
+            self.cache.sigma /= 2.0;
+            self.cache.gamma /= 2.0;
+            self.gradient_step(u_current); // updated self.cache.gradient_step
+            self.half_step(); // updates self.cache.u_half_step
+            self.compute_fpr(u_current);
+            norm_fpr_squared = matrix_operations::norm2_squared(&self.cache.fixed_point_residual);
+        }
+    }
 
     fn line_search_condition(&mut self) -> bool {
         //let gamma = self.cache.gamma;
@@ -149,7 +176,7 @@ where
         }
 
         // update lipschitz constant
-        self.update_lipschitz_constant();
+        self.update_lipschitz_constant(u_current);
 
         // compute LBFGS direction (update LBFGS buffer)
         self.lbfgs_direction();
@@ -193,16 +220,6 @@ mod tests {
 
     const N_DIM: usize = 2;
 
-    fn assert_ae(x: f64, y: f64, tol: f64) {
-        assert!((x - y).abs() < tol);
-    }
-
-    fn assert_array_ae(x: &[f64], y: &[f64], tol: f64) {
-        x.iter()
-            .zip(y.iter())
-            .for_each(|(xi, yi)| assert!((*xi - *yi).abs() < tol));
-    }
-
     fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
         *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
         0
@@ -224,28 +241,58 @@ mod tests {
             let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
             let mut u = [0.75, -1.4];
             panoc_engine.init(&mut u);
-            assert_ae(
+            unit_test_utils::assert_nearly_equal(
                 2.549509967743775,
                 panoc_engine.cache.lipschitz_constant,
+                1e-4,
                 1e-10,
+                "lipschitz",
             );
-            assert_ae(0.372620625931781, panoc_engine.cache.gamma, 1e-10);
-            assert_ae(0.009129205335329, panoc_engine.cache.sigma, 1e-10);
-            assert_ae(6.34125, panoc_engine.cache.cost_value, 1e-10);
-            assert_array_ae(&[0.35, -3.05], &panoc_engine.cache.gradient_u, 1e-10);
-            assert_array_ae(
+            unit_test_utils::assert_nearly_equal(
+                0.372620625931781,
+                panoc_engine.cache.gamma,
+                1e-4,
+                1e-10,
+                "gamma",
+            );
+            unit_test_utils::assert_nearly_equal(
+                0.009129205335329,
+                panoc_engine.cache.sigma,
+                1e-4,
+                1e-10,
+                "sigma",
+            );
+            unit_test_utils::assert_nearly_equal(
+                6.34125,
+                panoc_engine.cache.cost_value,
+                1e-4,
+                1e-10,
+                "cost value",
+            );
+            unit_test_utils::assert_nearly_equal_array(
+                &[0.35, -3.05],
+                &panoc_engine.cache.gradient_u,
+                1e-4,
+                1e-10,
+                "gradient at u",
+            );
+            unit_test_utils::assert_nearly_equal_array(
                 &[0.619582780923877, -0.263507090908068],
                 &panoc_engine.cache.gradient_step,
+                1e-4,
                 1e-10,
+                "gradient step",
             );
 
-            assert_array_ae(
+            unit_test_utils::assert_nearly_equal_array(
                 &[0.184046458737518, -0.078274523481010],
                 &panoc_engine.cache.u_half_step,
+                1e-3,
                 1e-8,
+                "u_half_step",
             );
 
-            assert_array_ae(&[0.75, -1.4], &u, 1e-9);
+            unit_test_utils::assert_nearly_equal_array(&[0.75, -1.4], &u, 1e-4, 1e-9, "u");
         }
         println!("cache = {:#?}", &panoc_cache);
     }
@@ -260,10 +307,12 @@ mod tests {
         let mut u = [0.75, -1.4];
         panoc_engine.init(&mut u);
         panoc_engine.compute_fpr(&mut u);
-        assert_array_ae(
+        unit_test_utils::assert_nearly_equal_array(
             &[1.518846520766933, -3.547107660006376],
             &panoc_engine.cache.fixed_point_residual,
+            1e-4,
             1e-9,
+            "fpr",
         );
     }
 }

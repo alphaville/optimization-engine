@@ -10,6 +10,7 @@
 //! and `epsilon` are small numbers.
 //!
 
+use matrix_operations;
 pub struct LipschitzEstimator<'a, F>
 where
     F: Fn(&[f64], &mut [f64]) -> i32 + 'a,
@@ -30,14 +31,6 @@ where
     function: &'a F,
     epsilon_lip: f64,
     delta_lip: f64,
-}
-
-#[inline(always)]
-fn norm2(a: &[f64]) -> f64 {
-    a.iter()
-        .map(|&x: &f64| -> f64 { x * x })
-        .sum::<f64>()
-        .sqrt()
 }
 
 impl<'a, F> LipschitzEstimator<'a, F>
@@ -156,7 +149,7 @@ where
                     delta_lip
                 }
             });
-        let norm_h = norm2(&self.workspace);
+        let norm_h = matrix_operations::norm2(&self.workspace);
 
         // u += workspace
         // u = u + h
@@ -174,7 +167,7 @@ where
             .zip(self.function_value_at_u.iter())
             .for_each(|(out, a)| *out -= *a);
 
-        let norm_workspace = norm2(&self.workspace);
+        let norm_workspace = matrix_operations::norm2(&self.workspace);
         norm_workspace / norm_h
     }
 }
@@ -183,23 +176,24 @@ where
 mod tests {
 
     use super::*;
-
-    fn my_function(u: &[f64], g: &mut [f64]) -> i32 {
-        g[0] = 3.0 * u[0];
-        g[1] = 2.0 * u[1];
-        g[2] = 4.5;
-        0
-    }
+    use mocks;
 
     #[test]
     fn test_lip_delta_epsilon_0() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
         let mut function_value = [0.0; 3];
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { my_function(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
         let mut lip_estimator = LipschitzEstimator::new(&mut u, &f, &mut function_value);
         lip_estimator.with_delta(1e-4).with_epsilon(1e-4);
         let lip = lip_estimator.estimate_local_lipschitz();
-        assert!((1.336306209562331 - lip).abs() < 1e-12);
+        unit_test_utils::assert_nearly_equal(
+            1.336306209562331,
+            lip,
+            1e-10,
+            1e-14,
+            "lipschitz constant",
+        );
+
         println!("Lx = {}", lip);
     }
 
@@ -208,7 +202,8 @@ mod tests {
     fn test_lip_delta_epsilon_panic1() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
         let mut function_value = [0.0; 3];
-        let mut lip_estimator = LipschitzEstimator::new(&mut u, &my_function, &mut function_value);
+        let mut lip_estimator =
+            LipschitzEstimator::new(&mut u, &mocks::lipschitz_mock, &mut function_value);
         lip_estimator.with_epsilon(0.0);
     }
 
@@ -217,28 +212,26 @@ mod tests {
     fn test_lip_delta_epsilon_panic2() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
         let mut function_value = [0.0; 3];
-        let mut lip_estimator = LipschitzEstimator::new(&mut u, &my_function, &mut function_value);
+        let mut lip_estimator =
+            LipschitzEstimator::new(&mut u, &mocks::lipschitz_mock, &mut function_value);
         lip_estimator.with_epsilon(0.0);
     }
 
     #[test]
     fn test_lip_estimator_mock() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { my_function(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
         let mut function_value = [0.0; 3];
         let mut lip_estimator = LipschitzEstimator::new(&mut u, &f, &mut function_value);
         let lip = lip_estimator.estimate_local_lipschitz();
-        assert!((1.3363062094165823 - lip).abs() < 1e-4);
+        unit_test_utils::assert_nearly_equal(
+            1.3363062094165823,
+            lip,
+            1e-8,
+            1e-14,
+            "lipschitz constant",
+        );
         println!("L_mock = {}", lip);
-    }
-
-    #[test]
-    fn test_norm() {
-        // Rust allows to test private functions! Awesome!
-        let p = [1.0, 2.0, 3.0];
-        let norm_p = norm2(&p);
-        println!("norm(p) = {}", norm_p);
-        assert!((3.741657386773941 - norm_p).abs() < 1e-12);
     }
 
     #[test]
@@ -246,10 +239,17 @@ mod tests {
         let u: [f64; 10] = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
         let mut function_value = [0.0; 10];
         let mut u_copy = u.clone();
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { my_function(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
         let mut lip_estimator = LipschitzEstimator::new(&mut u_copy, &f, &mut function_value);
         {
             let computed_gradient = lip_estimator.get_function_value();
+            unit_test_utils::assert_nearly_equal_array(
+                &[0.0; 10],
+                &computed_gradient,
+                1e-10,
+                1e-14,
+                "computed gradient",
+            );
             computed_gradient
                 .iter()
                 .for_each(|&s| assert_eq!(s, 0.0_f64));
@@ -261,9 +261,12 @@ mod tests {
         let mut actual_gradient = [0.0; 10];
         f(&u, &mut actual_gradient);
 
-        computed_gradient
-            .iter()
-            .zip(actual_gradient.iter())
-            .for_each(|(a, b)| assert_eq!(a, b));
+        unit_test_utils::assert_nearly_equal_array(
+            &computed_gradient,
+            &actual_gradient,
+            1e-10,
+            1e-14,
+            "computed/actual gradient",
+        );
     }
 }

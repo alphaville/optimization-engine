@@ -30,33 +30,30 @@ pub mod matrix_operations;
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
 #[cfg(test)]
+mod mocks;
 mod tests {
-    use crate::constraints;
-    use crate::core::fbs::*;
-    use crate::core::*;
 
-    fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
-        *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
-        0
-    }
+    #[allow(unused_imports)]
+    use super::*;
 
-    fn my_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
-        grad[0] = u[0] + u[1] + 1.0;
-        grad[1] = u[0] + 2. * u[1] - 1.0;
-        0
-    }
+    #[allow(unused_imports)]
+    use core::Optimizer;
 
     #[test]
     fn access() {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let problem = core::Problem::new(
+            box_constraints,
+            super::mocks::my_gradient,
+            super::mocks::my_cost,
+        );
         let gamma = 0.1;
         let tolerance = 1e-6;
-        let mut fbs_cache = FBSCache::new(2, gamma, tolerance);
-        let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
+        let mut fbs_cache = core::fbs::FBSCache::new(2, gamma, tolerance);
+        let mut fbs_engine = core::fbs::FBSEngine::new(problem, &mut fbs_cache);
         let mut u = [0.0; 2];
-        let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
+        let mut optimizer = core::fbs::FBSOptimizer::new(&mut fbs_engine);
         let status = optimizer.solve(&mut u);
         assert!(status.has_converged());
         assert!(status.get_norm_fpr() < tolerance);
