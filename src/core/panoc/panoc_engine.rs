@@ -44,8 +44,7 @@ where
             u,
             &self.problem.gradf,
             &mut self.cache.gradient_u,
-        )
-        .with_delta(DELTA_LIPSCHITZ)
+        ).with_delta(DELTA_LIPSCHITZ)
         .with_epsilon(EPSILON_LIPSCHITZ);
         self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
     }
@@ -119,11 +118,10 @@ where
     fn lipschitz_update(&mut self, cost_u_half_step: f64, norm_fpr_squared: f64) -> bool {
         cost_u_half_step
             > (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-                - self.cache.gamma
-                    * matrix_operations::inner_product(
-                        &self.cache.gradient_u,
-                        &self.cache.fixed_point_residual,
-                    )
+                - self.cache.gamma * matrix_operations::inner_product(
+                    &self.cache.gradient_u,
+                    &self.cache.fixed_point_residual,
+                )
                 + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared
     }
 
@@ -142,9 +140,28 @@ where
         }
     }
 
-    fn line_search_condition(&mut self) -> bool {
-        //let gamma = self.cache.gamma;
-        //let tau = self.cache.tau;
+    fn line_search_condition(&mut self, u: &[f64]) -> bool {
+        let gamma = self.cache.gamma;
+        let mut tau = self.cache.tau;
+        // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
+        let temp_ = (1.0 - tau) * gamma;
+        self.cache
+            .u_plus
+            .iter_mut()
+            .zip(u.iter())
+            .zip(self.cache.fixed_point_residual.iter())
+            .zip(self.cache.direction_lbfgs.iter())
+            .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
+                *u_plus_i = u_i + temp_ * fpr_i + tau * dir_i;
+            });
+        // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten
+        // with the values of the cost and its gradient at the next (candidate)
+        // point `u_plus`
+        (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
+        (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
+        self.gradient_step(self.cache.u_plus);
+        self.half_step();
+        // !!! WIP !!!
         false
     }
 }
@@ -183,7 +200,7 @@ where
 
         // perform line search
         self.cache.tau = 1.0;
-        while self.line_search_condition() {}
+        while self.line_search_condition(&u_current) {}
         false
     }
 
@@ -212,28 +229,17 @@ where
 #[cfg(test)]
 mod tests {
 
-    use super::super::*;
     use super::*;
+    use crate::mocks;
     use std::num::NonZeroUsize;
 
     const N_DIM: usize = 2;
-
-    fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
-        *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
-        0
-    }
-
-    fn my_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
-        grad[0] = u[0] + u[1] + 1.0;
-        grad[1] = u[0] + 2. * u[1] - 1.0;
-        0
-    }
 
     #[test]
     fn panoc_init() {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(N_DIM).unwrap(),
             1e-6,
@@ -304,7 +310,7 @@ mod tests {
     fn compute_fpr() {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(N_DIM).unwrap(),
             1e-6,
