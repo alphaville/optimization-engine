@@ -44,7 +44,8 @@ where
             u,
             &self.problem.gradf,
             &mut self.cache.gradient_u,
-        ).with_delta(DELTA_LIPSCHITZ)
+        )
+        .with_delta(DELTA_LIPSCHITZ)
         .with_epsilon(EPSILON_LIPSCHITZ);
         self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
     }
@@ -95,11 +96,11 @@ where
             .project(&mut self.cache.u_half_step);
     }
 
-    fn lbfgs_direction(&mut self) {
+    fn lbfgs_direction(&mut self, u_current: &[f64]) {
         // update the LBFGS buffer
         self.cache
             .lbfgs
-            .update_hessian(&self.cache.gradient_u, &self.cache.fixed_point_residual);
+            .update_hessian(&self.cache.fixed_point_residual, u_current);
         // direction ← fpr
         self.cache
             .direction_lbfgs
@@ -130,10 +131,11 @@ where
     fn lipschitz_update(&mut self, cost_u_half_step: f64, norm_fpr_squared: f64) -> bool {
         cost_u_half_step
             > (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-                - self.cache.gamma * matrix_operations::inner_product(
-                    &self.cache.gradient_u,
-                    &self.cache.fixed_point_residual,
-                )
+                - self.cache.gamma
+                    * matrix_operations::inner_product(
+                        &self.cache.gradient_u,
+                        &self.cache.fixed_point_residual,
+                    )
                 + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared
     }
 
@@ -156,6 +158,9 @@ where
         let gamma = self.cache.gamma;
         let tau = self.cache.tau;
         // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
+        // Important Note: Method `lbfgs_direction` computes the direction Hk*fpr, but we
+        // need Hk*(-fpr). Essentially, it computes the negative of the desired direction.
+        // This is why in the code below we use `- tau * dir_i` (instead of `+ tau * dir_i`)
         let temp_ = (1.0 - tau) * gamma;
         self.cache
             .u_plus
@@ -164,7 +169,7 @@ where
             .zip(self.cache.fixed_point_residual.iter())
             .zip(self.cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
-                *u_plus_i = u_i + temp_ * fpr_i + tau * dir_i;
+                *u_plus_i = u_i + temp_ * fpr_i - tau * dir_i;
             });
         // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten
         // with the values of the cost and its gradient at the next (candidate)
@@ -231,7 +236,7 @@ where
         self.update_lipschitz_constant(u_current);
 
         // compute LBFGS direction (update LBFGS buffer)
-        self.lbfgs_direction();
+        self.lbfgs_direction(u_current);
 
         // compute the right hand side of the line search
         self.compute_rhs_ls();
@@ -243,7 +248,7 @@ where
         }
 
         self.swap_u_plus(u_current);
-        false
+        true
     }
 
     /// Initialization of PANOC
@@ -369,5 +374,36 @@ mod tests {
             1e-9,
             "fpr",
         );
+    }
+
+    #[test]
+    fn wild_test_panoc() {
+        // NOTE: this test is work in progress!!!
+        let radius = 0.2;
+        let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let mut panoc_cache = PANOCCache::new(
+            NonZeroUsize::new(N_DIM).unwrap(),
+            1e-10,
+            NonZeroUsize::new(5).unwrap(),
+        );
+        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+
+        let mut u = [0.75, -1.4];
+        panoc_engine.init(&mut u);
+        panoc_engine.step(&mut u);
+        let fpr0 = panoc_engine.cache.norm_fpr;
+        println!("fpr0 = {}", fpr0);
+        for _i in 1..10 {
+            println!("------------------------------------------------------");
+            panoc_engine.step(&mut u);
+            println!("fpr = {}", panoc_engine.cache.norm_fpr);
+            println!("fpr/fpr0 = {}", panoc_engine.cache.norm_fpr / fpr0);
+            println!("L = {}", panoc_engine.cache.lipschitz_constant);
+            println!("gamma = {}", panoc_engine.cache.gamma);
+            println!("tau = {}", panoc_engine.cache.tau);
+            println!("lbfgs = {:.4?}", panoc_engine.cache.direction_lbfgs);
+            println!("u = {:.4?}", u);
+        }
     }
 }

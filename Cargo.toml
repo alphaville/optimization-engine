@@ -1,5 +1,5 @@
 [package]
-authors = ["Emil Fresk <emil.fresk@gmail.com>"]
+authors = ["Emil Fresk <emil.fresk@gmail.com>", "Pantelis Sopasakis (https://alphaville.github.io)"]
 categories = ["embedded", "nonlinear", "optimization"]
 keywords = ["embedded", "optimization", "solver"]
 description = "A Rust implementation of the PANOC nonlinear optimization solver"
@@ -11,7 +11,7 @@ version = "0.1.0"
 
 [dependencies]
 num = "0.2.0"
-lbfgs = {git = "https://github.com/korken89/lbfgs-rs.git"}
+lbfgs = {git = "https://github.com/korken89/lbfgs-rs", branch="master"}
 
 [dev-dependencies]
 unit_test_utils = "*"
