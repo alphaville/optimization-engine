@@ -6,12 +6,12 @@ use std::num::NonZeroUsize;
 const N_DIM: usize = 2;
 
 #[cfg(test)]
-use mocks::*;
+use crate::mocks;
 
 #[test]
 fn fbs_step_no_constraints() {
     let no_constraints = constraints::NoConstraints::new();
-    let problem = Problem::new(no_constraints, my_gradient, my_cost);
+    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -36,7 +36,7 @@ fn fbs_step_no_constraints() {
 #[test]
 fn fbs_step_ball_constraints() {
     let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
-    let problem = Problem::new(no_constraints, my_gradient, my_cost);
+    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -59,7 +59,7 @@ fn fbs_step_ball_constraints() {
 fn solve_fbs() {
     let radius = 0.2;
     let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-    let problem = Problem::new(box_constraints, my_gradient, my_cost);
+    let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -73,7 +73,7 @@ fn solve_fbs() {
     assert!(status.has_converged());
     assert!(status.get_norm_fpr() < tolerance);
 
-    unit_test_utils::assert_nearly_equal_array(&[-0.14896, 0.13346], &u, 1e-4, 1e-5, "u");
+    unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION, &u, 1e-4, 1e-5, "u");
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn solve_fbs_many_times() {
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
 
         // The problem is surely update at every execution of NMPC
-        let problem = Problem::new(box_constraints, my_gradient, my_cost);
+        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
 
         // Construct a new Engine; this does not allocate any memory
         let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);

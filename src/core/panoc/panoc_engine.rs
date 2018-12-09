@@ -384,7 +384,7 @@ mod tests {
         let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(N_DIM).unwrap(),
-            1e-10,
+            1e-16,
             NonZeroUsize::new(5).unwrap(),
         );
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
@@ -394,16 +394,26 @@ mod tests {
         panoc_engine.step(&mut u);
         let fpr0 = panoc_engine.cache.norm_fpr;
         println!("fpr0 = {}", fpr0);
-        for _i in 1..10 {
-            println!("------------------------------------------------------");
-            panoc_engine.step(&mut u);
-            println!("fpr = {}", panoc_engine.cache.norm_fpr);
-            println!("fpr/fpr0 = {}", panoc_engine.cache.norm_fpr / fpr0);
-            println!("L = {}", panoc_engine.cache.lipschitz_constant);
-            println!("gamma = {}", panoc_engine.cache.gamma);
-            println!("tau = {}", panoc_engine.cache.tau);
-            println!("lbfgs = {:.4?}", panoc_engine.cache.direction_lbfgs);
-            println!("u = {:.4?}", u);
+
+        for i in 1..200 {
+            println!("----------------------------------------------------");
+            if !panoc_engine.step(&mut u) {
+                break;
+            }
+            println!("iter      = {}", i);
+            println!("fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
+            println!("fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
+            println!("L         = {:.3}", panoc_engine.cache.lipschitz_constant);
+            println!("gamma     = {:.3}", panoc_engine.cache.gamma);
+            println!("tau       = {:.3}", panoc_engine.cache.tau);
+            println!("lbfgs dir = {:.11?}", panoc_engine.cache.direction_lbfgs);
+            println!("u         = {:.14?}", u);
+            assert!(
+                panoc_engine.cache.lhs_ls <= panoc_engine.cache.rhs_ls,
+                "LS violation"
+            );
         }
+        assert!(panoc_engine.cache.norm_fpr < 1e-10);
+        unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION, &u, 1e-4, 1e-5, "u");
     }
 }
