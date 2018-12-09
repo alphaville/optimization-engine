@@ -9,7 +9,7 @@ const GAMMA_L_COEFF: f64 = 0.95;
 const SIGMA_COEFF: f64 = 0.49;
 const DELTA_LIPSCHITZ: f64 = 1e-10;
 const EPSILON_LIPSCHITZ: f64 = 1e-10;
-const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
+const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-10;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -129,28 +129,42 @@ where
     }
 
     fn lipschitz_update(&mut self, cost_u_half_step: f64, norm_fpr_squared: f64) -> bool {
-        cost_u_half_step
-            > (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-                - self.cache.gamma
-                    * matrix_operations::inner_product(
-                        &self.cache.gradient_u,
-                        &self.cache.fixed_point_residual,
-                    )
-                + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared
+        println!("COST U HALF STEP REC = {}", cost_u_half_step);
+        println!("||FPR||^2 REC = {}", norm_fpr_squared);
+        let rhs = (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
+            - self.cache.gamma
+                * matrix_operations::inner_product(
+                    &self.cache.gradient_u,
+                    &self.cache.fixed_point_residual,
+                )
+            + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared;
+        cost_u_half_step > rhs
     }
 
     fn update_lipschitz_constant(&mut self, u_current: &[f64]) {
         let mut cost_u_half_step = 0.0;
+        println!("HERE U half = {:?}", self.cache.u_half_step);
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
         let mut norm_fpr_squared = self.cache.norm_fpr.powi(2);
-        while self.lipschitz_update(cost_u_half_step, norm_fpr_squared) {
-            self.cache.lipschitz_constant *= 2.0;
-            self.cache.sigma /= 2.0;
-            self.cache.gamma /= 2.0;
-            self.gradient_step(u_current); // updated self.cache.gradient_step
+        let mut it = 0;
+        while self.lipschitz_update(cost_u_half_step, norm_fpr_squared)
+            && it < 10
+            && self.cache.lipschitz_constant < 10000.0
+        {
+            println!(".");
+            self.cache.lipschitz_constant *= 2.;
+            self.cache.sigma /= 2.;
+            self.cache.gamma /= 2.;
+            self.gradient_step(u_current); // updates self.cache.gradient_step
             self.half_step(); // updates self.cache.u_half_step
             self.compute_fpr(u_current);
+            (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+            println!("u_half_step --> {:?}", &self.cache.u_half_step);
+            println!("cost_u_half_step --> {}", cost_u_half_step);
+            println!("fpr --> {:?}", self.cache.fixed_point_residual);
+            println!("COST U HALF STEP = {}", cost_u_half_step);
             norm_fpr_squared = matrix_operations::norm2_squared(&self.cache.fixed_point_residual);
+            it = it + 1;
         }
     }
 
@@ -261,6 +275,10 @@ where
     /// a gradient step and a half step (projected gradient step)
     ///
     fn init(&mut self, u_current: &mut [f64]) {
+        // TENTATIVE: It's good to take a projection on the initial guess; it's likely
+        // that the user will provide a bad initial estimate. If it's slightly infeasible,
+        // it will not be perturbed much (this is tentative!)
+        self.problem.constraints.project(u_current);
         (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
         self.estimate_loc_lip(u_current); // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
@@ -295,7 +313,7 @@ mod tests {
 
         {
             let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-            let mut u = [0.75, -1.4];
+            let mut u = [0.1, 0.05];
             panoc_engine.init(&mut u);
             unit_test_utils::assert_nearly_equal(
                 2.549509967743775,
@@ -378,42 +396,51 @@ mod tests {
 
     #[test]
     fn wild_test_panoc() {
+        let a_rosenbrock = 1.;
+        let b_rosenbrock = 10.;
         // NOTE: this test is work in progress!!!
-        let radius = 0.2;
+        let f = |u: &[f64], cost: &mut f64| -> i32 {
+            *cost = mocks::rosenbrock_cost(a_rosenbrock, b_rosenbrock, u);
+            0
+        };
+        let gradf = |u: &[f64], grad: &mut [f64]| -> i32 {
+            mocks::rosenbrock_grad(a_rosenbrock, b_rosenbrock, u, grad);
+            0
+        };
+
+        let radius = 0.5;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let problem = Problem::new(box_constraints, gradf, f);
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(N_DIM).unwrap(),
-            1e-16,
+            1e-7,
             NonZeroUsize::new(5).unwrap(),
         );
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-        let mut u = [0.75, -1.4];
+        let mut u = [-0.2, 0.0];
         panoc_engine.init(&mut u);
         panoc_engine.step(&mut u);
         let fpr0 = panoc_engine.cache.norm_fpr;
         println!("fpr0 = {}", fpr0);
 
-        for i in 1..200 {
+        for i in 1..5 {
             println!("----------------------------------------------------");
-            if !panoc_engine.step(&mut u) {
-                break;
-            }
-            println!("iter      = {}", i);
-            println!("fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
-            println!("fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
-            println!("L         = {:.3}", panoc_engine.cache.lipschitz_constant);
-            println!("gamma     = {:.3}", panoc_engine.cache.gamma);
-            println!("tau       = {:.3}", panoc_engine.cache.tau);
-            println!("lbfgs dir = {:.11?}", panoc_engine.cache.direction_lbfgs);
-            println!("u         = {:.14?}", u);
+            println!("> iter      = {}", i);
+            println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
+            println!("> fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
+            println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
+            println!("> gamma     = {:.3}", panoc_engine.cache.gamma);
+            println!("> tau       = {:.3}", panoc_engine.cache.tau);
+            println!("> lbfgs dir = {:.11?}", panoc_engine.cache.direction_lbfgs);
+            println!("> u         = {:.14?}", u);
             assert!(
                 panoc_engine.cache.lhs_ls <= panoc_engine.cache.rhs_ls,
                 "LS violation"
             );
+            if !panoc_engine.step(&mut u) {
+                break;
+            }
         }
-        assert!(panoc_engine.cache.norm_fpr < 1e-10);
-        unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION, &u, 1e-4, 1e-5, "u");
     }
 }

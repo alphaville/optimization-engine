@@ -17,3 +17,12 @@ pub fn lipschitz_mock(u: &[f64], g: &mut [f64]) -> i32 {
         g[2] = 4.5;
         0
 }
+
+pub fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
+        (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
+}
+
+pub fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
+        grad[1] = 2.0 * b * (u[1] - u[0].powi(2));
+        grad[0] = 2.0 * (a - u[0]) + 4.0 * b * u[0] * (u[1] - u[0].powi(2)).powi(2);
+}
