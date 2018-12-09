@@ -14,9 +14,9 @@ const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     /// Construct a new Engine for PANOC
     ///
@@ -44,10 +44,9 @@ where
             u,
             &self.problem.gradf,
             &mut self.cache.gradient_u,
-        );
-        lipest
-            .with_delta(DELTA_LIPSCHITZ)
-            .with_epsilon(EPSILON_LIPSCHITZ);
+        )
+        .with_delta(DELTA_LIPSCHITZ)
+        .with_epsilon(EPSILON_LIPSCHITZ);
         self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
     }
 
@@ -87,12 +86,9 @@ where
 
     fn lbfgs_direction(&mut self) {
         // update the LBFGS buffer
-        self.cache.lbfgs.update_hessian(
-            &self.cache.gradient_u,
-            &self.cache.fixed_point_residual,
-            0.,
-            0.,
-        );
+        self.cache
+            .lbfgs
+            .update_hessian(&self.cache.gradient_u, &self.cache.fixed_point_residual);
         // direction ← fpr
         self.cache
             .direction_lbfgs
@@ -123,10 +119,11 @@ where
     fn lipschitz_update(&mut self, cost_u_half_step: f64, norm_fpr_squared: f64) -> bool {
         cost_u_half_step
             > (1. + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-                - self.cache.gamma * matrix_operations::inner_product(
-                    &self.cache.gradient_u,
-                    &self.cache.fixed_point_residual,
-                )
+                - self.cache.gamma
+                    * matrix_operations::inner_product(
+                        &self.cache.gradient_u,
+                        &self.cache.fixed_point_residual,
+                    )
                 + 0.5 * self.cache.lipschitz_constant * self.cache.gamma.powi(2) * norm_fpr_squared
     }
 
@@ -156,9 +153,9 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     /// PANOC step
     ///
@@ -217,6 +214,7 @@ mod tests {
 
     use super::super::*;
     use super::*;
+    use std::num::NonZeroUsize;
 
     const N_DIM: usize = 2;
 
@@ -236,7 +234,12 @@ mod tests {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
         let problem = Problem::new(box_constraints, my_gradient, my_cost);
-        let mut panoc_cache = PANOCCache::new(N_DIM, 1e-6, 5);
+        let mut panoc_cache = PANOCCache::new(
+            NonZeroUsize::new(N_DIM).unwrap(),
+            1e-6,
+            NonZeroUsize::new(5).unwrap(),
+        );
+
         {
             let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
             let mut u = [0.75, -1.4];
@@ -302,7 +305,11 @@ mod tests {
         let radius = 0.2;
         let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
         let problem = Problem::new(box_constraints, my_gradient, my_cost);
-        let mut panoc_cache = PANOCCache::new(N_DIM, 1e-6, 5);
+        let mut panoc_cache = PANOCCache::new(
+            NonZeroUsize::new(N_DIM).unwrap(),
+            1e-6,
+            NonZeroUsize::new(5).unwrap(),
+        );
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
         let mut u = [0.75, -1.4];
         panoc_engine.init(&mut u);

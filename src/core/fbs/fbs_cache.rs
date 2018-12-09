@@ -1,6 +1,7 @@
 //! FBS Cache
 //!
 use super::FBSCache;
+use std::num::NonZeroUsize;
 
 impl FBSCache {
     /// Construct a new instance of `FBSCache`
@@ -26,10 +27,10 @@ impl FBSCache {
     /// This method will panic if there is no available memory for the required allocation
     /// (capacity overflow)
     ///
-    pub fn new(n: usize, gamma: f64, tolerance: f64) -> FBSCache {
+    pub fn new(n: NonZeroUsize, gamma: f64, tolerance: f64) -> FBSCache {
         FBSCache {
-            work_gradient_u: vec![0.0; n],
-            work_u_previous: vec![0.0; n],
+            work_gradient_u: vec![0.0; n.get()],
+            work_u_previous: vec![0.0; n.get()],
             gamma: gamma,
             tolerance: tolerance,
             norm_fpr: std::f64::INFINITY,

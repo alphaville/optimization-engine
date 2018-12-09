@@ -12,6 +12,7 @@
 //! use panoc_rs::core::{Problem,Optimizer};
 //! use panoc_rs::core::fbs::{FBSCache,FBSEngine,FBSOptimizer};
 //! use panoc_rs::constraints::Ball2;
+//! use std::num::NonZeroUsize;
 //!
 //! fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
 //!     *cost = u[0] * u[0] + 2. * u[1] * u[1] + u[0] - u[1] + 3.0;
@@ -30,11 +31,14 @@
 //!     let problem = Problem::new(box_constraints, my_gradient, my_cost);
 //!     let gamma = 0.3;
 //!     let tolerance = 1e-6;
-//!     let mut fbs_cache = FBSCache::new(2, gamma, tolerance);
+//!
+//!     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
 //!     let mut fbs_step = FBSEngine::new(problem, &mut fbs_cache);
 //!     let mut u = [0.0; 2];
 //!     let mut optimizer = FBSOptimizer::new(&mut fbs_step);
+//!
 //!     let status = optimizer.solve(&mut u);
+//!
 //!     assert!(status.has_converged());
 //! }
 //! ```
@@ -60,9 +64,9 @@ pub struct FBSCache {
 ///
 pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     problem: Problem<GradientType, ConstraintType, CostType>,
     cache: &'a mut FBSCache,
@@ -80,9 +84,9 @@ where
 ///
 pub struct FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     fbs_engine: &'a mut FBSEngine<'a, GradientType, ConstraintType, CostType>,
     max_iter: usize,

@@ -12,9 +12,9 @@ const MAX_ITER: usize = 100_usize;
 impl<'a, GradientType, ConstraintType, CostType>
     FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     pub fn new(
         fbs_engine: &'a mut FBSEngine<'a, GradientType, ConstraintType, CostType>,
@@ -35,6 +35,7 @@ where
         tolerance: f64,
     ) -> &mut FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
         assert!(tolerance > 0.0);
+
         self.fbs_engine.cache.tolerance = tolerance;
         self
     }
@@ -65,11 +66,13 @@ where
 
         // cost at the solution
         let mut cost_value = 0.0;
+
         assert_eq!(
             0,
             (self.fbs_engine.problem.cost)(u, &mut cost_value),
             "The computation of the cost value at the solution failed"
         );
+
         // export solution status
         SolverStatus::new(
             num_iter < self.max_iter,
