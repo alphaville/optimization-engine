@@ -73,6 +73,18 @@ where
             .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
     }
 
+    fn gradient_step_uplus(&mut self) {
+        // take a gradient step:
+        // gradient_step ← u_current - gamma * gradient
+        let gamma = self.cache.gamma;
+        self.cache
+            .gradient_step
+            .iter_mut()
+            .zip(self.cache.u_plus.iter())
+            .zip(self.cache.gradient_u.iter())
+            .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
+    }
+
     fn half_step(&mut self) {
         // u_half_step ← projection(gradient_step)
         self.cache
@@ -142,7 +154,7 @@ where
 
     fn line_search_condition(&mut self, u: &[f64]) -> bool {
         let gamma = self.cache.gamma;
-        let mut tau = self.cache.tau;
+        let tau = self.cache.tau;
         // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
         let temp_ = (1.0 - tau) * gamma;
         self.cache
@@ -159,10 +171,29 @@ where
         // point `u_plus`
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
-        self.gradient_step(self.cache.u_plus);
-        self.half_step();
-        // !!! WIP !!!
-        false
+
+        self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
+        self.half_step(); // u_half_step ← project(gradient_step)
+
+        // Compute: dist_squared ← norm(gradient_step - u_half_step)^2
+        let dist_squared = matrix_operations::norm2_squared_diff(
+            &self.cache.gradient_step,
+            &self.cache.u_half_step,
+        );
+
+        // Update the LHS of the line search condition
+        self.cache.lhs_ls = self.cache.cost_value
+            - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
+            + dist_squared;
+
+        self.cache.lhs_ls > self.cache.rhs_ls
+    }
+
+    fn swap_u_plus(&mut self, u_current: &mut [f64]) {
+        u_current
+            .iter_mut()
+            .zip(self.cache.u_plus.iter())
+            .for_each(|(ui, &uplusi)| *ui = uplusi);
     }
 }
 
@@ -177,6 +208,13 @@ where
     /// PANOC step
     ///
     /// Performs a step of PANOC, including the line search
+    ///
+    /// ## Arguments
+    ///
+    /// - `u_current` on entry is the current iterate; on exit, it is updated with the next
+    ///   iterate of PANOC
+    ///
+    ///
     fn step(&mut self, u_current: &mut [f64]) -> bool {
         // compute the fixed point residual
         self.compute_fpr(u_current);
@@ -200,7 +238,11 @@ where
 
         // perform line search
         self.cache.tau = 1.0;
-        while self.line_search_condition(&u_current) {}
+        while self.line_search_condition(u_current) {
+            self.cache.tau /= 2.0;
+        }
+
+        self.swap_u_plus(u_current);
         false
     }
 

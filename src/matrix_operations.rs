@@ -50,6 +50,18 @@ where
     norm.sqrt()
 }
 
+/// Calculate the squared 2-norm of the difference of two vectors
+#[inline(always)]
+pub fn norm2_squared_diff<T>(a: &[T], b: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T> + std::ops::AddAssign,
+{
+    a.iter().zip(b.iter()).fold(T::zero(), |mut sum, (&x, &y)| {
+        sum += (x - y).powi(2);
+        sum
+    })
+}
+
 /// Calculate the 2-norm of a vector
 #[inline(always)]
 pub fn norm2_squared<T>(a: &[T]) -> T
@@ -140,5 +152,13 @@ mod tests {
         let x = [1.0, 2.0, 3.0];
         let y = [0.0, 3.0];
         let _ = matrix_operations::norm_inf_diff(&x, &y);
+    }
+
+    #[test]
+    fn norm2_squared_diff_test() {
+        let x = [2.0, 5.0, 7.0, -1.0];
+        let y = [4.0, 1.0, 0.0, 10.0];
+        let norm2sq = matrix_operations::norm2_squared_diff(&x, &y);
+        unit_test_utils::assert_nearly_equal(190., norm2sq, 1e-10, 1e-12, "norm sq diff");
     }
 }
