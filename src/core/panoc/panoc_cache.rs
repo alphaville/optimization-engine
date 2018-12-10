@@ -46,6 +46,7 @@ impl PANOCCache {
             lipschitz_constant: 0.0,
             sigma: 0.0,
             cost_value: 0.0,
+            iteration: 0,
         }
     }
 }

@@ -91,7 +91,7 @@ fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
     println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
     println!("> fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
     println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
-    println!("> gamma     = {:.3}", panoc_engine.cache.gamma);
+    println!("> gamma     = {:.10}", panoc_engine.cache.gamma);
     println!("> tau       = {:.3}", panoc_engine.cache.tau);
     println!("> lbfgs dir = {:.11?}", panoc_engine.cache.direction_lbfgs);
 }
@@ -129,7 +129,7 @@ fn test_panoc_basic() {
 
 #[test]
 fn test_panoc_hard() {
-    let bounds = constraints::Ball2::new_at_origin_with_radius(1.);
+    let bounds = constraints::NoConstraints::new();
     let problem = Problem::new(
         bounds,
         mocks::hard_quadratic_gradient,
@@ -142,25 +142,16 @@ fn test_panoc_hard() {
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-    let mut u = [0.0, 0.0, 0.0];
+    let mut u = [0.1, 0.3, 0.2];
     panoc_engine.init(&mut u);
-    panoc_engine.cache.lipschitz_constant = 120.0;
-    panoc_engine.cache.gamma = 0.95 / 120.;
-    panoc_engine.cache.sigma = 1.8e-4_f64;
-    panoc_engine.step(&mut u);
-    let fpr0 = panoc_engine.cache.norm_fpr;
-    println!("fpr0 = {}", fpr0);
 
-    for i in 1..=200 {
-        println!("----------------------------------------------------");
-        println!("> iter      = {}", i);
-        print_panoc_engine(&panoc_engine, fpr0);
-        println!("> u         = {:.14?}", u);
-        if !panoc_engine.step(&mut u) {
-            break;
-        }
-    }
-    println!("final |fpr| = {}", panoc_engine.cache.norm_fpr);
+    println!(
+        "L = {}, gam = {}",
+        panoc_engine.cache.lipschitz_constant, panoc_engine.cache.gamma
+    );
+
+    panoc_engine.step(&mut u);
+    print_panoc_engine(&panoc_engine, 1.0);
 }
 
 #[test]

@@ -32,6 +32,7 @@ pub struct PANOCCache {
     lipschitz_constant: f64,
     sigma: f64,
     cost_value: f64,
+    iteration: usize,
 }
 
 /// Engine for PANOC algorithm

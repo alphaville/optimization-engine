@@ -9,7 +9,7 @@ const GAMMA_L_COEFF: f64 = 0.95;
 const SIGMA_COEFF: f64 = 0.49;
 const DELTA_LIPSCHITZ: f64 = 1e-10;
 const EPSILON_LIPSCHITZ: f64 = 1e-10;
-const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-5;
+const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -140,10 +140,12 @@ where
             &self.cache.gradient_u,
             &self.cache.fixed_point_residual,
         );
+
         let gamma = self.cache.gamma;
-        let rhs = (1.0 + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-            - gamma * inner_prod_grad_fpr
-            + 0.5 * self.cache.lipschitz_constant * gamma.powi(2) * self.cache.norm_fpr.powi(2);
+
+        let rhs = (1.0 + LIPSCHITZ_UPDATE_EPSILON) * (self.cache.cost_value)
+            - (gamma * inner_prod_grad_fpr)
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * (gamma.powi(2) * self.cache.norm_fpr.powi(2));
 
         rhs
     }
@@ -271,19 +273,19 @@ where
         // compute LBFGS direction (update LBFGS buffer)
         self.lbfgs_direction(u_current);
 
-        // compute the right hand side of the line search
-        self.compute_rhs_ls();
-
-        // perform line search
-        self.cache.tau = 1.0;
-        while self.line_search_condition(u_current) {
-            self.cache.tau /= 2.0;
-            if self.cache.tau < 1e-3 {
-                break;
+        if self.cache.iteration == 0 {
+            // first iteration
+        } else {
+            // perform line search
+            self.compute_rhs_ls(); // compute the right hand side of the line search
+            self.cache.tau = 1.0; // initialise tau
+            while self.line_search_condition(u_current) && self.cache.tau > 1e-3 {
+                self.cache.tau /= 2.0;
             }
         }
 
         self.swap_u_plus(u_current);
+        self.cache.iteration += 1;
         true
     }
 
@@ -454,8 +456,7 @@ mod tests {
         let rhs = panoc_engine.lipschitz_check_rhs();
 
         println!("rhs = {}", rhs);
-        println!("cache = {:#?}", panoc_engine.cache);
-        unit_test_utils::assert_nearly_equal(2.518280328538050, rhs, 1e-8, 1e-10, "lip rhs");
+        unit_test_utils::assert_nearly_equal(2.518233435388051, rhs, 1e-8, 1e-10, "lip rhs");
     }
 
     #[test]
