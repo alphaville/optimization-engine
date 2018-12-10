@@ -135,20 +135,16 @@ where
             - self.cache.sigma * self.cache.norm_fpr.powi(2);
     }
 
-    fn lipschitz_update_rhs(&mut self) -> f64 {
+    fn lipschitz_check_rhs(&mut self) -> f64 {
         let inner_prod_grad_fpr = matrix_operations::inner_product(
             &self.cache.gradient_u,
             &self.cache.fixed_point_residual,
         );
         let gamma = self.cache.gamma;
         let rhs = (1.0 + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-            - gamma.powi(2) * inner_prod_grad_fpr
-            + 0.5 * (1.0 - GAMMA_L_COEFF) * gamma.powi(3) * self.cache.norm_fpr.powi(2);
+            - gamma * inner_prod_grad_fpr
+            + 0.5 * self.cache.lipschitz_constant * gamma.powi(2) * self.cache.norm_fpr.powi(2);
 
-        println!(
-            "RHS = {}, f = {:.2e}, ip = {:.2e}, |fpr| = {:.2e}",
-            rhs, self.cache.cost_value, inner_prod_grad_fpr, self.cache.norm_fpr
-        );
         rhs
     }
 
@@ -157,11 +153,12 @@ where
 
         // Compute the cost at the half step
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+        (self.problem.cost)(u_current, &mut self.cache.cost_value);
 
         let mut it = 0;
 
-        while cost_u_half_step > self.lipschitz_update_rhs()
-            && it < 10
+        while cost_u_half_step > self.lipschitz_check_rhs()
+            && it < 20
             && self.cache.lipschitz_constant < 1e4
         {
             println!("..........");
@@ -178,29 +175,20 @@ where
             self.half_step(); // updates self.cache.u_half_step
 
             // recompute the cost at the half step
+            // update `cost_u_half_step`
             (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
 
             // recompute the FPR and the square of its norm
             self.compute_fpr(u_current);
 
-            println!("u_half_step --> {:?}", &self.cache.u_half_step);
-            println!("cost_u_half_step --> {}", cost_u_half_step);
-            println!("fpr --> {:?}", self.cache.fixed_point_residual);
-            println!("COST U HALF STEP = {}", cost_u_half_step);
-
             it = it + 1;
         }
     }
 
-    /// Computes the left hand side of the line search condition and compares it with the RHS;
-    /// returns `true` if and only if lhs > rhs (when the line search should continue)
-    fn line_search_condition(&mut self, u: &[f64]) -> bool {
+    /// Computes u_plus = u - gamma * (1-tau) * fpr - tau * dir,
+    fn compute_u_plus(&mut self, u: &[f64]) {
         let gamma = self.cache.gamma;
         let tau = self.cache.tau;
-        // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
-        // Important Note: Method `lbfgs_direction` computes the direction Hk*fpr, but we
-        // need Hk*(-fpr). Essentially, it computes the negative of the desired direction.
-        // This is why in the code below we use `- tau * dir_i` (instead of `+ tau * dir_i`)
         let temp_ = (1.0 - tau) * gamma;
         self.cache
             .u_plus
@@ -211,6 +199,16 @@ where
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
                 *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
             });
+    }
+
+    /// Computes the left hand side of the line search condition and compares it with the RHS;
+    /// returns `true` if and only if lhs > rhs (when the line search should continue)
+    fn line_search_condition(&mut self, u: &[f64]) -> bool {
+        let gamma = self.cache.gamma;
+
+        // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
+        self.compute_u_plus(&u);
+
         // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten
         // with the values of the cost and its gradient at the next (candidate)
         // point `u_plus`
@@ -423,26 +421,41 @@ mod tests {
 
     #[test]
     fn lipschitz_update_rhs() {
-        let n = NonZeroUsize::new(2).unwrap();
+        let n = NonZeroUsize::new(3).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
-        let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
+        let bounds = constraints::NoConstraints::new();
         let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-        panoc_engine.cache.gradient_u.copy_from_slice(&[2.5, 3.6]);
+        // u = [-0.13, -0.12, -0.10];
+        // gradient -- correspond to `hard_quadratic_gradient`
+        panoc_engine
+            .cache
+            .gradient_u
+            .copy_from_slice(&[-3.49, -2.35, -103.85]);
+
+        // the following Lipschitz constant is valid for `hard_quadratic_gradient`
+        panoc_engine.cache.lipschitz_constant = 2001.305974987387;
+
+        // gamma = 0.95/L
+        panoc_engine.cache.gamma = 4.746900333448449e-4;
+
+        // fpr = (u - u_half_step)/gamma
         panoc_engine
             .cache
             .fixed_point_residual
-            .copy_from_slice(&[1.1, 0.2]);
-        panoc_engine.cache.gamma = 0.37;
-        panoc_engine.cache.cost_value = 10.0;
-        panoc_engine.cache.norm_fpr = 1.118033988749895;
+            .copy_from_slice(&[-3.49, -2.35, -103.85]);
+        panoc_engine.cache.norm_fpr = 103.9351966371354;
 
-        let rhs = panoc_engine.lipschitz_update_rhs();
+        // cost at `u`
+        panoc_engine.cache.cost_value = 5.21035;
+
+        let rhs = panoc_engine.lipschitz_check_rhs();
 
         println!("rhs = {}", rhs);
-        unit_test_utils::assert_nearly_equal(8.7277625, rhs, 1e-7, 1e-10, "");
+        println!("cache = {:#?}", panoc_engine.cache);
+        unit_test_utils::assert_nearly_equal(2.518280328538050, rhs, 1e-8, 1e-10, "lip rhs");
     }
 
     #[test]

@@ -38,19 +38,45 @@ pub fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
 }
 
 pub fn hard_quadratic_cost(u: &[f64], cost: &mut f64) -> i32 {
-        *cost = 0.5 * (-3.0749 * u[0] * u[0] + 0.6075 * u[1] * u[1] + 102.5774 * u[2] * u[2])
-                - 5.1359 * u[0] * u[1]
-                + 1.7766 * u[1] * u[2]
-                - 15.2719 * u[0] * u[2]
+        *cost = (3. * u[0].powi(2)) / 2.
+                + 5. * u[0] * u[1]
+                + 25. * u[0] * u[2]
                 + u[0]
+                + 5. * u[1].powi(2)
+                + 5. * u[1] * u[2]
                 + u[1]
+                + 500. * u[2].powi(2)
                 + u[2];
         0
 }
 
 pub fn hard_quadratic_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
-        grad[0] = -3.0749 * u[0] - 5.1359 * u[1] - 15.2719 * u[2] + 1.0;
-        grad[1] = 0.3195 * u[0] + 0.6075 * u[1] + 1.7766 * u[2] + 1.0;
-        grad[2] = 21.3205 * u[0] + 34.4927 * u[1] + 102.5774 * u[2] + 1.0;
+        // norm(Hessian) = 1000.653 (Lipschitz gradient)
+        grad[0] = 3. * u[0] + 5. * u[1] + 25. * u[2] + 1.;
+        grad[1] = 5. * u[0] + 10. * u[1] + 5. * u[2] + 1.;
+        grad[2] = 25. * u[0] + 5. * u[1] + 1000. * u[2] + 1.;
         0
+}
+
+#[cfg(test)]
+mod tests {
+
+        use super::*;
+        #[test]
+        fn mock_hard() {
+                let x = [1.5, 2.6, -3.7];
+                let mut df = [0.0; 3];
+                let mut cost = 0.0;
+                assert_eq!(0, hard_quadratic_cost(&x, &mut cost));
+                unit_test_utils::assert_nearly_equal(6.715225e3, cost, 1e-8, 1e-10, "cost");
+
+                assert_eq!(0, hard_quadratic_gradient(&x, &mut df));
+                unit_test_utils::assert_nearly_equal_array(
+                        &[-74., 16.0, -3648.5],
+                        &df,
+                        1e-6,
+                        1e-6,
+                        "grad",
+                );
+        }
 }
