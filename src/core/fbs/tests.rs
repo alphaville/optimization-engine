@@ -9,31 +9,26 @@ const N_DIM: usize = 2;
 use crate::mocks;
 
 #[test]
-fn solve_fbs_rosenbrock() {
-    let radius = 0.2;
-    let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-    // GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    // CostType: Fn(&[f64], &mut f64) -> i32,
-    let f = |u: &[f64], cost: &mut f64| -> i32 {
-        *cost = mocks::rosenbrock_cost(1.0, 100.0, u);
-        0
-    };
-    let gradf = |u: &[f64], grad: &mut [f64]| -> i32 {
-        mocks::rosenbrock_grad(1.0, 100.0, u, grad);
-        0
-    };
+fn solve_fbs_hard() {
+    let bounds = constraints::NoConstraints::new();
 
-    let problem = Problem::new(box_constraints, gradf, f);
-    let gamma = 0.1;
+    let problem = Problem::new(
+        bounds,
+        mocks::hard_quadratic_gradient,
+        mocks::hard_quadratic_cost,
+    );
+    let gamma = 0.005;
     let tolerance = 1e-6;
 
-    let mut fbs_cache = FBSCache::new(NonZeroUsize::new(N_DIM).unwrap(), gamma, tolerance);
+    let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
     let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
-    let mut u = [0.0; N_DIM];
+    let mut u = [-12., -160., 55.];
     let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
-
+    optimizer.max_iter = 100000;
     let status = optimizer.solve(&mut u);
 
+    println!("|fpr| = {}", status.get_norm_fpr());
+    println!("solution = {:?}", u);
     assert!(status.has_converged());
     assert!(status.get_norm_fpr() < tolerance);
 }
@@ -133,6 +128,7 @@ fn solve_fbs_many_times() {
 
         // Create a new optimizer...
         let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
+
         let status = optimizer.solve(&mut u);
 
         assert!(status.get_norm_fpr() < tolerance);

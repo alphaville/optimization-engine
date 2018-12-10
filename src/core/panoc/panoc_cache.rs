@@ -38,7 +38,7 @@ impl PANOCCache {
             // TODO: change the following lines...
             lbfgs: lbfgs::Lbfgs::new(n, lbfgs_mem)
                 .with_cbfgs_alpha(1.0)
-                .with_cbfgs_epsilon(1e-12)
+                .with_cbfgs_epsilon(1e-8)
                 .with_sy_epsilon(1e-10),
             lhs_ls: 0.0,
             rhs_ls: 0.0,

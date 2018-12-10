@@ -44,3 +44,6 @@ where
     problem: Problem<GradientType, ConstraintType, CostType>,
     cache: &'a mut PANOCCache,
 }
+
+#[cfg(test)]
+mod tests;
