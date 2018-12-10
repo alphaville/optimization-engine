@@ -1,5 +1,7 @@
 # `PANOC`
 
+[![Build Status](https://travis-ci.org/korken89/panoc-rs.svg?branch=master)](https://travis-ci.org/korken89/panoc-rs)
+
 > `panoc` is a library for solving nonlinear optimization problems, utilizing the [PANOC solver].
 > The solver only needs the cost function and gradient to be available, and the recommended way
 > to generate these functions are via [CasADi](https://web.casadi.org/) 
