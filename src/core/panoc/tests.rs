@@ -78,7 +78,6 @@ fn panoc_init() {
 
 fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
     panoc_engine: &PANOCEngine<'a, GradientType, ConstraintType, CostType>,
-    fpr0: f64,
 ) where
     GradientType: Fn(&[f64], &mut [f64]) -> i32,
     CostType: Fn(&[f64], &mut f64) -> i32,
@@ -89,7 +88,6 @@ fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
         &panoc_engine.cache.fixed_point_residual
     );
     println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
-    println!("> fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
     println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
     println!("> gamma     = {:.10}", panoc_engine.cache.gamma);
     println!("> tau       = {:.3}", panoc_engine.cache.tau);
@@ -116,7 +114,7 @@ fn test_panoc_basic() {
     for i in 1..=100 {
         println!("----------------------------------------------------");
         println!("> iter      = {}", i);
-        print_panoc_engine(&panoc_engine, fpr0);
+        print_panoc_engine(&panoc_engine);
         println!("> u         = {:.14?}", u);
         if !panoc_engine.step(&mut u) {
             break;
@@ -137,21 +135,21 @@ fn test_panoc_hard() {
     );
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(3).unwrap(),
-        1e-5,
-        NonZeroUsize::new(10).unwrap(),
+        1e-7,
+        NonZeroUsize::new(20).unwrap(),
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
     let mut u = [0.1, 0.3, 0.2];
     panoc_engine.init(&mut u);
 
-    println!(
-        "L = {}, gam = {}",
-        panoc_engine.cache.lipschitz_constant, panoc_engine.cache.gamma
-    );
+    println!("gamma = {}", panoc_engine.cache.gamma);
 
-    panoc_engine.step(&mut u);
-    print_panoc_engine(&panoc_engine, 1.0);
+    for _i in 1..=25 {
+        panoc_engine.step(&mut u);
+        print_panoc_engine(&panoc_engine);
+        println!("u = {:.7?}", u);
+    }
 }
 
 #[test]
