@@ -76,6 +76,22 @@ fn panoc_init() {
     println!("cache = {:#?}", &panoc_cache);
 }
 
+fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
+    panoc_engine: &PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+    fpr0: f64,
+) where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
+{
+    println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
+    println!("> fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
+    println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
+    println!("> gamma     = {:.3}", panoc_engine.cache.gamma);
+    println!("> tau       = {:.3}", panoc_engine.cache.tau);
+    println!("> lbfgs dir = {:.11?}", panoc_engine.cache.direction_lbfgs);
+}
+
 #[test]
 fn test_panoc_basic() {
     let bounds = constraints::Ball2::new_at_origin_with_radius(0.2);
@@ -96,6 +112,45 @@ fn test_panoc_basic() {
     for i in 1..=15 {
         println!("----------------------------------------------------");
         println!("> iter      = {}", i);
+        print_panoc_engine(&panoc_engine, fpr0);
+        println!("> u         = {:.14?}", u);
+        if !panoc_engine.step(&mut u) {
+            break;
+        }
+    }
+    println!("final |fpr| = {}", panoc_engine.cache.norm_fpr);
+    assert!(panoc_engine.cache.norm_fpr < 1e-7);
+    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION, 1e-5, 1e-5, "");
+}
+
+#[test]
+fn test_panoc_rosenbrock() {
+    let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+        mocks::rosenbrock_grad(1.0, 100., u, grad);
+        0
+    };
+    let f = |u: &[f64], c: &mut f64| -> i32 {
+        *c = mocks::rosenbrock_cost(1.0, 100.0, u);
+        0
+    };
+    let bounds = constraints::Ball2::new_at_origin_with_radius(2.0);
+    let problem = Problem::new(bounds, df, f);
+    let mut panoc_cache = PANOCCache::new(
+        NonZeroUsize::new(2).unwrap(),
+        1e-6,
+        NonZeroUsize::new(50).unwrap(),
+    );
+    let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+
+    let mut u = [1.0, 1.01];
+    panoc_engine.init(&mut u);
+    panoc_engine.step(&mut u);
+    let fpr0 = panoc_engine.cache.norm_fpr;
+    println!("fpr0 = {}", fpr0);
+
+    for i in 1..=100 {
+        println!("----------------------------------------------------");
+        println!("> iter      = {}", i);
         println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
         println!("> fpr/fpr0  = {:.2e}", panoc_engine.cache.norm_fpr / fpr0);
         println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
@@ -109,6 +164,5 @@ fn test_panoc_basic() {
         }
     }
     println!("final |fpr| = {}", panoc_engine.cache.norm_fpr);
-    assert!(panoc_engine.cache.norm_fpr < 1e-7);
-    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION, 1e-5, 1e-5, "");
+    assert!(panoc_engine.cache.norm_fpr < 1e-6);
 }

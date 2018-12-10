@@ -50,6 +50,7 @@ where
         self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
     }
 
+    /// Computes the FPR and its norm
     fn compute_fpr(&mut self, u_current: &[f64]) {
         // compute the FPR:
         // fpr ← (u - u_half_step) / gamma
@@ -64,6 +65,7 @@ where
         self.cache.norm_fpr = matrix_operations::norm2(&self.cache.fixed_point_residual);
     }
 
+    /// Computes a gradient step; does not compute the gradient
     fn gradient_step(&mut self, u_current: &[f64]) {
         // take a gradient step:
         // gradient_step ← u_current - gamma * gradient
@@ -76,6 +78,7 @@ where
             .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
     }
 
+    /// Takes a gradient step on u_plus
     fn gradient_step_uplus(&mut self) {
         // take a gradient step:
         // gradient_step ← u_plus - gamma * gradient
@@ -88,6 +91,7 @@ where
             .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
     }
 
+    /// Computes a projection on `gradient_step`
     fn half_step(&mut self) {
         // u_half_step ← projection(gradient_step)
         self.cache
@@ -98,11 +102,15 @@ where
             .project(&mut self.cache.u_half_step);
     }
 
+    /// Computes an LBFGS direction
     fn lbfgs_direction(&mut self, u_current: &[f64]) {
         // update the LBFGS buffer
-        self.cache
-            .lbfgs
-            .update_hessian(&self.cache.fixed_point_residual, u_current);
+        println!(
+            "{:?}",
+            self.cache
+                .lbfgs
+                .update_hessian(&self.cache.fixed_point_residual, u_current)
+        );
         // direction ← fpr
         self.cache
             .direction_lbfgs
@@ -113,6 +121,7 @@ where
             .apply_hessian(&mut self.cache.direction_lbfgs);
     }
 
+    /// Computes the RHS of the linesearch condition
     fn compute_rhs_ls(&mut self) {
         // dist squared ← norm(gradient step - u half step)^2
         let dist_squared = matrix_operations::norm2_squared_diff(
@@ -133,9 +142,13 @@ where
         );
         let gamma = self.cache.gamma;
         let rhs = (1.0 + LIPSCHITZ_UPDATE_EPSILON) * self.cache.cost_value
-            - gamma * inner_prod_grad_fpr
-            + 0.5 * (1.0 - GAMMA_L_COEFF) * gamma * self.cache.norm_fpr.powi(2);
+            - gamma.powi(2) * inner_prod_grad_fpr
+            + 0.5 * (1.0 - GAMMA_L_COEFF) * gamma.powi(3) * self.cache.norm_fpr.powi(2);
 
+        println!(
+            "RHS = {}, f = {:.2e}, ip = {:.2e}, |fpr| = {:.2e}",
+            rhs, self.cache.cost_value, inner_prod_grad_fpr, self.cache.norm_fpr
+        );
         rhs
     }
 
@@ -163,7 +176,8 @@ where
             // recompute the half step...
             self.gradient_step(u_current); // updates self.cache.gradient_step
             self.half_step(); // updates self.cache.u_half_step
-                              // recompute the cost at the half step
+
+            // recompute the cost at the half step
             (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
 
             // recompute the FPR and the square of its norm
@@ -178,6 +192,8 @@ where
         }
     }
 
+    /// Computes the left hand side of the line search condition and compares it with the RHS;
+    /// returns `true` if and only if lhs > rhs (when the line search should continue)
     fn line_search_condition(&mut self, u: &[f64]) -> bool {
         let gamma = self.cache.gamma;
         let tau = self.cache.tau;
