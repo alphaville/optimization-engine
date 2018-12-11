@@ -136,49 +136,58 @@ fn test_panoc_hard() {
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(3).unwrap(),
         1e-7,
-        NonZeroUsize::new(20).unwrap(),
+        NonZeroUsize::new(10).unwrap(),
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-    let mut u = [0.1, 0.3, 0.2];
+    let mut u = [64., -31., -1.];
     panoc_engine.init(&mut u);
 
     println!("gamma = {}", panoc_engine.cache.gamma);
 
-    for _i in 1..=25 {
+    for _i in 1..=50 {
         panoc_engine.step(&mut u);
-        print_panoc_engine(&panoc_engine);
-        println!("u = {:.7?}", u);
+        println!(
+            "|r| = {} (gamma={}, tau = {})",
+            panoc_engine.cache.norm_fpr, panoc_engine.cache.gamma, panoc_engine.cache.tau
+        );
     }
+
+    println!("sol = {:?}", u);
 }
 
 #[test]
 fn test_panoc_rosenbrock() {
+    let a = 1.0;
+    let b = 10.0;
     let df = |u: &[f64], grad: &mut [f64]| -> i32 {
-        mocks::rosenbrock_grad(0.1, 10., u, grad);
+        mocks::rosenbrock_grad(a, b, u, grad);
         0
     };
     let f = |u: &[f64], c: &mut f64| -> i32 {
-        *c = mocks::rosenbrock_cost(0.1, 10.0, u);
+        *c = mocks::rosenbrock_cost(a, b, u);
         0
     };
-    let bounds = constraints::Ball2::new_at_origin_with_radius(1.413);
+    let bounds = constraints::Ball2::new_at_origin_with_radius(0.99);
     let problem = Problem::new(bounds, df, f);
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(2).unwrap(),
         1e-6,
-        NonZeroUsize::new(5).unwrap(),
+        NonZeroUsize::new(2).unwrap(),
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-    let mut u = [1.0, 1.0];
+    let mut u = [0.0, 0.9];
 
     panoc_engine.init(&mut u);
     panoc_engine.cache.lipschitz_constant = 1e4;
 
-    panoc_engine.step(&mut u);
-    println!("> u         = {:.14?}", u);
-
-    panoc_engine.step(&mut u);
-    println!("> u         = {:.14?}", u);
+    while panoc_engine.step(&mut u) {
+        panoc_engine.step(&mut u);
+        println!(
+            "|fpr| = {}, tau = {}",
+            panoc_engine.cache.norm_fpr, panoc_engine.cache.tau
+        );
+    }
+    println!("u = {:?}", u);
 }

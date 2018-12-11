@@ -106,12 +106,10 @@ where
     fn lbfgs_direction(&mut self, u_current: &[f64]) {
         let cache = &mut self.cache;
         // update the LBFGS buffer
-        println!(
-            "{:?}",
-            cache
-                .lbfgs
-                .update_hessian(&cache.fixed_point_residual, u_current)
-        );
+        cache
+            .lbfgs
+            .update_hessian(&cache.fixed_point_residual, u_current);
+
         // direction ← fpr
         cache
             .direction_lbfgs
@@ -192,7 +190,7 @@ where
             .zip(cache.fixed_point_residual.iter())
             .zip(cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
-                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
+                *u_plus_i = u_i - temp_ * fpr_i - tau * gamma * dir_i;
             });
     }
 
@@ -271,6 +269,7 @@ where
             (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
             self.gradient_step(u_current); // updated self.cache.gradient_step
             self.half_step(); // updates self.cache.u_half_step
+            self.cache.iteration += 1;
             return true; // continue iterating
         } else {
             // perform line search
