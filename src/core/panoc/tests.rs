@@ -112,11 +112,12 @@ fn test_panoc_hard() {
 
     println!("L     = {}", panoc_engine.cache.lipschitz_constant);
     println!("gamma = {}", panoc_engine.cache.gamma);
+    println!("sigma = {}", panoc_engine.cache.sigma);
 
     let mut i = 0;
-    while panoc_engine.step(&mut u) && i < 20 {
+    while panoc_engine.step(&mut u) && i < 30 {
         println!(
-            "|r[{}]| = {} (gamma={}, tau = {})",
+            "|fpr[{}]| = {:.4} (gamma={:.6}, tau = {:.4})",
             i, panoc_engine.cache.norm_fpr, panoc_engine.cache.gamma, panoc_engine.cache.tau
         );
         i += 1;
@@ -125,7 +126,7 @@ fn test_panoc_hard() {
     println!("sol = {:?}", u);
 }
 
-#[test]
+//#[test]
 fn test_panoc_rosenbrock() {
     let a = 1.0;
     let b = 10.0;

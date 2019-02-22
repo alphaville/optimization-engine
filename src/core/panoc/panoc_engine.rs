@@ -7,7 +7,7 @@ use crate::matrix_operations;
 
 /// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
-const SIGMA_COEFF: f64 = 0.49;
+//const SIGMA_COEFF: f64 = 0.49;
 /// Delta in the estimation of the initial Lipschitz constant
 const DELTA_LIPSCHITZ: f64 = 1e-12;
 /// Epsilon in the estimation of the initial Lipschitz constant
@@ -135,6 +135,7 @@ where
         let dist_squared =
             matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
+        println!("sig = {:.6}", cache.sigma);
         cache.rhs_ls = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
             + dist_squared
@@ -172,7 +173,6 @@ where
 
             // update L, sigma and gamma...
             self.cache.lipschitz_constant *= 2.;
-            self.cache.sigma /= 2.;
             self.cache.gamma /= 2.;
 
             // recompute the half step...
@@ -187,6 +187,7 @@ where
             self.compute_fpr(u_current);
             it = it + 1;
         }
+        self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
     }
 
     /// Computes u_plus = u - gamma * (1-tau) * fpr - tau * dir,
@@ -251,7 +252,7 @@ where
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         self.cache.tau = 1.0; // initialise tau
-        while self.line_search_condition(u_current) && self.cache.tau > 1e-5 {
+        while self.line_search_condition(u_current) && self.cache.tau > 1e-3 {
             self.cache.tau /= 2.0;
         }
     }
@@ -320,7 +321,7 @@ where
         (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
         self.estimate_loc_lip(u_current); // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
-        self.cache.sigma = (1.0 - GAMMA_L_COEFF) * SIGMA_COEFF * self.cache.gamma;
+        self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
     }
