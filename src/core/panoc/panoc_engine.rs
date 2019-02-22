@@ -5,11 +5,19 @@ use super::PANOCEngine;
 use crate::constraints;
 use crate::matrix_operations;
 
+/// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
 const SIGMA_COEFF: f64 = 0.49;
-const DELTA_LIPSCHITZ: f64 = 1e-10;
-const EPSILON_LIPSCHITZ: f64 = 1e-10;
+/// Delta in the estimation of the initial Lipschitz constant
+const DELTA_LIPSCHITZ: f64 = 1e-12;
+/// Epsilon in the estimation of the initial Lipschitz constant
+const EPSILON_LIPSCHITZ: f64 = 1e-6;
+/// Safety parameter used to check a strict inequality in the update of the Lipschitz constant
 const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
+/// Maximum iterations of updating the Lipschitz constant
+const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
+/// Maximum possible Lipschitz constant
+const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -39,6 +47,7 @@ where
         }
     }
 
+    /// Estimate the local Lipschitz constant at `u`
     fn estimate_loc_lip(&mut self, u: &mut [f64]) {
         let mut lipest = crate::lipschitz_estimator::LipschitzEstimator::new(
             u,
@@ -132,17 +141,20 @@ where
             - cache.sigma * cache.norm_fpr.powi(2);
     }
 
+    /// Returns the RHS of the Lipschitz update
     fn lipschitz_check_rhs(&mut self) -> f64 {
         let cache = &mut self.cache;
         let gamma = cache.gamma;
+        let cost_value = cache.cost_value;
         let inner_prod_grad_fpr =
             matrix_operations::inner_product(&cache.gradient_u, &cache.fixed_point_residual);
-        let rhs = (1.0 + LIPSCHITZ_UPDATE_EPSILON) * (cache.cost_value)
+        let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs()
             - (gamma * inner_prod_grad_fpr)
             + (GAMMA_L_COEFF / (2.0 * gamma)) * (gamma.powi(2) * cache.norm_fpr.powi(2));
         rhs
     }
 
+    /// Updates the estimate of the Lipscthiz constant
     fn update_lipschitz_constant(&mut self, u_current: &[f64]) {
         let mut cost_u_half_step = 0.0;
 
@@ -153,8 +165,8 @@ where
         let mut it = 0;
 
         while cost_u_half_step > self.lipschitz_check_rhs()
-            && it < 20
-            && self.cache.lipschitz_constant < 1e4
+            && it < MAX_LIPSCHITZ_UPDATE_ITERATIONS
+            && self.cache.lipschitz_constant < MAX_LIPSCHITZ_CONSTANT
         {
             self.cache.lbfgs.reset(); // invalidate the L-BFGS buffer
 
@@ -190,7 +202,7 @@ where
             .zip(cache.fixed_point_residual.iter())
             .zip(cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
-                *u_plus_i = u_i - temp_ * fpr_i - tau * gamma * dir_i;
+                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
             });
     }
 
@@ -225,7 +237,27 @@ where
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
-    fn swap_u_plus(&mut self, u_current: &mut [f64]) {
+    /// Update without performing a line search; this is executed at the first iteration
+    fn update_no_linesearch(&mut self, u_current: &mut [f64]) {
+        u_current.copy_from_slice(&self.cache.u_half_step); // set u_current = u_half_step
+        (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
+        (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
+        self.gradient_step(u_current); // updated self.cache.gradient_step
+        self.half_step(); // updates self.cache.u_half_step
+    }
+
+    /// Performs a line search to select tau
+    fn linesearch(&mut self, u_current: &mut [f64]) {
+        // perform line search
+        self.compute_rhs_ls(); // compute the right hand side of the line search
+        self.cache.tau = 1.0; // initialise tau
+        while self.line_search_condition(u_current) && self.cache.tau > 1e-5 {
+            self.cache.tau /= 2.0;
+        }
+    }
+
+    /// Sets `u_current` to `u_plus`
+    fn update_with_u_plus(&mut self, u_current: &mut [f64]) {
         u_current.copy_from_slice(&self.cache.u_plus);
     }
 }
@@ -254,6 +286,7 @@ where
 
         // exit if the norm of the fpr is adequetely small
         if self.cache.norm_fpr < self.cache.tolerance {
+            println!("TOLERANCE REACHED : {}", self.cache.norm_fpr);
             //TODO: u <- self.cache.u_half_step
             return false;
         }
@@ -264,23 +297,12 @@ where
 
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
-            u_current.copy_from_slice(&self.cache.u_half_step); // set u_current = u_half_step
-            (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
-            (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
-            self.gradient_step(u_current); // updated self.cache.gradient_step
-            self.half_step(); // updates self.cache.u_half_step
-            self.cache.iteration += 1;
-            return true; // continue iterating
+            self.update_no_linesearch(u_current);
         } else {
-            // perform line search
-            self.compute_rhs_ls(); // compute the right hand side of the line search
-            self.cache.tau = 1.0; // initialise tau
-            while self.line_search_condition(u_current) && self.cache.tau > 1e-3 {
-                self.cache.tau /= 2.0;
-            }
+            self.linesearch(u_current);
+            self.update_with_u_plus(u_current);
         }
 
-        self.swap_u_plus(u_current);
         self.cache.iteration += 1;
         true
     }
