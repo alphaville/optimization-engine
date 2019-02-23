@@ -111,7 +111,7 @@ where
         self.problem.constraints.project(&mut cache.u_half_step);
     }
 
-    /// Computes an LBFGS direction
+    /// Computes an LBFGS direction; updates `cache.direction_lbfgs`
     fn lbfgs_direction(&mut self, u_current: &[f64]) {
         let cache = &mut self.cache;
         // update the LBFGS buffer
@@ -134,12 +134,20 @@ where
         // dist squared ← norm(gradient step - u half step)^2
         let dist_squared =
             matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
+
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
         println!("sig = {:.6}", cache.sigma);
         cache.rhs_ls = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
             + dist_squared
-            - cache.sigma * cache.norm_fpr.powi(2);
+            - cache.sigma * cache.norm_fpr.powi(2) * (cache.gamma.powi(2));
+        // println!(
+        //     "RHS = {}, cost = {}, norm_fpr_squared = {}, |gradf|^2 = {}",
+        //     cache.rhs_ls,
+        //     cache.cost_value,
+        //     cache.norm_fpr.powi(2),
+        //     matrix_operations::norm2_squared(&cache.gradient_u)
+        // );
     }
 
     /// Returns the RHS of the Lipschitz update
@@ -235,6 +243,7 @@ where
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
             + dist_squared;
 
+        //println!("LHS = {}", self.cache.lhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
@@ -255,6 +264,14 @@ where
         while self.line_search_condition(u_current) && self.cache.tau > 1e-3 {
             self.cache.tau /= 2.0;
         }
+        println!("\n   LINESEARCH");
+        println!("   + tau = {}", self.cache.tau);
+        // *****************************************************************************
+        //
+        //  BUG: IF THE LINESEARCH FAILS TO TERMINATE, WE SHOULD HAVE A FAILBACK
+        //       STRATEGY! (TAU = 0)
+        //
+        // *****************************************************************************
     }
 
     /// Sets `u_current` to `u_plus`
@@ -295,7 +312,8 @@ where
         self.update_lipschitz_constant(u_current); // update lipschitz constant
 
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
-
+        println!("FPR       = {:?}", self.cache.fixed_point_residual);
+        println!("Direction = {:?}", self.cache.direction_lbfgs);
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
             self.update_no_linesearch(u_current);

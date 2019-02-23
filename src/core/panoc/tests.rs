@@ -114,16 +114,19 @@ fn test_panoc_hard() {
     println!("gamma = {}", panoc_engine.cache.gamma);
     println!("sigma = {}", panoc_engine.cache.sigma);
 
-    let mut i = 0;
-    while panoc_engine.step(&mut u) && i < 30 {
+    let mut i = 1;
+    println!("\n*** ITERATION   1");
+    while panoc_engine.step(&mut u) && i < 100 {
         println!(
             "|fpr[{}]| = {:.4} (gamma={:.6}, tau = {:.4})",
             i, panoc_engine.cache.norm_fpr, panoc_engine.cache.gamma, panoc_engine.cache.tau
         );
         i += 1;
+        println!("u = {:?}", u);
+        println!("\n*** ITERATION {:3}", i);
     }
 
-    println!("sol = {:?}", u);
+    println!("\nsol = {:?}", u);
 }
 
 //#[test]
