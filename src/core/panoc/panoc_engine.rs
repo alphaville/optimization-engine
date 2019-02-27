@@ -18,6 +18,8 @@ const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
 const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
 /// Maximum possible Lipschitz constant
 const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
+/// Maximum number of linesearch iterations
+const MAX_LINESEARCH_ITERATIONS: u32 = 10;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -201,18 +203,13 @@ where
             matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
 
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
-        println!("sig = {:.6}", cache.sigma);
-        cache.rhs_ls = cache.cost_value
+        let fbe = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
-            + 0.5 * dist_squared / cache.gamma
-            - cache.sigma * cache.norm_fpr.powi(2);
-        println!(
-            "RHS = {}, cost = {}, norm_fpr_squared = {}, |gradf|^2 = {}",
-            cache.rhs_ls,
-            cache.cost_value,
-            cache.norm_fpr.powi(2),
-            matrix_operations::norm2_squared(&cache.gradient_u)
-        );
+            + 0.5 * dist_squared / cache.gamma;
+        let sigma_fpr_sq = cache.sigma * cache.norm_fpr.powi(2) * cache.gamma.powi(2);
+        cache.rhs_ls = fbe - sigma_fpr_sq;
+        println!(" ~ fbe = {}", fbe);
+        println!(" ~ sigma_fpr_sq = {}", sigma_fpr_sq);
     }
 
     /// Computes the left hand side of the line search condition and compares it with the RHS;
@@ -243,7 +240,6 @@ where
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
             + 0.5 * dist_squared / self.cache.gamma;
 
-        println!("LHS = {}", self.cache.lhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
@@ -254,15 +250,31 @@ where
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
+
+        let cache = &self.cache;
+        println!("+ u_current            = {:?}", u_current);
+        println!("+ u_half               = {:?}", cache.u_half_step);
+        println!("+ gamma                = {}", cache.gamma);
+        println!("+ fixed_point_residual = {:?}", cache.fixed_point_residual);
+        println!("+ gradfx               = {:?}", cache.gradient_u);
+        println!("+ norm FPR             = {}", cache.norm_fpr);
     }
 
     /// Performs a line search to select tau
     fn linesearch(&mut self, u_current: &mut [f64]) {
+        println!(": gamma                = {}", self.cache.gamma);
+        println!(": sigma                = {}", self.cache.sigma);
+        println!(
+            ": fixed_point_residual = {:?}",
+            self.cache.fixed_point_residual
+        );
+
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
+        println!(": rhs                  = {}", self.cache.rhs_ls);
         self.cache.tau = 1.0; // initialise tau
         let mut num_ls_iters = 0;
-        while self.line_search_condition(u_current) && num_ls_iters < 10 {
+        while self.line_search_condition(u_current) && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
             self.cache.tau /= 2.0;
             num_ls_iters += 1;
         }
@@ -317,8 +329,6 @@ where
         self.update_lipschitz_constant(u_current); // update lipschitz constant
 
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
-        println!("FPR       = {:?}", self.cache.fixed_point_residual);
-        println!("Direction = {:?}", self.cache.direction_lbfgs);
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
             self.update_no_linesearch(u_current);
