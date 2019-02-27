@@ -127,29 +127,6 @@ where
         cache.lbfgs.apply_hessian(&mut cache.direction_lbfgs);
     }
 
-    /// Computes the RHS of the linesearch condition
-    fn compute_rhs_ls(&mut self) {
-        let cache = &mut self.cache;
-
-        // dist squared ← norm(gradient step - u half step)^2
-        let dist_squared =
-            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
-
-        // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
-        println!("sig = {:.6}", cache.sigma);
-        cache.rhs_ls = cache.cost_value
-            - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
-            + dist_squared
-            - cache.sigma * cache.norm_fpr.powi(2) * (cache.gamma.powi(2));
-        // println!(
-        //     "RHS = {}, cost = {}, norm_fpr_squared = {}, |gradf|^2 = {}",
-        //     cache.rhs_ls,
-        //     cache.cost_value,
-        //     cache.norm_fpr.powi(2),
-        //     matrix_operations::norm2_squared(&cache.gradient_u)
-        // );
-    }
-
     /// Returns the RHS of the Lipschitz update
     fn lipschitz_check_rhs(&mut self) -> f64 {
         let cache = &mut self.cache;
@@ -215,6 +192,29 @@ where
             });
     }
 
+    /// Computes the RHS of the linesearch condition
+    fn compute_rhs_ls(&mut self) {
+        let cache = &mut self.cache;
+
+        // dist squared ← norm(gradient step - u half step)^2
+        let dist_squared =
+            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
+
+        // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
+        println!("sig = {:.6}", cache.sigma);
+        cache.rhs_ls = cache.cost_value
+            - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
+            + 0.5 * dist_squared / cache.gamma
+            - cache.sigma * cache.norm_fpr.powi(2);
+        println!(
+            "RHS = {}, cost = {}, norm_fpr_squared = {}, |gradf|^2 = {}",
+            cache.rhs_ls,
+            cache.cost_value,
+            cache.norm_fpr.powi(2),
+            matrix_operations::norm2_squared(&cache.gradient_u)
+        );
+    }
+
     /// Computes the left hand side of the line search condition and compares it with the RHS;
     /// returns `true` if and only if lhs > rhs (when the line search should continue)
     fn line_search_condition(&mut self, u: &[f64]) -> bool {
@@ -241,9 +241,9 @@ where
         // Update the LHS of the line search condition
         self.cache.lhs_ls = self.cache.cost_value
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
-            + dist_squared;
+            + 0.5 * dist_squared / self.cache.gamma;
 
-        //println!("LHS = {}", self.cache.lhs_ls);
+        println!("LHS = {}", self.cache.lhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
@@ -261,11 +261,16 @@ where
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         self.cache.tau = 1.0; // initialise tau
-        while self.line_search_condition(u_current) && self.cache.tau > 1e-3 {
+        let mut num_ls_iters = 0;
+        while self.line_search_condition(u_current) && num_ls_iters < 10 {
             self.cache.tau /= 2.0;
+            num_ls_iters += 1;
         }
-        println!("\n   LINESEARCH");
-        println!("   + tau = {}", self.cache.tau);
+        if num_ls_iters == 10 {
+            self.cache.tau = 0.;
+        }
+        println!("\n   LINESEARCH (iters = {})", num_ls_iters);
+        println!("   + tau = {}\n", self.cache.tau);
         // *****************************************************************************
         //
         //  BUG: IF THE LINESEARCH FAILS TO TERMINATE, WE SHOULD HAVE A FAILBACK
