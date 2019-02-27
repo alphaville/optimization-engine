@@ -190,7 +190,7 @@ where
             .zip(cache.fixed_point_residual.iter())
             .zip(cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
-                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
+                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i * gamma;
             });
     }
 
@@ -226,6 +226,8 @@ where
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
 
+        println!("u+ = {:?} ({})", self.cache.u_plus, self.cache.cost_value);
+
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
 
@@ -240,6 +242,8 @@ where
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
             + 0.5 * dist_squared / self.cache.gamma;
 
+        println!("cost value = {}", self.cache.cost_value);
+        println!("({:.4}, {:.4})", self.cache.lhs_ls, self.cache.rhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
