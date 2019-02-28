@@ -99,10 +99,11 @@ fn test_panoc_hard() {
         mocks::hard_quadratic_cost,
     );
     let n = 3;
-    let lbfgs_memory = 10;
+    let lbfgs_memory = 8;
+    let tolerance_fpr = 1e-12;
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(n).unwrap(),
-        1e-5,
+        tolerance_fpr,
         NonZeroUsize::new(lbfgs_memory).unwrap(),
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
@@ -116,7 +117,14 @@ fn test_panoc_hard() {
 
     let mut i = 1;
     println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 2 {
+    while panoc_engine.step(&mut u) && i < 300 {
+        println!(
+            "**** |fpr[{}]| = {:.10} (gamma={:.6}, tau = {:.4})",
+            i,
+            panoc_engine.cache.norm_fpr * panoc_engine.cache.gamma,
+            panoc_engine.cache.gamma,
+            panoc_engine.cache.tau
+        );
         i += 1;
         println!("u = {:?}", u);
         println!("\n*** ITERATION {:3}", i);

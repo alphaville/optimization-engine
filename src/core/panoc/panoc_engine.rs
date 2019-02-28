@@ -19,7 +19,7 @@ const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
 /// Maximum possible Lipschitz constant
 const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
 /// Maximum number of linesearch iterations
-const MAX_LINESEARCH_ITERATIONS: u32 = 10;
+const MAX_LINESEARCH_ITERATIONS: u32 = 20;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -190,7 +190,7 @@ where
             .zip(cache.fixed_point_residual.iter())
             .zip(cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
-                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i * gamma;
+                *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
             });
     }
 
@@ -324,7 +324,7 @@ where
         self.compute_fpr(u_current);
 
         // exit if the norm of the fpr is adequetely small
-        if self.cache.norm_fpr < self.cache.tolerance {
+        if self.cache.norm_fpr * self.cache.gamma < self.cache.tolerance {
             println!("TOLERANCE REACHED : {}", self.cache.norm_fpr);
             //TODO: u <- self.cache.u_half_step
             return false;
