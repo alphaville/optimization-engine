@@ -9,9 +9,9 @@
 //! ## Example: Forward-Backward Splitting
 //!
 //! ```
-//! use panoc_rs::core::{Problem,Optimizer};
-//! use panoc_rs::core::fbs::{FBSCache,FBSEngine,FBSOptimizer};
-//! use panoc_rs::constraints::Ball2;
+//! use optimization_engine::core::{Problem,Optimizer};
+//! use optimization_engine::core::fbs::{FBSCache,FBSEngine,FBSOptimizer};
+//! use optimization_engine::constraints::Ball2;
 //! use std::num::NonZeroUsize;
 //!
 //! fn my_cost(u: &[f64], cost: &mut f64) -> i32 {

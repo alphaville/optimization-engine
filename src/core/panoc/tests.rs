@@ -84,7 +84,7 @@ fn test_panoc_basic() {
     }
     println!("final |fpr| = {}", panoc_engine.cache.norm_gamma_fpr);
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
-    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION, 1e-5, 1e-5, "");
+    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION_A, 1e-6, 1e-8, "");
 }
 
 #[test]
@@ -115,19 +115,22 @@ fn test_panoc_hard() {
 
     let mut i = 1;
     println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 55 {
+    while panoc_engine.step(&mut u) && i < 100 {
         i += 1;
         println!("+ u_plus               = {:?}", u);
         println!("\n*** ITERATION {:3}", i);
     }
 
     println!("\nsol = {:?}", u);
+    assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance_fpr);
+    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION_HARD, 1e-6, 1e-8, "");
 }
 
 #[test]
 fn test_panoc_rosenbrock() {
+    let tolerance = 1e-12;
     let a = 1.0;
-    let b = 10.0;
+    let b = 100.0;
     let df = |u: &[f64], grad: &mut [f64]| -> i32 {
         mocks::rosenbrock_grad(a, b, u, grad);
         0
@@ -140,21 +143,16 @@ fn test_panoc_rosenbrock() {
     let problem = Problem::new(bounds, df, f);
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(2).unwrap(),
-        1e-14,
+        tolerance,
         NonZeroUsize::new(2).unwrap(),
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-
-    let mut u = [-0.2, -0.9];
-
+    let mut u = [-1.5, 0.9];
     panoc_engine.init(&mut u);
-    panoc_engine.cache.lipschitz_constant = 1e4;
-
     let mut i = 1;
-    println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 100 {
+    while panoc_engine.step(&mut u) && i < 50 {
         i += 1;
-        println!("\n*** ITERATION {:3}", i);
     }
+    assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
     println!("u = {:?}", u);
 }

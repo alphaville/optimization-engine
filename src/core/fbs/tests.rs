@@ -98,7 +98,7 @@ fn solve_fbs() {
     assert!(status.has_converged());
     assert!(status.get_norm_fpr() < tolerance);
 
-    unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION, &u, 1e-4, 1e-5, "u");
+    unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION_A, &u, 1e-4, 1e-5, "u");
 }
 
 #[test]

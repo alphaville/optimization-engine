@@ -123,7 +123,7 @@ where
     ///    g[2] = 4.5;
     ///    0 };
     /// let mut lip_estimator =
-    ///     panoc_rs::lipschitz_estimator::LipschitzEstimator::new(&mut u, &f, &mut function_value);
+    ///     optimization_engine::lipschitz_estimator::LipschitzEstimator::new(&mut u, &f, &mut function_value);
     /// let lip = lip_estimator.estimate_local_lipschitz();
     /// ```
     ///

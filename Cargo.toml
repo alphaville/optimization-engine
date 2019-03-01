@@ -6,7 +6,7 @@ description = "A Rust implementation of the PANOC nonlinear optimization solver"
 documentation = "https://docs.rs/panoc"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-name = "panoc-rs"
+name = "optimization_engine"
 version = "0.1.0"
 
 [dependencies]
