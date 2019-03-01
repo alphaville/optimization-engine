@@ -89,15 +89,16 @@ fn test_panoc_basic() {
 
 #[test]
 fn test_panoc_hard() {
-    let bounds = constraints::Ball2::new_at_origin_with_radius(0.05);
+    let radius: f64 = 0.05;
+    let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
     let problem = Problem::new(
         bounds,
         mocks::hard_quadratic_gradient,
         mocks::hard_quadratic_cost,
     );
-    let n = 3;
-    let lbfgs_memory = 8;
-    let tolerance_fpr = 1e-12;
+    let n: usize = 3;
+    let lbfgs_memory: usize = 10;
+    let tolerance_fpr: f64 = 1e-12;
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(n).unwrap(),
         tolerance_fpr,
@@ -114,16 +115,9 @@ fn test_panoc_hard() {
 
     let mut i = 1;
     println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 30 {
-        println!(
-            "**** |fpr[{}]| = {:.10} (gamma={:.6}, tau = {:.4})",
-            i,
-            panoc_engine.cache.norm_gamma_fpr * panoc_engine.cache.gamma,
-            panoc_engine.cache.gamma,
-            panoc_engine.cache.tau
-        );
+    while panoc_engine.step(&mut u) && i < 55 {
         i += 1;
-        println!("u = {:?}", u);
+        println!("+ u_plus               = {:?}", u);
         println!("\n*** ITERATION {:3}", i);
     }
 
@@ -131,36 +125,36 @@ fn test_panoc_hard() {
 }
 
 //#[test]
-fn test_panoc_rosenbrock() {
-    let a = 1.0;
-    let b = 10.0;
-    let df = |u: &[f64], grad: &mut [f64]| -> i32 {
-        mocks::rosenbrock_grad(a, b, u, grad);
-        0
-    };
-    let f = |u: &[f64], c: &mut f64| -> i32 {
-        *c = mocks::rosenbrock_cost(a, b, u);
-        0
-    };
-    let bounds = constraints::Ball2::new_at_origin_with_radius(1.6);
-    let problem = Problem::new(bounds, df, f);
-    let mut panoc_cache = PANOCCache::new(
-        NonZeroUsize::new(2).unwrap(),
-        1e-7,
-        NonZeroUsize::new(2).unwrap(),
-    );
-    let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+// fn test_panoc_rosenbrock() {
+//     let a = 1.0;
+//     let b = 10.0;
+//     let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+//         mocks::rosenbrock_grad(a, b, u, grad);
+//         0
+//     };
+//     let f = |u: &[f64], c: &mut f64| -> i32 {
+//         *c = mocks::rosenbrock_cost(a, b, u);
+//         0
+//     };
+//     let bounds = constraints::Ball2::new_at_origin_with_radius(1.6);
+//     let problem = Problem::new(bounds, df, f);
+//     let mut panoc_cache = PANOCCache::new(
+//         NonZeroUsize::new(2).unwrap(),
+//         1e-7,
+//         NonZeroUsize::new(2).unwrap(),
+//     );
+//     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-    let mut u = [-0.7, -0.9];
+//     let mut u = [-0.7, -0.9];
 
-    panoc_engine.init(&mut u);
-    panoc_engine.cache.lipschitz_constant = 1e4;
+//     panoc_engine.init(&mut u);
+//     panoc_engine.cache.lipschitz_constant = 1e4;
 
-    while panoc_engine.step(&mut u) {
-        println!(
-            "|fpr| = {}, tau = {}",
-            panoc_engine.cache.norm_gamma_fpr, panoc_engine.cache.tau
-        );
-    }
-    println!("u = {:?}", u);
-}
+//     while panoc_engine.step(&mut u) {
+//         println!(
+//             "|fpr| = {}, tau = {}",
+//             panoc_engine.cache.norm_gamma_fpr, panoc_engine.cache.tau
+//         );
+//     }
+//     println!("u = {:?}", u);
+// }

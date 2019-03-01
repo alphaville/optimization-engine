@@ -64,15 +64,14 @@ where
     /// Computes the FPR and its norm
     fn compute_fpr(&mut self, u_current: &[f64]) {
         // compute the FPR:
-        // fpr ← (u - u_half_step) / gamma
+        // fpr ← u - u_half_step
         let cache = &mut self.cache;
-        let gamma = cache.gamma;
         cache
             .gamma_fpr
             .iter_mut()
             .zip(u_current.iter())
             .zip(cache.u_half_step.iter())
-            .for_each(|((fpr, u), uhalf)| *fpr = (u - uhalf) / gamma);
+            .for_each(|((fpr, u), uhalf)| *fpr = u - uhalf);
         // compute the norm of FPR
         cache.norm_gamma_fpr = matrix_operations::norm2(&cache.gamma_fpr);
     }
@@ -128,15 +127,17 @@ where
     }
 
     /// Returns the RHS of the Lipschitz update
+    /// Computes rhs = cost + LIP_EPS * |f| - gamma * <gradfx, fpr> + (L/2/gamma) ||gamma * fpr||^2
     fn lipschitz_check_rhs(&mut self) -> f64 {
         let cache = &mut self.cache;
         let gamma = cache.gamma;
         let cost_value = cache.cost_value;
+        // inner_prod_grad_fpr ← <gradfx, gamma_fpr>
         let inner_prod_grad_fpr =
             matrix_operations::inner_product(&cache.gradient_u, &cache.gamma_fpr);
-        let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs()
-            - (gamma * inner_prod_grad_fpr)
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (gamma.powi(2) * cache.norm_gamma_fpr.powi(2));
+        // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
+        let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2));
         rhs
     }
 
@@ -177,12 +178,12 @@ where
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
     }
 
-    /// Computes u_plus = u - gamma * (1-tau) * fpr - tau * dir,
+    /// Computes u_plus ← u - gamma * (1-tau) * fpr - tau * dir,
     fn compute_u_plus(&mut self, u: &[f64]) {
         let cache = &mut self.cache;
-        let gamma = cache.gamma;
+        //let gamma = cache.gamma;
         let tau = cache.tau;
-        let temp_ = (1.0 - tau) * gamma;
+        let temp_ = 1.0 - tau;
         cache
             .u_plus
             .iter_mut()
@@ -206,10 +207,10 @@ where
         let fbe = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
             + 0.5 * dist_squared / cache.gamma;
-        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2) * cache.gamma.powi(2);
+        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2);
         cache.rhs_ls = fbe - sigma_fpr_sq;
-        println!(" ~ fbe = {}", fbe);
-        println!(" ~ sigma_fpr_sq = {}", sigma_fpr_sq);
+        println!("~ fbe                  = {}", fbe);
+        println!("~ sigma_fpr_sq         = {}", sigma_fpr_sq);
     }
 
     /// Computes the left hand side of the line search condition and compares it with the RHS;
@@ -226,7 +227,10 @@ where
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
 
-        println!("u+ = {:?} ({})", self.cache.u_plus, self.cache.cost_value);
+        println!(
+            "+ u+                   = {:.8?} ({})",
+            self.cache.u_plus, self.cache.cost_value
+        );
 
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
@@ -243,7 +247,7 @@ where
             + 0.5 * dist_squared / self.cache.gamma;
 
         println!("cost value = {}", self.cache.cost_value);
-        println!("({:.4}, {:.4})", self.cache.lhs_ls, self.cache.rhs_ls);
+        println!("({:.8}, {:.8})", self.cache.lhs_ls, self.cache.rhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
@@ -259,8 +263,7 @@ where
         println!("+ u_current            = {:?}", u_current);
         println!("+ u_half               = {:?}", cache.u_half_step);
         println!("+ gamma                = {}", cache.gamma);
-        println!("+ gamma_fpr            = {:?}", cache.gamma_fpr);
-        println!("+ gradfx               = {:?}", cache.gradient_u);
+        println!("+ fpr                  = {:?}", cache.gamma_fpr);
         println!("+ norm FPR             = {}", cache.norm_gamma_fpr);
     }
 
@@ -268,7 +271,8 @@ where
     fn linesearch(&mut self, u_current: &mut [f64]) {
         println!(": gamma                = {}", self.cache.gamma);
         println!(": sigma                = {}", self.cache.sigma);
-        println!(": gamma_fpr = {:?}", self.cache.gamma_fpr);
+        println!(": fpr                  = {:.8?}", self.cache.gamma_fpr);
+        println!(": norm_fpr             = {:.4e}", self.cache.norm_gamma_fpr);
 
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
@@ -319,7 +323,7 @@ where
         self.compute_fpr(u_current);
 
         // exit if the norm of the fpr is adequetely small
-        if self.cache.norm_gamma_fpr * self.cache.gamma < self.cache.tolerance {
+        if self.cache.norm_gamma_fpr < self.cache.tolerance {
             println!("TOLERANCE REACHED : {}", self.cache.norm_gamma_fpr);
             //TODO: u <- self.cache.u_half_step
             return false;
@@ -328,6 +332,12 @@ where
         self.update_lipschitz_constant(u_current); // update lipschitz constant
 
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
+
+        println!(
+            "+ direction            = {:.8?}",
+            self.cache.direction_lbfgs
+        );
+
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
             self.update_no_linesearch(u_current);
