@@ -124,37 +124,37 @@ fn test_panoc_hard() {
     println!("\nsol = {:?}", u);
 }
 
-//#[test]
-// fn test_panoc_rosenbrock() {
-//     let a = 1.0;
-//     let b = 10.0;
-//     let df = |u: &[f64], grad: &mut [f64]| -> i32 {
-//         mocks::rosenbrock_grad(a, b, u, grad);
-//         0
-//     };
-//     let f = |u: &[f64], c: &mut f64| -> i32 {
-//         *c = mocks::rosenbrock_cost(a, b, u);
-//         0
-//     };
-//     let bounds = constraints::Ball2::new_at_origin_with_radius(1.6);
-//     let problem = Problem::new(bounds, df, f);
-//     let mut panoc_cache = PANOCCache::new(
-//         NonZeroUsize::new(2).unwrap(),
-//         1e-7,
-//         NonZeroUsize::new(2).unwrap(),
-//     );
-//     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+#[test]
+fn test_panoc_rosenbrock() {
+    let a = 1.0;
+    let b = 10.0;
+    let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+        mocks::rosenbrock_grad(a, b, u, grad);
+        0
+    };
+    let f = |u: &[f64], c: &mut f64| -> i32 {
+        *c = mocks::rosenbrock_cost(a, b, u);
+        0
+    };
+    let bounds = constraints::Ball2::new_at_origin_with_radius(1.0);
+    let problem = Problem::new(bounds, df, f);
+    let mut panoc_cache = PANOCCache::new(
+        NonZeroUsize::new(2).unwrap(),
+        1e-14,
+        NonZeroUsize::new(2).unwrap(),
+    );
+    let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-//     let mut u = [-0.7, -0.9];
+    let mut u = [-0.2, -0.9];
 
-//     panoc_engine.init(&mut u);
-//     panoc_engine.cache.lipschitz_constant = 1e4;
+    panoc_engine.init(&mut u);
+    panoc_engine.cache.lipschitz_constant = 1e4;
 
-//     while panoc_engine.step(&mut u) {
-//         println!(
-//             "|fpr| = {}, tau = {}",
-//             panoc_engine.cache.norm_gamma_fpr, panoc_engine.cache.tau
-//         );
-//     }
-//     println!("u = {:?}", u);
-// }
+    let mut i = 1;
+    println!("\n*** ITERATION   1");
+    while panoc_engine.step(&mut u) && i < 100 {
+        i += 1;
+        println!("\n*** ITERATION {:3}", i);
+    }
+    println!("u = {:?}", u);
+}

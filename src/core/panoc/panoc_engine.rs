@@ -19,7 +19,7 @@ const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
 /// Maximum possible Lipschitz constant
 const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
 /// Maximum number of linesearch iterations
-const MAX_LINESEARCH_ITERATIONS: u32 = 20;
+const MAX_LINESEARCH_ITERATIONS: u32 = 10;
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -181,7 +181,7 @@ where
     /// Computes u_plus ← u - gamma * (1-tau) * fpr - tau * dir,
     fn compute_u_plus(&mut self, u: &[f64]) {
         let cache = &mut self.cache;
-        //let gamma = cache.gamma;
+        let _gamma = cache.gamma;
         let tau = cache.tau;
         let temp_ = 1.0 - tau;
         cache
@@ -285,12 +285,7 @@ where
         }
         if num_ls_iters == MAX_LINESEARCH_ITERATIONS {
             self.cache.tau = 0.;
-            // *****************************************************************************
-            //
-            //  BUG: IF THE LINESEARCH FAILS TO TERMINATE, WE SHOULD HAVE A FAILBACK
-            //       STRATEGY! (TAU = 0)
-            //
-            // *****************************************************************************
+            u_current.copy_from_slice(&self.cache.u_half_step);
         }
         println!("\n   LINESEARCH (iters = {})", num_ls_iters);
         println!("   + tau = {}\n", self.cache.tau);
@@ -392,14 +387,14 @@ mod tests {
         panoc_engine.cache.u_half_step.copy_from_slice(&[0.5, 2.9]);
         panoc_engine.compute_fpr(&mut u); // fpr ← (u - u_half_step) / gamma, norm_fpr ← norm(fpr)
         unit_test_utils::assert_nearly_equal_array(
-            &[10.683760683760683, -183.7606837606838],
+            &[0.25, -4.3],
             &panoc_engine.cache.gamma_fpr,
             1e-8,
             1e-10,
             "fpr",
         );
         unit_test_utils::assert_nearly_equal(
-            184.0709961904425,
+            4.307261310856354,
             panoc_engine.cache.norm_gamma_fpr,
             1e-8,
             1e-10,
@@ -504,11 +499,12 @@ mod tests {
         panoc_engine.cache.gamma = 4.746900333448449e-4;
 
         // fpr = (u - u_half_step)/gamma
-        panoc_engine
-            .cache
-            .gamma_fpr
-            .copy_from_slice(&[-3.49, -2.35, -103.85]);
-        panoc_engine.cache.norm_gamma_fpr = 103.9351966371354;
+        panoc_engine.cache.gamma_fpr.copy_from_slice(&[
+            -0.001656668216374,
+            -0.001115521578360,
+            -0.049296559962862,
+        ]);
+        panoc_engine.cache.norm_gamma_fpr = 0.049337001957385;
 
         // cost at `u`
         panoc_engine.cache.cost_value = 5.21035;
