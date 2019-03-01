@@ -203,14 +203,14 @@ where
         let dist_squared =
             matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
 
-        // rhs_ls ← f - (gamma/2) * norm(gradf)^2 + dist squared - sigma * norm_fpr_squared
+        // rhs_ls ← f - (gamma/2) * norm(gradf)^2
+        //            + 0.5 * dist squared / gamma
+        //            - sigma * norm_gamma_fpr^2
         let fbe = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
             + 0.5 * dist_squared / cache.gamma;
         let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2);
         cache.rhs_ls = fbe - sigma_fpr_sq;
-        println!("~ fbe                  = {}", fbe);
-        println!("~ sigma_fpr_sq         = {}", sigma_fpr_sq);
     }
 
     /// Computes the left hand side of the line search condition and compares it with the RHS;
@@ -227,11 +227,6 @@ where
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
 
-        println!(
-            "+ u+                   = {:.8?} ({})",
-            self.cache.u_plus, self.cache.cost_value
-        );
-
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
 
@@ -246,8 +241,6 @@ where
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
             + 0.5 * dist_squared / self.cache.gamma;
 
-        println!("cost value = {}", self.cache.cost_value);
-        println!("({:.8}, {:.8})", self.cache.lhs_ls, self.cache.rhs_ls);
         self.cache.lhs_ls > self.cache.rhs_ls
     }
 
@@ -258,25 +251,12 @@ where
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
-
-        let cache = &self.cache;
-        println!("+ u_current            = {:?}", u_current);
-        println!("+ u_half               = {:?}", cache.u_half_step);
-        println!("+ gamma                = {}", cache.gamma);
-        println!("+ fpr                  = {:?}", cache.gamma_fpr);
-        println!("+ norm FPR             = {}", cache.norm_gamma_fpr);
     }
 
     /// Performs a line search to select tau
     fn linesearch(&mut self, u_current: &mut [f64]) {
-        println!(": gamma                = {}", self.cache.gamma);
-        println!(": sigma                = {}", self.cache.sigma);
-        println!(": fpr                  = {:.8?}", self.cache.gamma_fpr);
-        println!(": norm_fpr             = {:.4e}", self.cache.norm_gamma_fpr);
-
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
-        println!(": rhs                  = {}", self.cache.rhs_ls);
         self.cache.tau = 1.0; // initialise tau ← 1.0
         let mut num_ls_iters = 0;
         while self.line_search_condition(u_current) && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
@@ -287,9 +267,6 @@ where
             self.cache.tau = 0.;
             u_current.copy_from_slice(&self.cache.u_half_step);
         }
-        println!("\n   LINESEARCH (iters = {})", num_ls_iters);
-        println!("   + tau = {}\n", self.cache.tau);
-
         // Sets `u_current` to `u_plus` (u_current ← u_plus)
         u_current.copy_from_slice(&self.cache.u_plus);
     }
@@ -319,19 +296,11 @@ where
 
         // exit if the norm of the fpr is adequetely small
         if self.cache.norm_gamma_fpr < self.cache.tolerance {
-            println!("TOLERANCE REACHED : {}", self.cache.norm_gamma_fpr);
             //TODO: u <- self.cache.u_half_step
             return false;
         }
-
         self.update_lipschitz_constant(u_current); // update lipschitz constant
-
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
-
-        println!(
-            "+ direction            = {:.8?}",
-            self.cache.direction_lbfgs
-        );
 
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
@@ -374,7 +343,7 @@ mod tests {
     use std::num::NonZeroUsize;
 
     #[test]
-    fn compute_fpr() {
+    fn t_compute_fpr() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let box_constraints = constraints::NoConstraints::new();
@@ -385,7 +354,7 @@ mod tests {
         let mut u = [0.75, -1.4];
         panoc_engine.cache.gamma = 0.0234;
         panoc_engine.cache.u_half_step.copy_from_slice(&[0.5, 2.9]);
-        panoc_engine.compute_fpr(&mut u); // fpr ← (u - u_half_step) / gamma, norm_fpr ← norm(fpr)
+        panoc_engine.compute_fpr(&mut u); // gamma_fpr ← u - u_half_step, norm_fpr ← norm(gamma_fpr)
         unit_test_utils::assert_nearly_equal_array(
             &[0.25, -4.3],
             &panoc_engine.cache.gamma_fpr,
@@ -403,7 +372,7 @@ mod tests {
     }
 
     #[test]
-    fn gradient_step() {
+    fn t_gradient_step() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
@@ -426,7 +395,7 @@ mod tests {
     }
 
     #[test]
-    fn gradient_step_uplus() {
+    fn t_gradient_step_uplus() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
@@ -452,7 +421,7 @@ mod tests {
     }
 
     #[test]
-    fn half_step() {
+    fn t_half_step() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
@@ -477,7 +446,7 @@ mod tests {
     }
 
     #[test]
-    fn lipschitz_update_rhs() {
+    fn t_lipschitz_update_rhs() {
         let n = NonZeroUsize::new(3).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
@@ -517,7 +486,7 @@ mod tests {
     }
 
     #[test]
-    fn compute_rhs_ls() {
+    fn t_compute_rhs_ls() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
@@ -537,18 +506,18 @@ mod tests {
         panoc_engine.cache.gamma = 2.34;
         panoc_engine.cache.gradient_u.copy_from_slice(&[2.4, -9.7]);
         panoc_engine.cache.sigma = 0.066;
-        panoc_engine.cache.norm_gamma_fpr = 1.11;
+        panoc_engine.cache.norm_gamma_fpr = 2.5974;
 
         panoc_engine.compute_rhs_ls();
 
         println!("rhs = {}", panoc_engine.cache.rhs_ls);
 
-        // unit_test_utils::assert_nearly_equal(
-        //     354.7041814000001,
-        //     panoc_engine.cache.rhs_ls,
-        //     1e-10,
-        //     1e-8,
-        //     "rhs_ls is wrong",
-        // );
+        unit_test_utils::assert_nearly_equal(
+            2.373394267002398,
+            panoc_engine.cache.rhs_ls,
+            1e-10,
+            1e-8,
+            "rhs_ls is wrong",
+        );
     }
 }
