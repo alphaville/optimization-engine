@@ -47,11 +47,8 @@ fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
     CostType: Fn(&[f64], &mut f64) -> i32,
     ConstraintType: constraints::Constraint,
 {
-    println!(
-        "> fpr       = {:?}",
-        &panoc_engine.cache.fixed_point_residual
-    );
-    println!("> fpr       = {:.2e}", panoc_engine.cache.norm_fpr);
+    println!("> fpr       = {:?}", &panoc_engine.cache.gamma_fpr);
+    println!("> fpr       = {:.2e}", panoc_engine.cache.norm_gamma_fpr);
     println!("> L         = {:.3}", panoc_engine.cache.lipschitz_constant);
     println!("> gamma     = {:.10}", panoc_engine.cache.gamma);
     println!("> tau       = {:.3}", panoc_engine.cache.tau);
@@ -73,7 +70,7 @@ fn test_panoc_basic() {
     let mut u = [0.0, 0.0];
     panoc_engine.init(&mut u);
     panoc_engine.step(&mut u);
-    let fpr0 = panoc_engine.cache.norm_fpr;
+    let fpr0 = panoc_engine.cache.norm_gamma_fpr;
     println!("fpr0 = {}", fpr0);
 
     for i in 1..=100 {
@@ -85,8 +82,8 @@ fn test_panoc_basic() {
             break;
         }
     }
-    println!("final |fpr| = {}", panoc_engine.cache.norm_fpr);
-    assert!(panoc_engine.cache.norm_fpr <= tolerance);
+    println!("final |fpr| = {}", panoc_engine.cache.norm_gamma_fpr);
+    assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
     unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION, 1e-5, 1e-5, "");
 }
 
@@ -121,7 +118,7 @@ fn test_panoc_hard() {
         println!(
             "**** |fpr[{}]| = {:.10} (gamma={:.6}, tau = {:.4})",
             i,
-            panoc_engine.cache.norm_fpr * panoc_engine.cache.gamma,
+            panoc_engine.cache.norm_gamma_fpr * panoc_engine.cache.gamma,
             panoc_engine.cache.gamma,
             panoc_engine.cache.tau
         );
@@ -162,7 +159,7 @@ fn test_panoc_rosenbrock() {
     while panoc_engine.step(&mut u) {
         println!(
             "|fpr| = {}, tau = {}",
-            panoc_engine.cache.norm_fpr, panoc_engine.cache.tau
+            panoc_engine.cache.norm_gamma_fpr, panoc_engine.cache.tau
         );
     }
     println!("u = {:?}", u);

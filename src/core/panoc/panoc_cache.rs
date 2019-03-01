@@ -28,13 +28,13 @@ impl PANOCCache {
         PANOCCache {
             gradient_u: vec![0.0; n.get()],
             u_half_step: vec![0.0; n.get()],
-            fixed_point_residual: vec![0.0; n.get()],
+            gamma_fpr: vec![0.0; n.get()],
             direction_lbfgs: vec![0.0; n.get()],
             gradient_step: vec![0.0; n.get()],
             u_plus: vec![0.0; n.get()],
             gamma: 0.0,
             tolerance: tolerance,
-            norm_fpr: std::f64::INFINITY,
+            norm_gamma_fpr: std::f64::INFINITY,
             // TODO: change the following lines...
             lbfgs: lbfgs::Lbfgs::new(n, lbfgs_mem)
                 .with_cbfgs_alpha(1.0)

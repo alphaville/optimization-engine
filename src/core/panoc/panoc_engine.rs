@@ -68,13 +68,13 @@ where
         let cache = &mut self.cache;
         let gamma = cache.gamma;
         cache
-            .fixed_point_residual
+            .gamma_fpr
             .iter_mut()
             .zip(u_current.iter())
             .zip(cache.u_half_step.iter())
             .for_each(|((fpr, u), uhalf)| *fpr = (u - uhalf) / gamma);
         // compute the norm of FPR
-        cache.norm_fpr = matrix_operations::norm2(&cache.fixed_point_residual);
+        cache.norm_gamma_fpr = matrix_operations::norm2(&cache.gamma_fpr);
     }
 
     /// Computes a gradient step; does not compute the gradient
@@ -117,15 +117,11 @@ where
     fn lbfgs_direction(&mut self, u_current: &[f64]) {
         let cache = &mut self.cache;
         // update the LBFGS buffer
-        cache
-            .lbfgs
-            .update_hessian(&cache.fixed_point_residual, u_current);
+        cache.lbfgs.update_hessian(&cache.gamma_fpr, u_current);
 
         // direction ← fpr
         if cache.iteration > 0 {
-            cache
-                .direction_lbfgs
-                .copy_from_slice(&cache.fixed_point_residual);
+            cache.direction_lbfgs.copy_from_slice(&cache.gamma_fpr);
             // compute an LBFGS direction, that is direction ← H(fpr)
             cache.lbfgs.apply_hessian(&mut cache.direction_lbfgs);
         }
@@ -137,10 +133,10 @@ where
         let gamma = cache.gamma;
         let cost_value = cache.cost_value;
         let inner_prod_grad_fpr =
-            matrix_operations::inner_product(&cache.gradient_u, &cache.fixed_point_residual);
+            matrix_operations::inner_product(&cache.gradient_u, &cache.gamma_fpr);
         let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs()
             - (gamma * inner_prod_grad_fpr)
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (gamma.powi(2) * cache.norm_fpr.powi(2));
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * (gamma.powi(2) * cache.norm_gamma_fpr.powi(2));
         rhs
     }
 
@@ -191,7 +187,7 @@ where
             .u_plus
             .iter_mut()
             .zip(u.iter())
-            .zip(cache.fixed_point_residual.iter())
+            .zip(cache.gamma_fpr.iter())
             .zip(cache.direction_lbfgs.iter())
             .for_each(|(((u_plus_i, &u_i), &fpr_i), &dir_i)| {
                 *u_plus_i = u_i - temp_ * fpr_i - tau * dir_i;
@@ -210,7 +206,7 @@ where
         let fbe = cache.cost_value
             - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
             + 0.5 * dist_squared / cache.gamma;
-        let sigma_fpr_sq = cache.sigma * cache.norm_fpr.powi(2) * cache.gamma.powi(2);
+        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2) * cache.gamma.powi(2);
         cache.rhs_ls = fbe - sigma_fpr_sq;
         println!(" ~ fbe = {}", fbe);
         println!(" ~ sigma_fpr_sq = {}", sigma_fpr_sq);
@@ -263,19 +259,16 @@ where
         println!("+ u_current            = {:?}", u_current);
         println!("+ u_half               = {:?}", cache.u_half_step);
         println!("+ gamma                = {}", cache.gamma);
-        println!("+ fixed_point_residual = {:?}", cache.fixed_point_residual);
+        println!("+ gamma_fpr            = {:?}", cache.gamma_fpr);
         println!("+ gradfx               = {:?}", cache.gradient_u);
-        println!("+ norm FPR             = {}", cache.norm_fpr);
+        println!("+ norm FPR             = {}", cache.norm_gamma_fpr);
     }
 
     /// Performs a line search to select tau
     fn linesearch(&mut self, u_current: &mut [f64]) {
         println!(": gamma                = {}", self.cache.gamma);
         println!(": sigma                = {}", self.cache.sigma);
-        println!(
-            ": fixed_point_residual = {:?}",
-            self.cache.fixed_point_residual
-        );
+        println!(": gamma_fpr = {:?}", self.cache.gamma_fpr);
 
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
@@ -326,8 +319,8 @@ where
         self.compute_fpr(u_current);
 
         // exit if the norm of the fpr is adequetely small
-        if self.cache.norm_fpr * self.cache.gamma < self.cache.tolerance {
-            println!("TOLERANCE REACHED : {}", self.cache.norm_fpr);
+        if self.cache.norm_gamma_fpr * self.cache.gamma < self.cache.tolerance {
+            println!("TOLERANCE REACHED : {}", self.cache.norm_gamma_fpr);
             //TODO: u <- self.cache.u_half_step
             return false;
         }
@@ -390,14 +383,14 @@ mod tests {
         panoc_engine.compute_fpr(&mut u); // fpr ← (u - u_half_step) / gamma, norm_fpr ← norm(fpr)
         unit_test_utils::assert_nearly_equal_array(
             &[10.683760683760683, -183.7606837606838],
-            &panoc_engine.cache.fixed_point_residual,
+            &panoc_engine.cache.gamma_fpr,
             1e-8,
             1e-10,
             "fpr",
         );
         unit_test_utils::assert_nearly_equal(
             184.0709961904425,
-            panoc_engine.cache.norm_fpr,
+            panoc_engine.cache.norm_gamma_fpr,
             1e-8,
             1e-10,
             "norm_fpr",
@@ -503,9 +496,9 @@ mod tests {
         // fpr = (u - u_half_step)/gamma
         panoc_engine
             .cache
-            .fixed_point_residual
+            .gamma_fpr
             .copy_from_slice(&[-3.49, -2.35, -103.85]);
-        panoc_engine.cache.norm_fpr = 103.9351966371354;
+        panoc_engine.cache.norm_gamma_fpr = 103.9351966371354;
 
         // cost at `u`
         panoc_engine.cache.cost_value = 5.21035;
@@ -538,7 +531,7 @@ mod tests {
         panoc_engine.cache.gamma = 2.34;
         panoc_engine.cache.gradient_u.copy_from_slice(&[2.4, -9.7]);
         panoc_engine.cache.sigma = 0.066;
-        panoc_engine.cache.norm_fpr = 1.11;
+        panoc_engine.cache.norm_gamma_fpr = 1.11;
 
         panoc_engine.compute_rhs_ls();
 
