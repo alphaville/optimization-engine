@@ -117,7 +117,7 @@ fn test_panoc_hard() {
 
     let mut i = 1;
     println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 300 {
+    while panoc_engine.step(&mut u) && i < 30 {
         println!(
             "**** |fpr[{}]| = {:.10} (gamma={:.6}, tau = {:.4})",
             i,

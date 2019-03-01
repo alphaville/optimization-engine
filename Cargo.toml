@@ -14,4 +14,4 @@ num = "0.2.0"
 lbfgs = {git = "https://github.com/korken89/lbfgs-rs", branch="master"}
 
 [dev-dependencies]
-unit_test_utils = "*"
+unit_test_utils = "0.1.3"

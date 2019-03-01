@@ -122,11 +122,13 @@ where
             .update_hessian(&cache.fixed_point_residual, u_current);
 
         // direction ← fpr
-        cache
-            .direction_lbfgs
-            .copy_from_slice(&cache.fixed_point_residual);
-        // compute an LBFGS direction, that is direction ← H(fpr)
-        cache.lbfgs.apply_hessian(&mut cache.direction_lbfgs);
+        if cache.iteration > 0 {
+            cache
+                .direction_lbfgs
+                .copy_from_slice(&cache.fixed_point_residual);
+            // compute an LBFGS direction, that is direction ← H(fpr)
+            cache.lbfgs.apply_hessian(&mut cache.direction_lbfgs);
+        }
     }
 
     /// Returns the RHS of the Lipschitz update
@@ -148,12 +150,14 @@ where
 
         // Compute the cost at the half step
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+
+        // Compute the cost at u_current (save it in `cache.cost_value`)
         (self.problem.cost)(u_current, &mut self.cache.cost_value);
 
-        let mut it = 0;
+        let mut it_lipschitz_search = 0;
 
         while cost_u_half_step > self.lipschitz_check_rhs()
-            && it < MAX_LIPSCHITZ_UPDATE_ITERATIONS
+            && it_lipschitz_search < MAX_LIPSCHITZ_UPDATE_ITERATIONS
             && self.cache.lipschitz_constant < MAX_LIPSCHITZ_CONSTANT
         {
             self.cache.lbfgs.reset(); // invalidate the L-BFGS buffer
@@ -172,7 +176,7 @@ where
 
             // recompute the FPR and the square of its norm
             self.compute_fpr(u_current);
-            it = it + 1;
+            it_lipschitz_search = it_lipschitz_search + 1;
         }
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
     }
@@ -249,7 +253,7 @@ where
 
     /// Update without performing a line search; this is executed at the first iteration
     fn update_no_linesearch(&mut self, u_current: &mut [f64]) {
-        u_current.copy_from_slice(&self.cache.u_half_step); // set u_current = u_half_step
+        u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
         self.gradient_step(u_current); // updated self.cache.gradient_step
@@ -276,27 +280,25 @@ where
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         println!(": rhs                  = {}", self.cache.rhs_ls);
-        self.cache.tau = 1.0; // initialise tau
+        self.cache.tau = 1.0; // initialise tau ← 1.0
         let mut num_ls_iters = 0;
         while self.line_search_condition(u_current) && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
             self.cache.tau /= 2.0;
             num_ls_iters += 1;
         }
-        if num_ls_iters == 10 {
+        if num_ls_iters == MAX_LINESEARCH_ITERATIONS {
             self.cache.tau = 0.;
+            // *****************************************************************************
+            //
+            //  BUG: IF THE LINESEARCH FAILS TO TERMINATE, WE SHOULD HAVE A FAILBACK
+            //       STRATEGY! (TAU = 0)
+            //
+            // *****************************************************************************
         }
         println!("\n   LINESEARCH (iters = {})", num_ls_iters);
         println!("   + tau = {}\n", self.cache.tau);
-        // *****************************************************************************
-        //
-        //  BUG: IF THE LINESEARCH FAILS TO TERMINATE, WE SHOULD HAVE A FAILBACK
-        //       STRATEGY! (TAU = 0)
-        //
-        // *****************************************************************************
-    }
 
-    /// Sets `u_current` to `u_plus`
-    fn update_with_u_plus(&mut self, u_current: &mut [f64]) {
+        // Sets `u_current` to `u_plus` (u_current ← u_plus)
         u_current.copy_from_slice(&self.cache.u_plus);
     }
 }
@@ -338,7 +340,6 @@ where
             self.update_no_linesearch(u_current);
         } else {
             self.linesearch(u_current);
-            self.update_with_u_plus(u_current);
         }
 
         self.cache.iteration += 1;
