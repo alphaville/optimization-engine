@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://alphaville.github.io/optimization-engine/blog</id>
+    <title>Optimization Engine Blog</title>
+    <updated>2019-03-01T06:00:00Z</updated>
+    <generator>Feed for Node.js</generator>
+    <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
+    <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
+    <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
+    <rights>Copyright © 2019 Pantelis Sopasakis</rights>
+    <entry>
+        <title type="html"><![CDATA[Yet another post]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html">
+        </link>
+        <updated>2019-03-01T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[First Release of Optimization Engine]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html">
+        </link>
+        <updated>2019-02-28T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+</feed>

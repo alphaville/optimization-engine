@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Optimization Engine Blog</title>
+        <link>https://alphaville.github.io/optimization-engine/blog</link>
+        <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
+        <lastBuildDate>Fri, 01 Mar 2019 06:00:00 GMT</lastBuildDate>
+        <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+        <generator>Feed for Node.js</generator>
+        <image>
+            <title>Optimization Engine Blog</title>
+            <url>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</url>
+            <link>https://alphaville.github.io/optimization-engine/blog</link>
+        </image>
+        <copyright>Copyright © 2019 Pantelis Sopasakis</copyright>
+        <item>
+            <title><![CDATA[Yet another post]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</guid>
+            <pubDate>Fri, 01 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+]]></description>
+        </item>
+        <item>
+            <title><![CDATA[First Release of Optimization Engine]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</guid>
+            <pubDate>Thu, 28 Feb 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+]]></description>
+        </item>
+    </channel>
+</rss>
