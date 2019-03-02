@@ -6,10 +6,9 @@
 
 It uses the Proximal Averaged Newton algorithm ([PANOC](https://arxiv.org/pdf/1709.06487.pdf))
 
-## Coming up
+## Documentation
 
-- Detailed documentation and examples
-- Crate on [crates.io](https://crates.io)
+[Optimization Engine Documentation](https://alphaville.github.io/optimization-engine/)
 
 ## License
 
@@ -21,16 +20,12 @@ This project is licensed under either of
 
 at your option.
 
-## UML
 
-### FBS UML
-![fbs uml](design/fbs.png)
+## Authors
+- Pantelis Sopasakis
+- Emil Fresk
 
-### PANOC UML
-![panoc uml](design/panoc.png)
-
-
-### Contribution
+## Contributions
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the
 work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
