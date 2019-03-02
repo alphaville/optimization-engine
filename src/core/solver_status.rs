@@ -1,3 +1,6 @@
+//! Status of the result of a solver (number of iterations, etc)
+//!
+//!
 pub use crate::core::SolverStatus;
 
 impl SolverStatus {

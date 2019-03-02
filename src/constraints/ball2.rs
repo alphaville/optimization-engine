@@ -5,6 +5,7 @@ impl Ball2 {
     /// Construct a new ball centered at the origin with given radius
     pub fn new_at_origin_with_radius(radius_: f64) -> Ball2 {
         assert!(radius_ > 0.0);
+
         Ball2 {
             centre: None,
             radius: radius_,
@@ -15,6 +16,7 @@ impl Ball2 {
     /// Construct a new Eucledian ball with given centre and radius
     pub fn new(centre_: Vec<f64>, radius_: f64) -> Ball2 {
         assert!(radius_ > 0.0);
+
         Ball2 {
             centre: Some(centre_),
             radius: radius_,

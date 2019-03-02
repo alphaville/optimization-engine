@@ -10,9 +10,9 @@ use crate::matrix_operations;
 impl<'a, GradientType, ConstraintType, CostType>
     FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
-    ConstraintType: constraints::Constraint + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
 {
     /// Constructor for instances of `FBSEngine`
     ///
@@ -40,6 +40,7 @@ where
             (self.problem.gradf)(u_current, &mut self.cache.work_gradient_u),
             "The computation of the gradient of the cost failed miserably"
         );
+
         // take a gradient step: u_currect -= gamma * gradient
         u_current
             .iter_mut()

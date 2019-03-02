@@ -1,7 +1,6 @@
 use super::{Constraint, Rectangle};
 
 impl Rectangle {
-    ///
     /// Construct a new rectangle with given `xmin` and `xmax`
     pub fn new(xmin_: Vec<f64>, xmax_: Vec<f64>) -> Rectangle {
         Rectangle {
@@ -9,7 +8,7 @@ impl Rectangle {
             xmax: Some(xmax_),
         }
     }
-    ///
+
     /// Construct a new rectangle with given `xmin` and no `xmax`
     ///
     /// Essentially, this is a halfspace
@@ -20,7 +19,6 @@ impl Rectangle {
         }
     }
 
-    ///
     /// Construct a new rectangle with given `xmax` and no `xmin`
     ///
     /// Essentially, this is a halfspace

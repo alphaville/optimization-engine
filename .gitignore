@@ -4,5 +4,7 @@ Cargo.lock
 .vscode/
 src/main.rs
 design/panoc-only.png
-matlab
 *.m
+*.autosave
+*~
+

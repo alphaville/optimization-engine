@@ -1,3 +1,11 @@
+//! An optimization problem
+//!
+//! This struct defines an optimization problem in terms of its cost function
+//! (cost function and its gradient) and constraints
+//!
+//! Cost functions are user defined. They can either be defined in Rust or in
+//! C (and then invoked from Rust via an interface such as icasadi).
+//!
 use crate::constraints;
 pub use crate::core::Problem;
 
