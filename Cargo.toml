@@ -2,8 +2,8 @@
 authors = ["Emil Fresk <emil.fresk@gmail.com>", "Pantelis Sopasakis (https://alphaville.github.io)"]
 categories = ["embedded", "nonlinear", "optimization"]
 keywords = ["embedded", "optimization", "solver"]
-description = "A Rust implementation of the PANOC nonlinear optimization solver"
-documentation = "https://docs.rs/panoc"
+description = "A framework for embedded nonconvex optimization"
+documentation = "https://alphaville.github.io/optimization-engine/"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 name = "optimization_engine"
