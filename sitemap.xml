@@ -3,6 +3,8 @@
 <url> <loc>https://alphaville.github.io/optimization-engine/help</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/en/help" /> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/index</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/en/index" /> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/users</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/en/users" /> </url>
+<url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
+<url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/docs/doc1</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/docs/doc1" /> </url>

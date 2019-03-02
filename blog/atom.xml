@@ -2,32 +2,55 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-03-01T06:00:00Z</updated>
+    <updated>2019-03-03T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
-    <rights>Copyright © 2019 Pantelis Sopasakis</rights>
+    <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
     <entry>
-        <title type="html"><![CDATA[Yet another post]]></title>
-        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</id>
-        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html">
+        <title type="html"><![CDATA[Risk-averse optimal control]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html">
         </link>
-        <updated>2019-03-01T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
-]]></summary>
+        <updated>2019-03-03T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Our paper titled &quot;Risk-averse risk-constrained optimal control,&quot; (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p> <p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse"><code>marie...</code></a></p>]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
         </author>
     </entry>
     <entry>
-        <title type="html"><![CDATA[First Release of Optimization Engine]]></title>
+        <title type="html"><![CDATA[SuperSCS: OpEn's sister project]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html">
+        </link>
+        <updated>2019-03-02T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p><a href="https://kul-forbes.github.io/scs/">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p> <p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p> <p>The paper titled &quot;SuperSCS: fast and accurate large-scale con...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[UAV navigation at ECC19]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html">
+        </link>
+        <updated>2019-03-01T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European Co...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[First Release of OpEn]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html">
         </link>
         <updated>2019-02-28T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+        <summary type="html"><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> (OpEn) and we're very excited about it!</p>
 ]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>

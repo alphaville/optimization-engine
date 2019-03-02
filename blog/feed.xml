@@ -4,7 +4,7 @@
         <title>Optimization Engine Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
-        <lastBuildDate>Fri, 01 Mar 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 03 Mar 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -12,21 +12,34 @@
             <url>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</url>
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
-        <copyright>Copyright © 2019 Pantelis Sopasakis</copyright>
+        <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
         <item>
-            <title><![CDATA[Yet another post]]></title>
+            <title><![CDATA[Risk-averse optimal control]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</guid>
+            <pubDate>Sun, 03 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>Our paper titled &quot;Risk-averse risk-constrained optimal control,&quot; (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p> <p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse"><code>marie...</code></a></p>]]></description>
+        </item>
+        <item>
+            <title><![CDATA[SuperSCS: OpEn's sister project]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</guid>
+            <pubDate>Sat, 02 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p><a href="https://kul-forbes.github.io/scs/">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p> <p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p> <p>The paper titled &quot;SuperSCS: fast and accurate large-scale con...</p>]]></description>
+        </item>
+        <item>
+            <title><![CDATA[UAV navigation at ECC19]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</link>
             <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</guid>
             <pubDate>Fri, 01 Mar 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
-]]></description>
+            <description><![CDATA[<p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European Co...</p>]]></description>
         </item>
         <item>
-            <title><![CDATA[First Release of Optimization Engine]]></title>
+            <title><![CDATA[First Release of OpEn]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</link>
             <guid>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</guid>
             <pubDate>Thu, 28 Feb 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> and we're very excited about it</p>
+            <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> (OpEn) and we're very excited about it!</p>
 ]]></description>
         </item>
     </channel>
