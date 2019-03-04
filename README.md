@@ -1,6 +1,6 @@
 # Optimization Engine
 
-[![Build Status](https://travis-ci.org/korken89/panoc-rs.svg?branch=master)](https://travis-ci.org/korken89/panoc-rs)
+[![Build Status](https://travis-ci.org/alphaville/optimization-engine.svg?branch=master)](https://travis-ci.org/alphaville/optimization-engine)
 
 **Optimization Engine** is a solver for embedded nonconvex optimization. 
 
