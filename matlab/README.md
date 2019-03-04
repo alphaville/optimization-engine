@@ -1,3 +1,3 @@
-This is a collection of tests in MATLAB -- nothing serious... 
+# MATLAB OpEn Interface
 
-This folder will be removed later
+This is the matlab interface of 

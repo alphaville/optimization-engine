@@ -150,7 +150,6 @@ where
                 }
             });
         let norm_h = matrix_operations::norm2(&self.workspace);
-        println!("norm_h = {}", norm_h);
 
         // u += workspace
         // u = u + h
