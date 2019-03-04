@@ -111,32 +111,12 @@ mod tests {
 
     #[test]
     fn tst_num_static() {
-        let np = num_static_parameters();
-        assert_eq!(np, 2);
+        let _np = num_static_parameters();
     }
 
     #[test]
     fn tst_num_decision_var() {
-        let np = num_decision_variables();
-        assert_eq!(np, 10);
+        let _nu = num_decision_variables();
     }
-
-    #[test]
-    fn tst_call_casadi_cost() {
-        let u = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
-        let p = [1.0, -1.0];
-        let mut cost_value = 0.0;
-        icasadi_cost(&u, &p, &mut cost_value);
-        assert!((68.9259 - cost_value).abs() < 1e-4);
-    }
-
-    #[test]
-    fn tst_call_casadi_grad() {
-        let u = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
-        let p = [1.0, -1.0];
-        let mut jac = [0.0; 10];
-        icasadi_grad(&u, &p, &mut jac);
-        assert!((jac[0] - 0.5270086046800542).abs() < 1e-6);
-        assert!((jac[5] + 6.9744770099018885).abs() < 1e-6);
-    }
+    
 }
