@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>OpEn Rust · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;problem-definition&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#problem-definition&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Problem definition&lt;/h2&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="OpEn Rust · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;problem-definition&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#problem-definition&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Problem definition&lt;/h2&gt;
+"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>OpEn Guide</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/openrust">OpEn Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Interfaces</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Python</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">OpEn Rust</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="problem-definition"></a><a href="#problem-definition" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem definition</h2>
+<p><strong>OpEn</strong> can solve problems of the form:</p>
+<pre><code class="hljs css language-text">Minimize f(u)
+subject to: u in U
+</code></pre>
+<p>where <code>f</code> is a C1,1 function (continuously diff/ble with Lipschitz-continuous gradient) and <code>U</code> is a set on which we may project.</p>
+<p>The definition of an optimization problem consists in specifying the following three componenets:</p>
+<ul>
+<li>the cost function <code>f</code> as a Rust function</li>
+<li>the gradient of <code>f</code>, <code>df</code>, as a Rust function</li>
+<li>the set of constraints, as an implementation of a trait</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="cost-functions"></a><a href="#cost-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cost functions</h3>
+<p>The <strong>cost function</strong> <code>f</code> is a Rust function of type <code>|u: &amp;[f64], cost: &amp;mut f64| -&gt; i32</code>. The first argument, <code>u</code>, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns an integer <em>status code</em>; the status code <code>0</code> means that the computation was successful. Nonzero status codes can be used to encode errors/exceptions.</p>
+<p>As an example, consider the cost function <code>f</code> that maps a two-dimensional vector <code>u</code> to <code>f(u) = 5.0 * u[0] - u[1]^2</code>. This will be:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> f = |u: &amp;[<span class="hljs-built_in">f64</span>], c: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-built_in">f64</span>| -&gt; <span class="hljs-built_in">i32</span> {
+    *c = <span class="hljs-number">5.0</span> * u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>].powi(<span class="hljs-number">2</span>);
+    <span class="hljs-number">0</span>
+};
+</code></pre>
+<p>The <strong>gradient of the cost</strong> is a function <code>df</code> with signature <code>|u: &amp;[f64], grad: &amp;mut [f64]| -&gt; i32</code>. The first argument, <code>u</code>, is again the argument of the function. The second argument, is a mutable reference to the result (gradient). The function returns again a status code (same as above).</p>
+<p>For the cost function <code>f(u) = 5.0 * u[0] - u[1]^2</code>, the gradient is given by <code>df(u) = [5.0, - 2.0*u[1]]</code>. This function can be implemented as follows:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> df = |u: &amp;[<span class="hljs-built_in">f64</span>], grad: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">f64</span>]| -&gt; <span class="hljs-built_in">i32</span> {
+    grad[<span class="hljs-number">0</span>] = <span class="hljs-number">5.0</span>;
+    grad[<span class="hljs-number">1</span>] = -<span class="hljs-number">2.0</span>*u[<span class="hljs-number">1</span>];
+    <span class="hljs-number">0</span>
+};
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="constraints"></a><a href="#constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constraints</h3>
+<p>Constraints implement the namesake trait, <code>Constraint</code>. Implementations of <code>constraint</code> implement the method <code>project</code> which computes projections on the set of constraints. This way, users can implement their own constraints. <strong>OpEn</strong> comes with the following implementations of <code>Constraint</code>:</p>
+<ul>
+<li>Euclidean balls (<code>Ball2</code>)</li>
+<li>Rectangles (<code>Rectangle</code>)</li>
+<li>No Constraints (<code>NoConstraints</code>)</li>
+</ul>
+<p>These are the most common constraints in practice.</p>
+<p>The construction of a constraint is very easy. Here is an example of a Euclidean ball centered at the origin with given radius:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> radius = <span class="hljs-number">0.5</span>;
+<span class="hljs-keyword">let</span> bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="problems"></a><a href="#problems" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problems</h3>
+<p>Having defined a cost function, its gradient and the constraints, we may define an optimization problem. Here is an example:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> problem = Problem::new(bounds, df, f);
+</code></pre>
+<p>Note that <code>problem</code> now owns the constraints, the gradient and the cost function.</p>
+<h2><a class="anchor" aria-hidden="true" id="calling-the-solver"></a><a href="#calling-the-solver" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling the solver</h2>
+<p><strong>OpEn</strong> uses three essential structures: (i) a cache, (ii) an engine and (iii) an optimizer.</p>
+<h3><a class="anchor" aria-hidden="true" id="cache"></a><a href="#cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cache</h3>
+<p>Rarely will one need to solve a <em>single</em> optimization problem in an engineering application. The solution of an optimization problem requires the allocation of memory. A <strong>cache</strong> allows for multiple instances of a problem to have a common workspace, so that we will not need to free and reallocate memory unnecessarily. A cache object will be reused once we need to solve a similar problem; this is the case with model predictive control, where an optimal control problem needs to be solved at every time instant.</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> n = <span class="hljs-number">50</span>;
+<span class="hljs-keyword">let</span> lbfgs_memory = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">let</span> tolerance = <span class="hljs-number">1e-6</span>;
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_cache = PANOCCache::new(
+    NonZeroUsize::new(n).unwrap(),
+    tolerance,
+    NonZeroUsize::new(lbfgs_memory).unwrap(),
+);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="engine"></a><a href="#engine" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Engine</h3>
+<p>An <strong>engine</strong> holds all necessary information to execute a step of the algorithm. An engine always owns an instance of the problem and holds a (mutable) reference to a cache object. An engine is constructed easily as follows:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_engine = PANOCEngine::new(problem, &amp;<span class="hljs-keyword">mut</span> panoc_cache);
+</code></pre>
+<p>Instances of <code>Engine</code> typically need to be defined as mutable. An engine is then passed on to an Optimizer which solves the problem.</p>
+<h3><a class="anchor" aria-hidden="true" id="optimizer"></a><a href="#optimizer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optimizer</h3>
+<p>The last necessary step is the construction of an Optimizer. An Optimizer uses an instance of Engine to run the algorithm and solve the optimization problem. An optimizer may have additional parameters such as the maximum number of iterations, which can be configured. Here is an example:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc = PANOCOptimizer::new(&amp;<span class="hljs-keyword">mut</span> panoc_engine);
+panoc.with_max_iter(max_iters);
+</code></pre>
+<p>We may then call the solver using the method <code>solve</code> and providing an initial guess:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">let</span> status = panoc.solve(&amp;<span class="hljs-keyword">mut</span> u);
+</code></pre>
+<p>This will return the solver status and will update <code>u</code> with the solution.</p>
+<h3><a class="anchor" aria-hidden="true" id="solver-statistics"></a><a href="#solver-statistics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solver statistics</h3>
+<p>Method <code>solve</code> returns an object of type <code>SolverStatus</code> which stores information about the solver, namely, whether the required tolerance was attained (<code>converged</code>), the number of iterations (<code>num_iter</code>), the norm of the residual (a measure of the accuracy of the solution) (<code>fpr_norm</code>) and the cost value at the approximate solution (<code>cost_value</code>).</p>
+<h2><a class="anchor" aria-hidden="true" id="complete-example-in-rust"></a><a href="#complete-example-in-rust" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Example in Rust</h2>
+<p>The minimization of the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock function</a> is a challenging problem in optimization. The Rosenbrock function in two dimensions with parameters <em>a</em> and <em>b</em> is defined as follows:</p>
+<pre><code class="hljs css language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">rosenbrock_cost</span></span>(a: <span class="hljs-built_in">f64</span>, b: <span class="hljs-built_in">f64</span>, u: &amp;[<span class="hljs-built_in">f64</span>]) -&gt; <span class="hljs-built_in">f64</span> {
+    (a - u[<span class="hljs-number">0</span>]).powi(<span class="hljs-number">2</span>) + b * (u[<span class="hljs-number">1</span>] - u[<span class="hljs-number">0</span>].powi(<span class="hljs-number">2</span>)).powi(<span class="hljs-number">2</span>)
+}
+
+<span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">rosenbrock_grad</span></span>(a: <span class="hljs-built_in">f64</span>, b: <span class="hljs-built_in">f64</span>, u: &amp;[<span class="hljs-built_in">f64</span>], grad: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">f64</span>]) {
+    grad[<span class="hljs-number">0</span>] = <span class="hljs-number">2.0</span> * u[<span class="hljs-number">0</span>] - <span class="hljs-number">2.0</span> * a - <span class="hljs-number">4.0</span> * b * u[<span class="hljs-number">0</span>] * (-u[<span class="hljs-number">0</span>].powi(<span class="hljs-number">2</span>) + u[<span class="hljs-number">1</span>]);
+    grad[<span class="hljs-number">1</span>] = b * (-<span class="hljs-number">2.0</span> * u[<span class="hljs-number">0</span>].powi(<span class="hljs-number">2</span>) + <span class="hljs-number">2.0</span> * u[<span class="hljs-number">1</span>]);
+}
+</code></pre>
+<p>Here, we minimize the above two-dimensional Rosenbrock function with parameters <code>a=1</code> and <code>b=200</code> subject to the constraint <code>|u| &lt;= 1</code>, that is, that the decision variable <em>u</em> should be contained in a unit (Euclidean) ball.</p>
+<p>The required tolerance is <code>1e-14</code>. The memory of the L-BFGS buffer is set to <code>10</code>; typically, a value between <code>3</code> and <code>20</code> will suffice.</p>
+<pre><code class="hljs css language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-comment">/* USER PARAMETERS */</span>
+    <span class="hljs-keyword">let</span> tolerance = <span class="hljs-number">1e-14</span>;
+    <span class="hljs-keyword">let</span> a = <span class="hljs-number">1.0</span>;
+    <span class="hljs-keyword">let</span> b = <span class="hljs-number">200.0</span>;
+    <span class="hljs-keyword">let</span> n = <span class="hljs-number">2</span>;
+    <span class="hljs-keyword">let</span> lbfgs_memory = <span class="hljs-number">10</span>;
+    <span class="hljs-keyword">let</span> max_iters = <span class="hljs-number">80</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> u = [-<span class="hljs-number">1.5</span>, <span class="hljs-number">0.9</span>];
+    <span class="hljs-keyword">let</span> radius = <span class="hljs-number">1.0</span>;
+
+    <span class="hljs-comment">// define the cost function and its gradient</span>
+    <span class="hljs-keyword">let</span> df = |u: &amp;[<span class="hljs-built_in">f64</span>], grad: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">f64</span>]| -&gt; <span class="hljs-built_in">i32</span> {
+        rosenbrock_grad(a, b, u, grad);
+        <span class="hljs-number">0</span>
+    };
+    <span class="hljs-keyword">let</span> f = |u: &amp;[<span class="hljs-built_in">f64</span>], c: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-built_in">f64</span>| -&gt; <span class="hljs-built_in">i32</span> {
+        *c = rosenbrock_cost(a, b, u);
+        <span class="hljs-number">0</span>
+    };
+
+    <span class="hljs-comment">// define the constraints</span>
+    <span class="hljs-keyword">let</span> bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+
+    <span class="hljs-comment">/* PROBLEM STATEMENT */</span>
+    <span class="hljs-keyword">let</span> problem = Problem::new(bounds, df, f);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_cache = PANOCCache::new(
+        NonZeroUsize::new(n).unwrap(),
+        tolerance,
+        NonZeroUsize::new(lbfgs_memory).unwrap(),
+    );
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_engine = PANOCEngine::new(problem, &amp;<span class="hljs-keyword">mut</span> panoc_cache);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc = PANOCOptimizer::new(&amp;<span class="hljs-keyword">mut</span> panoc_engine);
+    panoc.with_max_iter(max_iters);
+
+    <span class="hljs-comment">// Invoke the solver</span>
+    <span class="hljs-keyword">let</span> status = panoc.solve(&amp;<span class="hljs-keyword">mut</span> u);
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="solving-parametric-problems"></a><a href="#solving-parametric-problems" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solving parametric problems</h2>
+<p>In embedded applications, we typically need to solve parametric problems, that is, problems of the form</p>
+<pre><code class="hljs css language-text">Minimize f(u,p)
+subject to: u in U(p)
+</code></pre>
+<p>where <code>u</code> is the decision variable and <code>p</code> is a parameter.</p>
+<p>As mentioned above, a <strong>cache</strong> needs to be constructed <strong>once</strong>. Then, every time the time of <code>p</code> changes, we define the cost function <code>g(u) = f(u, p)</code> and the set of constraints <code>U = U(p)</code>, that is, we redefine the <strong>problem</strong>.</p>
+<p>Let us give a complete example. We consider the problem of minimizing the two-dimensional Rosenbrock function, <code>f(u, a, b)</code> with parameters <code>a</code> and <code>b</code>, subject to the constraints <code>|u| &lt;= r</code>. The associated vector of parameters in this case is <code>p = (a, b, r)</code>.</p>
+<p>In the following example, we solve 100 problems while modifying the parameters, <code>p</code>, every time. Note that the cache is created outside the main loop, only once, and it is not updated.</p>
+<p>Note also that the initial guess of each problem is the solution of the previous problem.</p>
+<pre><code class="hljs css language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> tolerance = <span class="hljs-number">1e-6</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> a = <span class="hljs-number">1.0</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> b = <span class="hljs-number">100.0</span>;
+    <span class="hljs-keyword">let</span> n = <span class="hljs-number">2</span>;
+    <span class="hljs-keyword">let</span> lbfgs_memory = <span class="hljs-number">10</span>;
+    <span class="hljs-keyword">let</span> max_iters = <span class="hljs-number">100</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> u = [-<span class="hljs-number">1.5</span>, <span class="hljs-number">0.9</span>];
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> radius = <span class="hljs-number">1.0</span>;
+
+    <span class="hljs-comment">// the cache is created only ONCE</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_cache = PANOCCache::new(
+        NonZeroUsize::new(n).unwrap(),
+        tolerance,
+        NonZeroUsize::new(lbfgs_memory).unwrap(),
+    );  
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> i = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> i &lt; <span class="hljs-number">100</span> {
+        <span class="hljs-comment">// update the values of `a`, `b` and `radius`</span>
+        b *= <span class="hljs-number">1.01</span>;
+        a -= <span class="hljs-number">1e-3</span>;
+        radius += <span class="hljs-number">0.001</span>;
+
+        <span class="hljs-comment">// update the function definitions (`f` and `df`)</span>
+        <span class="hljs-keyword">let</span> df = |u: &amp;[<span class="hljs-built_in">f64</span>], grad: &amp;<span class="hljs-keyword">mut</span> [<span class="hljs-built_in">f64</span>]| -&gt; <span class="hljs-built_in">i32</span> {
+            mocks::rosenbrock_grad(a, b, u, grad);
+            <span class="hljs-number">0</span>
+        };
+        <span class="hljs-keyword">let</span> f = |u: &amp;[<span class="hljs-built_in">f64</span>], c: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-built_in">f64</span>| -&gt; <span class="hljs-built_in">i32</span> {
+            *c = mocks::rosenbrock_cost(a, b, u);
+            <span class="hljs-number">0</span>
+        };
+
+        <span class="hljs-comment">// define the bounds at every iteration</span>
+        <span class="hljs-keyword">let</span> bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+
+        <span class="hljs-comment">// the problem definition is updated at every iteration</span>
+        <span class="hljs-keyword">let</span> problem = Problem::new(bounds, df, f);
+
+        <span class="hljs-comment">// the engine is also updated at every iteration</span>
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc_engine = PANOCEngine::new(problem, &amp;<span class="hljs-keyword">mut</span> panoc_cache);
+
+        <span class="hljs-comment">// updated instance of the solver</span>
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> panoc = PANOCOptimizer::new(&amp;<span class="hljs-keyword">mut</span> panoc_engine);
+        panoc.with_max_iter(max_iters);
+
+        <span class="hljs-keyword">let</span> status = panoc.solve(&amp;<span class="hljs-keyword">mut</span> u);
+
+        i += <span class="hljs-number">1</span>;
+
+        <span class="hljs-comment">// print useful information</span>
+        <span class="hljs-built_in">println!</span>(
+            <span class="hljs-string">"parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}"</span>,
+            a, b, radius, status.num_iter
+        );
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"u = {:#.6?}"</span>, u);            
+    }
+}
+</code></pre>
+<p>The above function will print</p>
+<pre><code class="hljs css language-text">parameters: (a=0.9990, b=101.0000, r=1.0010), iters = 43
+u = [
+    0.786980,
+    0.618599
+]
+parameters: (a=0.9980, b=102.0100, r=1.0020), iters = 5
+u = [
+    0.787543,
+    0.619500
+]
+parameters: (a=0.9970, b=103.0301, r=1.0030), iters = 5
+u = [
+    0.788107,
+    0.620400
+]
+parameters: (a=0.9960, b=104.0604, r=1.0040), iters = 5
+u = [
+    0.788670,
+    0.621301
+]
+...
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/installation"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/optimization-engine/docs/matlab-interface"><span>MATLAB</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#problem-definition">Problem definition</a><ul class="toc-headings"><li><a href="#cost-functions">Cost functions</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#problems">Problems</a></li></ul></li><li><a href="#calling-the-solver">Calling the solver</a><ul class="toc-headings"><li><a href="#cache">Cache</a></li><li><a href="#engine">Engine</a></li><li><a href="#optimizer">Optimizer</a></li><li><a href="#solver-statistics">Solver statistics</a></li></ul></li><li><a href="#complete-example-in-rust">Complete Example in Rust</a></li><li><a href="#solving-parametric-problems">Solving parametric problems</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/doc1.html">Getting Started (or other categories)</a><a href="/optimization-engine/docs/doc2.html">Guides (or other categories)</a><a href="/optimization-engine/docs/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
