@@ -1,0 +1,19 @@
+        let problem = Problem::new(bounds, df, f);
+        let mut panoc_engine = PANOCEngine::new(problem, &mut cache);
+        let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
+        panoc.with_max_iter(MAX_ITERS);
+
+        let now = std::time::Instant::now();
+        let status = panoc.solve(&mut u);
+
+        let msg = format!(
+            "{{\n\t\"p\" : {:?},\n\t\"u\" : {:.10?},\n\t\"n\" : {},\n\t\"f\" : {},\n\t\"dt\" : \"{:?}\"\n}}\n\n\n",
+            p,
+            u,
+            status.get_number_iterations(),
+            status.get_norm_fpr().log10(),
+            now.elapsed()
+        );
+        let _result = socket.send_to(msg.as_bytes(), &src_addr);
+    }
+}

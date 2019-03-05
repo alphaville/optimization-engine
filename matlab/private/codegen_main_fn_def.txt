@@ -1,0 +1,2 @@
+fn main() {
+    let mut cache = get_cache();

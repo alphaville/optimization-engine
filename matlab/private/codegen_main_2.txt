@@ -1,0 +1,18 @@
+    let mut buf = [0; 100];
+    let mut u = [0.0; NU];
+    loop {
+        let (number_of_bytes, src_addr) = socket.recv_from(&mut buf).expect("didn't receive data");
+        let filled_buf = &mut buf[..number_of_bytes];
+        let data = std::str::from_utf8(filled_buf).unwrap();
+        let received_request: Result<OptimizationRequest> = serde_json::from_str(data);
+
+        if !received_request.is_ok() {
+            continue;
+        }
+        let p = received_request.unwrap().parameter;
+
+        let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+            icasadi::icasadi_grad(u, &p, grad);
+            0
+        };
+        let f = |u: &[f64], c: &mut f64| -> i32 { icasadi::icasadi_cost(u, &p, c) };

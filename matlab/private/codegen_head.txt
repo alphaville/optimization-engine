@@ -1,0 +1,15 @@
+extern crate optimization_engine;
+
+use optimization_engine::constraints::*;
+use optimization_engine::core::panoc::*;
+use optimization_engine::core::*;
+use std::net::UdpSocket;
+use std::num::NonZeroUsize;
+
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct OptimizationRequest {
+    parameter: Vec<f64>,
+}
