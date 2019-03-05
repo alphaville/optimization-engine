@@ -1,0 +1,18 @@
+{
+  "docs": {
+    "OpEn Guide": [
+      "open-intro",
+      "installation",
+      "openrust"
+    ],
+    "Interfaces": [
+      "matlab-interface",
+      "python-interface"
+    ]
+  },
+  "docs-other": {
+    "First Category": [
+      "doc5"
+    ]
+  }
+}
