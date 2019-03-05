@@ -4,7 +4,7 @@
         <title>Optimization Engine Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
-        <lastBuildDate>Tue, 05 Mar 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 06 Mar 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,13 @@
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
+        <item>
+            <title><![CDATA[Let's talk]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</guid>
+            <pubDate>Wed, 06 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="../docs/irc">IRC</a></li> </ul> ]]></description>
+        </item>
         <item>
             <title><![CDATA[OpEn UDP socket interface]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</link>

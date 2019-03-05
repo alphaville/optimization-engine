@@ -2,12 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-03-05T06:00:00Z</updated>
+    <updated>2019-03-06T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
     <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
+    <entry>
+        <title type="html"><![CDATA[Let's talk]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html">
+        </link>
+        <updated>2019-03-06T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="../docs/irc">IRC</a></li> </ul> ]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[OpEn UDP socket interface]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</id>
