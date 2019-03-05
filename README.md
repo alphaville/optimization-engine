@@ -1,6 +1,7 @@
 # Optimization Engine
 
-[![Build Status](https://travis-ci.org/alphaville/optimization-engine.svg?branch=master)](https://travis-ci.org/alphaville/optimization-engine) [![Gitter](https://badges.gitter.im/alphaville/optimization-engine.svg)](https://gitter.im/alphaville/optimization-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://travis-ci.org/alphaville/optimization-engine.svg?branch=master)](https://travis-ci.org/alphaville/optimization-engine) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Apache v2 license](https://img.shields.io/badge/License-Apache%20v2-blue.svg)](https://github.com/alphaville/optimization-engine/blob/master/LICENSE-APACHE) [![Gitter](https://badges.gitter.im/alphaville/optimization-engine.svg)](https://gitter.im/alphaville/optimization-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Chat on Discord](https://img.shields.io/badge/chat-on%20discord-gold.svg)](https://discord.gg/mfYpn4V) [![Chat on IRC](https://img.shields.io/badge/chat-on%20irc-pink.svg)](https://webchat.freenode.net/?channels=%23optimization_engine)
+
 
 **Optimization Engine** is a solver for embedded nonconvex optimization. 
 
@@ -30,4 +31,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the
 work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
 additional terms or conditions.
-
