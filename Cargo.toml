@@ -1,24 +1,69 @@
 [package]
-authors = ["Emil Fresk <emil.fresk@gmail.com>", "Pantelis Sopasakis (https://alphaville.github.io)"]
-categories = ["embedded", "nonlinear", "optimization"]
+# Authors of this package
+authors = ["Emil Fresk <emil.fresk@gmail.com>", 
+           "Pantelis Sopasakis (https://alphaville.github.io)"]
+
+# Crate categories (chosed from a list of valid categories at https://crates.io/categories)
+categories = ["Embedded development", "Algorithms", "Science", "Development tools"]
+
+# Keywords
 keywords = ["embedded", "optimization", "solver"]
+
+# Short description
 description = "A framework for embedded nonconvex optimization"
-documentation = "https://alphaville.github.io/optimization-engine/"
+
+# This is the API documentation
+documentation = "https://docs.rs/optimization_engine"
+
+# Licenses
 license = "MIT OR Apache-2.0"
+
+# README file
 readme = "README.md"
+
+# Name of this crate
 name = "optimization_engine"
+
+# Homepage
 homepage = "https://alphaville.github.io/optimization-engine/"
+
+# Link to github repo
 repository = "https://github.com/alphaville/optimization-engine"
+
+# Version of this crate
 version = "0.2.0"
+
+# change this to `true` if you want to publish the crate; this is done as a 
+# safety measure. Before you publish, make sure that:
+# - You have updated the version (SemVer)
+# - You have updated the documentation 
+#After you publish:
+# - Update the webpage (e.g., make a blog post)
+publish = false
+
+
 
 [dependencies]
 num = "0.2.0"
+
+# Our own stuff - L-BFGS: limited-memory BFGS directions
 lbfgs = "0.1.0"
 
+
+
+
+
+
+# These dependencies are only used for testing
 [dev-dependencies]
 unit_test_utils = "0.1.3"
 
 
+
+
 [badges]
+# Travis "build-passing" badge
 travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
+
+# Actively maintained badge
 maintenance = { status = "actively-developed" }

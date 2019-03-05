@@ -1,15 +1,36 @@
-    let mut buf = [0; 100];
+    let mut buf = [0; COMMUNICATION_BUFFER];
     let mut u = [0.0; NU];
     loop {
         let (number_of_bytes, src_addr) = socket.recv_from(&mut buf).expect("didn't receive data");
         let filled_buf = &mut buf[..number_of_bytes];
-        let data = std::str::from_utf8(filled_buf).unwrap();
+        let mut data = std::str::from_utf8(filled_buf).unwrap();
         let received_request: Result<OptimizationRequest> = serde_json::from_str(data);
 
         if !received_request.is_ok() {
+            if data.ends_with("\n") {
+                data = &data[..data.len() - 1];
+            }
+            if data == "x" {
+                let _result = socket.send_to(
+                    "\n\n[ADIOS!] Received quit command...\n\n".as_bytes(),
+                    &src_addr,
+                );
+                break;
+            }
             continue;
         }
-        let p = received_request.unwrap().parameter;
+
+        let p: Vec<f64> = received_request.unwrap().parameter;
+
+        if p.len() != NP {
+            let msg = format!(
+                "[ERROR!] Wrong param size... (NP = {}, Received size = {})\n",
+                NP,
+                p.len()
+            );
+            let _result = socket.send_to(msg.as_bytes(), &src_addr);
+            continue;
+        }
 
         let df = |u: &[f64], grad: &mut [f64]| -> i32 {
             icasadi::icasadi_grad(u, &p, grad);
