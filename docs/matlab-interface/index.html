@@ -51,28 +51,111 @@
               }
             });
         </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">MATLAB</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="about-the-matlab-interface"></a><a href="#about-the-matlab-interface" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>About the MATLAB interface</h2>
-<p>Dependency: <a href="https://web.casadi.org/">CasADi</a></p>
-<h2><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ac euismod odio, eu consequat dui. Nullam molestie consectetur risus id imperdiet. Proin sodales ornare turpis, non mollis massa ultricies id. Nam at nibh scelerisque, feugiat ante non, dapibus tortor. Vivamus volutpat diam quis tellus elementum bibendum. Praesent semper gravida velit quis aliquam. Etiam in cursus neque. Nam lectus ligula, malesuada et mauris a, bibendum faucibus mi. Phasellus ut interdum felis. Phasellus in odio pulvinar, porttitor urna eget, fringilla lectus. Aliquam sollicitudin est eros. Mauris consectetur quam vitae mauris interdum hendrerit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-<pre><code class="hljs css language-matlab">nu = <span class="hljs-number">10</span>;                           <span class="hljs-comment">% number of decision variables</span>
-np = <span class="hljs-number">2</span>;                            <span class="hljs-comment">% number of parameters </span>
-
-u = casadi.SX.sym(<span class="hljs-string">'u'</span>, nu);        <span class="hljs-comment">% decision variables</span>
-p = casadi.SX.sym(<span class="hljs-string">'p'</span>, np);        <span class="hljs-comment">% parameters</span>
-
-phi = (p'*p) * <span class="hljs-built_in">cos</span>(<span class="hljs-built_in">sin</span>(u))' * u;   <span class="hljs-comment">% cost function phi(u; p)</span>
-
-[cost, grad_cost] = casadi_generate_c_code(u, p, phi);
-
-u = [<span class="hljs-number">1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">-5.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">10.0</span>, <span class="hljs-number">14.0</span>, <span class="hljs-number">17.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">5.0</span>]';
-p = [<span class="hljs-number">1.0</span>, <span class="hljs-number">-1.0</span>]';
-
-
-ell = cost(u, p)
-grad_ell = grad_cost(u,p)
+<p>If you haven't done so already, you first need to <a href="./installation#matlab-interface">install the MATLAB interface</a>.</p>
+<p>This inteface allows the designers to prepare their parametric optimizers in MATLAB and then use the code generation tool we provide to build their parametric optimizer in Rust. The generated code can either be used directly in Rust, or, it can be interfaced from <strong>any software</strong>.</p>
+<p>In other words, MATLAB is used to <strong>design</strong> a parametric optimizer, which runs in Rust and can be interfaced from <strong>any</strong> programming language or operating system.</p>
+<p>The generated optimzer runs in Rust and exports its functionality using <strong>UDP sockets</strong>.</p>
+<p>Let's now walk through the necessary steps to design a parametric optimizer.</p>
+<h2><a class="anchor" aria-hidden="true" id="problem-definition"></a><a href="#problem-definition" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem definition</h2>
+<p>Recall that we need to define a parametric optimization problem of the form</p>
+<pre><code class="hljs css language-text">Minimize f(u; p)
+subject to: u in U(p)
 </code></pre>
+<p>where <code>u</code> is the decision variable of the problem and <code>p</code> is a parameter.</p>
+<p>We, therefore, need to define the cost function and the set of constraints. The gradient of the cost function will be computed automatically (CasADi takes care of that).</p>
+<h3><a class="anchor" aria-hidden="true" id="cost-function"></a><a href="#cost-function" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cost function</h3>
+<p>Determining the cost function is straightforward. We simply need to create two CasADi symbols, <code>u</code> and <code>p</code>, for the decision variable and the parameter respectively. These symbols need to have specified dimensions (<code>nu</code> and <code>np</code> respectively).</p>
+<pre><code class="hljs css language-matlab">nu = <span class="hljs-number">6</span>;                        <span class="hljs-comment">% number of decision variables</span>
+np = <span class="hljs-number">2</span>;                        <span class="hljs-comment">% number of parameters </span>
+
+u = casadi.SX.sym(<span class="hljs-string">'u'</span>, nu);    <span class="hljs-comment">% decision variables</span>
+p = casadi.SX.sym(<span class="hljs-string">'p'</span>, np);    <span class="hljs-comment">% parameters</span>
+
+phi = rosenbrock(u, p);        <span class="hljs-comment">% cost function phi(u; p) </span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="constraints"></a><a href="#constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constraints</h3>
 <p>Duis et egestas libero, imperdiet faucibus ipsum. Sed posuere eget urna vel feugiat. Vivamus a arcu sagittis, fermentum urna dapibus, congue lectus. Fusce vulputate porttitor nisl, ac cursus elit volutpat vitae. Nullam vitae ipsum egestas, convallis quam non, porta nibh. Morbi gravida erat nec neque bibendum, eu pellentesque velit posuere. Fusce aliquam erat eu massa eleifend tristique.</p>
-<p>Sed consequat sollicitudin ipsum eget tempus. Integer a aliquet velit. In justo nibh, pellentesque non suscipit eget, gravida vel lacus. Donec odio ante, malesuada in massa quis, pharetra tristique ligula. Donec eros est, tristique eget finibus quis, semper non nisl. Vivamus et elit nec enim ornare placerat. Sed posuere odio a elit cursus sagittis.</p>
-<p>Phasellus feugiat purus eu tortor ultrices finibus. Ut libero nibh, lobortis et libero nec, dapibus posuere eros. Sed sagittis euismod justo at consectetur. Nulla finibus libero placerat, cursus sapien at, eleifend ligula. Vivamus elit nisl, hendrerit ac nibh eu, ultrices tempus dui. Nam tellus neque, commodo non rhoncus eu, gravida in risus. Nullam id iaculis tortor.</p>
-<p>Nullam at odio in sem varius tempor sit amet vel lorem. Etiam eu hendrerit nisl. Fusce nibh mauris, vulputate sit amet ex vitae, congue rhoncus nisl. Sed eget tellus purus. Nullam tempus commodo erat ut tristique. Cras accumsan massa sit amet justo consequat eleifend. Integer scelerisque vitae tellus id consectetur.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/openrust"><span class="arrow-prev">← </span><span class="function-name-prevnext">OpEn Rust</span></a><a class="docs-next button" href="/optimization-engine/docs/python-interface"><span>Python</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#about-the-matlab-interface">About the MATLAB interface</a></li><li><a href="#code-generation">Code generation</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/doc1.html">Getting Started (or other categories)</a><a href="/optimization-engine/docs/doc2.html">Guides (or other categories)</a><a href="/optimization-engine/docs/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+<h2><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code Generation</h2>
+<h3><a class="anchor" aria-hidden="true" id="in-a-nutshell"></a><a href="#in-a-nutshell" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>In a nutshell</h3>
+<p>Code generation is as simple as</p>
+<pre><code class="hljs css language-matlab">build_config = open_build_config();
+open_generate_code(build_config, u, p, phi);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="build-configuration"></a><a href="#build-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Build configuration</h3>
+<p>The default build configuration is a structure returned by <code>build_config = open_build_config();</code>. This specifies the destination path where the parametric optimizer will be stored, various metadata (authorship, license, etc), solver parameters, and parameters related to the interface. Let us go through these in detail.</p>
+<h4><a class="anchor" aria-hidden="true" id="basic-configuration"></a><a href="#basic-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Basic configuration</h4>
+<p>The following properties are metadata:</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>build_name</code></td><td>Name of your optimizer (same as folder name)</td></tr>
+<tr><td><code>version</code></td><td>Version of your optimizer</td></tr>
+<tr><td><code>license</code></td><td>String of license</td></tr>
+<tr><td><code>authors</code></td><td>Cell array with author names</td></tr>
+</tbody>
+</table>
+<p>Solver properties:</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>solver.lbfgs_mem</code></td><td>Length of L-BFGS buffer</td></tr>
+<tr><td><code>solver.max_iters</code></td><td>Maximum number of iterations</td></tr>
+<tr><td><code>solver.tolerance</code></td><td>Tolerance</td></tr>
+</tbody>
+</table>
+<p>UDP socket properties:</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>udp_interface.bind_address</code></td><td>Bind address</td></tr>
+<tr><td><code>udp_interface.port</code></td><td>Post (integer)</td></tr>
+</tbody>
+</table>
+<h4><a class="anchor" aria-hidden="true" id="advanced-configuration"></a><a href="#advanced-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced configuration</h4>
+<p>The following properties are some paths, which you shouldn't need to modify:</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>optimization_engine_path</code></td><td>Path of optimization-engine</td></tr>
+<tr><td><code>icasadi_path</code></td><td>Path of icasadi (casadi Rust interface)</td></tr>
+<tr><td><code>build_path</code></td><td>Directory where the optimizer will be stored</td></tr>
+</tbody>
+</table>
+<h2><a class="anchor" aria-hidden="true" id="calling-the-rust-module-over-udp-sockets"></a><a href="#calling-the-rust-module-over-udp-sockets" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling the Rust module over UDP sockets</h2>
+<h3><a class="anchor" aria-hidden="true" id="starting-the-module"></a><a href="#starting-the-module" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Starting the module</h3>
+<p>After you call <code>open_generate_code</code>, the auto-generated Rust module can be found in the destination you specified in <code>build_path</code> (the default is <code>build/autogenerated_optimizer/</code>).</p>
+<p>Enter this directory and run</p>
+<pre><code class="hljs css language-bash">cargo run
+</code></pre>
+<p>This will start a server that will listen for packets at the speficied bind address (default: <code>127.0.0.1</code>) and port (default: <code>3248</code>).</p>
+<h3><a class="anchor" aria-hidden="true" id="consuming-the-module"></a><a href="#consuming-the-module" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Consuming the module</h3>
+<h4><a class="anchor" aria-hidden="true" id="communication-protocol"></a><a href="#communication-protocol" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Communication Protocol</h4>
+<p>The client sends to the server a JSON file with the value of parameter <code>p</code> in the following format:</p>
+<pre><code class="hljs css language-json">{ <span class="hljs-attr">"parameter"</span> : [<span class="hljs-number">1.0</span>, <span class="hljs-number">2.3</span>]}
+</code></pre>
+<p>The server solves the optimization problem and returns a JSON file in the following format:</p>
+<pre><code class="hljs css language-json">{
+    <span class="hljs-attr">"p"</span> : [<span class="hljs-number">1.0</span>, <span class="hljs-number">2.3</span>],
+    <span class="hljs-attr">"u"</span> : [<span class="hljs-number">1.1479546337</span>, <span class="hljs-number">1.2921200844</span>, <span class="hljs-number">1.6371973229</span>, <span class="hljs-number">2.6535245176</span>],
+    <span class="hljs-attr">"n"</span> : <span class="hljs-number">6</span>,
+    <span class="hljs-attr">"f"</span> : <span class="hljs-number">-7.032997779803717</span>,
+    <span class="hljs-attr">"dt"</span> : <span class="hljs-string">"422.958µs"</span>
+}
+</code></pre>
+<p>Here <code>p</code> is the parameter sent by the client, <code>u</code> is the solution, <code>n</code> is the number of iterations, <code>f</code> is the logarithm (base 10) of the fixed-point residual and <code>dt</code> is the elapsed time.</p>
+<p><strong>NOTE:</strong> Every time the solver is called, it is warm started with the previous solution.</p>
+<h4><a class="anchor" aria-hidden="true" id="linux-command-line"></a><a href="#linux-command-line" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Linux command line</h4>
+<pre><code class="hljs css language-bash">netcat -u 127.0.0.1 3248
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="matlab"></a><a href="#matlab" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>MATLAB</h4>
+<h2><a class="anchor" aria-hidden="true" id="calling-the-rust-module-programmatically"></a><a href="#calling-the-rust-module-programmatically" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling the Rust module programmatically</h2>
+<p>The auto-generated Rust module can also be used programmatically. (To be updated soon).</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/openrust"><span class="arrow-prev">← </span><span class="function-name-prevnext">OpEn Rust</span></a><a class="docs-next button" href="/optimization-engine/docs/python-interface"><span>Python</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#about-the-matlab-interface">About the MATLAB interface</a></li><li><a href="#problem-definition">Problem definition</a><ul class="toc-headings"><li><a href="#cost-function">Cost function</a></li><li><a href="#constraints">Constraints</a></li></ul></li><li><a href="#code-generation">Code Generation</a><ul class="toc-headings"><li><a href="#in-a-nutshell">In a nutshell</a></li><li><a href="#build-configuration">Build configuration</a></li></ul></li><li><a href="#calling-the-rust-module-over-udp-sockets">Calling the Rust module over UDP sockets</a><ul class="toc-headings"><li><a href="#starting-the-module">Starting the module</a></li><li><a href="#consuming-the-module">Consuming the module</a></li></ul></li><li><a href="#calling-the-rust-module-programmatically">Calling the Rust module programmatically</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>

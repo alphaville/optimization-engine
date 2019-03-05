@@ -4,7 +4,7 @@
         <title>Optimization Engine Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
-        <lastBuildDate>Sun, 03 Mar 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 05 Mar 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,13 @@
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
+        <item>
+            <title><![CDATA[OpEn UDP socket interface]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</guid>
+            <pubDate>Tue, 05 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="../docs/matlab-interface">here</a>. This way, the parametric optimizer can be easily ...</p>]]></description>
+        </item>
         <item>
             <title><![CDATA[Risk-averse optimal control]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</link>
