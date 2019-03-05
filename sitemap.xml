@@ -5,6 +5,7 @@
 <url> <loc>https://alphaville.github.io/optimization-engine/users</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/en/users" /> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
+<url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
@@ -16,4 +17,5 @@
 <url> <loc>https://alphaville.github.io/optimization-engine/docs/open-intro</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/docs/open-intro" /> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/docs/openrust</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/docs/openrust" /> </url>
 <url> <loc>https://alphaville.github.io/optimization-engine/docs/python-interface</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/docs/python-interface" /> </url>
+<url> <loc>https://alphaville.github.io/optimization-engine/docs/udp-sockets</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://alphaville.github.io/optimization-engine/docs/udp-sockets" /> </url>
 </urlset>

@@ -33,6 +33,19 @@
         </author>
     </entry>
     <entry>
+        <title type="html"><![CDATA[OpEn on Raspberry Pi]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html">
+        </link>
+        <updated>2019-03-05T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Here we give an example of building a parametric optimizer in MATLAB, which will run on a <strong>Raspberry Pi</strong>. The parametric optimizer will listen for requests on a <strong>UDP socket</strong>. We will then establish a connection to the optimizer, remotely, and consume the service.</p>
+]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Risk-averse optimal control]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html">

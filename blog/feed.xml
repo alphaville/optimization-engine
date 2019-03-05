@@ -28,6 +28,14 @@
             <description><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="../docs/matlab-interface">here</a>. This way, the parametric optimizer can be easily ...</p>]]></description>
         </item>
         <item>
+            <title><![CDATA[OpEn on Raspberry Pi]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html</guid>
+            <pubDate>Tue, 05 Mar 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>Here we give an example of building a parametric optimizer in MATLAB, which will run on a <strong>Raspberry Pi</strong>. The parametric optimizer will listen for requests on a <strong>UDP socket</strong>. We will then establish a connection to the optimizer, remotely, and consume the service.</p>
+]]></description>
+        </item>
+        <item>
             <title><![CDATA[Risk-averse optimal control]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</link>
             <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</guid>
