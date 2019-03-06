@@ -18,14 +18,14 @@
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</link>
             <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</guid>
             <pubDate>Wed, 06 Mar 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="../docs/irc">IRC</a></li> </ul> ]]></description>
+            <description><![CDATA[<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="https://alphaville.github.io/optimization-engine/docs/irc">IRC</a></li> </ul> ]]></description>
         </item>
         <item>
             <title><![CDATA[OpEn UDP socket interface]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</link>
             <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</guid>
             <pubDate>Tue, 05 Mar 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="../docs/matlab-interface">here</a>. This way, the parametric optimizer can be easily ...</p>]]></description>
+            <description><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="https://alphaville.github.io/optimization-engine/docs/matlab-interface">here</a>. This way, the parametric optimizer can be easily ...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[OpEn on Raspberry Pi]]></title>
