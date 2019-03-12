@@ -12,7 +12,7 @@
             }
             if data == "x" {
                 let _result = socket.send_to(
-                    "\n\n[ADIOS!] Received quit command...\n\n".as_bytes(),
+                    "{{\"msg\":\"Received quit command\"}}".as_bytes(),
                     &src_addr,
                 );
                 break;
@@ -24,7 +24,7 @@
 
         if p.len() != NP {
             let msg = format!(
-                "[ERROR!] Wrong param size... (NP = {}, Received size = {})\n",
+                "{{\"error\":\"wrong param size (np={}, len(p)={})\"}}",
                 NP,
                 p.len()
             );

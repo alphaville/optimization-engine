@@ -40,7 +40,8 @@ const siteConfig = {
   headerLinks: [
     { doc: 'open-intro', label: 'Docs' },
     { blog: true, label: 'Blog' },
-    { href: 'https://docs.rs/optimization_engine', label: 'API'},
+    { href: 'https://docs.rs/optimization_engine', label: 'API' },
+    { href: '/optimization-engine/blog/2019/03/06/talk-to-us', label: 'Chat' },
     { href: 'https://www.github.com/alphaville/optimization-engine', label: 'Github' },
   ],
 
@@ -54,8 +55,8 @@ const siteConfig = {
 
   /* Colors for website */
   colors: {
-    primaryColor: "#764B26",
-    secondaryColor: "#40216F",
+    primaryColor: "#800000",
+    secondaryColor: "#AAAAAA",
     accentColor1: "#717171",
     accentColor2: "#F3EAFF",
     accentColor3: "#D2B9F3",
