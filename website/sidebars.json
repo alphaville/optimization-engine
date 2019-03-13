@@ -9,6 +9,9 @@
       "matlab-interface",
       "python-interface",
       "udp-sockets"
+    ],
+    "FAQ": [
+      "faq"
     ]
   },
   "docs-other": {

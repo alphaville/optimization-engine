@@ -4,7 +4,11 @@ title: OpEn Installation
 sidebar_label: Installation
 ---
 
-## Rust 
+## Install Rust
+
+Install Rust following the official [installation guide](https://www.rust-lang.org/tools/install).
+
+## OpEn in Rust 
 To use **OpEn** in your Rust project, add the following in your project's `Cargo.toml` file:
 
 ```
