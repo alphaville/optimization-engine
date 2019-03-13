@@ -8,8 +8,8 @@
 
         let msg = format!(
             "{{\n\t\"p\" : {:?},\n\t\"u\" : {:.10?},\n\t\"n\" : {},\n\t\"f\" : {},\n\t\"dt\" : \"{:?}\"\n}}\n\n\n",
-            p,
-            u,
+            &p[..],
+            &u[..],
             status.get_number_iterations(),
             status.get_norm_fpr().log10(),
             now.elapsed()

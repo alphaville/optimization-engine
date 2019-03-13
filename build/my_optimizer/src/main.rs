@@ -43,6 +43,9 @@ fn main() {
         let received_request: Result<OptimizationRequest> = serde_json::from_str(data);
 
         if !received_request.is_ok() {
+            if data == "x" {
+                break;
+            }
             continue;
         }
         let p = received_request.unwrap().parameter;

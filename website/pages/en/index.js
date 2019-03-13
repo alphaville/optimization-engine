@@ -119,24 +119,36 @@ const FeaturesTop = props => (
         image: imgUrl("rocket.svg"),
         imageAlign: 'top',
         title: "Fast"
-      },
+      }
     ]}
   </Block>
+
 );
 
-const OtherLibraries = props => (
-  <Block layout="twoColumn" className="libBlock">
+const FeaturesTopTwo = props => (
+  <Block layout="threeColumn" className="featureBlock">
     {[
       {
-        content: "A predictable state container for JavaScript applications",
-        title: "[Redux ![link2](img/external-link-square-alt-solid.svg)](https://redux.js.org) "
+        content: "**OpEn** is **seriously** easy to use! You can call if from Rust, MATLAB, Python and other programming languages - even over the Internet!",
+        image: imgUrl("happy.png"),
+        imageAlign: 'top',
+        title: "User Friendly"
       },
       {
-        content: "A simple batteries-included toolset to make using Redux easier",
-        title: "[Redux Starter Kit ![link2](img/external-link-square-alt-solid.svg)](https://redux-starter-kit.js.org)"
+        content: "**OpEn is open**: it is a free, open source, MIT/Apachev2-licensed software with a growing community that actively supports its development. Reach us [here](/optimization-engine/blog/2019/03/06/talk-to-us).",
+        image: imgUrl("open.png"),
+        imageAlign: 'top',
+        title: "Community"
       },
+      {
+        content: "**Well documented** with lots of examples.",
+        image: imgUrl("saturn.png"),
+        imageAlign: 'top',
+        title: "Documented"
+      }
     ]}
   </Block>
+
 );
 
 
@@ -151,6 +163,7 @@ class Index extends React.Component {
           <div className="productShowcaseSection">
             <Container background="light">
               <FeaturesTop />
+              <FeaturesTopTwo />
             </Container>
           </div>
         </div>
