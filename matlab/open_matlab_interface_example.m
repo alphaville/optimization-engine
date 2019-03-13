@@ -1,23 +1,20 @@
 % Minimize f(u; p)
 % subject to: u in U
 
-nu = 40;                            % number of decision variables
+nu = 40;                           % number of decision variables
 np = 2;                            % number of parameters 
-
 u = casadi.SX.sym('u', nu);        % decision variables
 p = casadi.SX.sym('p', np);        % parameters
-
 phi = rosenbrock(u, p);            % cost function phi(u; p) (Rosenbrock)
 
 constraints = OpEnConstraints.make_ball_at_origin(30.0);
 
 build_config = open_build_config();
-%build_config.target = 'rpi'; % build for Raspberry Pi
+%build_config.target = 'rpi';       % build for Raspberry Pi
 build_config.solver.tolerance = 1e-5;
 build_config.build_mode = 'release';
 build_config.udp_interface.bind_address = '0.0.0.0';
 build_config.udp_interface.port = 3498;
-build_config.communication_buffer_size = 16000;
 
 open_generate_code(build_config, constraints, u, p, phi);
 
@@ -48,7 +45,7 @@ for i=1:N
     out = consume_parametric_optimizer(udp_connection, param);
     flushinput(udp_connection);
     flushoutput(udp_connection);
-    out
+    %out
 end
 fprintf('Mean time = %.2f\n', toc*1000/N)
 %% Stop the connection

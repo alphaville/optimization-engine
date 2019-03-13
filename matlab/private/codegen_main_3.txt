@@ -7,12 +7,12 @@
         let status = panoc.solve(&mut u);
 
         let msg = format!(
-            "{{\"p\":{:?},\"u\":{:.10?},\"n\":{},\"f\":{},\"dt\":{}}}",
-            p,
-            u,
+            "{{\n\t\"p\" : {:?},\n\t\"u\" : {:.10?},\n\t\"n\" : {},\n\t\"f\" : {},\n\t\"dt\" : \"{:?}\"\n}}\n\n\n",
+            &p[..],
+            &u[..],
             status.get_number_iterations(),
             status.get_norm_fpr().log10(),
-            now.elapsed().as_secs() as f64 *1000.0 + now.elapsed().subsec_micros() as f64 /1000.0
+            now.elapsed()
         );
         let _result = socket.send_to(msg.as_bytes(), &src_addr);
     }

@@ -3,6 +3,6 @@ function kill_parametric_optimizer(ip_address, port)
 u = udp(ip_address, port);
 fopen(u);
 fwrite(u, 'x');
-X = fread(u, 128);
+X = fread(u, 2048);
 disp(char(X'));
 fclose(u);
