@@ -218,7 +218,7 @@ where
     fn line_search_condition(&mut self, u: &[f64]) -> bool {
         let gamma = self.cache.gamma;
 
-        // u_plus ← u - (1-tau)*gamma*fpr + tau*direction
+        // u_plus ← u - (1-tau)*gamma_fpr + tau*direction
         self.compute_u_plus(&u);
 
         // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten

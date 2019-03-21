@@ -10,7 +10,9 @@ sidebar_label: UDP sockets
 The client sends to the server a JSON file with the value of parameter `p` in the following format:
 
 ```json
-{ "parameter" : [1.0, 2.3]}
+{
+	"parameter" : [1.0, 2.3]
+}
 ```
 
 The server solves the optimization problem and returns a JSON file in the following format:
@@ -32,22 +34,32 @@ Here `p` is the parameter sent by the client, `u` is the solution, `n` is the nu
 ### Errors
 If the server receives a request it cannot process, it will return an error message. For example:
 
-```text
-{"parameter":[1.0, 22.0, 33.0]}
-[ERROR!] Wrong param size... (NP = 2, Received size = 3)
+```json
+{
+	"parameter": [1.0, 22.0, 33.0]
+}
+```
+Will return:
+
+```json
+{
+	"error":"wrong param size (np=2, len(p)=3)"
+}
 ```
 
 ### Killing the solver
 To **kill** the process gracefully send the message `x`. The server will return to you the message:
 
-```text
-[ADIOS!] Received quit command...
+```json
+{
+	"msg":"Received quit command"
+}
 ```
 
 and will exit immediately.
 
-### Linux command line
 
+### Linux command line
 
 ```bash
 netcat -u 127.0.0.1 3248

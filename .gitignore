@@ -16,7 +16,7 @@ target/
 !/website/pages/
 !/website/static/
 !/website/*.js
-!/website/blog/*.md
+!/website/blog/
 !/website/core/Footer.js
 !/website/README.md
 !/website/publish.sh

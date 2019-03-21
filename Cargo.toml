@@ -31,7 +31,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate
-version = "0.2.0"
+version = "0.2.2"
 
 # change this to `true` if you want to publish the crate; this is done as a 
 # safety measure. Before you publish, make sure that:

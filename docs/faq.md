@@ -5,7 +5,9 @@ sidebar_label: FAQ
 ---
 
 ### 1. Can it find the global optimum?
-No. OpEn does not offer any guarantees that the solution it returns is a global optimum.
+No. 
+
+OpEn does not offer any guarantees that the solution it returns is a global optimum.
 
 ### 2. Can it solve mixed integer problems?
 Yes. OpEn solves parametric problems of the form

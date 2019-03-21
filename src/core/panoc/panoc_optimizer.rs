@@ -88,14 +88,15 @@ mod tests {
     #[test]
     fn t_panoc_optimizer_rosenbrock() {
         /* USER PARAMETERS */
-        let tolerance = 1e-14;
+        let tolerance = 1e-6;
         let a = 1.0;
         let b = 200.0;
         let n = 2;
-        let lbfgs_memory = 10;
+        let lbfgs_memory = 8;
         let max_iters = 80;
         let mut u = [-1.5, 0.9];
-        let radius = 1.0;
+
+        /* COST FUNCTION */
         let df = |u: &[f64], grad: &mut [f64]| -> i32 {
             mocks::rosenbrock_grad(a, b, u, grad);
             0
@@ -104,9 +105,9 @@ mod tests {
             *c = mocks::rosenbrock_cost(a, b, u);
             0
         };
+        /* CONSTRAINTS */
+        let radius = 2.0;
         let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
-
-        /* PROBLEM STATEMENT */
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(n).unwrap(),
             tolerance,
@@ -116,8 +117,12 @@ mod tests {
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
         let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
         panoc.with_max_iter(max_iters);
-
+        let now = std::time::Instant::now();
         let status = panoc.solve(&mut u);
+
+        println!("{} iterations", status.num_iter);
+        println!("elapsed {:?}", now.elapsed());
+
         assert_eq!(max_iters, panoc.max_iter);
         assert!(status.converged);
         assert!(status.num_iter < max_iters);

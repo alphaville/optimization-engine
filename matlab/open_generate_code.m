@@ -55,6 +55,8 @@ end
 function main1(fid_main, build_config)
 fprintf(fid_main, '\n\tlet socket = UdpSocket::bind("%s:%d").expect("could not bind to address");\n', ...
     build_config.udp_interface.bind_address, build_config.udp_interface.port);
+fprintf(fid_main, '\tsocket.set_read_timeout(None).expect("set_read_timeout failed");\n');
+fprintf(fid_main, '\tsocket.set_write_timeout(None).expect("set_write_timeout failed");\n');    
 fprintf(fid_main, '\tprintln!("Server started and listening at %s:%d");\n', ...
     build_config.udp_interface.bind_address, build_config.udp_interface.port);
 
