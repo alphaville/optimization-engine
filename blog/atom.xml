@@ -2,19 +2,55 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-03-06T06:00:00Z</updated>
+    <updated>2019-03-21T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
     <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
     <entry>
+        <title type="html"><![CDATA[Faster UDP connection]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html">
+        </link>
+        <updated>2019-03-21T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>After a recent update, the <a href="/optimization-engine/docs/udp-sockets">UDP interface</a> if <strong>OpEn</strong> is now significantly faster. Make sure you use version <code>0.2.2</code> or later.</p> <p><img src="/optimization-engine/img/udp_socket.png" alt="UDP socket interface"></p> <p>Coming up: TCP interface</p> ]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Rust for robots]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics.html">
+        </link>
+        <updated>2019-03-19T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Is the <strong>Rust</strong> programming language the future of robotics? <a href="https://medium.com/luosrobotics/why-rust-is-the-future-of-robotics-81d7fb68fe37">Some</a> claim that its memory and thread safety model and the fact that it can run on embedded and bare metal devices makes it the perfect candidate for robotics.</p> <p><img src="/optimization-engine/img/rustybot.jpeg" alt="rusty bot"></p> <p>Despite its young age, Rust has ...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[OpEn: a pure Rust optimizer]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization.html">
+        </link>
+        <updated>2019-03-15T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>The majority of optimization packages in Rust, such as <a href="https://crates.io/crates/ipopt">IPOPT</a>, <a href="https://crates.io/crates/osqp">OSQP</a>, <a href="https://crates.io/crates/nlopt">NLOPT</a>, are essentially bindings (interfaces) to other software. There are a few pure-Rust packages, such as <a href="https://crates.io/crates/rustimization">rustimization</a>, <a href="https://crates.io/crates/argmin">argmin</a>, they implement algorithms which are not suitable fo...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Let's talk]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html">
         </link>
         <updated>2019-03-06T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="https://alphaville.github.io/optimization-engine/docs/irc">IRC</a></li> </ul> ]]></summary>
+        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/chat.jpeg" alt="Chat with us"></p> <p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="https://alphaville.github.io/optimization-engine/docs/irc">IRC</a></li> </ul> ]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
@@ -39,6 +75,7 @@
         </link>
         <updated>2019-03-05T06:00:00Z</updated>
         <summary type="html"><![CDATA[<p>Here we give an example of building a parametric optimizer in MATLAB, which will run on a <strong>Raspberry Pi</strong>. The parametric optimizer will listen for requests on a <strong>UDP socket</strong>. We will then establish a connection to the optimizer, remotely, and consume the service.</p>
+<p><img src="/optimization-engine/img/rpi.jpeg" alt="Raspberry Pi"></p>
 ]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
@@ -75,7 +112,7 @@
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html">
         </link>
         <updated>2019-03-01T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European Co...</p>]]></summary>
+        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/mav.png" alt="Micro aerial vehicle"></p> <p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European C...</p>]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
