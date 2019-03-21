@@ -21,6 +21,9 @@ target/
 !/website/README.md
 !/website/publish.sh
 
+# icasadi external files
+/icasadi/extern/
+
 # Visual studio code files
 /.vscode/
 

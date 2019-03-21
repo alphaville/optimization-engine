@@ -7,10 +7,10 @@ authors = ["Emil Fresk <emil.fresk@gmail.com>",
 categories = ["Embedded development", "Algorithms", "Science", "Development tools"]
 
 # Keywords
-keywords = ["embedded", "optimization", "solver"]
+keywords = ["embedded", "optimization", "solver", "science", "math"]
 
 # Short description
-description = "A framework for embedded nonconvex optimization"
+description = "A pure Rust framework for embedded nonconvex optimization. Ideal for robotics!"
 
 # This is the API documentation
 documentation = "https://docs.rs/optimization_engine"
@@ -37,6 +37,7 @@ version = "0.2.2"
 # safety measure. Before you publish, make sure that:
 # - You have updated the version (SemVer)
 # - You have updated the documentation 
+# - All tests pass
 #After you publish:
 # - Update the webpage (e.g., make a blog post)
 publish = false

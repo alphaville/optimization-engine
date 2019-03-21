@@ -145,8 +145,7 @@ mod tests {
             NonZeroUsize::new(lbfgs_memory).unwrap(),
         );
         let mut radius = 1.0;
-        let mut i = 0;
-        while i < 100 {
+        for _ in 1..100 {
             b *= 1.01;
             a -= 1e-3;
             radius += 0.001;
@@ -165,8 +164,6 @@ mod tests {
             panoc.with_max_iter(max_iters);
 
             let status = panoc.solve(&mut u);
-
-            i += 1;
 
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
