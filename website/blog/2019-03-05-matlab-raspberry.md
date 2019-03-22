@@ -7,6 +7,8 @@ authorImageURL: https://pbs.twimg.com/profile_images/1062281000171003904/KkolV9E
 
 Here we give an example of building a parametric optimizer in MATLAB, which will run on a **Raspberry Pi**. The parametric optimizer will listen for requests on a **UDP socket**. We will then establish a connection to the optimizer, remotely, and consume the service.
 
+![Raspberry Pi](/optimization-engine/img/rpi.jpeg)
+
 <!--truncate-->
 
 **NOTE:** Please, read the documentation of the [MATLAB interface](../../../../docs/matlab-interface) and the [UDP communication protocol](../../../../docs/udp-sockets) first.

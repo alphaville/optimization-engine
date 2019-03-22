@@ -5,10 +5,7 @@
 open_root_path = matlab_open_root();
 
 open_matlab_path = fullfile(open_root_path, 'matlab');
-icasadi_matlab_path = fullfile(open_root_path, 'icasadi', 'matlab');
-
 addpath(genpath(open_matlab_path));
-addpath(icasadi_matlab_path);
 
 savepath;
 
