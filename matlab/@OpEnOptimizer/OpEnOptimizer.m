@@ -1,4 +1,4 @@
-classdef OpEnOptimizer
+classdef OpEnOptimizer < handle
     %OPENOPTIMIZER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -17,12 +17,40 @@ classdef OpEnOptimizer
         end
         
         function run(o)
+            % Start the optimizer
+            current_path = pwd();
+            cd(o.destination_path);
+            system('cargo run &');
+            cd(current_path);
+            pause(1.5);
         end
         
-        function stop(o)
+        function connect(o)
+            o.udp_connection = udp(o.ip, o.port, ...
+                'InputBufferSize', 16384, 'OutputBufferSize', 4096);
+            fopen(o.udp_connection);
         end
         
-        function consume(o, p)
+        function disconnect(o)
+            fclose(o.udp_connection);
+        end
+        
+        function msg = stop(o)
+            u = udp(o.ip, o.port);
+            fopen(u);
+            fwrite(u, 'x');
+            X = fread(u, 2048);
+            msg = char(X');
+            fclose(u);
+        end
+        
+        function out = consume(o, p)
+            p_formatted_str = sprintf('%f, ', p(1:end-1));
+            req_str = sprintf('{"parameter":[%s %f]}', p_formatted_str,p(end));
+            fwrite(o.udp_connection, req_str);
+            json_response = fread(o.udp_connection, 100000, 'char');
+            json_response = char(json_response');
+            out = jsondecode(json_response);
         end
     end
     
