@@ -4,12 +4,12 @@ title: Frequently Asked Questions
 sidebar_label: FAQ
 ---
 
-### 1. Can it find the global optimum?
+### 1. Can OpEn find the global optimum?
 No. 
 
 OpEn does not offer any guarantees that the solution it returns is a global optimum.
 
-### 2. Can it solve mixed integer problems?
+### 2. Can OpEn solve mixed integer problems?
 Yes. OpEn solves parametric problems of the form
 
 ```text
@@ -19,7 +19,7 @@ subj. to: u in U(p)
 
 Set `U(p)` can be 
 
-### 3. Can it solve multi-objective problems?
+### 3. Can OpEn solve multi-objective problems?
 No.
 
 ### 4. How should I choose the L-BFGS memory?
@@ -31,22 +31,47 @@ Long story short... if you need very high performance, you should experiment wit
 Please, cite the original PANOC paper as follows:
 ```bibtex
 @inconference{panoc2017,
-  author = "Lorenzo Stella 
-   			and Andreas Themelis 
-   			and Pantelis Sopasakis 
-   			and Panagiotis Patrinos",
-  title     = {A simple and efficient algorithm for nonlinear model predictive control},
-  booktitle = {56th IEEE Conference on Decision and Control (CDC)},
-  year      = {2017},
-  pages     = {1939-1944},
-  doi       = {10.1109/CDC.2017.8263933},
-  url       = {https://doi.org/10.1109/CDC.2017.8263933}
+  author = "Stella, L. and Themelis, A. and Sopasakis, P. and Patrinos, P.",
+  title     = "A simple and efficient algorithm for
+               nonlinear model predictive control",
+  booktitle = "56th IEEE Conference on Decision and Control (CDC)",
+  year      = "2017",
+  pages     = "1939-1944"
 }
 ```
-Cite the software as follows:
+
+You may also cite the following papers where we use PANOC in lab experiments - first, for obstacle avoidance on an autonomous ground vehicle carrying a trailer:
+
+```bibtex
+@inconference{agv2018,
+  author = "Sathya, A. and Sopasakis, P. and Van Parys, R. and Themelis, A. 
+            and Pipeleers, G. and Patrinos, P.",
+  title     = "Embedded nonlinear model predictive control for 
+               obstacle avoidance using PANOC",
+  booktitle = "IEEE European Control Conference (ECC)",
+  year      = "2018",
+}
+```
+
+and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
+
+```bibtex
+@inconference{mav2019,
+  author = "Small, E. and Sopasakis, P. and Fresk, E.
+        and Patrinos, P. and Nikolakopoulos, G.",
+  title     = "Aerial navigation in obstructed environments with
+               embedded nonlinear model predictive control",
+  booktitle = "IEEE European Control Conference (ECC)",
+  year      = "2019"
+}
+```
+
+
 
 ### 6. I have a question; whom should I address it to?
-You can reach us on Discord and Gitter. Find out more information [here](http://localhost:3000/optimization-engine/blog/2019/03/06/talk-to-us).
+You can reach us on Discord and Gitter. 
+
+Find out more information [here](http://localhost:3000/optimization-engine/blog/2019/03/06/talk-to-us).
 
 ### 7. How can I report an issue?
 Please report any issues on [github](https://github.com/alphaville/optimization-engine/issues).

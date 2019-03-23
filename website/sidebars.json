@@ -11,7 +11,8 @@
       "udp-sockets"
     ],
     "Examples": [
-      "example-nmpc"
+      "example-nmpc",
+      "example-nav"
     ],
     "FAQ": [
       "faq"
