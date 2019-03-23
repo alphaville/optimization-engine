@@ -10,6 +10,9 @@
       "python-interface",
       "udp-sockets"
     ],
+    "Examples": [
+      "example-nmpc"
+    ],
     "FAQ": [
       "faq"
     ]

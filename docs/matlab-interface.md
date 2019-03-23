@@ -54,60 +54,19 @@ constraints = OpEnConstraints.make_ball_at_origin(1.0);
 
 ## Code Generation
 
-### In a nutshell
 Code generation is as simple as 
 
 ```matlab
-build_config = open_build_config();
-open_generate_code(build_config, constraints, u, p, phi);
+builder = OpEnOptimizerBuilder().with_problem(u, p, cost, constraints);
+optimizer = builder.build();
 ```
 
-
-### Build configuration
-The default build configuration is a structure returned by `build_config = open_build_config();`. This specifies the destination path where the parametric optimizer will be stored, various metadata (authorship, license, etc), solver parameters, and parameters related to the interface. Let us go through these in detail. 
-
-#### Basic configuration
-The following properties are metadata:
-
-| Property       | Description                                  |
-|----------------|----------------------------------------------|
-| `build_name`   | Name of your optimizer (same as folder name) |
-| `version`      | Version of your optimizer                    |
-| `license`      | String of license                            |
-| `authors`      | Cell array with author names                 |
+As shown above, we first need to create an instance of **OpEnOptimizerBuilder**; this is a builder that will take care of code generation and will allow us to call the generated parametric optimizer from MATLAB.
 
 
-Solver properties:
+The builder needs to know the problem specifications, that is, the cost function and the constraints (which we provide using `with_problem`).
 
-| Property                | Description                    |
-|-------------------------|--------------------------------|
-| `solver.lbfgs_mem`      | Length of L-BFGS buffer        |
-| `solver.max_iters`      | Maximum number of iterations   |
-| `solver.tolerance`      | Tolerance                      |
-
-UDP socket properties:
-
-| Property                       | Description        |
-|--------------------------------|--------------------|
-| `udp_interface.bind_address`   | Bind address       |
-| `udp_interface.port`           | Post (integer)     |
-
-
-
-#### Advanced configuration
-
-The following properties are some paths, which you shouldn't need to modify:
-
-| Property                     | Description                                  |
-|------------------------------|----------------------------------------------|
-| `optimization_engine_path`   | Path of optimization-engine                  |
-| `icasadi_path`               | Path of icasadi (casadi Rust interface)      |
-| `build_path`                 | Directory where the optimizer will be stored |
-| `build_mode`                 | `debug` or `release`                         |
-| `target`                     | target hardware (`rpi` for Raspberry Pi)     |
-
-
-
+We then call `build()` to create an optimizer -- an instance of `OpEnOptimizer`.
 
 
 
@@ -119,22 +78,20 @@ The auto-generated Rust module can be used directly from MATLAB; it can be start
 First, we start the module:
 
 ```matlab
-run_parametric_optimizer(build_config);
+optimizer.run();
 ```
 
-Then, we open a UDP connection to the target:
+Then, we connect to the optimizer to be able to use it:
 
 ```matlab
-ip_address = '127.0.0.1';
-udp_connection = udp(ip_address, build_config.udp_interface.port);
-fopen(udp_connection);
+optimizer.connect();
 ```
 
 We may now use the parametric optimizer:
 
 ```matlab
 p = [1, 250]; % parameter
-[out, json_response] = consume_parametric_optimizer(udp_connection, p);
+out = optimizer.consume(p);
 ```
 
 This request returns a MATLAB structure like the following one:
@@ -151,7 +108,11 @@ where `p` is the provided parameter, `u` is the solution, `n` is the number of i
 
 We may call the server several times. Once we're done, we should close the UDP connection and stop the server.
 
-```matlab
-fclose(udp_connection);
-kill_parametric_optimizer(ip_address, build_config.udp_interface.port);
+```matlabf
+optimizer.disconnect();
+optimizer.stop();
 ```
+
+## Configuring the Builder
+
+Coming soon
