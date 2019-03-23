@@ -6,23 +6,29 @@ classdef OpEnOptimizer < handle
         ip;
         port;
         destination_path;
+        run_mode;
         udp_connection;
     end
     
     methods
-        function o = OpEnOptimizer(ip, port, destination_path)
+        function o = OpEnOptimizer(ip, port, destination_path, mode)
             o.ip = ip;
             o.port = port;
             if nargin>2, o.destination_path = destination_path; end
+            if nargin>3, o.run_mode = mode; end
         end
         
         function run(o)
             % Start the optimizer
             current_path = pwd();
             cd(o.destination_path);
-            system('cargo run &');
+            if strcmp(o.run_mode, 'release')
+                system('cargo run --release &');
+            else
+                system('cargo run &');
+            end            
             cd(current_path);
-            pause(1.5);
+            pause(0.5);
         end
         
         function connect(o)
