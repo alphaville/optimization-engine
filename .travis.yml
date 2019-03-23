@@ -18,7 +18,6 @@ install:
 
 script:
   - bash ci/script.sh
-  - cd icasadi; bash ci/script.sh
 
 after_script: set +e
 
