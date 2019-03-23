@@ -45,4 +45,9 @@ Please, cite the original PANOC paper as follows:
 ```
 Cite the software as follows:
 
+### 6. I have a question; whom should I address it to?
+You can reach us on Discord and Gitter. Find out more information [here](http://localhost:3000/optimization-engine/blog/2019/03/06/talk-to-us).
+
+### 7. How can I report an issue?
+Please report any issues on [github](https://github.com/alphaville/optimization-engine/issues).
 
