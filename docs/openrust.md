@@ -2,20 +2,22 @@
 id: openrust
 title: OpEn Rust
 ---
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 ## Problem definition
 **OpEn** can solve problems of the form:
 
-```text
-Minimize f(u)
-subject to: u in U
-```
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
-where `f` is a C1,1 function (continuously diff/ble with Lipschitz-continuous gradient) and `U` is a set on which we may project.
+where *f* is a C1,1 function (continuously diff/ble with Lipschitz-continuous gradient) and *U* is a set on which we may project.
 
 The definition of an optimization problem consists in specifying the following three componenets:
 
-- the cost function `f` as a Rust function
-- the gradient of `f`, `df`, as a Rust function
+- the cost function *f* as a Rust function
+- the gradient of *f*, *df*, as a Rust function
 - the set of constraints, as an implementation of a trait
 
 ### Cost functions 

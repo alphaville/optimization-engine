@@ -3,8 +3,13 @@ id: matlab-interface
 title: MATLAB
 ---
 
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 ## About the MATLAB interface
 If you haven't done so already, you first need to [install the MATLAB interface](./installation#matlab-interface).
+
+![matlab](/optimization-engine/img/matlab_logo.png)
 
 This inteface allows the designers to prepare their parametric optimizers in MATLAB and then use the code generation tool we provide to build their parametric optimizer in Rust. The generated code can either be used directly in Rust, or, it can be interfaced from **any software**. 
 
@@ -18,12 +23,11 @@ Let's now walk through the necessary steps to design a parametric optimizer.
 
 Recall that we need to define a parametric optimization problem of the form
 
-```text
-Minimize f(u; p)
-subject to: u in U(p)
-```
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
-where `u` is the decision variable of the problem and `p` is a parameter.
+where $u$ is the decision variable of the problem and $p$ is a parameter.
 
 We, therefore, need to define the cost function and the set of constraints. The gradient of the cost function will be computed automatically (CasADi takes care of that).
 
@@ -45,7 +49,13 @@ phi = rosenbrock(u, p);        % cost function phi(u; p)
 
 Constraints fall into two sub-categories: non-parametric constraints and parametric ones (which are under development). Non-parametric constraints are specified during design time and cannot be updated in real time. Parametric constraints depend on the parameter `p` and are updated at every invocation of the solver.
 
-Non-parametric constraints are implemented by `@OpEnConstraints`, a MATLAB class which follows the Factory pattern. Constraint objects are created by calling a static function. For example, to create the constraint `|u| <= 1.0`, we construct an instance of `OpEnConstraints` as follows:
+Non-parametric constraints are implemented by `@OpEnConstraints`, a MATLAB class which follows the Factory pattern. Constraint objects are created by calling a static function. For example, to create the constraint 
+
+<div class="math">
+\[\|u\| {}\leq{} 1\]
+</div>
+
+we construct an instance of `OpEnConstraints` as follows:
 
 
 ```matlab

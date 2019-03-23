@@ -4,7 +4,8 @@ title: Optimization Engine
 sidebar_label: Introduction
 ---
 
-
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 ## About Optimization Engine (OpEn)
 
@@ -31,16 +32,17 @@ Users can, for example, do their design entirely in Python and then use the **Op
 
 OpEn solves parametric nonconvex optimization problems of the form
 
-```text
-Minimize f(u; p)
-subject to: u in U(p)
-```
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
-where `u` is the vector decision variables of the problem and `p` is a parameter. Function `f` needs to be a sufficiently smooth (C1,1) function and `U` needs to be a set on which we can compute projections. 
+where `u` is the vector decision variables of the problem and `p` is a parameter. Function `f` needs to be a sufficiently smooth ($C^{1,1}$) function and `U` needs to be a set on which we can compute projections. 
 
-The cost fuction, `f`, can be nonconvex and the set of constraints `U` can be nonconvex too. 
+The cost fuction, $f$, can be nonconvex and the set of constraints $U$ can be nonconvex too. 
 
-For example, `U` can be sets such as `{0,1}`, `{0,1}^m`, `{1,2,3,4}` or `{0, 1}^m x Ball(u0, radius)`. This way, OpEn can solve mixed-integer problems, but not to a global minimum.
+For example, $U$ can be sets such as $\{0,1\}$, $\{0,1\}^m$, $\{1,\ldots,n\}$ or $\{0, 1\}^m \times \mathcal{B}(u_0, r)$. 
+
+This way, OpEn can solve mixed-integer problems, but not to a global minimum. Nevertheless, OpEn is guaranteed to converge.
 
 Several problems, including nonlinear model predictive control, can be cast in the above form. 
 
