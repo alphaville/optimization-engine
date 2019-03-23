@@ -42,7 +42,7 @@ classdef OpEnOptimizerBuilder < handle
             o.communication_buffer_size = 256;
         end
         
-        build(o);
+        opEnOptimizer = build(o);
         
         function o = with_build_name(o, build_name)
             o.build_name = build_name;
