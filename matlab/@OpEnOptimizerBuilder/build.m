@@ -97,7 +97,7 @@ function [cost, grad_cost] = casadi_codegen(u,p,phi,build_directory)
 [cost, grad_cost] = casadi_generate_c_code(u, p, phi,build_directory);
 current_dir = pwd();
 cd(fullfile(build_directory, 'icasadi'));
-system('cargo build'); % builds casadi
+system('cargo build --release'); % builds casadi
 cd(current_dir);
 
 
@@ -150,6 +150,7 @@ copyfile(head_file_path, main_file);
 function clean_destination(opEnBuilder)
 destination_dir = fullfile(opEnBuilder.build_path, opEnBuilder.build_name);
 if ~exist(destination_dir, 'dir')
+    mkdir(destination_dir);
     init_cargo(opEnBuilder);
 end
 
