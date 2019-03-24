@@ -11,7 +11,9 @@ Optimization Engine (OpEn) is a solver for embedded nonconvex optimization.
 
 ## Features
 
-- Fast nonconvex optimization
+**OpEn** is the counterpart of **CVXGen** for nonconvex problems.
+
+- Fast nonconvex parametric optimization
 - Numerical algorithm written in Rust
 - Provably safe memory management
 - Ideal for nonlinear MPC applications (e.g., autonomous navigation)
@@ -19,12 +21,23 @@ Optimization Engine (OpEn) is a solver for embedded nonconvex optimization.
 
 ## Demos
 
+### Code generation
+
 Code generation? Piece of cake!
 
-**OpEn** generates parametric optimizer modules in Rust - it's blazingly fast - it's safe - it can run on embedded devices
+**OpEn** generates parametric optimizer modules in Rust - it's blazingly fast - it's safe - it can run on embedded devices.
+
+You can use the [MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface) or [Python interface](https://alphaville.github.io/optimization-engine/docs/python-interface) of OpEn to generate Rust code for your parametric optimizer.
+
+This can then be called directly, using Rust, or, it can be consumed as a service over a [UDP socket](https://alphaville.github.io/optimization-engine/docs/udp-sockets).
 
 ![Code generation](website/static/img/115ba54c2ad0.gif "demo1")
 
+You can generate a parametric optimizer in just very few lines of code and in no time.
+
+OpEn allows application developers and researchers to focus on the challenges of the application, rather than the tedious task of solving the associated parametric optimization problems (as in nonlinear model predictive control).
+
+### Embedded applications
 OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz**!
 
 ![Autonomous Aerial Vehicle](website/static/img/e8f236af8d38.gif "demo-mav")
