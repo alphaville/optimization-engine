@@ -13,6 +13,8 @@ If you haven't done so already, you first need to [install the MATLAB interface]
 
 This inteface allows the designers to prepare their parametric optimizers in MATLAB and then use the code generation tool we provide to build their parametric optimizer in Rust. The generated code can either be used directly in Rust, or, it can be interfaced from **any software**. 
 
+![OpEn code generation](/optimization-engine/img/115ba54c2ad0.gif "Quick code generation")
+
 In other words, MATLAB is used to **design** a parametric optimizer, which runs in Rust and can be interfaced from **any** programming language or operating system.
 
 The generated optimzer runs in Rust and exports its functionality using **UDP sockets**.

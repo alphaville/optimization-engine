@@ -6,6 +6,8 @@ sidebar_label: UDP sockets
 
 ## Consuming the module 
 
+![UDP sockets](/optimization-engine/img/udp_socket.png)
+
 ### Communication Protocol
 The client sends to the server a JSON file with the value of parameter `p` in the following format:
 

@@ -82,6 +82,14 @@ class Footer extends React.Component {
               aria-label="Star this project on GitHub">
               Star
             </a>
+            <br />
+            <br />
+            <a href="https://twitter.com/share?ref_src=twsrc%5Etfw&via=isToxic"
+              className="twitter-share-button"
+              data-show-count="false"
+              data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a>
+            <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+
           </div>
         </section>
 

@@ -40,7 +40,10 @@ where `u` is the vector decision variables of the problem and `p` is a parameter
 
 The cost fuction, $f$, can be nonconvex and the set of constraints $U$ can be nonconvex too. 
 
-For example, $U$ can be sets such as $\{0,1\}$, $\{0,1\}^m$, $\{1,\ldots,n\}$ or $\{0, 1\}^m \times \mathcal{B}(u_0, r)$. 
+For example, $U$ can be sets such as  
+
+- $\\{0,1\\}$, $\\{0,1\\}^m$, $\\{1,\ldots,n\\}$ or 
+- $\\{0, 1\\}^m \times \mathcal{B}(u_0, r)$. 
 
 This way, OpEn can solve mixed-integer problems, but not to a global minimum. Nevertheless, OpEn is guaranteed to converge.
 
@@ -56,7 +59,9 @@ Note that OpEn solves the [optimality conditions](https://arxiv.org/pdf/1709.064
 
 Here is a lab demonstration of Optimization Engine in action. 
 
-<a href="http://www.youtube.com/watch?v=E4vCSJw97FQ" target="_blank">![Aerial Navigation Video](http://img.youtube.com/vi/E4vCSJw97FQ/0.jpg)</a>
+![Aerial Navigation Video](/optimization-engine/img/e8f236af8d38.gif)
+
+
 
 In this video we demonstrate that **Optimization Engine** can solve an obstacle avoidance problem as fast as 20 times per second.
 

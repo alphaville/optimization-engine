@@ -38,17 +38,18 @@ We shall discretise this system using the Euler discretization with sampling tim
 
 
 ### Cost functions
-We define the following stage cost function
+Our aim is to determine a sequence of control actions, 
+<div class="math">\[u = (u_0, u_1, \ldots, u_{N-1}),\]</div>
+so as to create a sequence of states $z_0,\ldots, z_N$, which reach as close as possible to a given target point $(x^{\mathrm{ref}}, y^{\mathrm{ref}})$ and a reference heading $\theta^{\mathrm{ref}}$.
+
+To this end, we define the following stage cost function
 <div class="math">\[\ell(z, u) = q [(x-x^{\mathrm{ref}})^2 + (y-y^{\mathrm{ref}})^2] + q_{\theta}(\theta-\theta^{\mathrm{ref}})^2 + r\|u\|^2,\]</div>
 where $q$, $q_\theta$ and $r$ are nonnegative weight coefficients. 
 
 Likewise, we define the terminal cost function
 <div class="math">\[\ell_N(z) = q_N [(x-x^{\mathrm{ref}})^2 + (y-y^{\mathrm{ref}})^2] + q_{\theta,N}(\theta-\theta^{\mathrm{ref}})^2,\]</div>
 
-Our aim is to determine a sequence of control actions, 
-<div class="math">\[u = (u_0, u_1, \ldots, u_{N-1}),\]</div>
-
-We now define the *total cost function*
+We now introduce the *total cost function*
 
 <div class="math">\[V(u; z_0) = \sum_{t=0}^{N-1}\ell(z_t, u_t) + \ell_N(z_N),\]</div>
 
@@ -130,3 +131,13 @@ The solution is presented below (the algorithm converges in 25 iterations after 
 <img src="/optimization-engine/img/nav-oc-sol-xy.jpg" alt="Navigation (x,y) profile" width="500"/>
 
 <img src="/optimization-engine/img/nav-oc-sol-theta.jpg" alt="Navigation (x,y) profile" width="500"/>
+
+
+
+## Experimental validation
+
+A somewhat more involved nonlinear model predictive control (NMPC) formulation, enhanced with obstacle avoidance capabilities, was presented in [ECC '18](https://core.ac.uk/download/pdf/153430972.pdf).
+
+A short footage of our experiment is shown below:
+
+![](/optimization-engine/img/6f6ea4f8d194.gif)

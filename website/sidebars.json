@@ -14,8 +14,9 @@
       "example-nmpc",
       "example-nav"
     ],
-    "FAQ": [
-      "faq"
+    "Extras": [
+      "faq",
+      "contributing"
     ]
   },
   "docs-other": {

@@ -3,7 +3,10 @@ id: openrust
 title: OpEn Rust
 ---
 
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+![Rust Programming](/optimization-engine/img/rust1.jpeg)
 
 ## Problem definition
 **OpEn** can solve problems of the form:
@@ -12,13 +15,13 @@ title: OpEn Rust
 \[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
 \mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
-where *f* is a C1,1 function (continuously diff/ble with Lipschitz-continuous gradient) and *U* is a set on which we may project.
+where $f$ is a $C^{1,1}$ function (continuously diff/ble with Lipschitz-continuous gradient) and $U$ is a set on which we may project.
 
 The definition of an optimization problem consists in specifying the following three componenets:
 
-- the cost function *f* as a Rust function
-- the gradient of *f*, *df*, as a Rust function
-- the set of constraints, as an implementation of a trait
+- the cost function $f$ as a Rust function
+- the gradient of $f$, $\nabla f$, as a Rust function
+- the set of constraints, $U$, as an implementation of a trait
 
 ### Cost functions 
 The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> i32`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns an integer *status code*; the status code `0` means that the computation was successful. Nonzero status codes can be used to encode errors/exceptions.
