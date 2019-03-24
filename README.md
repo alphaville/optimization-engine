@@ -42,9 +42,6 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 
 ![Autonomous Aerial Vehicle](website/static/img/e8f236af8d38.gif "demo-mav")
 
-and here we see it in action for the autonomous navigation and obstacle avoidance on an Odroid XU4 platform
-
-![Autonomous Ground Vehicle](website/static/img/6f6ea4f8d194.gif "demo-agv")
 
 
 ## License
