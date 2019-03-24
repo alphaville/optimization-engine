@@ -7,11 +7,7 @@
 
 **Optimization Engine** is a solver for embedded nonconvex optimization. 
 
-It uses the Proximal Averaged Newton algorithm ([PANOC](https://arxiv.org/pdf/1709.06487.pdf))
-
-## Documentation
-
-[**Documentation available at alphaville.github.io/optimization-engine**](https://alphaville.github.io/optimization-engine/)
+**Documentation available at** [**alphaville.github.io/optimization-engine**](https://alphaville.github.io/optimization-engine/)
 
 ## License
 
