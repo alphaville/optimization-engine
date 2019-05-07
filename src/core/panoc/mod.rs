@@ -1,6 +1,7 @@
 //! PANOC super-fast algorithm
 use super::Problem;
 use crate::constraints;
+use std::time;
 
 mod panoc_cache;
 mod panoc_engine;
@@ -55,6 +56,7 @@ where
 {
     panoc_engine: &'a mut PANOCEngine<'a, GradientType, ConstraintType, CostType>,
     max_iter: usize,
+    max_duration: Option<time::Duration>,
 }
 
 #[cfg(test)]

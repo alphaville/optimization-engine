@@ -2,6 +2,7 @@
 //!
 //!
 use crate::constraints;
+use std::time;
 
 pub mod fbs;
 pub mod panoc;
@@ -18,6 +19,8 @@ pub struct SolverStatus {
     converged: bool,
     /// number of iterations for convergence
     num_iter: usize,
+    /// time it took to solve
+    solve_time: time::Duration,
     /// norm of the fixed-point residual (FPR)
     fpr_norm: f64,
     /// cost value at the candidate solution

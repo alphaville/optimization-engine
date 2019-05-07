@@ -6,6 +6,7 @@ use super::super::SolverStatus;
 use super::PANOCEngine;
 use super::PANOCOptimizer;
 use crate::constraints;
+use std::time;
 
 const MAX_ITER: usize = 100_usize;
 
@@ -22,6 +23,7 @@ where
         PANOCOptimizer {
             panoc_engine: panoc_engine,
             max_iter: MAX_ITER,
+            max_duration: None,
         }
     }
 
@@ -48,6 +50,15 @@ where
         self.max_iter = max_iter;
         self
     }
+
+    /// Sets the maximum solution time, useful in real-time applications
+    pub fn with_max_duration(
+        &mut self,
+        max_duation: time::Duration,
+    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+        self.max_duration = Some(max_duation);
+        self
+    }
 }
 
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
@@ -58,16 +69,27 @@ where
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
+        let now = time::Instant::now();
+
         self.panoc_engine.init(u);
+
         let mut num_iter: usize = 0;
-        while self.panoc_engine.step(u) && num_iter < self.max_iter {
-            num_iter += 1;
+
+        if let Some(dur) = self.max_duration {
+            while self.panoc_engine.step(u) && num_iter < self.max_iter && now.elapsed() <= dur {
+                num_iter += 1;
+            }
+        } else {
+            while self.panoc_engine.step(u) && num_iter < self.max_iter {
+                num_iter += 1;
+            }
         }
 
         // export solution status
         SolverStatus::new(
             num_iter < self.max_iter,
             num_iter,
+            now.elapsed(),
             self.panoc_engine.cache.norm_gamma_fpr,
             self.panoc_engine.cache.cost_value,
         )

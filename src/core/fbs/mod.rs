@@ -48,6 +48,7 @@ mod fbs_optimizer;
 
 use super::Problem;
 use crate::constraints;
+use std::time;
 
 /// Cache for the forward-backward splitting (FBS), or projected gradient, algorithm
 ///
@@ -90,6 +91,7 @@ where
 {
     fbs_engine: &'a mut FBSEngine<'a, GradientType, ConstraintType, CostType>,
     max_iter: usize,
+    max_duration: Option<time::Duration>,
 }
 
 /* --------------------------------------------------------------------------------------------- */
