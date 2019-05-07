@@ -11,7 +11,7 @@ If you haven't done so already, you first need to [install the MATLAB interface]
 
 ![matlab](/optimization-engine/img/matlab_logo.png)
 
-This inteface allows the designers to prepare their parametric optimizers in MATLAB and then use the code generation tool we provide to build their parametric optimizer in Rust. The generated code can either be used directly in Rust, or, it can be interfaced from **any software**. 
+This inteface allows the designers to prepare their parametric optimizers in MATLAB and then use the code generation tool we provide to build their parametric optimizer in Rust. The generated code can either be used directly in Rust, or, it can be interfaced from **any software**.
 
 ![OpEn code generation](/optimization-engine/img/115ba54c2ad0.gif "Quick code generation")
 
@@ -39,19 +39,19 @@ Determining the cost function is straightforward. We simply need to create two C
 
 ```matlab
 nu = 6;                        % number of decision variables
-np = 2;                        % number of parameters 
+np = 2;                        % number of parameters
 
 u = casadi.SX.sym('u', nu);    % decision variables
 p = casadi.SX.sym('p', np);    % parameters
 
-phi = rosenbrock(u, p);        % cost function phi(u; p) 
+phi = rosenbrock(u, p);        % cost function phi(u; p)
 ```
 
 ### Constraints
 
 Constraints fall into two sub-categories: non-parametric constraints and parametric ones (which are under development). Non-parametric constraints are specified during design time and cannot be updated in real time. Parametric constraints depend on the parameter `p` and are updated at every invocation of the solver.
 
-Non-parametric constraints are implemented by `@OpEnConstraints`, a MATLAB class which follows the Factory pattern. Constraint objects are created by calling a static function. For example, to create the constraint 
+Non-parametric constraints are implemented by `@OpEnConstraints`, a MATLAB class which follows the Factory pattern. Constraint objects are created by calling a static function. For example, to create the constraint
 
 <div class="math">
 \[\|u\| {}\leq{} 1\]
@@ -64,14 +64,14 @@ we construct an instance of `OpEnConstraints` as follows:
 constraints = OpEnConstraints.make_ball_at_origin(1.0);
 ```
 
-## Building a parametric optimizer 
+## Building a parametric optimizer
 
 ### Code Generation
 
-Code generation is as simple as 
+Code generation is as simple as
 
 ```matlab
-builder = OpEnOptimizerBuilder().with_problem(u, p, cost, constraints);
+builder = OpEnOptimizerBuilder().with_problem(u, p, phi, constraints);
 optimizer = builder.build();
 ```
 
@@ -141,7 +141,7 @@ builder.with_lbfgs_memory(15)...
 ```
 
 ### Connection properties
-By default the UDP interface binds at the local address `127.0.0.1` and the default port `3498`. 
+By default the UDP interface binds at the local address `127.0.0.1` and the default port `3498`.
 
 We may update the port using:
 
@@ -194,4 +194,4 @@ builder.with_authors('P. Sopasakis <p.sopasakis@example.com>', ...
        .with_license('MIT and APACHE-v2')
        .with_version('0.1.5');
 ```
-       
+
