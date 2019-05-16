@@ -24,7 +24,7 @@ fn t_solve_fbs_hard() {
     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
     let mut u = [-12., -160., 55.];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(100000);
-    let status = optimizer.solve(&mut u);
+    let status = optimizer.solve(&mut u).unwrap();
 
     println!("|fpr| = {}", status.norm_fpr());
     println!("solution = {:?}", u);
@@ -44,7 +44,7 @@ fn t_fbs_step_no_constraints() {
         let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
         let mut u = [1.0, 3.0];
 
-        assert!(fbs_engine.step(&mut u));
+        assert!(fbs_engine.step(&mut u).unwrap());
         assert_eq!([0.5, 2.4], u);
         unit_test_utils::assert_nearly_equal_array(&[0.5, 2.4], &u, 1e-10, 1e-14, "u");
     }
@@ -69,7 +69,7 @@ fn t_fbs_step_ball_constraints() {
 
     let mut u = [1.0, 3.0];
 
-    assert!(fbs_engine.step(&mut u));
+    assert!(fbs_engine.step(&mut u).unwrap());
     unit_test_utils::assert_nearly_equal_array(
         &[0.020395425411200, 0.097898041973761],
         &u,
@@ -91,7 +91,7 @@ fn t_solve_fbs() {
     let mut u = [0.0; N_DIM];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
-    let status = optimizer.solve(&mut u);
+    let status = optimizer.solve(&mut u).unwrap();
 
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);
@@ -124,7 +124,7 @@ fn t_solve_fbs_many_times() {
         // Create a new optimizer...
         let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
-        let status = optimizer.solve(&mut u);
+        let status = optimizer.solve(&mut u).unwrap();
 
         assert!(status.norm_fpr() < tolerance);
     }

@@ -14,6 +14,12 @@
 
 extern crate num;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Error {
+    /// If the gradient or cost function cannot be evaluated
+    Cost,
+}
+
 pub mod constraints;
 pub mod core;
 pub mod lipschitz_estimator;

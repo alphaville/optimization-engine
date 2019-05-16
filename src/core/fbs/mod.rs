@@ -13,15 +13,15 @@
 //! use optimization_engine::constraints::Ball2;
 //! use std::num::NonZeroUsize;
 //!
-//! fn my_cost(u: &[f64], cost: &mut f64) -> i32 {
+//! fn my_cost(u: &[f64], cost: &mut f64) -> Result<(), Error> {
 //!     *cost = u[0] * u[0] + 2. * u[1] * u[1] + u[0] - u[1] + 3.0;
-//!     0
+//!     Ok(())
 //! }
 //!
-//! fn my_gradient(u: &[f64], grad: &mut [f64]) -> i32 {
+//! fn my_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), Error> {
 //!     grad[0] = u[0] + u[1] + 1.0;
 //!     grad[1] = u[0] + 2. * u[1] - 1.0;
-//!     0
+//!     Ok(())
 //! }
 //!
 //! fn main() {
@@ -35,7 +35,7 @@
 //!     let mut u = [0.0; 2];
 //!     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 //!
-//!     let status = optimizer.solve(&mut u);
+//!     let status = optimizer.solve(&mut u).unwrap();
 //!
 //!     assert!(status.has_converged());
 //! }

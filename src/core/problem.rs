@@ -6,7 +6,7 @@
 //! Cost functions are user defined. They can either be defined in Rust or in
 //! C (and then invoked from Rust via an interface such as icasadi).
 //!
-use crate::constraints;
+use crate::{constraints, Error};
 
 /// Definition of an optimisation problem
 ///
@@ -17,8 +17,8 @@ use crate::constraints;
 ///   [Constraint](../../panoc_rs/constraints/trait.Constraint.html)
 pub struct Problem<GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// constraints
@@ -31,8 +31,8 @@ where
 
 impl<GradientType, ConstraintType, CostType> Problem<GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new instance of an optimisation problem

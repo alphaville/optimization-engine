@@ -7,7 +7,7 @@ pub mod panoc;
 pub mod problem;
 pub mod solver_status;
 
-pub use crate::constraints;
+pub use crate::{constraints, Error};
 pub use problem::Problem;
 pub use solver_status::SolverStatus;
 
@@ -17,7 +17,7 @@ pub trait Optimizer {
     ///
     /// Returns the solver status
     ///
-    fn solve(&mut self, u: &mut [f64]) -> SolverStatus;
+    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, Error>;
 }
 
 /// Engine supporting an algorithm
@@ -31,7 +31,7 @@ pub trait Optimizer {
 ///
 pub trait AlgorithmEngine {
     /// Take a step of the algorithm and return `true` only if the iterations should continue
-    fn step(&mut self, u: &mut [f64]) -> bool;
+    fn step(&mut self, u: &mut [f64]) -> Result<bool, Error>;
 
-    fn init(&mut self, u: &mut [f64]);
+    fn init(&mut self, u: &mut [f64]) -> Result<(), Error>;
 }

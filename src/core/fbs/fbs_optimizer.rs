@@ -6,6 +6,7 @@ use crate::{
         fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, Optimizer, Problem,
         SolverStatus,
     },
+    Error,
 };
 use std::time;
 
@@ -23,8 +24,8 @@ const MAX_ITER: usize = 100_usize;
 ///
 pub struct FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     fbs_engine: FBSEngine<'a, GradientType, ConstraintType, CostType>,
@@ -35,8 +36,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
@@ -87,21 +88,24 @@ where
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
     for FBSOptimizer<'life, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'life,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'life,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error> + 'life,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error> + 'life,
     ConstraintType: constraints::Constraint + 'life,
 {
-    fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
+    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, Error> {
         let now = time::Instant::now();
 
-        self.fbs_engine.init(u);
+        self.fbs_engine.init(u)?;
         let mut num_iter: usize = 0;
         if let Some(dur) = self.max_duration {
-            while self.fbs_engine.step(u) && num_iter < self.max_iter && dur <= now.elapsed() {
+            while self.fbs_engine.step(u) == Ok(true)
+                && num_iter < self.max_iter
+                && dur <= now.elapsed()
+            {
                 num_iter += 1;
             }
         } else {
-            while self.fbs_engine.step(u) && num_iter < self.max_iter {
+            while self.fbs_engine.step(u) == Ok(true) && num_iter < self.max_iter {
                 num_iter += 1;
             }
         }
@@ -110,18 +114,18 @@ where
         let mut cost_value = 0.0;
 
         assert_eq!(
-            0,
+            Ok(()),
             (self.fbs_engine.problem.cost)(u, &mut cost_value),
             "The computation of the cost value at the solution failed"
         );
 
         // export solution status
-        SolverStatus::new(
+        Ok(SolverStatus::new(
             num_iter < self.max_iter,
             num_iter,
             now.elapsed(),
             self.fbs_engine.cache.norm_fpr,
             cost_value,
-        )
+        ))
     }
 }

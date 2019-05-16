@@ -3,15 +3,15 @@
 use crate::{
     constraints,
     core::{fbs::FBSCache, AlgorithmEngine, Problem},
-    matrix_operations,
+    matrix_operations, Error,
 };
 
 /// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
 ///
 pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     pub(crate) problem: Problem<GradientType, ConstraintType, CostType>,
@@ -21,8 +21,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// Constructor for instances of `FBSEngine`
@@ -44,7 +44,7 @@ where
 
     fn gradient_step(&mut self, u_current: &mut [f64]) {
         assert_eq!(
-            0,
+            Ok(()),
             (self.problem.gradf)(u_current, &mut self.cache.work_gradient_u),
             "The computation of the gradient of the cost failed miserably"
         );
@@ -64,8 +64,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'a,
-    CostType: Fn(&[f64], &mut f64) -> i32 + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error> + 'a,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error> + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
     /// Take a forward-backward step and check whether the algorithm should terminate
@@ -76,21 +76,24 @@ where
     ///
     /// ## Returns
     ///
-    /// - A boolean flag which is`true` if and only if the algorith should not
+    /// - A boolean flag which is`true` if and only if the algorithm should not
     ///   terminate
     ///
     /// ## Panics
     ///
     /// The method may panick if the computation of the gradient of the cost function
     /// or the cost function panics.
-    fn step(&mut self, u_current: &mut [f64]) -> bool {
+    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, Error> {
         self.cache.work_u_previous.copy_from_slice(u_current); // cache the previous step
         self.gradient_step(u_current); // compute the gradient
         self.projection_step(u_current); // project
         self.cache.norm_fpr =
             matrix_operations::norm_inf_diff(u_current, &self.cache.work_u_previous);
-        self.cache.norm_fpr > self.cache.tolerance
+
+        Ok(self.cache.norm_fpr > self.cache.tolerance)
     }
 
-    fn init(&mut self, _u_current: &mut [f64]) {}
+    fn init(&mut self, _u_current: &mut [f64]) -> Result<(), Error> {
+        Ok(())
+    }
 }

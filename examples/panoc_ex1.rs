@@ -28,14 +28,14 @@ fn main() {
     let radius = 1.0;
 
     // define the cost function and its gradient
-    let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
         rosenbrock_grad(a, b, u, grad);
-        0
+        Ok(())
     };
 
-    let f = |u: &[f64], c: &mut f64| -> i32 {
+    let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
         *c = rosenbrock_cost(a, b, u);
-        0
+        Ok(())
     };
 
     // define the constraints
