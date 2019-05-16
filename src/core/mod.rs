@@ -47,9 +47,9 @@ pub trait Optimizer {
 ///
 pub trait AlgorithmEngine {
     /// Take a step of the algorithm and return `true` only if the iterations should continue
-    fn step(&mut self, &mut [f64]) -> bool;
+    fn step(&mut self, u: &mut [f64]) -> bool;
 
-    fn init(&mut self, &mut [f64]);
+    fn init(&mut self, u: &mut [f64]);
 }
 
 /// Definition of an optimisation problem
