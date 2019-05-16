@@ -155,13 +155,13 @@ mod tests {
         let now = std::time::Instant::now();
         let status = panoc.solve(&mut u);
 
-        println!("{} iterations", status.num_iter);
+        println!("{} iterations", status.iterations());
         println!("elapsed {:?}", now.elapsed());
 
         assert_eq!(max_iters, panoc.max_iter);
-        assert!(status.converged);
-        assert!(status.num_iter < max_iters);
-        assert!(status.fpr_norm < tolerance);
+        assert!(status.has_converged());
+        assert!(status.iterations() < max_iters);
+        assert!(status.norm_fpr() < tolerance);
     }
 
     #[test]
@@ -200,14 +200,17 @@ mod tests {
 
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
-                a, b, radius, status.num_iter
+                a,
+                b,
+                radius,
+                status.iterations()
             );
             println!("u = {:#.6?}", u);
 
             assert_eq!(max_iters, panoc.max_iter);
-            assert!(status.converged);
-            assert!(status.num_iter < max_iters);
-            assert!(status.fpr_norm < tolerance);
+            assert!(status.has_converged());
+            assert!(status.iterations() < max_iters);
+            assert!(status.norm_fpr() < tolerance);
         }
 
         /* PROBLEM STATEMENT */

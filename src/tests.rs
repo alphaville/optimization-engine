@@ -21,7 +21,7 @@ fn t_access() {
     let status = optimizer.solve(&mut u);
 
     assert!(status.has_converged());
-    assert!(status.get_norm_fpr() < tolerance);
+    assert!(status.norm_fpr() < tolerance);
     assert!((-0.14896 - u[0]).abs() < 1e-4);
     assert!((0.13346 - u[1]).abs() < 1e-4);
 }

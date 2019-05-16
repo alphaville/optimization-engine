@@ -27,10 +27,10 @@ fn t_solve_fbs_hard() {
     optimizer.max_iter = 100000;
     let status = optimizer.solve(&mut u);
 
-    println!("|fpr| = {}", status.get_norm_fpr());
+    println!("|fpr| = {}", status.norm_fpr());
     println!("solution = {:?}", u);
     assert!(status.has_converged());
-    assert!(status.get_norm_fpr() < tolerance);
+    assert!(status.norm_fpr() < tolerance);
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn t_solve_fbs() {
     let status = optimizer.solve(&mut u);
 
     assert!(status.has_converged());
-    assert!(status.get_norm_fpr() < tolerance);
+    assert!(status.norm_fpr() < tolerance);
 
     unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION_A, &u, 1e-4, 1e-5, "u");
 }
@@ -131,6 +131,6 @@ fn t_solve_fbs_many_times() {
 
         let status = optimizer.solve(&mut u);
 
-        assert!(status.get_norm_fpr() < tolerance);
+        assert!(status.norm_fpr() < tolerance);
     }
 }
