@@ -35,7 +35,7 @@
 //!     let mut u = [0.0; 2];
 //!     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 //!
-//!     let status = optimizer.solve(&mut u).unwrap();
+//!     let status = optimizer.solve(&mut u);
 //!
 //!     assert!(status.has_converged());
 //! }

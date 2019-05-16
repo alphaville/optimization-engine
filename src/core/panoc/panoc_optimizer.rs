@@ -84,34 +84,43 @@ where
     CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint + 'life,
 {
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, Error> {
+    fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
         let now = time::Instant::now();
 
-        self.panoc_engine.init(u)?;
+        if let Ok(_) = self.panoc_engine.init(u) {
+            let mut num_iter: usize = 0;
 
-        let mut num_iter: usize = 0;
-
-        if let Some(dur) = self.max_duration {
-            while self.panoc_engine.step(u) == Ok(true)
-                && num_iter < self.max_iter
-                && now.elapsed() <= dur
-            {
-                num_iter += 1;
+            if let Some(dur) = self.max_duration {
+                while self.panoc_engine.step(u) == Ok(true)
+                    && num_iter < self.max_iter
+                    && now.elapsed() <= dur
+                {
+                    num_iter += 1;
+                }
+            } else {
+                while self.panoc_engine.step(u) == Ok(true) && num_iter < self.max_iter {
+                    num_iter += 1;
+                }
             }
+
+            // export solution status
+            SolverStatus::new(
+                num_iter < self.max_iter,
+                num_iter,
+                now.elapsed(),
+                self.panoc_engine.cache.norm_gamma_fpr,
+                self.panoc_engine.cache.cost_value,
+            )
         } else {
-            while self.panoc_engine.step(u) == Ok(true) && num_iter < self.max_iter {
-                num_iter += 1;
-            }
+            // The cost function failed somewhere
+            SolverStatus::new(
+                false,
+                0,
+                now.elapsed(),
+                std::f64::INFINITY,
+                std::f64::INFINITY,
+            )
         }
-
-        // export solution status
-        Ok(SolverStatus::new(
-            num_iter < self.max_iter,
-            num_iter,
-            now.elapsed(),
-            self.panoc_engine.cache.norm_gamma_fpr,
-            self.panoc_engine.cache.cost_value,
-        ))
     }
 }
 
@@ -157,7 +166,7 @@ mod tests {
         let problem = Problem::new(bounds, df, f);
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
-        let status = panoc.solve(&mut u).unwrap();
+        let status = panoc.solve(&mut u);
 
         println!("{} iterations", status.iterations());
         println!("elapsed {:?}", now.elapsed());
@@ -200,7 +209,7 @@ mod tests {
             let problem = Problem::new(bounds, df, f);
             let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
-            let status = panoc.solve(&mut u).unwrap();
+            let status = panoc.solve(&mut u);
 
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",

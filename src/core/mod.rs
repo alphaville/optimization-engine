@@ -17,7 +17,7 @@ pub trait Optimizer {
     ///
     /// Returns the solver status
     ///
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, Error>;
+    fn solve(&mut self, u: &mut [f64]) -> SolverStatus;
 }
 
 /// Engine supporting an algorithm
@@ -30,8 +30,9 @@ pub trait Optimizer {
 /// the specified termination criterion is satisfied
 ///
 pub trait AlgorithmEngine {
-    /// Take a step of the algorithm and return `true` only if the iterations should continue
+    /// Take a step of the algorithm and return `Ok(true)` only if the iterations should continue
     fn step(&mut self, u: &mut [f64]) -> Result<bool, Error>;
 
+    /// Initializes the algorithm
     fn init(&mut self, u: &mut [f64]) -> Result<(), Error>;
 }
