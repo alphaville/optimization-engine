@@ -5,7 +5,7 @@
 ![OpEn logo](https://pbs.twimg.com/media/D1d8iOuXQAUFKJT.png:large)
 
 
-Optimization Engine (OpEn) is a solver for embedded nonconvex optimization. 
+Optimization Engine (OpEn) is a solver for embedded nonconvex optimization.
 
 **Documentation available at** [**alphaville.github.io/optimization-engine**](https://alphaville.github.io/optimization-engine/)
 
@@ -38,7 +38,7 @@ You can generate a parametric optimizer in just very few lines of code and in no
 OpEn allows application developers and researchers to focus on the challenges of the application, rather than the tedious task of solving the associated parametric optimization problems (as in nonlinear model predictive control).
 
 ### Embedded applications
-OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz**!
+OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz** using only **15%** CPU!
 
 ![Autonomous Aerial Vehicle](website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
 
