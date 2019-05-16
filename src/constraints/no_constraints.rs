@@ -1,4 +1,7 @@
-use super::{Constraint, NoConstraints};
+use super::Constraint;
+
+/// The whole space, no constraints
+pub struct NoConstraints {}
 
 impl NoConstraints {
     pub fn new() -> NoConstraints {

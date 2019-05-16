@@ -1,4 +1,10 @@
-use super::{Ball2, Constraint};
+use super::Constraint;
+
+/// A Eucledian ball
+pub struct Ball2 {
+    centre: Option<Vec<f64>>,
+    radius: f64,
+}
 
 impl Ball2 {
     ///

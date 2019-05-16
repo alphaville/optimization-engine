@@ -1,4 +1,14 @@
-use super::{Constraint, Rectangle};
+use super::Constraint;
+
+///
+/// A rectangle
+///
+/// A set of the form `{x : xmin <= x <= xmax}`, where `<=` is meant in the
+/// element-wise sense and either of `xmin` and `xmax` can be equal to infinity.
+pub struct Rectangle {
+    xmin: Option<Vec<f64>>,
+    xmax: Option<Vec<f64>>,
+}
 
 impl Rectangle {
     /// Construct a new rectangle with given `xmin` and `xmax`
