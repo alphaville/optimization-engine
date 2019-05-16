@@ -49,7 +49,7 @@ where
         mut self,
         tolerance: f64,
     ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
-        assert!(tolerance > 0.0);
+        assert!(tolerance > 0.0, "tolerance must be larger than 0");
 
         self.panoc_engine.cache.tolerance = tolerance;
         self
@@ -60,6 +60,8 @@ where
         mut self,
         max_iter: usize,
     ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+        assert!(max_iter > 0, "max_iter must be larger than 0");
+
         self.max_iter = max_iter;
         self
     }
@@ -149,9 +151,7 @@ mod tests {
             NonZeroUsize::new(lbfgs_memory).unwrap(),
         );
         let problem = Problem::new(bounds, df, f);
-        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-        let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-        panoc.with_max_iter(max_iters);
+        let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
         let status = panoc.solve(&mut u);
 
@@ -194,9 +194,7 @@ mod tests {
             };
             let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
             let problem = Problem::new(bounds, df, f);
-            let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-            let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-            panoc.with_max_iter(max_iters);
+            let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
             let status = panoc.solve(&mut u);
 

@@ -356,6 +356,7 @@ where
 mod tests {
 
     use crate::constraints;
+    use crate::core::panoc::panoc_engine::PANOCEngine;
     use crate::core::panoc::*;
     use crate::core::Problem;
     use crate::mocks;

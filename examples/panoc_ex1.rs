@@ -6,7 +6,7 @@
 
 use optimization_engine::{
     constraints::*,
-    core::{panoc::*, *},
+    core::{panoc::*, Optimizer, Problem},
 };
 use std::num::NonZeroUsize;
 
