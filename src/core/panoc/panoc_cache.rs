@@ -67,7 +67,7 @@ impl PANOCCache {
             gradient_step: vec![0.0; problem_size.get()],
             u_plus: vec![0.0; problem_size.get()],
             gamma: 0.0,
-            tolerance: tolerance,
+            tolerance,
             norm_gamma_fpr: std::f64::INFINITY,
             // TODO: change the following lines...
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)

@@ -49,9 +49,9 @@ where
         cost: CostType,
     ) -> Problem<GradientType, ConstraintType, CostType> {
         Problem {
-            constraints: constraints,
+            constraints,
             gradf: cost_gradient,
-            cost: cost,
+            cost,
         }
     }
 }

@@ -31,8 +31,8 @@ impl FBSCache {
         FBSCache {
             work_gradient_u: vec![0.0; n.get()],
             work_u_previous: vec![0.0; n.get()],
-            gamma: gamma,
-            tolerance: tolerance,
+            gamma,
+            tolerance,
             norm_fpr: std::f64::INFINITY,
         }
     }

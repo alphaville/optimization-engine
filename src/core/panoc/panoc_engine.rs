@@ -60,10 +60,7 @@ where
         problem: Problem<GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
     ) -> PANOCEngine<'a, GradientType, ConstraintType, CostType> {
-        PANOCEngine {
-            problem: problem,
-            cache: cache,
-        }
+        PANOCEngine { problem, cache }
     }
 
     /// Estimate the local Lipschitz constant at `u`
@@ -152,10 +149,10 @@ where
         // inner_prod_grad_fpr ← <gradfx, gamma_fpr>
         let inner_prod_grad_fpr =
             matrix_operations::inner_product(&cache.gradient_u, &cache.gamma_fpr);
+
         // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
-        let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2));
-        rhs
+        cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2))
     }
 
     /// Updates the estimate of the Lipscthiz constant
@@ -190,7 +187,7 @@ where
 
             // recompute the FPR and the square of its norm
             self.compute_fpr(u_current);
-            it_lipschitz_search = it_lipschitz_search + 1;
+            it_lipschitz_search += 1;
         }
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
     }

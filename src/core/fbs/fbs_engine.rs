@@ -28,10 +28,7 @@ where
         problem: Problem<GradientType, ConstraintType, CostType>,
         cache: &'a mut FBSCache,
     ) -> FBSEngine<'a, GradientType, ConstraintType, CostType> {
-        FBSEngine {
-            problem: problem,
-            cache: cache,
-        }
+        FBSEngine { problem, cache }
     }
 
     fn gradient_step(&mut self, u_current: &mut [f64]) {

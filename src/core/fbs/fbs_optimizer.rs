@@ -21,7 +21,7 @@ where
         fbs_engine: &'a mut FBSEngine<'a, GradientType, ConstraintType, CostType>,
     ) -> FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
         FBSOptimizer {
-            fbs_engine: fbs_engine,
+            fbs_engine,
             max_iter: MAX_ITER,
             max_duration: None,
         }
