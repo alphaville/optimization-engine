@@ -14,6 +14,7 @@ pub mod solver_status;
 /// This structure contais information about the solver status. Instances of
 /// `SolverStatus` are returned by optimizers.
 ///
+#[derive(Debug)]
 pub struct SolverStatus {
     /// whether the algorithm has converged
     converged: bool,
