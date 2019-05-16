@@ -7,17 +7,24 @@ use crate::matrix_operations;
 
 /// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
+
 //const SIGMA_COEFF: f64 = 0.49;
+
 /// Delta in the estimation of the initial Lipschitz constant
 const DELTA_LIPSCHITZ: f64 = 1e-12;
+
 /// Epsilon in the estimation of the initial Lipschitz constant
 const EPSILON_LIPSCHITZ: f64 = 1e-6;
+
 /// Safety parameter used to check a strict inequality in the update of the Lipschitz constant
 const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
+
 /// Maximum iterations of updating the Lipschitz constant
 const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
+
 /// Maximum possible Lipschitz constant
 const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
+
 /// Maximum number of linesearch iterations
 const MAX_LINESEARCH_ITERATIONS: u32 = 10;
 
