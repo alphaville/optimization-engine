@@ -7,7 +7,6 @@
 
 #![no_std]
 
-extern crate libc;
 use libc::{c_double, c_int};
 
 extern "C" {
@@ -54,7 +53,7 @@ pub fn num_decision_variables() -> usize {
 ///     let mut cost_value = 0.0;
 ///     icasadi::icasadi_cost(&u, &p, &mut cost_value);
 /// }
-/// ```   
+/// ```
 ///
 /// # Panics
 /// This method does not panic (on purpose). However, users need to be
@@ -104,7 +103,6 @@ pub fn icasadi_grad(u: &[f64], casadi_static_params: &[f64], cost_jacobian: &mut
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -118,5 +116,5 @@ mod tests {
     fn tst_num_decision_var() {
         let _nu = num_decision_variables();
     }
-    
+
 }
