@@ -23,28 +23,28 @@ The definition of an optimization problem consists in specifying the following t
 - the gradient of $f$, $\nabla f$, as a Rust function
 - the set of constraints, $U$, as an implementation of a trait
 
-### Cost functions 
-The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> i32`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns an integer *status code*; the status code `0` means that the computation was successful. Nonzero status codes can be used to encode errors/exceptions.
+### Cost functions
+The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> Result<(), Error>`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns a *status code* of the type `Result<(), Error>` and the status code `Ok(())` means that the computation was successful. Nonzero status codes can be used to encode errors/exceptions as defined in the `Error` enum.
 
 As an example, consider the cost function `f` that maps a two-dimensional vector `u` to `f(u) = 5.0 * u[0] - u[1]^2`. This will be:
 
 
 ```rust
-let f = |u: &[f64], c: &mut f64| -> i32 {
+let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
 	*c = 5.0 * u[0] - u[1].powi(2);
-    0
+    Ok(())
 };
 ```
 
-The **gradient of the cost** is a function `df` with signature `|u: &[f64], grad: &mut [f64]| -> i32`. The first argument, `u`, is again the argument of the function. The second argument, is a mutable reference to the result (gradient). The function returns again a status code (same as above). 
+The **gradient of the cost** is a function `df` with signature `|u: &[f64], grad: &mut [f64]| -> Result<(), Error>`. The first argument, `u`, is again the argument of the function. The second argument, is a mutable reference to the result (gradient). The function returns again a status code (same as above).
 
 For the cost function `f(u) = 5.0 * u[0] - u[1]^2`, the gradient is given by `df(u) = [5.0, - 2.0*u[1]]`. This function can be implemented as follows:
 
 ```rust
-let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
 	grad[0] = 5.0;
 	grad[1] = -2.0*u[1];
-	0
+	Ok(())
 };
 ```
 
@@ -75,9 +75,9 @@ Note that `problem` now owns the constraints, the gradient and the cost function
 
 ## Calling the solver
 
-**OpEn** uses three essential structures: (i) a cache, (ii) an engine and (iii) an optimizer. 
+**OpEn** uses three essential structures: (i) a cache, (ii) an engine and (iii) an optimizer.
 
-### Cache 
+### Cache
 Rarely will one need to solve a *single* optimization problem in an engineering application. The solution of an optimization problem requires the allocation of memory. A **cache** allows for multiple instances of a problem to have a common workspace, so that we will not need to free and reallocate memory unnecessarily. A cache object will be reused once we need to solve a similar problem; this is the case with model predictive control, where an optimal control problem needs to be solved at every time instant.
 
 ```rust
@@ -91,22 +91,11 @@ let mut panoc_cache = PANOCCache::new(
 );
 ```
 
-### Engine
-An **engine** holds all necessary information to execute a step of the algorithm. An engine always owns an instance of the problem and holds a (mutable) reference to a cache object. An engine is constructed easily as follows:
-
-
-```rust
-let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-```
-
-Instances of `Engine` typically need to be defined as mutable. An engine is then passed on to an Optimizer which solves the problem.
-
-
 ### Optimizer
 The last necessary step is the construction of an Optimizer. An Optimizer uses an instance of Engine to run the algorithm and solve the optimization problem. An optimizer may have additional parameters such as the maximum number of iterations, which can be configured. Here is an example:
 
 ```rust
-let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
+let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache);
 panoc.with_max_iter(max_iters);
 ```
 
@@ -152,13 +141,13 @@ fn main() {
 	let radius = 1.0;
 
 	// define the cost function and its gradient
-	let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+	let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
 	    rosenbrock_grad(a, b, u, grad);
-	    0
+	    Ok(())
 	};
-	let f = |u: &[f64], c: &mut f64| -> i32 {
+	let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
 	    *c = rosenbrock_cost(a, b, u);
-	    0
+	    Ok(())
 	};
 
 	// define the constraints
@@ -171,14 +160,14 @@ fn main() {
 	    tolerance,
 	    NonZeroUsize::new(lbfgs_memory).unwrap(),
 	);
-	let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-	let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-	panoc.with_max_iter(max_iters);
+	let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
 	// Invoke the solver
 	let status = panoc.solve(&mut u);
 }
 ```
+
+This example can be found in `examples/panoc_ex1.rs`.
 
 ## Solving parametric problems
 
@@ -215,7 +204,7 @@ fn main() {
 		NonZeroUsize::new(n).unwrap(),
 		tolerance,
 		NonZeroUsize::new(lbfgs_memory).unwrap(),
-	);	
+	);
 
 	let mut i = 0;
 	while i < 100 {
@@ -225,13 +214,13 @@ fn main() {
 		radius += 0.001;
 
 		// update the function definitions (`f` and `df`)
-		let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+		let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
 			mocks::rosenbrock_grad(a, b, u, grad);
-			0
+			Ok(())
 		};
-		let f = |u: &[f64], c: &mut f64| -> i32 {
+		let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
 			*c = mocks::rosenbrock_cost(a, b, u);
-			0
+			Ok(())
 		};
 
 		// define the bounds at every iteration
@@ -256,7 +245,7 @@ fn main() {
 			"parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
 			a, b, radius, status.get_number_iterations()
 		);
-		println!("u = {:#.6?}", u);            
+		println!("u = {:#.6?}", u);
 	}
 }
 ```
