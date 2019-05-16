@@ -42,24 +42,20 @@ impl Rectangle {
 
 impl Constraint for Rectangle {
     fn project(&self, x: &mut [f64]) {
-        if self.xmin.is_some() {
-            x.iter_mut()
-                .zip(self.xmin.as_ref().unwrap().iter())
-                .for_each(|(x_, xmin_)| {
-                    if *x_ < *xmin_ {
-                        *x_ = *xmin_
-                    };
-                });
+        if let Some(xmin) = &self.xmin {
+            x.iter_mut().zip(xmin.iter()).for_each(|(x_, xmin_)| {
+                if *x_ < *xmin_ {
+                    *x_ = *xmin_
+                };
+            });
         }
 
-        if self.xmax.is_some() {
-            x.iter_mut()
-                .zip(self.xmax.as_ref().unwrap().iter())
-                .for_each(|(x_, xmax_)| {
-                    if *x_ > *xmax_ {
-                        *x_ = *xmax_
-                    };
-                });
+        if let Some(xmax) = &self.xmax {
+            x.iter_mut().zip(xmax.iter()).for_each(|(x_, xmax_)| {
+                if *x_ > *xmax_ {
+                    *x_ = *xmax_
+                };
+            });
         }
     }
 }
