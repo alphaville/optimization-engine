@@ -9,8 +9,7 @@
 //! ## Example: Forward-Backward Splitting
 //!
 //! ```
-//! use optimization_engine::core::{Problem, Optimizer};
-//! use optimization_engine::core::fbs::{FBSCache, FBSOptimizer};
+//! use optimization_engine::{*, fbs::*};
 //! use optimization_engine::constraints::Ball2;
 //! use std::num::NonZeroUsize;
 //!

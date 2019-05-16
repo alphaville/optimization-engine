@@ -4,10 +4,7 @@
 //!
 //! [Rosenbrock function]: https://en.wikipedia.org/wiki/Rosenbrock_function
 
-use optimization_engine::{
-    constraints::*,
-    core::{panoc::*, Optimizer, Problem},
-};
+use optimization_engine::{constraints::*, panoc::*, *};
 use std::num::NonZeroUsize;
 
 fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
