@@ -14,9 +14,8 @@ fn t_access() {
     let tolerance = 1e-6;
 
     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
-    let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
     let mut u = [0.0; 2];
-    let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
     let status = optimizer.solve(&mut u);
 

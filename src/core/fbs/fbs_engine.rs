@@ -1,11 +1,22 @@
 //! FBS Engine
 //!
-use super::super::AlgorithmEngine;
-use super::FBSCache;
-use super::FBSEngine;
-use super::Problem;
-use crate::constraints;
-use crate::matrix_operations;
+use crate::{
+    constraints,
+    core::{fbs::FBSCache, AlgorithmEngine, Problem},
+    matrix_operations,
+};
+
+/// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
+///
+pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
+{
+    pub(crate) problem: Problem<GradientType, ConstraintType, CostType>,
+    pub(crate) cache: &'a mut FBSCache,
+}
 
 impl<'a, GradientType, ConstraintType, CostType>
     FBSEngine<'a, GradientType, ConstraintType, CostType>

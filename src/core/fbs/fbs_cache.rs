@@ -1,7 +1,17 @@
 //! FBS Cache
 //!
-use super::FBSCache;
 use std::num::NonZeroUsize;
+
+/// Cache for the forward-backward splitting (FBS), or projected gradient, algorithm
+///
+/// This struct allocates memory needed for the FBS algorithm
+pub struct FBSCache {
+    pub(crate) work_gradient_u: Vec<f64>,
+    pub(crate) work_u_previous: Vec<f64>,
+    pub(crate) gamma: f64,
+    pub(crate) tolerance: f64,
+    pub(crate) norm_fpr: f64,
+}
 
 impl FBSCache {
     /// Construct a new instance of `FBSCache`
