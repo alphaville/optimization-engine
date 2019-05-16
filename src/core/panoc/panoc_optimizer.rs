@@ -3,12 +3,22 @@
 use super::super::AlgorithmEngine;
 use super::super::Optimizer;
 use super::super::SolverStatus;
-use super::PANOCEngine;
-use super::PANOCOptimizer;
+use super::panoc_engine::PANOCEngine;
 use crate::constraints;
 use std::time;
 
 const MAX_ITER: usize = 100_usize;
+
+pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
+{
+    panoc_engine: &'a mut PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+    max_iter: usize,
+    max_duration: Option<time::Duration>,
+}
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCOptimizer<'a, GradientType, ConstraintType, CostType>

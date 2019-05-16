@@ -1,7 +1,6 @@
 use super::super::AlgorithmEngine;
 use super::super::Problem;
-use super::PANOCCache;
-use super::PANOCEngine;
+use super::panoc_cache::PANOCCache;
 use crate::constraints;
 use crate::matrix_operations;
 
@@ -27,6 +26,17 @@ const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
 
 /// Maximum number of linesearch iterations
 const MAX_LINESEARCH_ITERATIONS: u32 = 10;
+
+/// Engine for PANOC algorithm
+pub struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> i32,
+    CostType: Fn(&[f64], &mut f64) -> i32,
+    ConstraintType: constraints::Constraint,
+{
+    problem: Problem<GradientType, ConstraintType, CostType>,
+    pub(crate) cache: &'a mut PANOCCache,
+}
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
@@ -345,7 +355,9 @@ where
 #[cfg(test)]
 mod tests {
 
+    use crate::constraints;
     use crate::core::panoc::*;
+    use crate::core::Problem;
     use crate::mocks;
     use std::num::NonZeroUsize;
 
