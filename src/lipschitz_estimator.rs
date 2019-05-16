@@ -10,7 +10,8 @@
 //! and `epsilon` are small numbers.
 //!
 
-use matrix_operations;
+use crate::matrix_operations;
+
 pub struct LipschitzEstimator<'a, F>
 where
     F: Fn(&[f64], &mut [f64]) -> i32,
@@ -176,7 +177,7 @@ where
 mod tests {
 
     use super::*;
-    use mocks;
+    use crate::mocks;
 
     #[test]
     fn t_test_lip_delta_epsilon_0() {

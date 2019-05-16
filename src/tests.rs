@@ -1,12 +1,11 @@
-use super::*;
-use core::Optimizer;
+use crate::{constraints::*, core::fbs::*, core::*};
 use std::num::NonZeroUsize;
 
 #[test]
 fn t_access() {
     let radius = 0.2;
-    let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-    let problem = core::Problem::new(
+    let box_constraints = Ball2::new_at_origin_with_radius(radius);
+    let problem = Problem::new(
         box_constraints,
         super::mocks::my_gradient,
         super::mocks::my_cost,
@@ -14,10 +13,10 @@ fn t_access() {
     let gamma = 0.1;
     let tolerance = 1e-6;
 
-    let mut fbs_cache = core::fbs::FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
-    let mut fbs_engine = core::fbs::FBSEngine::new(problem, &mut fbs_cache);
+    let mut fbs_cache = FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
+    let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
     let mut u = [0.0; 2];
-    let mut optimizer = core::fbs::FBSOptimizer::new(&mut fbs_engine);
+    let mut optimizer = FBSOptimizer::new(&mut fbs_engine);
 
     let status = optimizer.solve(&mut u);
 
