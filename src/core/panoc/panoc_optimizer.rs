@@ -1,10 +1,9 @@
 //! FBS Algorithm
 //!
-use super::super::AlgorithmEngine;
-use super::super::Optimizer;
-use super::super::SolverStatus;
-use super::panoc_engine::PANOCEngine;
-use crate::constraints;
+use crate::{
+    constraints,
+    core::{panoc::PANOCEngine, AlgorithmEngine, Optimizer, SolverStatus},
+};
 use std::time;
 
 const MAX_ITER: usize = 100_usize;

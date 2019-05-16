@@ -1,8 +1,8 @@
-use super::super::AlgorithmEngine;
-use super::super::Problem;
-use super::panoc_cache::PANOCCache;
-use crate::constraints;
-use crate::matrix_operations;
+use crate::{
+    constraints,
+    core::{panoc::PANOCCache, AlgorithmEngine, Problem},
+    matrix_operations,
+};
 
 /// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
