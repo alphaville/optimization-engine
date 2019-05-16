@@ -35,9 +35,9 @@ impl PANOCCache {
     ///
     /// ## Arguments
     ///
-    /// - `n` dimension of the decision variables of the optimization problem
+    /// - `problem_size` dimension of the decision variables of the optimization problem
     /// - `tolerance` specified tolerance
-    /// - `lbfgs_mem` memory of the LBFGS buffer
+    /// - `lbfgs_memory_size` memory of the LBFGS buffer
     ///
     /// ## Panics
     ///
@@ -50,22 +50,27 @@ impl PANOCCache {
     ///
     /// This constructor allocated memory using `vec!`.
     ///
-    /// It allocates a total of `8*n + 2*lbfgs_mem*n + 2*lbfgs_mem + 11` floats (`f64`)
+    /// It allocates a total of `8*problem_size + 2*lbfgs_memory_size*problem_size + 2*lbfgs_memory_size + 11` floats (`f64`)
     ///
-    pub fn new(n: NonZeroUsize, tolerance: f64, lbfgs_mem: NonZeroUsize) -> PANOCCache {
+    pub fn new(
+        problem_size: NonZeroUsize,
+        tolerance: f64,
+        lbfgs_memory_size: NonZeroUsize,
+    ) -> PANOCCache {
         assert!(tolerance > 0., "tolerance must be positive");
+
         PANOCCache {
-            gradient_u: vec![0.0; n.get()],
-            u_half_step: vec![0.0; n.get()],
-            gamma_fpr: vec![0.0; n.get()],
-            direction_lbfgs: vec![0.0; n.get()],
-            gradient_step: vec![0.0; n.get()],
-            u_plus: vec![0.0; n.get()],
+            gradient_u: vec![0.0; problem_size.get()],
+            u_half_step: vec![0.0; problem_size.get()],
+            gamma_fpr: vec![0.0; problem_size.get()],
+            direction_lbfgs: vec![0.0; problem_size.get()],
+            gradient_step: vec![0.0; problem_size.get()],
+            u_plus: vec![0.0; problem_size.get()],
             gamma: 0.0,
             tolerance: tolerance,
             norm_gamma_fpr: std::f64::INFINITY,
             // TODO: change the following lines...
-            lbfgs: lbfgs::Lbfgs::new(n, lbfgs_mem)
+            lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
                 .with_cbfgs_alpha(1.0)
                 .with_cbfgs_epsilon(1e-8)
                 .with_sy_epsilon(1e-10),

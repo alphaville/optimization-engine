@@ -2,7 +2,10 @@
 //!
 use crate::{
     constraints,
-    core::{panoc::PANOCEngine, AlgorithmEngine, Optimizer, SolverStatus},
+    core::{
+        panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, Optimizer, Problem,
+        SolverStatus,
+    },
 };
 use std::time;
 
@@ -14,7 +17,7 @@ where
     CostType: Fn(&[f64], &mut f64) -> i32,
     ConstraintType: constraints::Constraint,
 {
-    panoc_engine: &'a mut PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+    panoc_engine: PANOCEngine<'a, GradientType, ConstraintType, CostType>,
     max_iter: usize,
     max_duration: Option<time::Duration>,
 }
@@ -27,10 +30,11 @@ where
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        panoc_engine: &'a mut PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+        problem: Problem<GradientType, ConstraintType, CostType>,
+        cache: &'a mut PANOCCache,
     ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         PANOCOptimizer {
-            panoc_engine: panoc_engine,
+            panoc_engine: PANOCEngine::new(problem, cache),
             max_iter: MAX_ITER,
             max_duration: None,
         }
@@ -42,9 +46,9 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     pub fn with_tolerance(
-        &mut self,
+        mut self,
         tolerance: f64,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         assert!(tolerance > 0.0);
 
         self.panoc_engine.cache.tolerance = tolerance;
@@ -53,18 +57,18 @@ where
 
     /// Sets the maximum number of iterations
     pub fn with_max_iter(
-        &mut self,
+        mut self,
         max_iter: usize,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         self.max_iter = max_iter;
         self
     }
 
     /// Sets the maximum solution time, useful in real-time applications
     pub fn with_max_duration(
-        &mut self,
+        mut self,
         max_duation: time::Duration,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         self.max_duration = Some(max_duation);
         self
     }

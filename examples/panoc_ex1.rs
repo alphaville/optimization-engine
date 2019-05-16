@@ -25,7 +25,7 @@ fn main() {
     let a = 1.0;
     let b = 200.0;
     let problem_size = NonZeroUsize::new(2).unwrap();
-    let lbfgs_memory = NonZeroUsize::new(10).unwrap();
+    let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
     let max_iters = 80;
     let mut u = [-1.5, 0.9];
     let radius = 1.0;
@@ -46,10 +46,8 @@ fn main() {
 
     /* PROBLEM STATEMENT */
     let problem = Problem::new(bounds, df, f);
-    let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory);
-    let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-    let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-    panoc.with_max_iter(max_iters);
+    let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
+    let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
     // Invoke the solver
     let status = panoc.solve(&mut u);
