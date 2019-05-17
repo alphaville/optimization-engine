@@ -24,7 +24,7 @@ The definition of an optimization problem consists in specifying the following t
 - the set of constraints, $U$, as an implementation of a trait
 
 ### Cost functions
-The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> Result<(), Error>`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns a *status code* of the type `Result<(), Error>` and the status code `Ok(())` means that the computation was successful. Nonzero status codes can be used to encode errors/exceptions as defined in the `Error` enum.
+The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> Result<(), Error>`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns a *status code* of the type `Result<(), Error>` and the status code `Ok(())` means that the computation was successful. Other status codes can be used to encode errors/exceptions as defined in the `Error` enum.
 
 As an example, consider the cost function `f` that maps a two-dimensional vector `u` to `f(u) = 5.0 * u[0] - u[1]^2`. This will be:
 
@@ -75,7 +75,7 @@ Note that `problem` now owns the constraints, the gradient and the cost function
 
 ## Calling the solver
 
-**OpEn** uses three essential structures: (i) a cache, (ii) an engine and (iii) an optimizer.
+**OpEn** uses two essential structures: (i) a cache and (ii) an optimizer.
 
 ### Cache
 Rarely will one need to solve a *single* optimization problem in an engineering application. The solution of an optimization problem requires the allocation of memory. A **cache** allows for multiple instances of a problem to have a common workspace, so that we will not need to free and reallocate memory unnecessarily. A cache object will be reused once we need to solve a similar problem; this is the case with model predictive control, where an optimal control problem needs to be solved at every time instant.
@@ -92,7 +92,7 @@ let mut panoc_cache = PANOCCache::new(
 ```
 
 ### Optimizer
-The last necessary step is the construction of an Optimizer. An Optimizer uses an instance of Engine to run the algorithm and solve the optimization problem. An optimizer may have additional parameters such as the maximum number of iterations, which can be configured. Here is an example:
+The last necessary step is the construction of an Optimizer. An Optimizer uses an instance of the problem adn the cache to run the algorithm and solve the optimization problem. An optimizer may have additional parameters such as the maximum number of iterations, which can be configured. Here is an example:
 
 ```rust
 let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache);
@@ -229,11 +229,8 @@ fn main() {
 		// the problem definition is updated at every iteration
 		let problem = Problem::new(bounds, df, f);
 
-		// the engine is also updated at every iteration
-		let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-
 		// updated instance of the solver
-		let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
+		let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache);
 		panoc.with_max_iter(max_iters);
 
 		let status = panoc.solve(&mut u);
