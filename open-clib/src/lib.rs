@@ -8,7 +8,7 @@ const MAX_ITERATIONS: usize = 100;
 const MAX_DURATION_NS: u64 = 1_000_000_000;
 const TOLERANCE: f64 = 1e-4;
 
-// Wrapper needed for cbindgen to generate a struct
+/// Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
 pub struct PanocInstance {
     cache: panoc::PANOCCache,
 }
@@ -25,6 +25,7 @@ impl PanocInstance {
     }
 }
 
+/// C version of SolverStatus
 #[repr(C)]
 pub struct SolverStatus {
     /// number of iterations for convergence
@@ -49,12 +50,14 @@ fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
     grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
 }
 
+/// Allocate memory for the solver
 #[no_mangle]
 pub extern "C" fn panoc_new() -> *mut PanocInstance {
     // Add impl
     Box::into_raw(Box::new(PanocInstance::new()))
 }
 
+/// Run the solver on the input and parameters
 #[no_mangle]
 pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double) -> SolverStatus {
     let cache: &mut PANOCCache = unsafe {
@@ -66,6 +69,12 @@ pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double
         assert!(!u_ptr.is_null());
         slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
     };
+
+    // We probably want to have this as well:
+    // let mut params = unsafe {
+    //     assert!(!params_ptr.is_null());
+    //     slice::from_raw_parts_mut(params_ptr as *mut f64, PARAMETERS_SIZE)
+    // };
 
     // define the cost function and its gradient
     let a = 1.0;
@@ -110,6 +119,7 @@ pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double
     }
 }
 
+/// Deallocate the solver's memory
 #[no_mangle]
 pub extern "C" fn panoc_free(instance: *mut PanocInstance) {
     // Add impl
