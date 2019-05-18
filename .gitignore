@@ -26,6 +26,9 @@ open-clib/Cargo.lock
 # icasadi external files
 /icasadi/extern/
 
+# open-clib generated files
+/open-clib/open_clib.h
+
 # Visual studio code files
 /.vscode/
 
