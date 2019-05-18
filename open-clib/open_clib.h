@@ -3,8 +3,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/**
+ * Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
+ */
 typedef struct PanocInstance PanocInstance;
 
+/**
+ * C version of SolverStatus
+ */
 typedef struct {
   /**
    * number of iterations for convergence
@@ -24,8 +30,17 @@ typedef struct {
   double cost_value;
 } SolverStatus;
 
+/**
+ * Deallocate the solver's memory
+ */
 void panoc_free(PanocInstance *instance);
 
+/**
+ * Allocate memory for the solver
+ */
 PanocInstance *panoc_new(void);
 
+/**
+ * Run the solver on the input and parameters
+ */
 SolverStatus panoc_solve(PanocInstance *instance, double *u_ptr);
