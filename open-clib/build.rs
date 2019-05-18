@@ -10,4 +10,6 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings")
         .write_to_file("open_clib.h");
+
+    println!("cargo:rerun-if-changed=open_clib.h");
 }
