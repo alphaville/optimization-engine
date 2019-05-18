@@ -10,7 +10,7 @@ const TOLERANCE: f64 = 1e-4;
 
 // Wrapper needed for cbindgen to generate a struct
 pub struct PanocInstance {
-    pub(crate) cache: panoc::PANOCCache,
+    cache: panoc::PANOCCache,
 }
 
 impl PanocInstance {
