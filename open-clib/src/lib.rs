@@ -20,7 +20,7 @@ impl PanocInstance {
         PanocInstance {
             cache: PANOCCache::new(
                 NonZeroUsize::new(PROBLEM_SIZE).unwrap(),
-                //NonZeroUsize::new(icasadi::num_decision_variables()).unwrap(),
+                //NonZeroUsize::new(icasadi::NUM_DECISION_VARIABLES).unwrap(),
                 TOLERANCE,
                 NonZeroUsize::new(LBFGS_MEMORY_SIZE).unwrap(),
             ),
@@ -71,13 +71,13 @@ pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double
     let mut u = unsafe {
         assert!(!u_ptr.is_null());
         slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
-        //slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::num_decision_variables())
+        //slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::NUM_DECISION_VARIABLES)
     };
 
     // let mut params = unsafe {
     //     assert!(!params_ptr.is_null());
     //     slice::from_raw_parts_mut(params_ptr as *mut f64, PARAMETERS_SIZE)
-    //     slice::from_raw_parts_mut(params_ptr as *mut f64, icasadi::num_static_parameters())
+    //     slice::from_raw_parts_mut(params_ptr as *mut f64, icasadi::NUM_STATIC_PARAMETERS)
     // };
 
     // let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
