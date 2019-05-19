@@ -7,14 +7,19 @@
 
 #![no_std]
 
+// Get the CasADi problem size and parameter size and re-export them, this is necessary to have
+// them available as compile time constants
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+/// Number of static parameters
+pub use CASADI_NP as NUM_STATIC_PARAMETERS;
+
+/// Number of decision variables
+pub use CASADI_NU as NUM_DECISION_VARIABLES;
+
 use libc::{c_double, c_int};
 
 extern "C" {
-
-    fn icasadi_num_static_parameters() -> c_int;
-
-    fn icasadi_num_decision_variables() -> c_int;
-
     fn icasadi_cost_(
         u: *const c_double,
         casadi_static_params: *const c_double,
@@ -26,20 +31,6 @@ extern "C" {
         casadi_static_params: *const c_double,
         cost_jacobian: *mut c_double,
     ) -> c_int;
-}
-
-///
-/// Number of static parameters
-///
-pub fn num_static_parameters() -> usize {
-    unsafe { icasadi_num_static_parameters() as usize }
-}
-
-///
-/// Number of decision variables
-///
-pub fn num_decision_variables() -> usize {
-    unsafe { icasadi_num_decision_variables() as usize }
 }
 
 ///
@@ -62,8 +53,8 @@ pub fn num_decision_variables() -> usize {
 ///
 /// As a safety measure, you may check whether
 ///
-/// - `u.len() >= icasadi::num_decision_variables()`
-/// - `casadi_static_params.len() >= icasadi::num_static_parameters()`
+/// - `u.len() >= NUM_DECISION_VARIABLES`
+/// - `casadi_static_params.len() >= NUM_STATIC_PARAMETERS`
 ///
 pub fn icasadi_cost(u: &[f64], casadi_static_params: &[f64], cost_value: &mut f64) -> c_int {
     unsafe { icasadi_cost_(u.as_ptr(), casadi_static_params.as_ptr(), cost_value) }
@@ -109,12 +100,12 @@ mod tests {
 
     #[test]
     fn tst_num_static() {
-        let _np = num_static_parameters();
+        let _np = NUM_STATIC_PARAMETERS;
     }
 
     #[test]
     fn tst_num_decision_var() {
-        let _nu = num_decision_variables();
+        let _nu = NUM_DECISION_VARIABLES;
     }
 
 }
