@@ -14,4 +14,4 @@ optimization_engine = {path = "../"}
 cbindgen = "0.8.0"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "cdylib"]
