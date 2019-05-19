@@ -1,8 +1,10 @@
+//use icasadi;
 use libc::{c_double, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize, slice, time::Duration};
 
 const PROBLEM_SIZE: usize = 10;
+// const PARAMETERS_SIZE: usize = 20;
 const LBFGS_MEMORY_SIZE: usize = 10;
 const MAX_ITERATIONS: usize = 100;
 const MAX_DURATION_NS: u64 = 1_000_000_000;
@@ -18,6 +20,7 @@ impl PanocInstance {
         PanocInstance {
             cache: PANOCCache::new(
                 NonZeroUsize::new(PROBLEM_SIZE).unwrap(),
+                //NonZeroUsize::new(icasadi::num_decision_variables()).unwrap(),
                 TOLERANCE,
                 NonZeroUsize::new(LBFGS_MEMORY_SIZE).unwrap(),
             ),
@@ -68,12 +71,29 @@ pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double
     let mut u = unsafe {
         assert!(!u_ptr.is_null());
         slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
+        //slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::num_decision_variables())
     };
 
-    // We probably want to have this as well:
     // let mut params = unsafe {
     //     assert!(!params_ptr.is_null());
     //     slice::from_raw_parts_mut(params_ptr as *mut f64, PARAMETERS_SIZE)
+    //     slice::from_raw_parts_mut(params_ptr as *mut f64, icasadi::num_static_parameters())
+    // };
+
+    // let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+    //     if icasadi::icasadi_grad(u, &params, grad) == 0 {
+    //         Ok(())
+    //     } else {
+    //         Err(Error::Cost)
+    //     }
+    // };
+
+    // let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
+    //     if icasadi::icasadi_cost(u, &params, c) == 0 {
+    //         Ok(())
+    //     } else {
+    //         Err(Error::Cost)
+    //     }
     // };
 
     // define the cost function and its gradient

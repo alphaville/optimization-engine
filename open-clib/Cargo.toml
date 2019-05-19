@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 libc = "0.2.0"
 optimization_engine = {path = "../"}
+#icasadi = {path = "../"}
 
 [build-dependencies]
 cbindgen = "0.8.0"
