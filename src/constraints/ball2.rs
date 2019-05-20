@@ -8,6 +8,7 @@ pub struct Ball2<'a> {
 
 impl<'a> Ball2<'a> {
     /// Construct a new Eucledian ball with given center and radius
+    /// If no `center` is given, then it is assumed to be in the origin
     pub fn new(center: Option<&'a [f64]>, radius: f64) -> Ball2<'a> {
         assert!(radius > 0.0);
 
