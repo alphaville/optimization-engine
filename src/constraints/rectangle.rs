@@ -12,31 +12,10 @@ pub struct Rectangle<'a> {
 
 impl<'a> Rectangle<'a> {
     /// Construct a new rectangle with given `xmin` and `xmax`
-    pub fn new(xmin: &'a [f64], xmax: &'a [f64]) -> Rectangle<'a> {
-        Rectangle {
-            xmin: Some(xmin),
-            xmax: Some(xmax),
-        }
-    }
+    pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
+        assert!(xmin != None || xmax != None); // xmin or xmax must be Some
 
-    /// Construct a new rectangle with given `xmin` and no `xmax`
-    ///
-    /// Essentially, this is a halfspace
-    pub fn new_only_xmin(xmin: &'a [f64]) -> Rectangle<'a> {
-        Rectangle {
-            xmin: Some(xmin),
-            xmax: None,
-        }
-    }
-
-    /// Construct a new rectangle with given `xmax` and no `xmin`
-    ///
-    /// Essentially, this is a halfspace
-    pub fn new_only_xmax(xmax: &'a [f64]) -> Rectangle<'a> {
-        Rectangle {
-            xmin: None,
-            xmax: Some(xmax),
-        }
+        Rectangle { xmin, xmax }
     }
 }
 
