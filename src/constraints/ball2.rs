@@ -1,4 +1,10 @@
-use super::{Ball2, Constraint};
+use super::Constraint;
+
+/// A Eucledian ball
+pub struct Ball2 {
+    centre: Option<Vec<f64>>,
+    radius: f64,
+}
 
 impl Ball2 {
     ///
@@ -26,28 +32,25 @@ impl Ball2 {
 
 impl Constraint for Ball2 {
     fn project(&self, x: &mut [f64]) {
-        if self.centre.is_none() {
+        if let Some(centre) = &self.centre {
+            let mut norm_difference = 0.0;
+            x.iter().zip(centre.iter()).for_each(|(a, b)| {
+                let diff_ = *a - *b;
+                norm_difference += diff_ * diff_
+            });
+
+            norm_difference = norm_difference.sqrt();
+
+            if norm_difference > self.radius {
+                x.iter_mut().zip(centre.iter()).for_each(|(x, c)| {
+                    *x = *c + (*x - *c) / norm_difference;
+                });
+            }
+        } else {
             let norm_x = crate::matrix_operations::norm2(x);
             if norm_x > self.radius {
                 let norm_over_radius = norm_x / self.radius;
                 x.iter_mut().for_each(|x_| *x_ /= norm_over_radius);
-            }
-        } else {
-            let mut norm_difference = 0.0;
-            x.iter()
-                .zip(self.centre.as_ref().unwrap().iter())
-                .for_each(|(a, b)| {
-                    let diff_ = *a - *b;
-                    norm_difference += diff_ * diff_
-                });
-            norm_difference = norm_difference.sqrt();
-
-            if norm_difference > self.radius {
-                x.iter_mut()
-                    .zip(self.centre.as_ref().unwrap().iter())
-                    .for_each(|(x, c)| {
-                        *x = *c + (*x - *c) / norm_difference;
-                    });
             }
         }
     }

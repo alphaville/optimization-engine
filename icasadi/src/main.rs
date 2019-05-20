@@ -1,5 +1,1 @@
-extern crate icasadi;
-
-fn main() {
-    
-}
+fn main() {}

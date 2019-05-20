@@ -1,10 +1,8 @@
 extern crate optimization_engine;
 
-use optimization_engine::constraints::*;
-use optimization_engine::core::panoc::*;
-use optimization_engine::core::*;
-use std::net::UdpSocket;
+use optimization_engine::{constraints::*, panoc::*, *};
 use std::num::NonZeroUsize;
+use std::net::UdpSocket;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;

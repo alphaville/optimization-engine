@@ -1,6 +1,7 @@
+use crate::core::panoc::panoc_engine::PANOCEngine;
 use crate::core::panoc::*;
 use crate::core::*;
-use crate::mocks;
+use crate::{mocks, Error};
 use std::num::NonZeroUsize;
 
 const N_DIM: usize = 2;
@@ -18,7 +19,7 @@ fn t_panoc_init() {
     {
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
         let mut u = [0.75, -1.4];
-        panoc_engine.init(&mut u);
+        panoc_engine.init(&mut u).unwrap();
         assert!(2.549509967743775 > panoc_engine.cache.lipschitz_constant);
         assert!(0.372620625931781 < panoc_engine.cache.gamma, "gamma");
         println!("----------- {} ", panoc_engine.cache.cost_value);
@@ -43,8 +44,8 @@ fn t_panoc_init() {
 fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
     panoc_engine: &PANOCEngine<'a, GradientType, ConstraintType, CostType>,
 ) where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     println!("> fpr       = {:?}", &panoc_engine.cache.gamma_fpr);
@@ -68,8 +69,8 @@ fn t_test_panoc_basic() {
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
     let mut u = [0.0, 0.0];
-    panoc_engine.init(&mut u);
-    panoc_engine.step(&mut u);
+    panoc_engine.init(&mut u).unwrap();
+    panoc_engine.step(&mut u).unwrap();
     let fpr0 = panoc_engine.cache.norm_gamma_fpr;
     println!("fpr0 = {}", fpr0);
 
@@ -78,7 +79,7 @@ fn t_test_panoc_basic() {
         println!("> iter      = {}", i);
         print_panoc_engine(&panoc_engine);
         println!("> u         = {:.14?}", u);
-        if !panoc_engine.step(&mut u) {
+        if panoc_engine.step(&mut u) != Ok(true) {
             break;
         }
     }
@@ -107,7 +108,7 @@ fn t_test_panoc_hard() {
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
     let mut u = [-20., 10., 0.2];
-    panoc_engine.init(&mut u);
+    panoc_engine.init(&mut u).unwrap();
 
     println!("L     = {}", panoc_engine.cache.lipschitz_constant);
     println!("gamma = {}", panoc_engine.cache.gamma);
@@ -115,7 +116,7 @@ fn t_test_panoc_hard() {
 
     let mut i = 1;
     println!("\n*** ITERATION   1");
-    while panoc_engine.step(&mut u) && i < 100 {
+    while panoc_engine.step(&mut u) == Ok(true) && i < 100 {
         i += 1;
         println!("+ u_plus               = {:?}", u);
         println!("\n*** ITERATION {:3}", i);
@@ -131,13 +132,13 @@ fn t_test_panoc_rosenbrock() {
     let tolerance = 1e-12;
     let a = 1.0;
     let b = 100.0;
-    let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
         mocks::rosenbrock_grad(a, b, u, grad);
-        0
+        Ok(())
     };
-    let f = |u: &[f64], c: &mut f64| -> i32 {
+    let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
         *c = mocks::rosenbrock_cost(a, b, u);
-        0
+        Ok(())
     };
     let bounds = constraints::Ball2::new_at_origin_with_radius(1.0);
     let problem = Problem::new(bounds, df, f);
@@ -148,9 +149,9 @@ fn t_test_panoc_rosenbrock() {
     );
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
     let mut u = [-1.5, 0.9];
-    panoc_engine.init(&mut u);
+    panoc_engine.init(&mut u).unwrap();
     let mut i = 1;
-    while panoc_engine.step(&mut u) && i < 50 {
+    while panoc_engine.step(&mut u) == Ok(true) && i < 50 {
         i += 1;
     }
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);

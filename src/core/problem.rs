@@ -6,13 +6,33 @@
 //! Cost functions are user defined. They can either be defined in Rust or in
 //! C (and then invoked from Rust via an interface such as icasadi).
 //!
-use crate::constraints;
-pub use crate::core::Problem;
+use crate::{constraints, Error};
+
+/// Definition of an optimisation problem
+///
+/// The definition of an optimisation problem involves:
+/// - the gradient of the cost function
+/// - the cost function
+/// - the set of constraints, which is described by implementations of
+///   [Constraint](../../panoc_rs/constraints/trait.Constraint.html)
+pub struct Problem<GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    ConstraintType: constraints::Constraint,
+{
+    /// constraints
+    pub(crate) constraints: ConstraintType,
+    /// gradient of the cost
+    pub(crate) gradf: GradientType,
+    /// cost function
+    pub(crate) cost: CostType,
+}
 
 impl<GradientType, ConstraintType, CostType> Problem<GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new instance of an optimisation problem
@@ -29,9 +49,9 @@ where
         cost: CostType,
     ) -> Problem<GradientType, ConstraintType, CostType> {
         Problem {
-            constraints: constraints,
+            constraints,
             gradf: cost_gradient,
-            cost: cost,
+            cost,
         }
     }
 }

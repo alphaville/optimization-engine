@@ -10,10 +10,11 @@
 //! and `epsilon` are small numbers.
 //!
 
-use matrix_operations;
+use crate::{matrix_operations, Error};
+
 pub struct LipschitzEstimator<'a, F>
 where
-    F: Fn(&[f64], &mut [f64]) -> i32,
+    F: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
 {
     /// `u_decision_var` is the point where the Lipschitz constant is estimated
     u_decision_var: &'a mut [f64],
@@ -35,7 +36,7 @@ where
 
 impl<'a, F> LipschitzEstimator<'a, F>
 where
-    F: Fn(&[f64], &mut [f64]) -> i32,
+    F: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
 {
     /// Creates a new instance of this structure
     ///
@@ -115,13 +116,16 @@ where
     /// # Example
     ///
     /// ```
+    /// use optimization_engine::Error;
+    ///
     /// let mut u = [1.0, 2.0, 3.0];
     /// let mut function_value = [0.0; 3];
-    /// let f = |u: &[f64], g: &mut [f64]| -> i32 {
-    ///    g[0] = 3.0 * u[0];
-    ///    g[1] = 2.0 * u[1];
-    ///    g[2] = 4.5;
-    ///    0 };
+    /// let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> {
+    ///     g[0] = 3.0 * u[0];
+    ///     g[1] = 2.0 * u[1];
+    ///     g[2] = 4.5;
+    ///     Ok(())
+    /// };
     /// let mut lip_estimator =
     ///     optimization_engine::lipschitz_estimator::LipschitzEstimator::new(&mut u, &f, &mut function_value);
     /// let lip = lip_estimator.estimate_local_lipschitz();
@@ -132,9 +136,9 @@ where
     /// No rust-side panics, unless the C function which is called via this interface
     /// fails.
     ///
-    pub fn estimate_local_lipschitz(&mut self) -> f64 {
+    pub fn estimate_local_lipschitz(&mut self) -> Result<f64, Error> {
         // function_value = gradient(u, p)
-        (self.function)(self.u_decision_var, &mut self.function_value_at_u);
+        (self.function)(self.u_decision_var, &mut self.function_value_at_u)?;
         let epsilon_lip = self.epsilon_lip;
         let delta_lip = self.delta_lip;
 
@@ -159,7 +163,7 @@ where
             .for_each(|(out, a)| *out += *a);
 
         // workspace = F(u + h)
-        (self.function)(self.u_decision_var, &mut self.workspace);
+        (self.function)(self.u_decision_var, &mut self.workspace)?;
 
         // workspace = F(u + h) - F(u, p)
         self.workspace
@@ -168,7 +172,7 @@ where
             .for_each(|(out, a)| *out -= *a);
 
         let norm_workspace = matrix_operations::norm2(&self.workspace);
-        norm_workspace / norm_h
+        Ok(norm_workspace / norm_h)
     }
 }
 
@@ -176,19 +180,19 @@ where
 mod tests {
 
     use super::*;
-    use mocks;
+    use crate::mocks;
 
     #[test]
     fn t_test_lip_delta_epsilon_0() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
         let mut function_value = [0.0; 3];
 
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
 
         let mut lip_estimator = LipschitzEstimator::new(&mut u, &f, &mut function_value)
             .with_delta(1e-4)
             .with_epsilon(1e-4);
-        let lip = lip_estimator.estimate_local_lipschitz();
+        let lip = lip_estimator.estimate_local_lipschitz().unwrap();
 
         unit_test_utils::assert_nearly_equal(
             1.336306209562331,
@@ -227,12 +231,12 @@ mod tests {
     fn t_test_lip_estimator_mock() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
 
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
 
         let mut function_value = [0.0; 3];
 
         let mut lip_estimator = LipschitzEstimator::new(&mut u, &f, &mut function_value);
-        let lip = lip_estimator.estimate_local_lipschitz();
+        let lip = lip_estimator.estimate_local_lipschitz().unwrap();
 
         unit_test_utils::assert_nearly_equal(
             1.3363062094165823,
@@ -250,7 +254,7 @@ mod tests {
         let mut function_value = [0.0; 10];
         let mut u_copy = u.clone();
 
-        let f = |u: &[f64], g: &mut [f64]| -> i32 { mocks::lipschitz_mock(u, g) };
+        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
 
         let mut lip_estimator = LipschitzEstimator::new(&mut u_copy, &f, &mut function_value);
         {
@@ -269,11 +273,11 @@ mod tests {
                 .for_each(|&s| assert_eq!(s, 0.0_f64));
         }
 
-        lip_estimator.estimate_local_lipschitz();
+        lip_estimator.estimate_local_lipschitz().unwrap();
 
         let computed_gradient = lip_estimator.get_function_value();
         let mut actual_gradient = [0.0; 10];
-        f(&u, &mut actual_gradient);
+        f(&u, &mut actual_gradient).unwrap();
 
         unit_test_utils::assert_nearly_equal_array(
             &computed_gradient,

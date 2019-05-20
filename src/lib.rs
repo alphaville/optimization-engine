@@ -14,10 +14,20 @@
 
 extern crate num;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Error {
+    /// If the gradient or cost function cannot be evaluated
+    Cost,
+}
+
 pub mod constraints;
 pub mod core;
 pub mod lipschitz_estimator;
 pub mod matrix_operations;
+
+pub use crate::core::fbs;
+pub use crate::core::panoc;
+pub use crate::core::{AlgorithmEngine, Optimizer, Problem, SolverStatus};
 
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */

@@ -1,27 +1,41 @@
 //! FBS Algorithm
 //!
-use super::super::AlgorithmEngine;
-use super::super::Optimizer;
-use super::super::SolverStatus;
-use super::PANOCEngine;
-use super::PANOCOptimizer;
-use crate::constraints;
+use crate::{
+    constraints,
+    core::{
+        panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, Optimizer, Problem,
+        SolverStatus,
+    },
+    Error,
+};
 use std::time;
 
 const MAX_ITER: usize = 100_usize;
 
+pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    ConstraintType: constraints::Constraint,
+{
+    panoc_engine: PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+    max_iter: usize,
+    max_duration: Option<time::Duration>,
+}
+
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        panoc_engine: &'a mut PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+        problem: Problem<GradientType, ConstraintType, CostType>,
+        cache: &'a mut PANOCCache,
     ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         PANOCOptimizer {
-            panoc_engine: panoc_engine,
+            panoc_engine: PANOCEngine::new(problem, cache),
             max_iter: MAX_ITER,
             max_duration: None,
         }
@@ -33,10 +47,10 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     pub fn with_tolerance(
-        &mut self,
+        mut self,
         tolerance: f64,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
-        assert!(tolerance > 0.0);
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+        assert!(tolerance > 0.0, "tolerance must be larger than 0");
 
         self.panoc_engine.cache.tolerance = tolerance;
         self
@@ -44,18 +58,20 @@ where
 
     /// Sets the maximum number of iterations
     pub fn with_max_iter(
-        &mut self,
+        mut self,
         max_iter: usize,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+        assert!(max_iter > 0, "max_iter must be larger than 0");
+
         self.max_iter = max_iter;
         self
     }
 
     /// Sets the maximum solution time, useful in real-time applications
     pub fn with_max_duration(
-        &mut self,
+        mut self,
         max_duation: time::Duration,
-    ) -> &mut PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         self.max_duration = Some(max_duation);
         self
     }
@@ -64,35 +80,47 @@ where
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
     for PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32 + 'life,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error> + 'life,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
         let now = time::Instant::now();
 
-        self.panoc_engine.init(u);
+        if let Ok(_) = self.panoc_engine.init(u) {
+            let mut num_iter: usize = 0;
 
-        let mut num_iter: usize = 0;
-
-        if let Some(dur) = self.max_duration {
-            while self.panoc_engine.step(u) && num_iter < self.max_iter && now.elapsed() <= dur {
-                num_iter += 1;
+            if let Some(dur) = self.max_duration {
+                while self.panoc_engine.step(u) == Ok(true)
+                    && num_iter < self.max_iter
+                    && now.elapsed() <= dur
+                {
+                    num_iter += 1;
+                }
+            } else {
+                while self.panoc_engine.step(u) == Ok(true) && num_iter < self.max_iter {
+                    num_iter += 1;
+                }
             }
+
+            // export solution status
+            SolverStatus::new(
+                num_iter < self.max_iter,
+                num_iter,
+                now.elapsed(),
+                self.panoc_engine.cache.norm_gamma_fpr,
+                self.panoc_engine.cache.cost_value,
+            )
         } else {
-            while self.panoc_engine.step(u) && num_iter < self.max_iter {
-                num_iter += 1;
-            }
+            // The cost function failed somewhere
+            SolverStatus::new(
+                false,
+                0,
+                now.elapsed(),
+                std::f64::INFINITY,
+                std::f64::INFINITY,
+            )
         }
-
-        // export solution status
-        SolverStatus::new(
-            num_iter < self.max_iter,
-            num_iter,
-            now.elapsed(),
-            self.panoc_engine.cache.norm_gamma_fpr,
-            self.panoc_engine.cache.cost_value,
-        )
     }
 }
 
@@ -104,7 +132,7 @@ mod tests {
 
     use crate::core::panoc::*;
     use crate::core::*;
-    use crate::mocks;
+    use crate::{mocks, Error};
     use std::num::NonZeroUsize;
 
     #[test]
@@ -119,13 +147,13 @@ mod tests {
         let mut u = [-1.5, 0.9];
 
         /* COST FUNCTION */
-        let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
             mocks::rosenbrock_grad(a, b, u, grad);
-            0
+            Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> i32 {
+        let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
             *c = mocks::rosenbrock_cost(a, b, u);
-            0
+            Ok(())
         };
         /* CONSTRAINTS */
         let radius = 2.0;
@@ -136,19 +164,17 @@ mod tests {
             NonZeroUsize::new(lbfgs_memory).unwrap(),
         );
         let problem = Problem::new(bounds, df, f);
-        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-        let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-        panoc.with_max_iter(max_iters);
+        let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
         let status = panoc.solve(&mut u);
 
-        println!("{} iterations", status.num_iter);
+        println!("{} iterations", status.iterations());
         println!("elapsed {:?}", now.elapsed());
 
         assert_eq!(max_iters, panoc.max_iter);
-        assert!(status.converged);
-        assert!(status.num_iter < max_iters);
-        assert!(status.fpr_norm < tolerance);
+        assert!(status.has_converged());
+        assert!(status.iterations() < max_iters);
+        assert!(status.norm_fpr() < tolerance);
     }
 
     #[test]
@@ -171,32 +197,33 @@ mod tests {
             b *= 1.01;
             a -= 1e-3;
             radius += 0.001;
-            let df = |u: &[f64], grad: &mut [f64]| -> i32 {
+            let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
                 mocks::rosenbrock_grad(a, b, u, grad);
-                0
+                Ok(())
             };
-            let f = |u: &[f64], c: &mut f64| -> i32 {
+            let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
                 *c = mocks::rosenbrock_cost(a, b, u);
-                0
+                Ok(())
             };
             let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
             let problem = Problem::new(bounds, df, f);
-            let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-            let mut panoc = PANOCOptimizer::new(&mut panoc_engine);
-            panoc.with_max_iter(max_iters);
+            let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
             let status = panoc.solve(&mut u);
 
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
-                a, b, radius, status.num_iter
+                a,
+                b,
+                radius,
+                status.iterations()
             );
             println!("u = {:#.6?}", u);
 
             assert_eq!(max_iters, panoc.max_iter);
-            assert!(status.converged);
-            assert!(status.num_iter < max_iters);
-            assert!(status.fpr_norm < tolerance);
+            assert!(status.has_converged());
+            assert!(status.iterations() < max_iters);
+            assert!(status.norm_fpr() < tolerance);
         }
 
         /* PROBLEM STATEMENT */

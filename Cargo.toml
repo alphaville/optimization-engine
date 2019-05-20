@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 [package]
 # Authors of this package
-authors = ["Emil Fresk <emil.fresk@gmail.com>", 
+authors = ["Emil Fresk <emil.fresk@gmail.com>",
            "Pantelis Sopasakis (https://alphaville.github.io)"]
 
 # Crate categories (chosed from a list of valid categories at https://crates.io/categories)
@@ -34,12 +34,14 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate
-version = "0.2.2"
+version = "0.3.0"
 
-# change this to `true` if you want to publish the crate; this is done as a 
+edition = "2018"
+
+# change this to `true` if you want to publish the crate; this is done as a
 # safety measure. Before you publish, make sure that:
 # - You have updated the version (SemVer)
-# - You have updated the documentation 
+# - You have updated the documentation
 # - All tests pass
 #After you publish:
 # - Update the webpage (e.g., make a blog post)

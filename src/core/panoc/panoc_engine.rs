@@ -1,31 +1,48 @@
-use super::super::AlgorithmEngine;
-use super::super::Problem;
-use super::PANOCCache;
-use super::PANOCEngine;
-use crate::constraints;
-use crate::matrix_operations;
+use crate::{
+    constraints,
+    core::{panoc::PANOCCache, AlgorithmEngine, Problem},
+    matrix_operations, Error,
+};
 
 /// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
+
 //const SIGMA_COEFF: f64 = 0.49;
+
 /// Delta in the estimation of the initial Lipschitz constant
 const DELTA_LIPSCHITZ: f64 = 1e-12;
+
 /// Epsilon in the estimation of the initial Lipschitz constant
 const EPSILON_LIPSCHITZ: f64 = 1e-6;
+
 /// Safety parameter used to check a strict inequality in the update of the Lipschitz constant
 const LIPSCHITZ_UPDATE_EPSILON: f64 = 1e-6;
+
 /// Maximum iterations of updating the Lipschitz constant
 const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
+
 /// Maximum possible Lipschitz constant
 const MAX_LIPSCHITZ_CONSTANT: f64 = 1e9;
+
 /// Maximum number of linesearch iterations
 const MAX_LINESEARCH_ITERATIONS: u32 = 10;
+
+/// Engine for PANOC algorithm
+pub struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    ConstraintType: constraints::Constraint,
+{
+    problem: Problem<GradientType, ConstraintType, CostType>,
+    pub(crate) cache: &'a mut PANOCCache,
+}
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new Engine for PANOC
@@ -43,14 +60,11 @@ where
         problem: Problem<GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
     ) -> PANOCEngine<'a, GradientType, ConstraintType, CostType> {
-        PANOCEngine {
-            problem: problem,
-            cache: cache,
-        }
+        PANOCEngine { problem, cache }
     }
 
     /// Estimate the local Lipschitz constant at `u`
-    fn estimate_loc_lip(&mut self, u: &mut [f64]) {
+    fn estimate_loc_lip(&mut self, u: &mut [f64]) -> Result<(), Error> {
         let mut lipest = crate::lipschitz_estimator::LipschitzEstimator::new(
             u,
             &self.problem.gradf,
@@ -58,7 +72,9 @@ where
         )
         .with_delta(DELTA_LIPSCHITZ)
         .with_epsilon(EPSILON_LIPSCHITZ);
-        self.cache.lipschitz_constant = lipest.estimate_local_lipschitz();
+        self.cache.lipschitz_constant = lipest.estimate_local_lipschitz()?;
+
+        Ok(())
     }
 
     /// Computes the FPR and its norm
@@ -135,21 +151,21 @@ where
         // inner_prod_grad_fpr ← <gradfx, gamma_fpr>
         let inner_prod_grad_fpr =
             matrix_operations::inner_product(&cache.gradient_u, &cache.gamma_fpr);
+
         // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
-        let rhs = cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2));
-        rhs
+        cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2))
     }
 
     /// Updates the estimate of the Lipscthiz constant
-    fn update_lipschitz_constant(&mut self, u_current: &[f64]) {
+    fn update_lipschitz_constant(&mut self, u_current: &[f64]) -> Result<(), Error> {
         let mut cost_u_half_step = 0.0;
 
         // Compute the cost at the half step
-        (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+        (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
 
         // Compute the cost at u_current (save it in `cache.cost_value`)
-        (self.problem.cost)(u_current, &mut self.cache.cost_value);
+        (self.problem.cost)(u_current, &mut self.cache.cost_value)?;
 
         let mut it_lipschitz_search = 0;
 
@@ -169,13 +185,15 @@ where
 
             // recompute the cost at the half step
             // update `cost_u_half_step`
-            (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step);
+            (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
 
             // recompute the FPR and the square of its norm
             self.compute_fpr(u_current);
-            it_lipschitz_search = it_lipschitz_search + 1;
+            it_lipschitz_search += 1;
         }
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
+
+        Ok(())
     }
 
     /// Computes u_plus ← u - gamma * (1-tau) * fpr - tau * dir,
@@ -215,7 +233,7 @@ where
 
     /// Computes the left hand side of the line search condition and compares it with the RHS;
     /// returns `true` if and only if lhs > rhs (when the line search should continue)
-    fn line_search_condition(&mut self, u: &[f64]) -> bool {
+    fn line_search_condition(&mut self, u: &[f64]) -> Result<bool, Error> {
         let gamma = self.cache.gamma;
 
         // u_plus ← u - (1-tau)*gamma_fpr + tau*direction
@@ -224,8 +242,8 @@ where
         // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten
         // with the values of the cost and its gradient at the next (candidate)
         // point `u_plus`
-        (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value);
-        (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u);
+        (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value)?;
+        (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u)?;
 
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
@@ -241,25 +259,27 @@ where
             - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
             + 0.5 * dist_squared / self.cache.gamma;
 
-        self.cache.lhs_ls > self.cache.rhs_ls
+        Ok(self.cache.lhs_ls > self.cache.rhs_ls)
     }
 
     /// Update without performing a line search; this is executed at the first iteration
-    fn update_no_linesearch(&mut self, u_current: &mut [f64]) {
+    fn update_no_linesearch(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
-        (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
-        (self.problem.gradf)(u_current, &mut self.cache.gradient_u); // compute gradient
+        (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
+        (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
+
+        Ok(())
     }
 
     /// Performs a line search to select tau
-    fn linesearch(&mut self, u_current: &mut [f64]) {
+    fn linesearch(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         self.cache.tau = 1.0; // initialise tau ← 1.0
         let mut num_ls_iters = 0;
-        while self.line_search_condition(u_current) && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
+        while self.line_search_condition(u_current)? && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
             self.cache.tau /= 2.0;
             num_ls_iters += 1;
         }
@@ -269,6 +289,8 @@ where
         }
         // Sets `u_current` to `u_plus` (u_current ← u_plus)
         u_current.copy_from_slice(&self.cache.u_plus);
+
+        Ok(())
     }
 }
 
@@ -276,8 +298,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> i32,
-    CostType: Fn(&[f64], &mut f64) -> i32,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     /// PANOC step
@@ -290,27 +312,27 @@ where
     ///   iterate of PANOC
     ///
     ///
-    fn step(&mut self, u_current: &mut [f64]) -> bool {
+    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, Error> {
         // compute the fixed point residual
         self.compute_fpr(u_current);
 
         // exit if the norm of the fpr is adequetely small
         if self.cache.norm_gamma_fpr < self.cache.tolerance {
             //TODO: u <- self.cache.u_half_step
-            return false;
+            return Ok(false);
         }
-        self.update_lipschitz_constant(u_current); // update lipschitz constant
+        self.update_lipschitz_constant(u_current)?; // update lipschitz constant
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
 
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
-            self.update_no_linesearch(u_current);
+            self.update_no_linesearch(u_current)?;
         } else {
-            self.linesearch(u_current);
+            self.linesearch(u_current)?;
         }
 
         self.cache.iteration += 1;
-        true
+        Ok(true)
     }
 
     /// Initialization of PANOC
@@ -322,13 +344,15 @@ where
     /// gradient of the cost at the initial point, initial estimates for `gamma` and `sigma`,
     /// a gradient step and a half step (projected gradient step)
     ///
-    fn init(&mut self, u_current: &mut [f64]) {
-        (self.problem.cost)(u_current, &mut self.cache.cost_value); // cost value
-        self.estimate_loc_lip(u_current); // computes the gradient as well! (self.cache.gradient_u)
+    fn init(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+        (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
+        self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
+
+        Ok(())
     }
 }
 
@@ -338,7 +362,10 @@ where
 #[cfg(test)]
 mod tests {
 
+    use crate::constraints;
+    use crate::core::panoc::panoc_engine::PANOCEngine;
     use crate::core::panoc::*;
+    use crate::core::Problem;
     use crate::mocks;
     use std::num::NonZeroUsize;
 
