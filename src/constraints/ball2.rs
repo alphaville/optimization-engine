@@ -1,15 +1,15 @@
 use super::Constraint;
 
 /// A Eucledian ball
-pub struct Ball2 {
-    centre: Option<Vec<f64>>,
+pub struct Ball2<'a> {
+    centre: Option<&'a [f64]>,
     radius: f64,
 }
 
-impl Ball2 {
+impl<'a> Ball2<'a> {
     ///
     /// Construct a new ball centered at the origin with given radius
-    pub fn new_at_origin_with_radius(radius_: f64) -> Ball2 {
+    pub fn new_at_origin_with_radius(radius_: f64) -> Ball2<'a> {
         assert!(radius_ > 0.0);
 
         Ball2 {
@@ -20,7 +20,7 @@ impl Ball2 {
 
     ///
     /// Construct a new Eucledian ball with given centre and radius
-    pub fn new(centre_: Vec<f64>, radius_: f64) -> Ball2 {
+    pub fn new(centre_: &'a [f64], radius_: f64) -> Ball2<'a> {
         assert!(radius_ > 0.0);
 
         Ball2 {
@@ -30,7 +30,7 @@ impl Ball2 {
     }
 }
 
-impl Constraint for Ball2 {
+impl<'a> Constraint for Ball2<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(centre) = &self.centre {
             let mut norm_difference = 0.0;
