@@ -157,7 +157,7 @@ mod tests {
         };
         /* CONSTRAINTS */
         let radius = 2.0;
-        let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+        let bounds = constraints::Ball2::new(None, radius);
         let mut panoc_cache = PANOCCache::new(
             NonZeroUsize::new(n).unwrap(),
             tolerance,
@@ -205,7 +205,7 @@ mod tests {
                 *c = mocks::rosenbrock_cost(a, b, u);
                 Ok(())
             };
-            let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+            let bounds = constraints::Ball2::new(None, radius);
             let problem = Problem::new(bounds, df, f);
             let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 

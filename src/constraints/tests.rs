@@ -37,9 +37,9 @@ fn t_ball_at_origin() {
 #[test]
 fn t_ball_elsewhere() {
     let radius = 1.0;
-    let centre = [1.0, 1.0];
+    let center = [1.0, 1.0];
     let mut x = [2.0, 2.0];
-    let ball = Ball2::new(Some(&centre[..]), radius);
+    let ball = Ball2::new(Some(&center[..]), radius);
 
     ball.project(&mut x);
 

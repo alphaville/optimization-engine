@@ -44,7 +44,8 @@ pub struct SolverStatus {
     cost_value: c_double,
 }
 
-/// Allocate memory for the solver
+/// Allocate memory and setup the solver
+/// Note that `max_solve_time_ns` may be set to 0 if an infinite time in desired
 #[no_mangle]
 pub extern "C" fn panoc_new(
     lbfgs_memory_size: c_ulong,
@@ -79,26 +80,27 @@ pub extern "C" fn panoc_solve_no_constraints(
 }
 
 /// Run the solver on the input and parameters without constraints
+/// The `center`
 #[no_mangle]
 pub extern "C" fn panoc_solve_with_ball2_constraints(
     instance: *mut PanocInstance,
     u: *mut c_double,
     params: *const c_double,
-    centre: *const c_double,
+    center: *const c_double,
     radius: c_double,
 ) -> SolverStatus {
-    let centre = unsafe {
-        if centre.is_null() {
+    let center = unsafe {
+        if center.is_null() {
             None
         } else {
             Some(slice::from_raw_parts(
-                centre as *const f64,
+                center as *const f64,
                 icasadi::NUM_DECISION_VARIABLES as usize,
             ))
         }
     };
 
-    let bounds = Ball2::new(centre, radius as f64);
+    let bounds = Ball2::new(center, radius as f64);
 
     panoc_solve_with_bound(instance, u, params, bounds)
 }

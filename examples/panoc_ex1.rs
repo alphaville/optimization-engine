@@ -39,7 +39,7 @@ fn main() {
     };
 
     // define the constraints
-    let bounds = Ball2::new_at_origin_with_radius(radius);
+    let bounds = Ball2::new(None, radius);
 
     /* PROBLEM STATEMENT */
     let problem = Problem::new(bounds, df, f);
