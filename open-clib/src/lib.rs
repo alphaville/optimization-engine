@@ -43,7 +43,7 @@ impl PanocInstance {
 #[repr(C)]
 pub struct SolverStatus {
     /// number of iterations for convergence
-    num_iter: c_ulonglong,
+    num_iter: c_ulong,
     /// time it took to solve
     solve_time_ns: c_ulonglong,
     /// norm of the fixed-point residual (FPR)
@@ -212,7 +212,7 @@ fn panoc_solve_with_bound<ConstraintType: Constraint>(
     .solve(&mut u);
 
     SolverStatus {
-        num_iter: status.iterations() as c_ulonglong,
+        num_iter: status.iterations() as c_ulong,
         solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
         fpr_norm: status.norm_fpr() as c_double,
         cost_value: status.cost_value() as c_double,
