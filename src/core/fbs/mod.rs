@@ -26,7 +26,7 @@
 //!
 //! fn main() {
 //!     let radius = 0.2;
-//!     let box_constraints = Ball2::new_at_origin_with_radius(radius);
+//!     let box_constraints = Ball2::new(None, radius);
 //!     let problem = Problem::new(box_constraints, my_gradient, my_cost);
 //!     let gamma = 0.3;
 //!     let tolerance = 1e-6;
