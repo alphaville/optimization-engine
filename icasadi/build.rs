@@ -1,6 +1,9 @@
 use bindgen;
 use cc;
 
+use std::env;
+use std::path::PathBuf;
+
 fn main() {
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 
