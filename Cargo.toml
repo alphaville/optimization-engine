@@ -47,6 +47,9 @@ edition = "2018"
 # - Update the webpage (e.g., make a blog post)
 publish = true
 
+exclude = [
+    "website/*",
+]
 
 
 # --------------------------------------------------------------------------
