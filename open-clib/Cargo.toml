@@ -13,6 +13,7 @@ icasadi = {path = "../icasadi"}
 
 [build-dependencies]
 cbindgen = "0.8.0"
+icasadi = {path = "../icasadi"}
 
 [lib]
 crate-type = ["staticlib", "cdylib"]

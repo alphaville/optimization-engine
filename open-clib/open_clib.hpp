@@ -1,3 +1,9 @@
+#define OPEN_NUM_DECISION_VARIABLES 6
+#define OPEN_NUM_STATIC_PARAMETERS 2
+
+#ifndef _OPEN_GUARD_
+#define _OPEN_GUARD_
+
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
@@ -51,3 +57,5 @@ SolverStatus panoc_solve_with_rectangle_constraints(PanocInstance *instance,
                                                     const double *xmax);
 
 } // extern "C"
+
+#endif // _OPEN_GUARD_

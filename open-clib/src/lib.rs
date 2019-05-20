@@ -1,3 +1,5 @@
+#![allow(unused_attributes)]
+
 use icasadi;
 use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
@@ -45,6 +47,7 @@ pub struct SolverStatus {
 }
 
 /// Allocate memory and setup the solver
+///
 /// Note that `max_solve_time_ns` may be set to 0 if an infinite time in desired
 #[no_mangle]
 pub extern "C" fn panoc_new(
@@ -152,6 +155,7 @@ fn panoc_solve_with_bound<ConstraintType: Constraint>(
     params: *const c_double,
     bounds: ConstraintType,
 ) -> SolverStatus {
+    // Convert all pointers into the required data structures
     let instance: &mut PanocInstance = unsafe {
         assert!(!instance.is_null());
         &mut *instance
