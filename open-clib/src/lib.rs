@@ -67,7 +67,7 @@ pub extern "C" fn panoc_new(
     )))
 }
 
-/// Run the solver on the input and parameters without constraints
+/// Run the solver on the input and parameters without any constraints
 #[no_mangle]
 pub extern "C" fn panoc_solve_no_constraints(
     instance: *mut PanocInstance,
@@ -80,7 +80,8 @@ pub extern "C" fn panoc_solve_no_constraints(
 }
 
 /// Run the solver on the input and parameters without constraints
-/// The `center`
+///
+/// The `center` may be set to `NULL`, then the origin is assumed as center
 #[no_mangle]
 pub extern "C" fn panoc_solve_with_ball2_constraints(
     instance: *mut PanocInstance,
@@ -106,7 +107,9 @@ pub extern "C" fn panoc_solve_with_ball2_constraints(
 }
 
 /// Run the solver on the input and parameters with rectangle constraints
-/// xmin
+///
+/// `xmin` or `xmax` may be set to `NULL` to indicate that the corresponding constraint is not
+/// active, however not both may be `NULL` at the same time
 #[no_mangle]
 pub extern "C" fn panoc_solve_with_rectangle_constraints(
     instance: *mut PanocInstance,
@@ -145,8 +148,8 @@ pub extern "C" fn panoc_solve_with_rectangle_constraints(
 /// Generic solve method over constraints
 fn panoc_solve_with_bound<ConstraintType: Constraint>(
     instance: *mut PanocInstance,
-    u_ptr: *mut c_double,
-    params_ptr: *const c_double,
+    u: *mut c_double,
+    params: *const c_double,
     bounds: ConstraintType,
 ) -> SolverStatus {
     let instance: &mut PanocInstance = unsafe {
@@ -155,16 +158,14 @@ fn panoc_solve_with_bound<ConstraintType: Constraint>(
     };
 
     let mut u = unsafe {
-        assert!(!u_ptr.is_null());
-        //slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
-        slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::NUM_DECISION_VARIABLES as usize)
+        assert!(!u.is_null());
+        slice::from_raw_parts_mut(u as *mut f64, icasadi::NUM_DECISION_VARIABLES as usize)
     };
 
     let params = unsafe {
-        assert!(!params_ptr.is_null());
-        //slice::from_raw_parts(params_ptr as *const f64, PARAMETERS_SIZE)
+        assert!(!params.is_null());
         slice::from_raw_parts(
-            params_ptr as *mut f64,
+            params as *const f64,
             icasadi::NUM_STATIC_PARAMETERS as usize,
         )
     };
