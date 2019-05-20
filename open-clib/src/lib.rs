@@ -5,6 +5,12 @@ use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize, slice, time};
 
+/// Size of the vector of decision variables
+pub const NUM_DECISION_VARIABLES: u32 = icasadi::NUM_DECISION_VARIABLES;
+
+/// Size of the vector of static parameters
+pub use icasadi::NUM_STATIC_PARAMETERS;
+
 /// Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
 pub struct PanocInstance {
     cache: panoc::PANOCCache,
@@ -174,35 +180,36 @@ fn panoc_solve_with_bound<ConstraintType: Constraint>(
         )
     };
 
-    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-        if icasadi::icasadi_grad(u, &params, grad) == 0 {
-            Ok(())
-        } else {
-            Err(Error::Cost)
-        }
-    };
+    let problem = Problem::new(
+        // Constraints
+        bounds,
+        // Gradient definition
+        |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+            if icasadi::icasadi_grad(u, &params, grad) == 0 {
+                Ok(())
+            } else {
+                Err(Error::Cost)
+            }
+        },
+        // Cost function definition
+        |u: &[f64], c: &mut f64| -> Result<(), Error> {
+            if icasadi::icasadi_cost(u, &params, c) == 0 {
+                Ok(())
+            } else {
+                Err(Error::Cost)
+            }
+        },
+    );
 
-    let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-        if icasadi::icasadi_cost(u, &params, c) == 0 {
-            Ok(())
-        } else {
-            Err(Error::Cost)
-        }
-    };
-
-    let problem = Problem::new(bounds, df, f);
-
-    // Create PANOC
-    let mut panoc = if let Some(dur) = instance.max_solve_time {
+    // Create solver and solve
+    let status = if let Some(dur) = instance.max_solve_time {
         PANOCOptimizer::new(problem, &mut instance.cache)
             .with_max_iter(instance.max_iterations)
             .with_max_duration(dur)
     } else {
         PANOCOptimizer::new(problem, &mut instance.cache).with_max_iter(instance.max_iterations)
-    };
-
-    // Invoke the solver
-    let status = panoc.solve(&mut u);
+    }
+    .solve(&mut u);
 
     SolverStatus {
         num_iter: status.iterations() as c_ulonglong,
