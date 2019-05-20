@@ -7,26 +7,11 @@ pub struct Ball2<'a> {
 }
 
 impl<'a> Ball2<'a> {
-    ///
-    /// Construct a new ball centered at the origin with given radius
-    pub fn new_at_origin_with_radius(radius_: f64) -> Ball2<'a> {
-        assert!(radius_ > 0.0);
-
-        Ball2 {
-            centre: None,
-            radius: radius_,
-        }
-    }
-
-    ///
     /// Construct a new Eucledian ball with given centre and radius
-    pub fn new(centre_: &'a [f64], radius_: f64) -> Ball2<'a> {
-        assert!(radius_ > 0.0);
+    pub fn new(centre: Option<&'a [f64]>, radius: f64) -> Ball2<'a> {
+        assert!(radius > 0.0);
 
-        Ball2 {
-            centre: Some(centre_),
-            radius: radius_,
-        }
+        Ball2 { centre, radius }
     }
 }
 
