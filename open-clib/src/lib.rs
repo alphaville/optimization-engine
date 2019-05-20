@@ -1,29 +1,32 @@
-//use icasadi;
-use libc::{c_double, c_ulonglong};
+use icasadi;
+use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
-use std::{num::NonZeroUsize, slice, time::Duration};
-
-const PROBLEM_SIZE: usize = 10;
-// const PARAMETERS_SIZE: usize = 20;
-const LBFGS_MEMORY_SIZE: usize = 10;
-const MAX_ITERATIONS: usize = 100;
-const MAX_DURATION_NS: u64 = 1_000_000_000;
-const TOLERANCE: f64 = 1e-4;
+use std::{num::NonZeroUsize, slice, time};
 
 /// Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
 pub struct PanocInstance {
     cache: panoc::PANOCCache,
+    max_iterations: usize,
+    max_solve_time: Option<time::Duration>,
 }
 
 impl PanocInstance {
-    pub fn new() -> Self {
+    pub fn new(
+        lbfgs_memory_size: usize,
+        tolerance: f64,
+        max_solve_time: Option<time::Duration>,
+        max_iterations: usize,
+    ) -> Self {
+        assert!(max_iterations > 0);
+
         PanocInstance {
             cache: PANOCCache::new(
-                NonZeroUsize::new(PROBLEM_SIZE).unwrap(),
-                //NonZeroUsize::new(icasadi::NUM_DECISION_VARIABLES).unwrap(),
-                TOLERANCE,
-                NonZeroUsize::new(LBFGS_MEMORY_SIZE).unwrap(),
+                NonZeroUsize::new(icasadi::NUM_DECISION_VARIABLES as usize).unwrap(),
+                tolerance,
+                NonZeroUsize::new(lbfgs_memory_size).unwrap(),
             ),
+            max_iterations,
+            max_solve_time,
         }
     }
 }
@@ -41,91 +44,154 @@ pub struct SolverStatus {
     cost_value: c_double,
 }
 
-//
-// Example cost function, can be from icasadi just as well
-//
-fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
-    (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
-}
-
-fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
-    grad[0] = 2.0 * u[0] - 2.0 * a - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
-    grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
-}
-
 /// Allocate memory for the solver
 #[no_mangle]
-pub extern "C" fn panoc_new() -> *mut PanocInstance {
-    // Add impl
-    Box::into_raw(Box::new(PanocInstance::new()))
+pub extern "C" fn panoc_new(
+    lbfgs_memory_size: c_ulong,
+    tolerance: c_double,
+    max_solve_time_ns: c_ulonglong,
+    max_iterations: c_ulong,
+) -> *mut PanocInstance {
+    let max_solve_time = if max_solve_time_ns > 0 {
+        Some(time::Duration::from_nanos(max_solve_time_ns as u64))
+    } else {
+        None
+    };
+
+    Box::into_raw(Box::new(PanocInstance::new(
+        lbfgs_memory_size as usize,
+        tolerance as f64,
+        max_solve_time,
+        max_iterations as usize,
+    )))
 }
 
-/// Run the solver on the input and parameters
+/// Run the solver on the input and parameters without constraints
 #[no_mangle]
-pub extern "C" fn panoc_solve(instance: *mut PanocInstance, u_ptr: *mut c_double) -> SolverStatus {
-    let cache: &mut PANOCCache = unsafe {
+pub extern "C" fn panoc_solve_no_constraints(
+    instance: *mut PanocInstance,
+    u: *mut c_double,
+    params: *const c_double,
+) -> SolverStatus {
+    let bounds = NoConstraints::new();
+
+    panoc_solve_with_bound(instance, u, params, bounds)
+}
+
+/// Run the solver on the input and parameters without constraints
+#[no_mangle]
+pub extern "C" fn panoc_solve_with_ball2_constraints(
+    instance: *mut PanocInstance,
+    u: *mut c_double,
+    params: *const c_double,
+    centre: *const c_double,
+    radius: c_double,
+) -> SolverStatus {
+    let centre = unsafe {
+        if centre.is_null() {
+            None
+        } else {
+            Some(slice::from_raw_parts(
+                centre as *const f64,
+                icasadi::NUM_DECISION_VARIABLES as usize,
+            ))
+        }
+    };
+
+    let bounds = Ball2::new(centre, radius as f64);
+
+    panoc_solve_with_bound(instance, u, params, bounds)
+}
+
+/// Run the solver on the input and parameters with rectangle constraints
+/// xmin
+#[no_mangle]
+pub extern "C" fn panoc_solve_with_rectangle_constraints(
+    instance: *mut PanocInstance,
+    u: *mut c_double,
+    params: *const c_double,
+    xmin: *const c_double,
+    xmax: *const c_double,
+) -> SolverStatus {
+    let xmin = unsafe {
+        if xmin.is_null() {
+            None
+        } else {
+            Some(slice::from_raw_parts(
+                xmin as *const f64,
+                icasadi::NUM_DECISION_VARIABLES as usize,
+            ))
+        }
+    };
+
+    let xmax = unsafe {
+        if xmax.is_null() {
+            None
+        } else {
+            Some(slice::from_raw_parts(
+                xmax as *const f64,
+                icasadi::NUM_DECISION_VARIABLES as usize,
+            ))
+        }
+    };
+
+    let bounds = Rectangle::new(xmin, xmax);
+
+    panoc_solve_with_bound(instance, u, params, bounds)
+}
+
+/// Generic solve method over constraints
+fn panoc_solve_with_bound<ConstraintType: Constraint>(
+    instance: *mut PanocInstance,
+    u_ptr: *mut c_double,
+    params_ptr: *const c_double,
+    bounds: ConstraintType,
+) -> SolverStatus {
+    let instance: &mut PanocInstance = unsafe {
         assert!(!instance.is_null());
-        &mut (&mut *instance).cache
+        &mut *instance
     };
 
     let mut u = unsafe {
         assert!(!u_ptr.is_null());
-        slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
-        //slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::NUM_DECISION_VARIABLES)
+        //slice::from_raw_parts_mut(u_ptr as *mut f64, PROBLEM_SIZE)
+        slice::from_raw_parts_mut(u_ptr as *mut f64, icasadi::NUM_DECISION_VARIABLES as usize)
     };
 
-    // let mut params = unsafe {
-    //     assert!(!params_ptr.is_null());
-    //     slice::from_raw_parts_mut(params_ptr as *mut f64, PARAMETERS_SIZE)
-    //     slice::from_raw_parts_mut(params_ptr as *mut f64, icasadi::NUM_STATIC_PARAMETERS)
-    // };
-
-    // let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-    //     if icasadi::icasadi_grad(u, &params, grad) == 0 {
-    //         Ok(())
-    //     } else {
-    //         Err(Error::Cost)
-    //     }
-    // };
-
-    // let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-    //     if icasadi::icasadi_cost(u, &params, c) == 0 {
-    //         Ok(())
-    //     } else {
-    //         Err(Error::Cost)
-    //     }
-    // };
-
-    // define the cost function and its gradient
-    let a = 1.0;
-    let b = 200.0;
-    let radius = 1.0;
+    let params = unsafe {
+        assert!(!params_ptr.is_null());
+        //slice::from_raw_parts(params_ptr as *const f64, PARAMETERS_SIZE)
+        slice::from_raw_parts(
+            params_ptr as *mut f64,
+            icasadi::NUM_STATIC_PARAMETERS as usize,
+        )
+    };
 
     let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-        rosenbrock_grad(a, b, u, grad);
-        Ok(())
+        if icasadi::icasadi_grad(u, &params, grad) == 0 {
+            Ok(())
+        } else {
+            Err(Error::Cost)
+        }
     };
 
     let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-        *c = rosenbrock_cost(a, b, u);
-        Ok(())
+        if icasadi::icasadi_cost(u, &params, c) == 0 {
+            Ok(())
+        } else {
+            Err(Error::Cost)
+        }
     };
-
-    // Danger danger, allocation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // All constraints internally use Vec<_> we should probably change that
-    // ------------------------------------------------------------------------------------------
-    let bounds = Ball2::new_at_origin_with_radius(radius);
-    // ------------------------------------------------------------------------------------------
 
     let problem = Problem::new(bounds, df, f);
 
     // Create PANOC
-    let mut panoc = if MAX_DURATION_NS > 0 {
-        PANOCOptimizer::new(problem, cache)
-            .with_max_iter(MAX_ITERATIONS)
-            .with_max_duration(Duration::from_nanos(MAX_DURATION_NS))
+    let mut panoc = if let Some(dur) = instance.max_solve_time {
+        PANOCOptimizer::new(problem, &mut instance.cache)
+            .with_max_iter(instance.max_iterations)
+            .with_max_duration(dur)
     } else {
-        PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERATIONS)
+        PANOCOptimizer::new(problem, &mut instance.cache).with_max_iter(instance.max_iterations)
     };
 
     // Invoke the solver

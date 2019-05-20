@@ -18,6 +18,7 @@ fn main() {
         .expect("Unable to generate bindings")
         .write_to_file("open_clib.hpp");
 
+    println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=open_clib.h");
     println!("cargo:rerun-if-changed=open_clib.hpp");
 }
