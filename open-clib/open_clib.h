@@ -21,7 +21,7 @@ typedef struct {
   /**
    * number of iterations for convergence
    */
-  unsigned long long num_iter;
+  unsigned long num_iter;
   /**
    * time it took to solve
    */

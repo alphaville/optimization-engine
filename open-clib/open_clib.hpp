@@ -15,7 +15,7 @@ struct PanocInstance;
 /// C version of SolverStatus
 struct SolverStatus {
   /// number of iterations for convergence
-  unsigned long long num_iter;
+  unsigned long num_iter;
   /// time it took to solve
   unsigned long long solve_time_ns;
   /// norm of the fixed-point residual (FPR)
