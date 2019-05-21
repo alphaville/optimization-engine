@@ -1,15 +1,18 @@
+/* This is an auto-generated file made from optimization engine: https://crates.io/crates/optimization_engine */
+
+/** This is the size of all the arrays that the solver needs, except params. */
 #define OPEN_NUM_DECISION_VARIABLES 6
+
+/** This is the size of the param arrays that the solver needs. */
 #define OPEN_NUM_STATIC_PARAMETERS 2
 
-#ifndef _OPEN_GUARD_
-#define _OPEN_GUARD_
 
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
 #include <new>
 
-/// Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
+/// The `PanocInstance` holds all allocations and settings for the solver
 struct PanocInstance;
 
 /// C version of SolverStatus
@@ -57,5 +60,3 @@ SolverStatus panoc_solve_with_rectangle_constraints(PanocInstance *instance,
                                                     const double *xmax);
 
 } // extern "C"
-
-#endif // _OPEN_GUARD_
