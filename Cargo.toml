@@ -34,7 +34,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate
-version = "0.4.0"
+version = "0.3.1"
 
 edition = "2018"
 
@@ -47,6 +47,9 @@ edition = "2018"
 # - Update the webpage (e.g., make a blog post)
 publish = true
 
+exclude = [
+    "website/*",
+]
 
 
 # --------------------------------------------------------------------------
