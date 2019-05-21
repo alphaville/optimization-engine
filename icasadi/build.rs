@@ -2,10 +2,32 @@ use bindgen;
 use cc;
 
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+
+    // Sanity checks to get better error messages
+    assert!(
+        Path::new("extern/auto_casadi_cost.c").exists(),
+        "extern/auto_casadi_cost.c is missing"
+    );
+    assert!(
+        Path::new("extern/auto_casadi_grad.c").exists(),
+        "extern/auto_casadi_grad.c is missing"
+    );
+    assert!(
+        Path::new("extern/icasadi.c").exists(),
+        "extern/icasadi.c is missing"
+    );
+    assert!(
+        Path::new("extern/icasadi.h").exists(),
+        "extern/icasadi.h is missing"
+    );
+    assert!(
+        Path::new("extern/icasadi_config.h").exists(),
+        "extern/icasadi_config.h is missing"
+    );
 
     cc::Build::new()
         .flag_if_supported("-Wall")
