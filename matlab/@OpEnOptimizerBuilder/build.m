@@ -51,7 +51,8 @@ copyfile(fullfile(matlab_open_root(), 'icasadi'), fullfile(destination_dir, 'ica
 % -------------------------------------------------------------------------
 
 % Generate CasADi code (within the context of autogen_optimizer/icasadi)
-casadi_codegen(opEnBuilder.sx_u, opEnBuilder.sx_p, opEnBuilder.cost, destination_dir);
+casadi_codegen(opEnBuilder.sx_u, opEnBuilder.sx_p, opEnBuilder.cost, ...
+    opEnBuilder.constraints_as_penalties, destination_dir);
 
 
 % -------------------------------------------------------------------------
@@ -93,8 +94,8 @@ opEnOptimizer = OpEnOptimizer(ip, port, destination_dir, opEnBuilder.build_mode)
 % Private functions
 % -------------------------------------------------------------------------
 
-function [cost, grad_cost] = casadi_codegen(u,p,phi,build_directory)
-[cost, grad_cost] = casadi_generate_c_code(u, p, phi,build_directory);
+function [cost, grad_cost] = casadi_codegen(u,p,phi,cstr_pen,build_directory)
+[cost, grad_cost] = casadi_generate_c_code(u, p, phi,cstr_pen,build_directory);
 current_dir = pwd();
 cd(fullfile(build_directory, 'icasadi'));
 system('cargo build --release'); % builds casadi
@@ -108,7 +109,7 @@ switch constraints.get_type()
     case 'ball'
         cstr_params = constraints.get_params();
         if ~(isfield(cstr_params, 'centre') && isempty(cstr_params.centre))
-            fprintf(fid_main, '\n\t\tlet bounds = Ball2::new_at_origin_with_radius(%f);\n', cstr_params.radius);
+            fprintf(fid_main, '\n\t\tlet bounds = Ball2::new(None, %f);\n', cstr_params.radius);
         end
     case 'no_constraints'
         fprintf(fid_main, '\n\t\tlet bounds = NoConstraints::new();\n');
