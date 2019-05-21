@@ -29,5 +29,5 @@ This is a breaking API change.
 * Started an `examples` folder
 
 [Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...HEAD
-[v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.3.0
-[v0.3.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.2.2
+[v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1
+[v0.3.0]: https://github.com/alphaville/optimization-engine/compare/v0.2.2...v0.3.0
