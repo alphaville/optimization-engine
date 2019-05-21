@@ -31,6 +31,13 @@ extern "C" {
         casadi_static_params: *const c_double,
         cost_jacobian: *mut c_double,
     ) -> c_int;
+
+    fn icasadi_constraints_as_penalty_(
+        u: *const c_double,
+        casadi_static_params: *const c_double,
+        constraints_as_penalty: *mut c_double,
+    ) -> c_int;
+
 }
 
 ///
@@ -90,6 +97,16 @@ pub fn icasadi_grad(u: &[f64], casadi_static_params: &[f64], cost_jacobian: &mut
             u.as_ptr(),
             casadi_static_params.as_ptr(),
             cost_jacobian.as_mut_ptr(),
+        )
+    }
+}
+
+pub fn icasadi_constraints_as_penalty(u: &[f64], casadi_static_params: &[f64], constraints_as_penalty: &mut [f64]) -> c_int {
+    unsafe {
+        icasadi_constraints_as_penalty_(
+            u.as_ptr(),
+            casadi_static_params.as_ptr(),
+            constraints_as_penalty.as_mut_ptr(),
         )
     }
 }
