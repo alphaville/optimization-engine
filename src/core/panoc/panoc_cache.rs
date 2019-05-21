@@ -83,4 +83,16 @@ impl PANOCCache {
             iteration: 0,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.lbfgs.reset();
+        self.lhs_ls = 0.0;
+        self.rhs_ls = 0.0;
+        self.tau = 1.0;
+        self.lipschitz_constant = 0.0;
+        self.sigma = 0.0;
+        self.cost_value = 0.0;
+        self.iteration = 0;
+        self.gamma = 0.0;
+    }
 }

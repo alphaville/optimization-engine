@@ -345,6 +345,7 @@ where
     /// a gradient step and a half step (projected gradient step)
     ///
     fn init(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+        self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
