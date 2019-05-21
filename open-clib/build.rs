@@ -5,19 +5,26 @@ use std::env;
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
-    let header: &str = concat!(
-        "/* This is an auto-generated file made from optimization engine: ",
-        "https://crates.io/crates/optimization_engine */\n\n",
+    let mut header = String::new();
+    header.push_str("/* This is an auto-generated file made from optimization engine: ");
+    header.push_str("https://crates.io/crates/optimization_engine */\n\n");
+    header.push_str(
         "/** This is the size of all the arrays that the solver needs, except params. */\n",
+    );
+    header.push_str(
         format!(
             "#define OPEN_NUM_DECISION_VARIABLES {}\n\n",
             icasadi::NUM_DECISION_VARIABLES,
-        ),
-        "/** This is the size of the param arrays that the solver needs. */\n",
+        )
+        .as_str(),
+    );
+    header.push_str("/** This is the size of the param arrays that the solver needs. */\n");
+    header.push_str(
         format!(
             "#define OPEN_NUM_STATIC_PARAMETERS {}\n",
             icasadi::NUM_STATIC_PARAMETERS
         )
+        .as_str(),
     );
 
     Builder::new()

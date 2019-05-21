@@ -1,8 +1,10 @@
-#define OPEN_NUM_DECISION_VARIABLES 6
-#define OPEN_NUM_STATIC_PARAMETERS 2
+/* This is an auto-generated file made from optimization engine: https://crates.io/crates/optimization_engine */
 
-#ifndef _OPEN_GUARD_
-#define _OPEN_GUARD_
+/** This is the size of all the arrays that the solver needs, except params. */
+#define OPEN_NUM_DECISION_VARIABLES 6
+
+/** This is the size of the param arrays that the solver needs. */
+#define OPEN_NUM_STATIC_PARAMETERS 2
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -10,14 +12,15 @@
 #include <stdlib.h>
 
 /**
- * Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
+ * The `PanocInstance` holds all allocations and settings for the solver
  */
 typedef struct PanocInstance PanocInstance;
 
 /**
  * C version of SolverStatus
  */
-typedef struct {
+typedef struct
+{
   /**
    * number of iterations for convergence
    */
@@ -75,5 +78,3 @@ SolverStatus panoc_solve_with_rectangle_constraints(PanocInstance *instance,
                                                     const double *params,
                                                     const double *xmin,
                                                     const double *xmax);
-
-#endif /* _OPEN_GUARD_ */

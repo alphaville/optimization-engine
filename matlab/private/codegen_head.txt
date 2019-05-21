@@ -5,7 +5,6 @@ use std::num::NonZeroUsize;
 use std::net::UdpSocket;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct OptimizationRequest {
