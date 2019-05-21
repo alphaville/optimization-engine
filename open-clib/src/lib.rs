@@ -5,13 +5,7 @@ use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize, slice, time};
 
-/// Size of the vector of decision variables
-pub const NUM_DECISION_VARIABLES: u32 = icasadi::NUM_DECISION_VARIABLES;
-
-/// Size of the vector of static parameters
-pub use icasadi::NUM_STATIC_PARAMETERS;
-
-/// Opaque wrapper around PANOCCache, needed for cbindgen to generate a struct
+/// The `PanocInstance` holds all allocations and settings for the solver
 pub struct PanocInstance {
     cache: panoc::PANOCCache,
     max_iterations: usize,
