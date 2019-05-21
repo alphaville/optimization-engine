@@ -109,7 +109,7 @@ switch constraints.get_type()
     case 'ball'
         cstr_params = constraints.get_params();
         if ~(isfield(cstr_params, 'centre') && isempty(cstr_params.centre))
-            fprintf(fid_main, '\n\t\tlet bounds = Ball2::new_at_origin_with_radius(%f);\n', cstr_params.radius);
+            fprintf(fid_main, '\n\t\tlet bounds = Ball2::new(None, %f);\n', cstr_params.radius);
         end
     case 'no_constraints'
         fprintf(fid_main, '\n\t\tlet bounds = NoConstraints::new();\n');
