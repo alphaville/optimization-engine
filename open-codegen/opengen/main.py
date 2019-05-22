@@ -22,19 +22,22 @@ def rosenbrock(u_, p_):
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
 phi = rosenbrock(u,p)
+c = vertcat(norm_2(u)-1., u[0]+p[0]*u[1]-3.);
+phi_fun = Function('phi', [u, p], [phi])
+
 
 problem = Problem(u, p, phi)
+problem.with_penalty_constraints(c)
+
 meta = OptimizerMeta()
 build_config = BuildConfiguration()
 solver_config = SolverConfiguration()
 
 builder = OpEnOptimizerBuilder(problem, meta, build_config, solver_config)
 
-builder._prepare_target_project()
-builder._generate_cargo_toml()
-builder._copy_icasadi_to_target()
+builder.build()
+builder._generate_casadi_code()
 
 print(meta.authors)
 print("root = " + open_codegen_root_dir())
 print("build dir = " + default_build_dir())
-print(build_config.build_path)
