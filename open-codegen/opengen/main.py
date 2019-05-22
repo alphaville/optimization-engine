@@ -1,12 +1,13 @@
 from casadi import SX, Function
 from opengen import *
 
-
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
 
+
 # cost function
 phi = rosenbrock(u, p)
+
 
 # c(u; p)
 c = vertcat(norm_2(u) - 1.,
@@ -26,8 +27,9 @@ meta = OptimizerMeta(). \
     with_optimizer_name("funky_optimizer")
 
 # Build configuration
-build_config = BuildConfiguration()
-build_config.with_rebuild(False)
+build_config = BuildConfiguration(). \
+    with_rebuild(False). \
+    with_build_mode("debug")
 
 # Auto-generate code and build project
 builder = OpEnOptimizerBuilder(problem,

@@ -133,7 +133,7 @@ class OpEnOptimizerBuilder:
         # Move generated files to target folder
         shutil.move(cost_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_cost.c" )
         shutil.move(grad_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_grad.c")
-        shutil.move(constraints_penalty_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_contstraints_penalty.c")
+        shutil.move(constraints_penalty_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_constraints_type_penalty.c")
 
     def _build_icasadi(self):
         icasadi_dir = self._icasadi_target_dir()
@@ -143,15 +143,17 @@ class OpEnOptimizerBuilder:
         p = subprocess.Popen(command, cwd=icasadi_dir)
         p.wait()
 
-    def
+    def _generate_main_project_code(self):
+        0
 
     '''
     Generate code and build project
     '''
     def build(self):
-        self._prepare_target_project()   # create folders; init cargo project
-        self._copy_icasadi_to_target()   # copy icasadi/ files to target dir
-        self._generate_cargo_toml()      # generate Cargo.toml using tempalte
-        self._generate_icasadi_header()  # generate icasadi_config.h
-        self._generate_casadi_code()     # generate all necessary CasADi C files
-        self._build_icasadi()             # build icasadi
+        self._prepare_target_project()     # create folders; init cargo project
+        self._copy_icasadi_to_target()     # copy icasadi/ files to target dir
+        self._generate_cargo_toml()        # generate Cargo.toml using tempalte
+        self._generate_icasadi_header()    # generate icasadi_config.h
+        self._generate_casadi_code()       # generate all necessary CasADi C files
+        self._build_icasadi()              # build icasadi
+        self._generate_main_project_code() # generate main part of code (at build/{name}/src/main.rs)

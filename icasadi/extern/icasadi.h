@@ -17,7 +17,7 @@ extern int CASADI_GRAD_NAME(
     double *w,
     void *mem);
 
-extern int constraints_as_penalty(
+extern int CASADI_CONSTRAINTS_AS_PENALTY_NAME(
     const double **arg,
     double **res,
     long long int *iw,
