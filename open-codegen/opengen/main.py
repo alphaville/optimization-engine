@@ -4,15 +4,6 @@ from casadi import *
 from opengen.definitions import *
 
 
-# ---- Generate code using template (exercise)-------
-file_loader = FileSystemLoader('../templates')
-env = Environment(loader=file_loader)
-template = env.get_template('xtmpl.rs')
-output_template = template.render(tolerance=0.001)
-with open("../templates/output.rs", "w") as fh:
-    fh.write(output_template)
-# ---------------------------------------------------
-
 # ---Playing with CasADi in Python--------------------
 def rosenbrock(u_, p_):
     if not isinstance(p_, SX) or p_.size()[0] != 2:
@@ -37,8 +28,12 @@ meta = OptimizerMeta()
 build_config = BuildConfiguration()
 solver_config = SolverConfiguration()
 
-
 builder = OpEnOptimizerBuilder(problem, meta, build_config, solver_config)
-builder._generate_icasadi_header()
 
+builder._prepare_target_project()
+builder._generate_cargo_toml()
+
+print(meta.authors)
 print("root = " + open_root_dir())
+print("build dir = " + default_build_dir())
+print(build_config.build_path)

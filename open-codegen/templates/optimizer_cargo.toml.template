@@ -1,0 +1,12 @@
+[package]
+name = "{{meta.build_name}}"
+version = "{{meta.version}}"
+license = "{{meta.licence}}"
+authors = ["{{meta.authors|join('", "')}}"]
+edition = "2018"
+publish=false
+
+
+[dependencies]
+optimization_engine = {path = "{{open_path or '../../'}}"}
+icasadi = {path = "./icasadi/"}
