@@ -25,6 +25,7 @@ class Problem:
     def with_penalty_constraints(self, penalty_constraints, penalty_function=None):
         self._penalty_constraints = penalty_constraints
         if penalty_function is None:
+            # default penalty function: quadratic
             z = SX.sym("z")
             self._penalty_function = Function('g_penalty_function', [z], [z**2])
         else:

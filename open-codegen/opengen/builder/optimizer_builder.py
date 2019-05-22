@@ -111,7 +111,6 @@ class OpEnOptimizerBuilder:
         if ncp > 0:
             mu = SX.sym("mu", self.problem.dim_constraints_penalty())
             p = vertcat(p, mu)
-            # TODO: Double-check that this is applied element-wise
             phi += dot(mu, penalty_function(self.problem.penalty_constraints()))
 
         cost_fun = Function(self.build_config.cost_function_name(), [u, p], [phi])
@@ -119,8 +118,8 @@ class OpEnOptimizerBuilder:
         grad_cost_fun = Function(self.build_config.grad_function_name(),
                                  [u, p], [jacobian(phi, u)])
 
-        penalty_fun = Function(self.build_config.constraint_penalty_function_name(),
-                               [u, p], [self.problem.penalty_constraints()])
+        constraint_penalty_fun = Function(self.build_config.constraint_penalty_function_name(),
+                                          [u, p], [self.problem.penalty_constraints()])
 
         cost_file_name = self.build_config.cost_function_name() + ".c"
         grad_file_name = self.build_config.grad_function_name() + ".c"
@@ -129,7 +128,7 @@ class OpEnOptimizerBuilder:
         # code generation using CasADi
         cost_fun.generate(cost_file_name)
         grad_cost_fun.generate(grad_file_name)
-        penalty_fun.generate(constraints_penalty_file_name)
+        constraint_penalty_fun.generate(constraints_penalty_file_name)
 
         # Move generated files to target folder
         shutil.move(cost_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_cost.c" )
@@ -143,6 +142,8 @@ class OpEnOptimizerBuilder:
             command.append('--release')
         p = subprocess.Popen(command, cwd=icasadi_dir)
         p.wait()
+
+    def
 
     '''
     Generate code and build project

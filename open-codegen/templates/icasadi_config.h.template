@@ -31,7 +31,6 @@
 /* Name of c(x) -- constraints as penalties */
 #define CASADI_CONSTRAINTS_AS_PENALTY_NAME {{build_config.constraint_penalty_function_name()  or 'constraints_penalty'}}
 
-
 /* Name of c'(x) -- constraints for AL */
 #define CASADI_CONSTRAINTS_AL_NAME constraints_aug_lagrangian
 
