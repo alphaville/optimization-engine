@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 import subprocess
 import shutil
 from casadi import *
+import datetime
 
 
 class OpEnOptimizerBuilder:
@@ -80,7 +81,8 @@ class OpEnOptimizerBuilder:
         env = Environment(loader=file_loader)
         template = env.get_template('icasadi_config.h.template')
         output_template = template.render(problem=self.problem,
-                                          build_config=self.build_config)
+                                          build_config=self.build_config,
+                                          timestamp_created=datetime.datetime.utcnow())
         with open(self._icasadi_target_dir()+"/extern/icasadi_config.h", "w") as fh:
             fh.write(output_template)
 
@@ -104,14 +106,15 @@ class OpEnOptimizerBuilder:
         p = self.problem.parameter_variables()
         ncp = self.problem.dim_constraints_penalty()
         phi = self.problem.cost_function()
+        penalty_function = self.problem.penalty_function()
 
         if ncp > 0:
             mu = SX.sym("mu", self.problem.dim_constraints_penalty())
             p = vertcat(p, mu)
-            phi += dot(mu, self.problem.penalty_constraints())
+            # TODO: Double-check that this is applied element-wise
+            phi += dot(mu, penalty_function(self.problem.penalty_constraints()))
 
-        cost_fun = Function(self.build_config.cost_function_name(),
-                            [u, p], [phi])
+        cost_fun = Function(self.build_config.cost_function_name(), [u, p], [phi])
 
         grad_cost_fun = Function(self.build_config.grad_function_name(),
                                  [u, p], [jacobian(phi, u)])
@@ -138,7 +141,6 @@ class OpEnOptimizerBuilder:
         command = ['cargo', 'build']
         if self.build_config.build_mode().lower() == 'release':
             command.append('--release')
-            print(command)
         p = subprocess.Popen(command, cwd=icasadi_dir)
         p.wait()
 

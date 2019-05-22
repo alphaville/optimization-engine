@@ -1,7 +1,7 @@
 class OptimizerMeta:
 
     def __init__(self,
-                 optimizer_name='MyOptimizer',
+                 optimizer_name='open_optimizer',
                  version='0.0.0',
                  licence='MIT',
                  authors=['Me', 'You']):
