@@ -144,16 +144,24 @@ class OpEnOptimizerBuilder:
         p.wait()
 
     def _generate_main_project_code(self):
-        0
+        target_dir = self._target_dir()
+        file_loader = FileSystemLoader('../templates')
+        env = Environment(loader=file_loader)
+        template = env.get_template('optimizer.rs.template')
+        output_template = template.render(solver_config=self.solver_config,
+                                          problem=self.problem)
+        with open(target_dir + "/src/lib.rs", "w") as fh:
+            fh.write(output_template)
+
 
     '''
     Generate code and build project
     '''
     def build(self):
-        self._prepare_target_project()     # create folders; init cargo project
-        self._copy_icasadi_to_target()     # copy icasadi/ files to target dir
-        self._generate_cargo_toml()        # generate Cargo.toml using tempalte
-        self._generate_icasadi_header()    # generate icasadi_config.h
-        self._generate_casadi_code()       # generate all necessary CasADi C files
-        self._build_icasadi()              # build icasadi
-        self._generate_main_project_code() # generate main part of code (at build/{name}/src/main.rs)
+        self._prepare_target_project()       # create folders; init cargo project
+        self._copy_icasadi_to_target()       # copy icasadi/ files to target dir
+        self._generate_cargo_toml()          # generate Cargo.toml using tempalte
+        self._generate_icasadi_header()      # generate icasadi_config.h
+        self._generate_casadi_code()         # generate all necessary CasADi C files
+        self._build_icasadi()                # build icasadi
+        self._generate_main_project_code()   # generate main part of code (at build/{name}/src/main.rs)

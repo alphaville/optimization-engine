@@ -1,0 +1,33 @@
+extern crate optimization_engine;
+
+use icasadi;
+use libc::{c_double, c_ulong, c_ulonglong};
+use optimization_engine::{constraints::*, panoc::*, *};
+use std::{num::NonZeroUsize, slice, time};
+
+const TOLERANCE: f64 = {{solver_config.tolerance() or 0.0001}};
+const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory() or 10}};
+const MAX_ITERS: usize = {{solver_config.max_iterations() or 2000}};
+const NU: usize = {{problem.dim_decision_variables()}};
+const NP: usize = {{problem.dim_parameters()}};
+const NCP: usize = {{problem.dim_constraints_penalty()}};
+const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+
+/* TODO! This is work in progress! */
+
+pub struct PanocInstance {
+    cache: panoc::PANOCCache,
+    max_iterations: usize,
+    max_solve_time: Option<time::Duration>,
+}
+
+
+fn initialize_solver() -> Result<PanocInstance, Error> {
+    Ok(())
+}
+
+fn solve(instance: *mut PanocInstance,
+    u: *mut c_double,
+    params: *const c_double) -> SolverStatus {
+
+}
