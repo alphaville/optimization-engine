@@ -30,13 +30,13 @@ class OpEnOptimizerBuilder:
     target directory
     '''
     def _target_dir(self):
-        return os.path.abspath(default_build_dir() + "/" + self.meta.build_name())
+        return os.path.abspath(default_build_dir() + "/" + self.meta.optimizer_name())
 
     '''
     icasadi target directory
     '''
     def _icasadi_target_dir(self):
-        return os.path.abspath(default_build_dir() + "/" + self.meta.build_name() + "/icasadi")
+        return os.path.abspath(default_build_dir() + "/" + self.meta.optimizer_name() + "/icasadi")
 
     '''
     Creates necessary folders (at build/{project_name})
@@ -46,7 +46,8 @@ class OpEnOptimizerBuilder:
         # Create target directory if it does not exist
         target_dir = self._target_dir()
         if self.build_config.rebuild():
-            shutil.rmtree(target_dir)
+            if os.path.exists(target_dir) and os.path.isdir(target_dir):
+                shutil.rmtree(target_dir)
             os.makedirs(target_dir)
         else:
             os.makedirs(target_dir, exist_ok=True)
@@ -63,13 +64,13 @@ class OpEnOptimizerBuilder:
     '''
     def _copy_icasadi_to_target(self):
         target_dir = self._target_dir()
-        origin_icasadi_dir = open_root_dir()+"/icasadi"
+        origin_icasadi_dir = open_root_dir()+"/icasadi/"
         target_icasadi_dir = target_dir+"/icasadi"
         os.makedirs(target_icasadi_dir, exist_ok=True)
         shutil.rmtree(target_icasadi_dir)
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,
-                        ignore=shutil.ignore_patterns('*.lock', 'ci','target', 'auto*'))
+                        ignore=shutil.ignore_patterns('*.lock', 'ci*', 'target', 'auto*'))
 
     '''
     Generates the header of icasadi, with all constant definition (icasadi_header.h)
@@ -90,7 +91,6 @@ class OpEnOptimizerBuilder:
     '''
     def _generate_cargo_toml(self):
         target_dir = self._target_dir()
-        print("target dir = " + target_dir)
         file_loader = FileSystemLoader('../templates')
         env = Environment(loader=file_loader)
         template = env.get_template('optimizer_cargo.toml.template')

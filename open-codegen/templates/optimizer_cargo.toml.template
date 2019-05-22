@@ -1,5 +1,5 @@
 [package]
-name = "{{meta.build_name()}}"
+name = "{{meta.optimizer_name()}}"
 version = "{{meta.version()}}"
 license = "{{meta.licence()}}"
 authors = ["{{meta.authors()|join('", "')}}"]

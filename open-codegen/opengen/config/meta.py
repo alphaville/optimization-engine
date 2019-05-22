@@ -1,11 +1,11 @@
 class OptimizerMeta:
 
     def __init__(self,
-                 build_name='MyOptimizer',
+                 optimizer_name='MyOptimizer',
                  version='0.0.0',
                  licence='MIT',
                  authors=['Me', 'You']):
-        self._build_name = build_name
+        self._optimizer_name = optimizer_name
         self._version = version
         self._licence = licence
         self._authors = authors
@@ -18,16 +18,16 @@ class OptimizerMeta:
         self._authors = authors
         return self
 
-    def with_build_name(self, build_name):
-        self._build_name = build_name
+    def with_optimizer_name(self, build_name):
+        self._optimizer_name = build_name
         return self
 
     def with_licence(self, licence):
         self._licence = licence
         return self
 
-    def build_name(self):
-        return self._build_name
+    def optimizer_name(self):
+        return self._optimizer_name
 
     def version(self):
         return self._version
