@@ -79,9 +79,7 @@ class OpEnOptimizerBuilder:
         file_loader = FileSystemLoader('../templates')
         env = Environment(loader=file_loader)
         template = env.get_template('icasadi_config.h.template')
-        output_template = template.render(nu=self.problem.dim_decision_variables(),
-                                          np=self.problem.dim_parameters(),
-                                          ncp=self.problem.dim_constraints_penalty(),
+        output_template = template.render(problem=self.problem,
                                           build_config=self.build_config)
         with open(self._icasadi_target_dir()+"/extern/icasadi_config.h", "w") as fh:
             fh.write(output_template)
@@ -135,6 +133,15 @@ class OpEnOptimizerBuilder:
         shutil.move(grad_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_grad.c")
         shutil.move(constraints_penalty_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_contstraints_penalty.c")
 
+    def _build_icasadi(self):
+        icasadi_dir = self._icasadi_target_dir()
+        command = ['cargo', 'build']
+        if self.build_config.build_mode().lower() == 'release':
+            command.append('--release')
+            print(command)
+        p = subprocess.Popen(command, cwd=icasadi_dir)
+        p.wait()
+
     '''
     Generate code and build project
     '''
@@ -144,4 +151,4 @@ class OpEnOptimizerBuilder:
         self._generate_cargo_toml()      # generate Cargo.toml using tempalte
         self._generate_icasadi_header()  # generate icasadi_config.h
         self._generate_casadi_code()     # generate all necessary CasADi C files
-
+        self._build_icasadi()             # build icasadi

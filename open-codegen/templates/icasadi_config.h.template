@@ -9,13 +9,13 @@
 /* Global constant definitions */
 
 /* Number of decision variables */
-#define CASADI_NU {{nu}}
+#define CASADI_NU {{problem.dim_decision_variables()}}
 
 /* Number of parameters */
-#define CASADI_NP {{np}}
+#define CASADI_NP {{problem.dim_parameters()}}
 
 /* Number of constraints to be treated using the penalty method */
-#define CASADI_NUM_CONSTAINTS_TYPE_PENALTY {{ncp or 0}}
+#define CASADI_NUM_CONSTAINTS_TYPE_PENALTY {{problem.dim_constraints_penalty() or 0}}
 
 /* Name of cost function */
 #define CASADI_COST_NAME {{build_config.cost_function_name()}}
