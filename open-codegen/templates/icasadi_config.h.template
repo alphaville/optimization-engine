@@ -18,12 +18,12 @@
 #define CASADI_NUM_CONSTAINTS_TYPE_PENALTY {{ncp or 0}}
 
 /* Name of cost function */
-#define CASADI_COST_NAME {{build_config.cost_function_name}}
+#define CASADI_COST_NAME {{build_config.cost_function_name()}}
 
 /* Name of the gradient of the cost function */
-#define CASADI_GRAD_NAME {{build_config.grad_cost_function_name}}
+#define CASADI_GRAD_NAME {{build_config.grad_function_name()}}
 
 /* Name of c(x) -- constraints as penalties */
-#define CASADI_CONSTRAINTS_AS_PENALTY_NAME constraints_as_penalty
+#define CASADI_CONSTRAINTS_AS_PENALTY_NAME {{build_config.constraint_penalty_function_name()}}
 
 #endif
