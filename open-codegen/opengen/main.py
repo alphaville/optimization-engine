@@ -32,8 +32,9 @@ builder = OpEnOptimizerBuilder(problem, meta, build_config, solver_config)
 
 builder._prepare_target_project()
 builder._generate_cargo_toml()
+builder._copy_icasadi_to_target()
 
 print(meta.authors)
-print("root = " + open_root_dir())
+print("root = " + open_codegen_root_dir())
 print("build dir = " + default_build_dir())
 print(build_config.build_path)
