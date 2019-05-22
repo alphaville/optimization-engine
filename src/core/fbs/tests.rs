@@ -59,7 +59,7 @@ fn t_fbs_step_no_constraints() {
 
 #[test]
 fn t_fbs_step_ball_constraints() {
-    let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
+    let no_constraints = constraints::Ball2::new(None, 0.1);
     let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
@@ -82,7 +82,7 @@ fn t_fbs_step_ball_constraints() {
 #[test]
 fn t_solve_fbs() {
     let radius = 0.2;
-    let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
+    let box_constraints = constraints::Ball2::new(None, radius);
     let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
@@ -112,7 +112,7 @@ fn t_solve_fbs_many_times() {
 
     for _i in 1..10 {
         // Every time NMPC is executed, the constraints may change
-        let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
+        let box_constraints = constraints::Ball2::new(None, 0.2);
 
         // The problem is surely update at every execution of NMPC
         let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);

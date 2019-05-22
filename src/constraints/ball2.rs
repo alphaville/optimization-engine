@@ -1,40 +1,26 @@
 use super::Constraint;
 
 /// A Eucledian ball
-pub struct Ball2 {
-    centre: Option<Vec<f64>>,
+pub struct Ball2<'a> {
+    center: Option<&'a [f64]>,
     radius: f64,
 }
 
-impl Ball2 {
-    ///
-    /// Construct a new ball centered at the origin with given radius
-    pub fn new_at_origin_with_radius(radius_: f64) -> Ball2 {
-        assert!(radius_ > 0.0);
+impl<'a> Ball2<'a> {
+    /// Construct a new Eucledian ball with given center and radius
+    /// If no `center` is given, then it is assumed to be in the origin
+    pub fn new(center: Option<&'a [f64]>, radius: f64) -> Ball2<'a> {
+        assert!(radius > 0.0);
 
-        Ball2 {
-            centre: None,
-            radius: radius_,
-        }
-    }
-
-    ///
-    /// Construct a new Eucledian ball with given centre and radius
-    pub fn new(centre_: Vec<f64>, radius_: f64) -> Ball2 {
-        assert!(radius_ > 0.0);
-
-        Ball2 {
-            centre: Some(centre_),
-            radius: radius_,
-        }
+        Ball2 { center, radius }
     }
 }
 
-impl Constraint for Ball2 {
+impl<'a> Constraint for Ball2<'a> {
     fn project(&self, x: &mut [f64]) {
-        if let Some(centre) = &self.centre {
+        if let Some(center) = &self.center {
             let mut norm_difference = 0.0;
-            x.iter().zip(centre.iter()).for_each(|(a, b)| {
+            x.iter().zip(center.iter()).for_each(|(a, b)| {
                 let diff_ = *a - *b;
                 norm_difference += diff_ * diff_
             });
@@ -42,7 +28,7 @@ impl Constraint for Ball2 {
             norm_difference = norm_difference.sqrt();
 
             if norm_difference > self.radius {
-                x.iter_mut().zip(centre.iter()).for_each(|(x, c)| {
+                x.iter_mut().zip(center.iter()).for_each(|(x, c)| {
                     *x = *c + (*x - *c) / norm_difference;
                 });
             }

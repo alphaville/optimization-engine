@@ -4,7 +4,7 @@ use std::num::NonZeroUsize;
 #[test]
 fn t_access() {
     let radius = 0.2;
-    let box_constraints = Ball2::new_at_origin_with_radius(radius);
+    let box_constraints = Ball2::new(None, radius);
     let problem = Problem::new(
         box_constraints,
         super::mocks::my_gradient,

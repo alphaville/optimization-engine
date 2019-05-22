@@ -19,6 +19,7 @@ classdef OpEnOptimizerBuilder < handle
         sx_p;
         cost;
         constraints;
+        constraints_as_penalties;
     end
     
     methods
@@ -95,6 +96,10 @@ classdef OpEnOptimizerBuilder < handle
         
         function o = with_fpr_tolerance(o, fpr_tol)
             o.solver.tolerance = fpr_tol;
+        end
+        
+        function o = with_constraints_as_penalties(o, constraints_as_penalties)
+            o.constraints_as_penalties = constraints_as_penalties;
         end
         
         function o = with_problem(o, u, p, cost, constraints)

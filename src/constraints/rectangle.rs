@@ -5,42 +5,21 @@ use super::Constraint;
 ///
 /// A set of the form `{x : xmin <= x <= xmax}`, where `<=` is meant in the
 /// element-wise sense and either of `xmin` and `xmax` can be equal to infinity.
-pub struct Rectangle {
-    xmin: Option<Vec<f64>>,
-    xmax: Option<Vec<f64>>,
+pub struct Rectangle<'a> {
+    xmin: Option<&'a [f64]>,
+    xmax: Option<&'a [f64]>,
 }
 
-impl Rectangle {
+impl<'a> Rectangle<'a> {
     /// Construct a new rectangle with given `xmin` and `xmax`
-    pub fn new(xmin_: Vec<f64>, xmax_: Vec<f64>) -> Rectangle {
-        Rectangle {
-            xmin: Some(xmin_),
-            xmax: Some(xmax_),
-        }
-    }
+    pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
+        assert!(xmin != None || xmax != None); // xmin or xmax must be Some
 
-    /// Construct a new rectangle with given `xmin` and no `xmax`
-    ///
-    /// Essentially, this is a halfspace
-    pub fn new_only_xmin(xmin_: Vec<f64>) -> Rectangle {
-        Rectangle {
-            xmin: Some(xmin_),
-            xmax: None,
-        }
-    }
-
-    /// Construct a new rectangle with given `xmax` and no `xmin`
-    ///
-    /// Essentially, this is a halfspace
-    pub fn new_only_xmax(xmax_: Vec<f64>) -> Rectangle {
-        Rectangle {
-            xmin: None,
-            xmax: Some(xmax_),
-        }
+        Rectangle { xmin, xmax }
     }
 }
 
-impl Constraint for Rectangle {
+impl<'a> Constraint for Rectangle<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(xmin) = &self.xmin {
             x.iter_mut().zip(xmin.iter()).for_each(|(x_, xmin_)| {

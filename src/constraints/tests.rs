@@ -4,7 +4,7 @@ use super::*;
 fn t_rectangle_closed() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
-    let rectangle = Rectangle::new(xmin, xmax);
+    let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [1.0, 2.0, 3.0, 4.0, 5.0];
 
     rectangle.project(&mut x);
@@ -15,7 +15,7 @@ fn t_rectangle_closed() {
 #[test]
 fn t_rectangle_only_xmin() {
     let xmin = vec![2.0; 5];
-    let rectangle = Rectangle::new_only_xmin(xmin);
+    let rectangle = Rectangle::new(Some(&xmin[..]), None);
     let mut x = [1.0, 2.0, 3.0, 4.0, 5.0];
 
     rectangle.project(&mut x);
@@ -27,7 +27,7 @@ fn t_rectangle_only_xmin() {
 fn t_ball_at_origin() {
     let radius = 1.0;
     let mut x = [1.0, 1.0];
-    let ball = Ball2::new_at_origin_with_radius(radius);
+    let ball = Ball2::new(None, radius);
 
     ball.project(&mut x);
 
@@ -37,9 +37,9 @@ fn t_ball_at_origin() {
 #[test]
 fn t_ball_elsewhere() {
     let radius = 1.0;
-    let centre = [1.0, 1.0];
+    let center = [1.0, 1.0];
     let mut x = [2.0, 2.0];
-    let ball = Ball2::new(centre.to_vec(), radius);
+    let ball = Ball2::new(Some(&center[..]), radius);
 
     ball.project(&mut x);
 

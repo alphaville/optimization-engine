@@ -345,6 +345,7 @@ where
     /// a gradient step and a half step (projected gradient step)
     ///
     fn init(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+        self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
@@ -451,7 +452,7 @@ mod tests {
     fn t_half_step() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
-        let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
+        let bounds = constraints::Ball2::new(None, 0.5);
         let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
@@ -516,7 +517,7 @@ mod tests {
     fn t_compute_rhs_ls() {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
-        let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
+        let bounds = constraints::Ball2::new(None, 0.5);
         let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
