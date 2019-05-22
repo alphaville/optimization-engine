@@ -1,7 +1,11 @@
 class OptimizerMeta:
 
-    def __init__(self):
-        self.build_name = 'MyOptimizer'
-        self.version = '0.0.0'
-        self.license = 'MIT'
-        self.authors = ['Me', 'You']
+    def __init__(self,
+                 build_name='MyOptimizer',
+                 version='0.0.0',
+                 licence='MIT',
+                 authors=['Me']):
+        self.build_name = build_name
+        self.version = version
+        self.licence = licence
+        self.authors = authors

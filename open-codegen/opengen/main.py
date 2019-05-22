@@ -1,6 +1,8 @@
 from jinja2 import Environment, FileSystemLoader
-from opengen.config import *
 from opengen.builder import *
+from casadi import *
+from opengen.definitions import *
+
 
 # ---- Generate code using template (exercise)-------
 file_loader = FileSystemLoader('../templates')
@@ -11,19 +13,32 @@ with open("../templates/output.rs", "w") as fh:
     fh.write(output_template)
 # ---------------------------------------------------
 
+# ---Playing with CasADi in Python--------------------
+def rosenbrock(u_, p_):
+    if not isinstance(p_, SX) or p_.size()[0] != 2:
+        raise Exception('illegal parameter p_ (must be SX of size (2,1))')
+    if not isinstance(u_, SX):
+        raise Exception('illegal parameter u_ (must be SX)')
+    nu = u_.size()[0]
+    a = p_[0]
+    b = p_[1]
+    ros_fun = 0
+    for i in range(nu-1):
+        ros_fun += b*(u_[i+1]-u_[i]**2)**2 + (a-u_[i])**2
+    return ros_fun
 
+
+u = SX.sym("u", 5)
+p = SX.sym("p", 2)
+phi = rosenbrock(u,p)
+
+problem = Problem(u, p, phi)
 meta = OptimizerMeta()
 build_config = BuildConfiguration()
 solver_config = SolverConfiguration()
 
-builder = OpEnOptimizerBuilder(meta, build_config, solver_config)
 
-print(meta.build_name)
-print(builder.solver_config.lbfgs_memory)
+builder = OpEnOptimizerBuilder(problem, meta, build_config, solver_config)
+builder._generate_icasadi_header()
 
-
-# ---Playing with CasADi in Python--------------------
-from casadi import *
-u = SX.sym("u", 5)
-p = SX.sym("p", 2)
-phi = u[0].sqrt()
+print("root = " + open_root_dir())

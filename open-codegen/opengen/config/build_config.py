@@ -5,4 +5,3 @@ class BuildConfiguration:
         self.build_mode = 'release'
         self.build_path = None
         self.casadi_path = None
-
