@@ -13,8 +13,19 @@ const NCP: usize = {{problem.dim_constraints_penalty()}};
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
 {% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
 const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
+{%- endif -%}
+{%- if 'Rectangle' == problem.constraints().__class__.__name__ -%}
+    {%- if problem.constraints().xmin is not none -%}
+const XMIN :Option<&[f64]> = Some(&[{{problem.constraints().xmin|join(', ')}}]);
+    {%- else -%}
+const XMIN :Option<&[f64]> = None;
+    {%- endif -%}
+    {% if problem.constraints().xmax is not none %}
+const XMAX :Option<&[f64]> = Some(&[{{problem.constraints().xmax|join(', ')}}]);
+    {%- else -%}
+const XMAX :Option<&[f64]> = None;
+    {% endif %}
 {%- endif %}
-
 
 
 pub fn initialize_solver() -> PANOCCache {
@@ -41,17 +52,19 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
 		}
 	};
 
-    //TODO: inject proper constraints
+    //Constraints...
 {%- if problem.constraints() is none -%}
 	let bounds = NoConstraints::new();
-{%- endif -%}
-
+{%- endif %}
 {%- if 'Ball2' == problem.constraints().__class__.__name__ -%}
   {% if problem.constraints().center() is none %}
 	let bounds = Ball2::new(None, {{problem.constraints().radius()}});
   {% else %}
 	let bounds = Ball2::new(Some(&XC), {{problem.constraints().radius()}});
   {% endif %}
+{%- endif %}
+{%- if 'Rectangle' == problem.constraints().__class__.__name__ %}
+    let bounds = Rectangle::new(XMIN, XMAX);
 {%- endif %}
 
 	let problem = Problem::new(bounds, df, f);
