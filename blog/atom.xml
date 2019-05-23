@@ -2,12 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-03-21T06:00:00Z</updated>
+    <updated>2019-05-23T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
     <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
+    <entry>
+        <title type="html"><![CDATA[One shot two hares]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html">
+        </link>
+        <updated>2019-05-23T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Hi there! Soon OpEn will support the <a href="https://github.com/alphaville/optimization-engine/issues/6">penalty method</a> and will be able to accommodate general constraints of the form <code>c_i(x) = 0</code> and <code>c_i(x) &lt;= 0</code>.</p> <p>The penalty method is in fact implemented in the more general context of the homotopy method.</p> <p>At the sa...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Faster UDP connection]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</id>
