@@ -9,6 +9,10 @@ fn main() {
 
     // Sanity checks to get better error messages
     assert!(
+        Path::new("extern/auto_casadi_constraints_type_penalty.c").exists(),
+        "extern/auto_casadi_cost.c is missing"
+    );
+    assert!(
         Path::new("extern/auto_casadi_cost.c").exists(),
         "extern/auto_casadi_cost.c is missing"
     );
