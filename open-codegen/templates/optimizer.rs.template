@@ -53,19 +53,17 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
 	};
 
     //Constraints...
-{%- if problem.constraints() is none -%}
-	let bounds = NoConstraints::new();
-{%- endif %}
-{%- if 'Ball2' == problem.constraints().__class__.__name__ -%}
-  {% if problem.constraints().center() is none %}
+{% if problem.constraints() is none %}
+    let bounds = NoConstraints::new();
+{% elif 'Ball2' == problem.constraints().__class__.__name__ %}
+  {% if problem.constraints().center() is none -%}
 	let bounds = Ball2::new(None, {{problem.constraints().radius()}});
-  {% else %}
+  {% else -%}
 	let bounds = Ball2::new(Some(&XC), {{problem.constraints().radius()}});
   {% endif %}
-{%- endif %}
-{%- if 'Rectangle' == problem.constraints().__class__.__name__ %}
+{% elif 'Rectangle' == problem.constraints().__class__.__name__ %}
     let bounds = Rectangle::new(XMIN, XMAX);
-{%- endif %}
+{% endif %}
 
 	let problem = Problem::new(bounds, df, f);
     let mut panoc = PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERS);

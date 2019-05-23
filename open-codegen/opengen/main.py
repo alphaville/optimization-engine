@@ -16,12 +16,12 @@ c = vertcat(norm_2(u) - 1.,
 
 
 # Problem statement
-#xc = [1.0, 2.0, 3.0, 4.0, 5.0]
-#bounds = Ball2(xc, 1.5)
+xc = [1.0, 2.0, 3.0, 4.0, 5.0]
+bounds = Ball2(xc, 1.5)
 #xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
-xmin = None
-xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
-bounds = Rectangle(xmin, xmax)
+#xmin = None
+#xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
+#bounds = Rectangle(xmin, xmax)
 
 problem = Problem(u, p, phi) \
     .with_penalty_constraints(c) \
