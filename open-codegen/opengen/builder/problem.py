@@ -18,13 +18,20 @@ class Problem:
         self._u_constraints = u_constraints
         return self
 
-    '''
-    Specify the constraints to be treated with the penalty method (that is,
-    function c(u; p)) and the penalty function, g. If no penalty function 
-    is specified, the quadratic penalty will be used. 
-    '''
-
     def with_penalty_constraints(self, penalty_constraints, penalty_function=None):
+        """Constraints to for the penalty method
+
+        Specify the constraints to be treated with the penalty method (that is,
+        function c(u; p)) and the penalty function, g. If no penalty function
+        is specified, the quadratic penalty will be used.
+
+        Parameters:
+            penalty_constraints:
+            penalty_function:
+
+        Returns:
+            self
+        """
         self._penalty_constraints = penalty_constraints
         if penalty_function is None:
             # default penalty function: quadratic

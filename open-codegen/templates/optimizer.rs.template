@@ -1,3 +1,5 @@
+#![allow(unused_attributes,dead_code,unused_imports)]
+
 extern crate optimization_engine;
 
 use icasadi;
@@ -13,18 +15,17 @@ const NCP: usize = {{problem.dim_constraints_penalty()}};
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
 {% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
 const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
-{%- endif -%}
-{%- if 'Rectangle' == problem.constraints().__class__.__name__ -%}
-    {%- if problem.constraints().xmin is not none -%}
+{%- elif 'Rectangle' == problem.constraints().__class__.__name__ -%}
+{%- if problem.constraints().xmin is not none -%}
 const XMIN :Option<&[f64]> = Some(&[{{problem.constraints().xmin|join(', ')}}]);
-    {%- else -%}
+{%- else -%}
 const XMIN :Option<&[f64]> = None;
-    {%- endif -%}
-    {% if problem.constraints().xmax is not none %}
+{%- endif -%}
+{% if problem.constraints().xmax is not none %}
 const XMAX :Option<&[f64]> = Some(&[{{problem.constraints().xmax|join(', ')}}]);
-    {%- else -%}
+{%- else -%}
 const XMAX :Option<&[f64]> = None;
-    {% endif %}
+{% endif %}
 {%- endif %}
 
 
@@ -53,17 +54,17 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
 	};
 
     //Constraints...
-{% if problem.constraints() is none %}
+{%- if problem.constraints() is none %}
     let bounds = NoConstraints::new();
-{% elif 'Ball2' == problem.constraints().__class__.__name__ %}
-  {% if problem.constraints().center() is none -%}
+{%- elif 'Ball2' == problem.constraints().__class__.__name__ %}
+{%- if problem.constraints().center() is none %}
 	let bounds = Ball2::new(None, {{problem.constraints().radius()}});
-  {% else -%}
+{%- else %}
 	let bounds = Ball2::new(Some(&XC), {{problem.constraints().radius()}});
-  {% endif %}
-{% elif 'Rectangle' == problem.constraints().__class__.__name__ %}
+{%- endif %}
+{%- elif 'Rectangle' == problem.constraints().__class__.__name__ %}
     let bounds = Rectangle::new(XMIN, XMAX);
-{% endif %}
+{%- endif %}
 
 	let problem = Problem::new(bounds, df, f);
     let mut panoc = PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERS);

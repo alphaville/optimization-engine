@@ -4,24 +4,20 @@ from opengen import *
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
 
-
 # cost function
 phi = rosenbrock(u, p)
-
 
 # c(u; p)
 c = vertcat(norm_2(u) - 1.,
             u[0] + p[0] * u[1] - 3.,
             (p[0] + p[1]) * (u[0] + u[1]) - 2.)
 
-
 # Problem statement
-xc = [1.0, 2.0, 3.0, 4.0, 5.0]
-bounds = Ball2(xc, 1.5)
-#xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
-#xmin = None
-#xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
+xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
+xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
 #bounds = Rectangle(xmin, xmax)
+#bounds = Ball2(None, 1.5)
+bounds = None
 
 problem = Problem(u, p, phi) \
     .with_penalty_constraints(c) \
@@ -49,7 +45,7 @@ solver_config = SolverConfiguration() \
 builder = OpEnOptimizerBuilder(problem,
                                meta=meta,
                                build_config=build_config,
-                               solver_config=solver_config). \
-    with_generate_not_build_flag(True)
+                               solver_config=solver_config) \
+    .with_generate_not_build_flag(True)
 
 builder.build()
