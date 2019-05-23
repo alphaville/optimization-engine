@@ -9,6 +9,7 @@ use crate::{
 };
 
 pub struct HomotopyOptimizer<
+    'cache_lifetime,
     ParametricPenaltyFunctionType,
     ParametricGradientType,
     ConstraintType,
@@ -25,11 +26,18 @@ pub struct HomotopyOptimizer<
         ConstraintType,
         ParametricCostType,
     >,
-    panoc_cache: panoc::PANOCCache,
+    panoc_cache: &'cache_lifetime mut panoc::PANOCCache,
 }
 
-impl<ParametricPenaltyFunctionType, ParametricGradientType, ConstraintType, ParametricCostType>
+impl<
+        'cache_lifetime,
+        ParametricPenaltyFunctionType,
+        ParametricGradientType,
+        ConstraintType,
+        ParametricCostType,
+    >
     HomotopyOptimizer<
+        'cache_lifetime,
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
@@ -48,7 +56,7 @@ where
             ConstraintType,
             ParametricCostType,
         >,
-        panoc_cache: panoc::PANOCCache,
+        panoc_cache: &'cache_lifetime mut panoc::PANOCCache,
     ) -> HomotopyOptimizer<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
@@ -61,15 +69,19 @@ where
         }
     }
 
-    pub fn solve(&mut self, u: &mut [f64]) {
+    pub fn solve(&'cache_lifetime mut self, u: &mut [f64]) {
         let p_ = [1., 2., 3.];
+
         let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
             (self.homotopy_problem.parametric_cost)(u, &p_, cost)
         };
         let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
             (self.homotopy_problem.parametric_gradient)(u, &p_, grad)
         };
-        let prob = crate::core::Problem::new(&self.homotopy_problem.constraints, df_, f_);
-        
+        let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
+
+        let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
+        panoc_.solve(u);
+        println!("u = {:#?}", u);
     }
 }

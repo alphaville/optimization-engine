@@ -54,24 +54,10 @@ mod tests {
         homotopy_problem.add_continuation(2, 1., std::f64::INFINITY, 0);
 
         let mut homotopy_optimizer =
-            continuation::HomotopyOptimizer::new(homotopy_problem, panoc_cache);
+            continuation::HomotopyOptimizer::new(homotopy_problem, &mut panoc_cache);
 
-        let mut u_: [f64; 2] = [0.0, 0.0];
-
-        
-
-        // for _i in 1..10 {
-        //     let p_ = [1., 2., 3.];
-        //     let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> { f(u, &p_, cost) };
-        //     let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> { df(u, &p_, grad) };
-
-        //     {
-        //         let problem_ = Problem::new(homotopy_problem.constraints, df_, f_);
-        //         let mut panoc = PANOCOptimizer::new(problem_, &mut panoc_cache);
-        //         panoc.solve(&mut u_);
-        //         println!("u = {:?}", u_);
-        //     }
-        // }
+        let mut u_: [f64; 2] = [1.0, 1.0];
+        homotopy_optimizer.solve(&mut u_);
 
         Ok(())
     }

@@ -42,7 +42,7 @@ fn main() {
     let bounds = Ball2::new(None, radius);
 
     /* PROBLEM STATEMENT */
-    let problem = Problem::new(bounds, df, f);
+    let problem = Problem::new(&bounds, df, f);
     let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
     let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
