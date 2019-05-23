@@ -45,7 +45,7 @@ mod tests {
             Ok(())
         };
 
-        let bounds = Ball2::new(None, 2.0);
+        let bounds = Ball2::new(None, 10.0);
 
         let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
 

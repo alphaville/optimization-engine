@@ -70,13 +70,14 @@ where
     }
 
     pub fn solve(&'cache_lifetime mut self, u: &mut [f64]) {
-        let p_ = [1., 2., 3.];
+        let p_ = [10., 20., 3.];
 
+        let problem = &self.homotopy_problem;
         let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
-            (self.homotopy_problem.parametric_cost)(u, &p_, cost)
+            (problem.parametric_cost)(u, &p_, cost)
         };
         let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-            (self.homotopy_problem.parametric_gradient)(u, &p_, grad)
+            (problem.parametric_gradient)(u, &p_, grad)
         };
         let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
 
