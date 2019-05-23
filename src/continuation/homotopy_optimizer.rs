@@ -1,27 +1,60 @@
-use crate::{constraints, core::panoc, Error};
+use crate::{
+    constraints,
+    core::{panoc, Optimizer},
+    Error,
+};
 
-pub struct HomotopyOptimizer<'a, GradientType, ConstraintType, CostType>
-where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+pub struct HomotopyOptimizer<
+    ParametricPenaltyFunctionType,
+    ParametricGradientType,
+    ConstraintType,
+    ParametricCostType,
+> where
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    panoc: &'a mut panoc::PANOCOptimizer<'a, GradientType, ConstraintType, CostType>,
+    penalty_function: ParametricPenaltyFunctionType,
+    parametric_gradient: ParametricGradientType,
+    parametric_cost: ParametricCostType,
+    constraints: ConstraintType,
 }
 
-impl<'a, GradientType, ConstraintType, CostType>
-    HomotopyOptimizer<'a, GradientType, ConstraintType, CostType>
+impl<ParametricPenaltyFunctionType, ParametricGradientType, ConstraintType, ParametricCostType>
+    HomotopyOptimizer<
+        ParametricPenaltyFunctionType,
+        ParametricGradientType,
+        ConstraintType,
+        ParametricCostType,
+    >
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        panoc: &'a mut panoc::PANOCOptimizer<'a, GradientType, ConstraintType, CostType>,
-    ) -> HomotopyOptimizer<'a, GradientType, ConstraintType, CostType> {
-        HomotopyOptimizer { panoc: panoc }
+        penalty_function: ParametricPenaltyFunctionType,
+        parametric_gradient: ParametricGradientType,
+        parametric_cost: ParametricCostType,
+        constraints: ConstraintType,
+    ) -> HomotopyOptimizer<
+        ParametricPenaltyFunctionType,
+        ParametricGradientType,
+        ConstraintType,
+        ParametricCostType,
+    > {
+        HomotopyOptimizer {
+            penalty_function: penalty_function,
+            parametric_gradient: parametric_gradient,
+            parametric_cost: parametric_cost,
+            constraints: constraints,
+        }
     }
 }
+
+// Note: PenaltyFunction: c(u, params, result) -> Result.
 
 /* --------------------------------------------------------------------------------------------- */
 /*       TESTS                                                                                   */
@@ -29,42 +62,36 @@ where
 #[cfg(test)]
 mod tests {
 
-    use crate::continuation::*;
+    use crate::continuation;
+    use crate::core::constraints::Ball2;
     use crate::core::panoc::*;
     use crate::core::*;
     use crate::{mocks, Error};
     use std::num::NonZeroUsize;
 
     #[test]
-    fn t_homotopy_basic() {
+    fn t_homotopy_basic() -> Result<(), Error> {
         /* USER PARAMETERS */
-        let tolerance = 1e-6;
-        let a = 1.0;
-        let b = 200.0;
-        let n = 2;
-        let lbfgs_memory = 8;
-        let max_iters = 80;
-        let mut u = [-1.5, 0.9];
+        let df = |u: &[f64], p: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+            mocks::rosenbrock_grad(p[0], p[1], u, grad);
+            Ok(())
+        };
 
-        /* COST FUNCTION */
-        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-            mocks::rosenbrock_grad(a, b, u, grad);
+        let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), Error> {
+            *cost = mocks::rosenbrock_cost(p[0], p[1], u);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-            *c = mocks::rosenbrock_cost(a, b, u);
+
+        let cp = |u: &[f64], p: &[f64], constraints: &mut [f64]| -> Result<(), Error> {
+            constraints[0] = 0.0;
             Ok(())
         };
-        /* CONSTRAINTS */
-        let radius = 2.0;
-        let bounds = constraints::Ball2::new(None, radius);
-        let mut panoc_cache = PANOCCache::new(
-            NonZeroUsize::new(n).unwrap(),
-            tolerance,
-            NonZeroUsize::new(lbfgs_memory).unwrap(),
-        );
-        let problem = Problem::new(bounds, df, f);
-        let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
-        let homotopy_optimizer = homotopy_optimizer::HomotopyOptimizer::new(&mut panoc);
+
+        let bounds = Ball2::new(None, 2.0);
+
+        let homotopy_optimizer = continuation::HomotopyOptimizer::new(cp, df, f, bounds);
+
+        Ok(())
     }
+
 }
