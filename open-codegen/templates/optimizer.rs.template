@@ -1,7 +1,6 @@
 extern crate optimization_engine;
 
 use icasadi;
-use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize, slice, time};
 
@@ -12,22 +11,53 @@ const NU: usize = {{problem.dim_decision_variables()}};
 const NP: usize = {{problem.dim_parameters()}};
 const NCP: usize = {{problem.dim_constraints_penalty()}};
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+{% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
+const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
+{%- endif %}
 
-/* TODO! This is work in progress! */
 
-pub struct PanocInstance {
-    cache: panoc::PANOCCache,
-    max_iterations: usize,
-    max_solve_time: Option<time::Duration>,
+
+pub fn initialize_solver() -> PANOCCache {
+    let problem_size = NonZeroUsize::new(NU).unwrap();
+    let lbfgs_memory_size = NonZeroUsize::new(LBFGS_MEMORY).unwrap();
+    let panoc_cache = PANOCCache::new(problem_size, TOLERANCE, lbfgs_memory_size);
+
+    panoc_cache
 }
 
 
-fn initialize_solver() -> Result<PanocInstance, Error> {
-    Ok(())
-}
+pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
 
-fn solve(instance: *mut PanocInstance,
-    u: *mut c_double,
-    params: *const c_double) -> SolverStatus {
+	let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+		icasadi::icasadi_grad(u, &p, grad);
+		Ok(())
+	};
+
+	let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
+		if icasadi::icasadi_cost(u, &p, c) == 0 {
+		    Ok(())
+		} else {
+		    Err(Error::Cost)
+		}
+	};
+
+    //TODO: inject proper constraints
+{%- if problem.constraints() is none -%}
+	let bounds = NoConstraints::new();
+{%- endif -%}
+
+{%- if 'Ball2' == problem.constraints().__class__.__name__ -%}
+  {% if problem.constraints().center() is none %}
+	let bounds = Ball2::new(None, {{problem.constraints().radius()}});
+  {% else %}
+	let bounds = Ball2::new(Some(&XC), {{problem.constraints().radius()}});
+  {% endif %}
+{%- endif %}
+
+	let problem = Problem::new(bounds, df, f);
+    let mut panoc = PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERS);
+    let status = panoc.solve(u);
+
+	status
 
 }

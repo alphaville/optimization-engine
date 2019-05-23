@@ -1,11 +1,10 @@
-from opengen.config.meta import *
-from opengen.config.build_config import *
-from opengen.config.solver_config import *
-from jinja2 import Environment, FileSystemLoader
 import subprocess
 import shutil
-from casadi import *
 import datetime
+
+from opengen.config import *
+from jinja2 import Environment, FileSystemLoader
+from casadi import *
 
 
 class OpEnOptimizerBuilder:
@@ -15,29 +14,47 @@ class OpEnOptimizerBuilder:
                  meta=OptimizerMeta(),
                  build_config=BuildConfiguration(),
                  solver_config=SolverConfiguration()):
-        self.problem = problem
-        self.meta = meta
-        self.build_config = build_config
-        self.solver_config = solver_config
+        self._problem = problem
+        self._meta = meta
+        self._build_config = build_config
+        self._solver_config = solver_config
+        self._generate_not_build = False
 
     '''
     Specify problem
     '''
     def with_problem(self, problem):
-        self.problem = problem
+        self._problem = problem
         return self
+
+    def with_generate_not_build_flag(self, flag):
+        self._generate_not_build = flag
+        return self
+
+    def _make_build_command(self):
+        command = ['cargo', 'build']
+        if self._build_config.build_mode().lower() == 'release':
+            command.append('--release')
+        return command
 
     '''
     target directory
     '''
     def _target_dir(self):
-        return os.path.abspath(default_build_dir() + "/" + self.meta.optimizer_name())
+        return os.path.abspath(
+            default_build_dir()
+            + "/"
+            + self._meta.optimizer_name())
 
     '''
     icasadi target directory
     '''
     def _icasadi_target_dir(self):
-        return os.path.abspath(default_build_dir() + "/" + self.meta.optimizer_name() + "/icasadi")
+        return os.path.abspath(
+            default_build_dir()
+            + "/"
+            + self._meta.optimizer_name()
+            + "/icasadi")
 
     '''
     Creates necessary folders (at build/{project_name})
@@ -46,7 +63,7 @@ class OpEnOptimizerBuilder:
     def _prepare_target_project(self):
         # Create target directory if it does not exist
         target_dir = self._target_dir()
-        if self.build_config.rebuild():
+        if self._build_config.rebuild():
             if os.path.exists(target_dir) and os.path.isdir(target_dir):
                 shutil.rmtree(target_dir)
             os.makedirs(target_dir)
@@ -71,7 +88,8 @@ class OpEnOptimizerBuilder:
         shutil.rmtree(target_icasadi_dir)
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,
-                        ignore=shutil.ignore_patterns('*.lock', 'ci*', 'target', 'auto*'))
+                        ignore=shutil.ignore_patterns(
+                            '*.lock', 'ci*', 'target', 'auto*'))
 
     '''
     Generates the header of icasadi, with all constant definition (icasadi_header.h)
@@ -80,8 +98,8 @@ class OpEnOptimizerBuilder:
         file_loader = FileSystemLoader('../templates')
         env = Environment(loader=file_loader)
         template = env.get_template('icasadi_config.h.template')
-        output_template = template.render(problem=self.problem,
-                                          build_config=self.build_config,
+        output_template = template.render(problem=self._problem,
+                                          build_config=self._build_config,
                                           timestamp_created=datetime.datetime.utcnow())
         with open(self._icasadi_target_dir()+"/extern/icasadi_config.h", "w") as fh:
             fh.write(output_template)
@@ -94,7 +112,7 @@ class OpEnOptimizerBuilder:
         file_loader = FileSystemLoader('../templates')
         env = Environment(loader=file_loader)
         template = env.get_template('optimizer_cargo.toml.template')
-        output_template = template.render(meta=self.meta)
+        output_template = template.render(meta=self._meta)
         with open(target_dir + "/Cargo.toml", "w") as fh:
             fh.write(output_template)
 
@@ -102,28 +120,30 @@ class OpEnOptimizerBuilder:
     Generate CasADi code
     '''
     def _generate_casadi_code(self):
-        u = self.problem.decision_variables()
-        p = self.problem.parameter_variables()
-        ncp = self.problem.dim_constraints_penalty()
-        phi = self.problem.cost_function()
-        penalty_function = self.problem.penalty_function()
+        u = self._problem.decision_variables()
+        p = self._problem.parameter_variables()
+        ncp = self._problem.dim_constraints_penalty()
+        phi = self._problem.cost_function()
+        penalty_function = self._problem.penalty_function()
 
         if ncp > 0:
-            mu = SX.sym("mu", self.problem.dim_constraints_penalty())
+            mu = SX.sym("mu", self._problem.dim_constraints_penalty())
             p = vertcat(p, mu)
-            phi += dot(mu, penalty_function(self.problem.penalty_constraints()))
+            phi += dot(mu, penalty_function(self._problem.penalty_constraints()))
 
-        cost_fun = Function(self.build_config.cost_function_name(), [u, p], [phi])
+        cost_fun = Function(self._build_config.cost_function_name(), [u, p], [phi])
 
-        grad_cost_fun = Function(self.build_config.grad_function_name(),
+        grad_cost_fun = Function(self._build_config.grad_function_name(),
                                  [u, p], [jacobian(phi, u)])
 
-        constraint_penalty_fun = Function(self.build_config.constraint_penalty_function_name(),
-                                          [u, p], [self.problem.penalty_constraints()])
+        constraint_penalty_fun = Function(
+            self._build_config.constraint_penalty_function_name(),
+            [u, p], [self._problem.penalty_constraints()])
 
-        cost_file_name = self.build_config.cost_function_name() + ".c"
-        grad_file_name = self.build_config.grad_function_name() + ".c"
-        constraints_penalty_file_name = self.build_config.constraint_penalty_function_name() + ".c"
+        cost_file_name = self._build_config.cost_function_name() + ".c"
+        grad_file_name = self._build_config.grad_function_name() + ".c"
+        constraints_penalty_file_name = \
+            self._build_config.constraint_penalty_function_name() + ".c"
 
         # code generation using CasADi
         cost_fun.generate(cost_file_name)
@@ -131,15 +151,15 @@ class OpEnOptimizerBuilder:
         constraint_penalty_fun.generate(constraints_penalty_file_name)
 
         # Move generated files to target folder
-        shutil.move(cost_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_cost.c" )
-        shutil.move(grad_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_grad.c")
-        shutil.move(constraints_penalty_file_name, self._icasadi_target_dir() + "/extern/auto_casadi_constraints_type_penalty.c")
+        icasadi_extern_dir = self._icasadi_target_dir() + "/extern"
+        shutil.move(cost_file_name, icasadi_extern_dir+ "/auto_casadi_cost.c" )
+        shutil.move(grad_file_name, icasadi_extern_dir+ "/auto_casadi_grad.c")
+        shutil.move(constraints_penalty_file_name,
+                    icasadi_extern_dir + "/auto_casadi_constraints_type_penalty.c")
 
     def _build_icasadi(self):
         icasadi_dir = self._icasadi_target_dir()
-        command = ['cargo', 'build']
-        if self.build_config.build_mode().lower() == 'release':
-            command.append('--release')
+        command = self._make_build_command()
         p = subprocess.Popen(command, cwd=icasadi_dir)
         p.wait()
 
@@ -148,20 +168,28 @@ class OpEnOptimizerBuilder:
         file_loader = FileSystemLoader('../templates')
         env = Environment(loader=file_loader)
         template = env.get_template('optimizer.rs.template')
-        output_template = template.render(solver_config=self.solver_config,
-                                          problem=self.problem)
+        output_template = template.render(solver_config=self._solver_config,
+                                          problem=self._problem)
         with open(target_dir + "/src/lib.rs", "w") as fh:
             fh.write(output_template)
 
+    def _build_optimizer(self):
+        target_dir = self._target_dir()
+        command = self._make_build_command()
+        p = subprocess.Popen(command, cwd=target_dir)
+        p.wait()
 
     '''
     Generate code and build project
     '''
     def build(self):
-        self._prepare_target_project()       # create folders; init cargo project
-        self._copy_icasadi_to_target()       # copy icasadi/ files to target dir
-        self._generate_cargo_toml()          # generate Cargo.toml using tempalte
-        self._generate_icasadi_header()      # generate icasadi_config.h
-        self._generate_casadi_code()         # generate all necessary CasADi C files
-        self._build_icasadi()                # build icasadi
-        self._generate_main_project_code()   # generate main part of code (at build/{name}/src/main.rs)
+        self._prepare_target_project()      # create folders; init cargo project
+        self._copy_icasadi_to_target()      # copy icasadi/ files to target dir
+        self._generate_cargo_toml()         # generate Cargo.toml using tempalte
+        self._generate_icasadi_header()     # generate icasadi_config.h
+        self._generate_casadi_code()        # generate all necessary CasADi C files
+        if not self._generate_not_build:
+            self._build_icasadi()           # build icasadi
+        self._generate_main_project_code()  # generate main part of code (at build/{name}/src/main.rs)
+        if not self._generate_not_build:
+            self._build_optimizer()         # build overall project

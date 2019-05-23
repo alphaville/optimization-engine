@@ -25,3 +25,7 @@ class SolverConfiguration:
     def with_lfbgs_memory(self, lbfgs_memory):
         self._lbfgs_memory = lbfgs_memory
         return self
+
+    def with_max_iterations(self, max_iters):
+        self._max_iterations = max_iters
+        return self

@@ -16,23 +16,35 @@ c = vertcat(norm_2(u) - 1.,
 
 
 # Problem statement
+xc = [1.0, 2.0, 3.0, 4.0, 5.0]
+bounds = Ball2(xc, 1.5)
 problem = Problem(u, p, phi) \
-    .with_penalty_constraints(c)
+    .with_penalty_constraints(c) \
+    .with_constraints(bounds)
 
 # Metadata
-meta = OptimizerMeta(). \
-    with_version("0.0.2"). \
-    with_authors(["P. Sopasakis", "E. Fresk"]). \
-    with_licence("CC4.0-By"). \
-    with_optimizer_name("funky_optimizer")
+meta = OptimizerMeta() \
+    .with_version("0.0.2") \
+    .with_authors(["P. Sopasakis", "E. Fresk"]) \
+    .with_licence("CC4.0-By") \
+    .with_optimizer_name("funky_optimizer")
 
 # Build configuration
-build_config = BuildConfiguration(). \
-    with_rebuild(False). \
-    with_build_mode("debug")
+build_config = BuildConfiguration() \
+    .with_rebuild(True) \
+    .with_build_mode("debug")
+
+# Solver configuration
+solver_config = SolverConfiguration() \
+    .with_lfbgs_memory(15) \
+    .with_tolerance(1e-5) \
+    .with_max_iterations(135)
 
 # Auto-generate code and build project
 builder = OpEnOptimizerBuilder(problem,
                                meta=meta,
-                               build_config=build_config)
+                               build_config=build_config,
+                               solver_config=solver_config). \
+    with_generate_not_build_flag(True)
+
 builder.build()

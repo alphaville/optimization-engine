@@ -1,5 +1,6 @@
 from casadi import SX, Function
 
+
 class Problem:
 
     def __init__(self, u, p, cost):
@@ -22,12 +23,13 @@ class Problem:
     function c(u; p)) and the penalty function, g. If no penalty function 
     is specified, the quadratic penalty will be used. 
     '''
+
     def with_penalty_constraints(self, penalty_constraints, penalty_function=None):
         self._penalty_constraints = penalty_constraints
         if penalty_function is None:
             # default penalty function: quadratic
             z = SX.sym("z")
-            self._penalty_function = Function('g_penalty_function', [z], [z**2])
+            self._penalty_function = Function('g_penalty_function', [z], [z ** 2])
         else:
             self._penalty_function = penalty_function
         return self
