@@ -31,7 +31,7 @@ where
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        problem: Problem<GradientType, ConstraintType, CostType>,
+        problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
     ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
         PANOCOptimizer {
@@ -163,7 +163,7 @@ mod tests {
             tolerance,
             NonZeroUsize::new(lbfgs_memory).unwrap(),
         );
-        let problem = Problem::new(bounds, df, f);
+        let problem = Problem::new(&bounds, df, f);
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
         let status = panoc.solve(&mut u);
@@ -206,7 +206,7 @@ mod tests {
                 Ok(())
             };
             let bounds = constraints::Ball2::new(None, radius);
-            let problem = Problem::new(bounds, df, f);
+            let problem = Problem::new(&bounds, df, f);
             let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
             let status = panoc.solve(&mut u);

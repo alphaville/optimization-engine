@@ -3,6 +3,7 @@
 mod homotopy_optimizer;
 mod homotopy_problem;
 
+pub use homotopy_optimizer::HomotopyOptimizer;
 pub use homotopy_problem::HomotopyProblem;
 
 /* ---------------------------------------------------------------------------- */
@@ -46,24 +47,31 @@ mod tests {
 
         let bounds = Ball2::new(None, 2.0);
 
+        let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
+
         let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp, np);
         homotopy_problem.add_continuation(0, 1., 1000., 0);
         homotopy_problem.add_continuation(2, 1., std::f64::INFINITY, 0);
 
-        let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
+        let mut homotopy_optimizer =
+            continuation::HomotopyOptimizer::new(homotopy_problem, panoc_cache);
 
         let mut u_: [f64; 2] = [0.0, 0.0];
-        {
-            let p_ = [1., 2., 3.];
-            let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> { f(u, &p_, cost) };
-            let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> { df(u, &p_, grad) };
 
-            let problem_ = Problem::new(homotopy_problem.constraints, df_, f_);
-            let mut panoc = PANOCOptimizer::new(problem_, &mut panoc_cache);
+        
 
-            panoc.solve(&mut u_);
-            println!("u = {:?}", u_);
-        }
+        // for _i in 1..10 {
+        //     let p_ = [1., 2., 3.];
+        //     let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> { f(u, &p_, cost) };
+        //     let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> { df(u, &p_, grad) };
+
+        //     {
+        //         let problem_ = Problem::new(homotopy_problem.constraints, df_, f_);
+        //         let mut panoc = PANOCOptimizer::new(problem_, &mut panoc_cache);
+        //         panoc.solve(&mut u_);
+        //         println!("u = {:?}", u_);
+        //     }
+        // }
 
         Ok(())
     }

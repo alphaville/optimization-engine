@@ -14,7 +14,7 @@ where
     CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    pub(crate) problem: Problem<GradientType, ConstraintType, CostType>,
+    pub(crate) problem: Problem<'a, GradientType, ConstraintType, CostType>,
     pub(crate) cache: &'a mut FBSCache,
 }
 
@@ -36,7 +36,7 @@ where
     ///
     /// An new instance of `FBSEngine`
     pub fn new(
-        problem: Problem<GradientType, ConstraintType, CostType>,
+        problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut FBSCache,
     ) -> FBSEngine<'a, GradientType, ConstraintType, CostType> {
         FBSEngine { problem, cache }
