@@ -20,7 +20,7 @@ pub struct HomotopyOptimizer<
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    homotopy_problem: HomotopyProblem<
+    homotopy_problem: &'cache_lifetime HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
@@ -50,7 +50,7 @@ where
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        homotopy_problem: HomotopyProblem<
+        homotopy_problem: &'cache_lifetime HomotopyProblem<
             ParametricPenaltyFunctionType,
             ParametricGradientType,
             ConstraintType,
@@ -58,6 +58,7 @@ where
         >,
         panoc_cache: &'cache_lifetime mut panoc::PANOCCache,
     ) -> HomotopyOptimizer<
+        'cache_lifetime,
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
@@ -69,20 +70,25 @@ where
         }
     }
 
-    pub fn solve(&'cache_lifetime mut self, u: &mut [f64]) {
-        let p_ = [10., 20., 3.];
-
-        let problem = &self.homotopy_problem;
-        let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
-            (problem.parametric_cost)(u, &p_, cost)
-        };
-        let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-            (problem.parametric_gradient)(u, &p_, grad)
-        };
-        let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
-
-        let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
-        panoc_.solve(u);
-        println!("u = {:#?}", u);
+    pub fn solve(&'cache_lifetime mut self, u: &mut [f64]) -> Result<(), Error> {
+        let mut p_ = [10., 20., 3.];
+        for _i in 1..3 {
+            let homotopy_problem = &self.homotopy_problem;
+            let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
+                (homotopy_problem.parametric_cost)(u, &p_, cost)
+            };
+            let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+                (homotopy_problem.parametric_gradient)(u, &p_, grad)
+            };
+            let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
+            let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
+            panoc_.solve(u);
+            println!("u = {:#?}", u);
+            let mut c = [0.];
+            (homotopy_problem.penalty_function)(u, &p_, &mut c)?;
+            println!("c = {:#?}", c);
+            p_[0] *= 2.0;
+        }
+        Ok(())
     }
 }

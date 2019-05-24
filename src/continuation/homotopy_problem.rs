@@ -2,6 +2,7 @@
 
 use crate::{
     constraints,
+    continuation::ContinuationMode,
     core::{panoc, Optimizer},
     Error,
 };
@@ -17,14 +18,18 @@ pub struct HomotopyProblem<
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
+    // constraints
     pub(crate) constraints: ConstraintType,
+    // gradient of paramtric cost function, df(u; p)
     pub(crate) parametric_gradient: ParametricGradientType,
+    // parametric cost function, f(u; p)
     pub(crate) parametric_cost: ParametricCostType,
+    // penalty function, c(; p)
     pub(crate) penalty_function: ParametricPenaltyFunctionType,
     idx: Vec<usize>,
     from: Vec<f64>,
     to: Vec<f64>,
-    transition_mode: Vec<i32>,
+    transition_mode: Vec<ContinuationMode>,
     num_parameters: usize,
 }
 
@@ -66,7 +71,13 @@ where
         }
     }
 
-    pub fn add_continuation(&mut self, idx_: usize, from_: f64, to_: f64, transition_: i32) {
+    pub fn add_continuation(
+        &mut self,
+        idx_: usize,
+        from_: f64,
+        to_: f64,
+        transition_: ContinuationMode,
+    ) {
         assert!(idx_ < self.num_parameters, "idx_ is out of bounds");
         self.idx.push(idx_);
         self.from.push(from_);
@@ -79,7 +90,7 @@ where
         idx_: &[usize],
         from_: &[f64],
         to_: &[f64],
-        transition_: &[i32],
+        transition_: &[ContinuationMode],
     ) {
         self.idx.extend(idx_);
         self.from.extend(from_);

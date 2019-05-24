@@ -1,10 +1,39 @@
-#![allow(unused_attributes, dead_code, unused_imports)] //TODO: WORK IN PROGRESS - Remove when done!
+//! Continuation: penalty method
+//!
+//!
+//!
+
+//TODO: WORK IN PROGRESS - Remove when done!
+#![allow(unused_attributes, dead_code, unused_imports)]
 
 mod homotopy_optimizer;
 mod homotopy_problem;
 
 pub use homotopy_optimizer::HomotopyOptimizer;
 pub use homotopy_problem::HomotopyProblem;
+
+/// Continuation mode for free parameters
+#[derive(Debug, Clone, Copy)]
+pub enum ContinuationMode {
+    /// Arithmetic progression
+    ///
+    /// A free parameter with initial value `x: f64` and target value
+    /// `y: f64` is updated by adding a constant parameter `s: f64`.
+    /// Parameter `y` is allowed to be `std::f64::INFINITY`. If `y` is
+    /// finite, the continuation will terminate in a finite number of
+    /// steps.
+    ///
+    Arithmetic(f64),
+    /// Convex combination
+    ///
+    /// Can only be applied when the initial and final values, `x` and
+    /// `y`, are finite. The update is a convex combination of the current
+    /// value and `y`
+    Convex(f64),
+    /// Is typically used when `y` is plus or minus infinity or zero.
+    /// Then, the parameter is updated by multiplying by a given factor.
+    Geometric(f64),
+}
 
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
@@ -50,15 +79,26 @@ mod tests {
         let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
 
         let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp, np);
-        homotopy_problem.add_continuation(0, 1., 1000., 0);
-        homotopy_problem.add_continuation(2, 1., std::f64::INFINITY, 0);
+        homotopy_problem.add_continuation(
+            0,
+            1.,
+            1000.,
+            continuation::ContinuationMode::Convex(0.5),
+        );
+        homotopy_problem.add_continuation(
+            2,
+            1.,
+            std::f64::INFINITY,
+            continuation::ContinuationMode::Geometric(5.0),
+        );
 
-        let mut homotopy_optimizer =
-            continuation::HomotopyOptimizer::new(homotopy_problem, &mut panoc_cache);
+        for _i in 1..2 {
+            let mut homotopy_optimizer =
+                continuation::HomotopyOptimizer::new(&homotopy_problem, &mut panoc_cache);
 
-        let mut u_: [f64; 2] = [1.0, 1.0];
-        homotopy_optimizer.solve(&mut u_);
-
+            let mut u_: [f64; 2] = [1.0, 1.0];
+            homotopy_optimizer.solve(&mut u_)?;
+        }
         Ok(())
     }
 
