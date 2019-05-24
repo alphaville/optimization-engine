@@ -71,6 +71,8 @@ where
         }
     }
 
+    fn initialize_param(&self, p_: &mut [f64]) {}
+
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
         let homotopy_problem = &self.homotopy_problem;
         let idx_list = &homotopy_problem.idx;
