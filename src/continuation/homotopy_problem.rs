@@ -26,10 +26,10 @@ pub struct HomotopyProblem<
     pub(crate) parametric_cost: ParametricCostType,
     // penalty function, c(; p)
     pub(crate) penalty_function: ParametricPenaltyFunctionType,
-    idx: Vec<usize>,
-    from: Vec<f64>,
-    to: Vec<f64>,
-    transition_mode: Vec<ContinuationMode>,
+    pub(crate) idx: Vec<usize>,
+    pub(crate) from: Vec<f64>,
+    pub(crate) to: Vec<f64>,
+    pub(crate) transition_mode: Vec<ContinuationMode>,
     num_parameters: usize,
 }
 

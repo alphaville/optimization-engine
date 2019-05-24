@@ -33,6 +33,8 @@ pub enum ContinuationMode {
     /// Is typically used when `y` is plus or minus infinity or zero.
     /// Then, the parameter is updated by multiplying by a given factor.
     Geometric(f64),
+    /// No continuation
+    NoContinuation,
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -54,10 +56,11 @@ mod tests {
         let np: usize = 3;
         let problem_size = NonZeroUsize::new(2).unwrap();
         let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
+        let a = 1.0;
 
         /* parametric cost */
         let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), Error> {
-            *cost = mocks::rosenbrock_cost(p[0], p[1], u);
+            *cost = mocks::rosenbrock_cost(a, p[1], u);
             Ok(())
         };
 
@@ -79,26 +82,19 @@ mod tests {
         let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
 
         let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp, np);
-        homotopy_problem.add_continuation(
-            0,
-            1.,
-            1000.,
-            continuation::ContinuationMode::Convex(0.5),
-        );
-        homotopy_problem.add_continuation(
-            2,
-            1.,
-            std::f64::INFINITY,
-            continuation::ContinuationMode::Geometric(5.0),
+        homotopy_problem.add_continuations(
+            &[1, 2],
+            &[1.; 2],
+            &[1000.; 2],
+            &[continuation::ContinuationMode::Geometric(5.0); 2],
         );
 
-        for _i in 1..2 {
-            let mut homotopy_optimizer =
-                continuation::HomotopyOptimizer::new(&homotopy_problem, &mut panoc_cache);
+        let mut homotopy_optimizer =
+            continuation::HomotopyOptimizer::new(&homotopy_problem, &mut panoc_cache);
 
-            let mut u_: [f64; 2] = [1.0, 1.0];
-            homotopy_optimizer.solve(&mut u_)?;
-        }
+        let mut u_: [f64; 2] = [1.0, 1.0];
+        let p_: [f64; 3] = [1., 1., 1.];
+        homotopy_optimizer.solve(&mut u_, &p_)?;
         Ok(())
     }
 

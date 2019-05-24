@@ -3,13 +3,14 @@
 use crate::{
     constraints,
     continuation::homotopy_problem::HomotopyProblem,
+    continuation::ContinuationMode,
     core::panoc::*,
     core::{panoc, Optimizer, Problem},
     Error,
 };
 
 pub struct HomotopyOptimizer<
-    'cache_lifetime,
+    'a,
     ParametricPenaltyFunctionType,
     ParametricGradientType,
     ConstraintType,
@@ -20,24 +21,24 @@ pub struct HomotopyOptimizer<
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    homotopy_problem: &'cache_lifetime HomotopyProblem<
+    homotopy_problem: &'a HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
         ParametricCostType,
     >,
-    panoc_cache: &'cache_lifetime mut panoc::PANOCCache,
+    panoc_cache: &'a mut panoc::PANOCCache,
 }
 
 impl<
-        'cache_lifetime,
+        'a,
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
         ParametricCostType,
     >
     HomotopyOptimizer<
-        'cache_lifetime,
+        'a,
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
@@ -50,15 +51,15 @@ where
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        homotopy_problem: &'cache_lifetime HomotopyProblem<
+        homotopy_problem: &'a HomotopyProblem<
             ParametricPenaltyFunctionType,
             ParametricGradientType,
             ConstraintType,
             ParametricCostType,
         >,
-        panoc_cache: &'cache_lifetime mut panoc::PANOCCache,
+        panoc_cache: &'a mut panoc::PANOCCache,
     ) -> HomotopyOptimizer<
-        'cache_lifetime,
+        'a,
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
@@ -70,8 +71,24 @@ where
         }
     }
 
-    pub fn solve(&'cache_lifetime mut self, u: &mut [f64]) -> Result<(), Error> {
-        let mut p_ = [10., 20., 3.];
+    fn update_continuation_parameters(&self, p_: &mut [f64]) {
+        let homotopy_problem = &self.homotopy_problem;
+        let idx_list = &homotopy_problem.idx;
+        let transition_list = &homotopy_problem.transition_mode;
+        for (i, transition_mode) in idx_list.iter().zip(transition_list.iter()) {
+            match transition_mode {
+                ContinuationMode::Arithmetic(s) => p_[*i] += s,
+                ContinuationMode::Geometric(s) => p_[*i] *= s,
+                _ => (),
+            }
+        }
+        p_[0] *= 2.0;
+    }
+
+    /// Solve problem by homotopy method
+    ///
+    pub fn solve(&'a mut self, u: &mut [f64], params: &[f64]) -> Result<(), Error> {
+        let mut p_: Vec<f64> = params.to_vec();
         for _i in 1..3 {
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
@@ -87,7 +104,7 @@ where
             let mut c = [0.];
             (homotopy_problem.penalty_function)(u, &p_, &mut c)?;
             println!("c = {:#?}", c);
-            p_[0] *= 2.0;
+            self.update_continuation_parameters(&mut p_);
         }
         Ok(())
     }
