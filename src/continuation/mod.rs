@@ -33,8 +33,6 @@ pub enum ContinuationMode {
     /// Is typically used when `y` is plus or minus infinity or zero.
     /// Then, the parameter is updated by multiplying by a given factor.
     Geometric(f64),
-    /// No continuation
-    NoContinuation,
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -49,6 +47,7 @@ mod tests {
     use crate::core::*;
     use crate::{mocks, Error};
     use std::num::NonZeroUsize;
+
 
     #[test]
     fn t_homotopy_basic() -> Result<(), Error> {
