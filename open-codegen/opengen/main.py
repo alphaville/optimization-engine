@@ -1,6 +1,7 @@
 from casadi import SX, Function
 from opengen import *
 
+
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
 
@@ -15,9 +16,8 @@ c = vertcat(norm_2(u) - 1.,
 # Problem statement
 xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
 xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
-#bounds = Rectangle(xmin, xmax)
-#bounds = Ball2(None, 1.5)
-bounds = None
+bounds = Rectangle(xmin, xmax)
+
 
 problem = Problem(u, p, phi) \
     .with_penalty_constraints(c) \
@@ -43,9 +43,10 @@ solver_config = SolverConfiguration() \
 
 # Auto-generate code and build project
 builder = OpEnOptimizerBuilder(problem,
-                               meta=meta,
-                               build_config=build_config,
-                               solver_config=solver_config) \
+                               metadata=meta,
+                               build_configuration=build_config,
+                               solver_configuration=solver_config) \
     .with_generate_not_build_flag(True)
 
 builder.build()
+

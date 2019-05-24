@@ -7,8 +7,11 @@ def open_codegen_root_dir():
 
 
 def open_root_dir():
-    return os.path.abspath(open_codegen_root_dir() + "../../../")
+    return os.path.abspath(os.path.join(open_codegen_root_dir(), "..", ".."))
 
 
 def default_build_dir():
-    return os.path.abspath(open_root_dir() + "/build/")
+    return os.path.abspath(os.path.join(open_root_dir(), "build"))
+
+def templates_dir():
+    return os.path.abspath(os.path.join(open_codegen_root_dir(), "..", "templates"))
