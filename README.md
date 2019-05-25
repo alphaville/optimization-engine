@@ -59,7 +59,11 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 - Join us on [Discord](https://discord.gg/mfYpn4V)
 - Reach us on [Gitter](https://gitter.im/alphaville/optimization-engine)
 
+## Do you like OpEn?
 
+Show us with a star on github...
+
+![Star](https://media.giphy.com/media/ZxblqUVrPVmcqATkC4/giphy.gif)
 
 ## License
 
