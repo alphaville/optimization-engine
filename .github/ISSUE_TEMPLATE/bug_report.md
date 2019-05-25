@@ -20,8 +20,12 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **System information:**
+:warning: Please, provide the following information:
+
  - System/Platform [e.g., Intel i5, Raspeberry Pi Model B, Mobile device, etc]
  - OS: [e.g. Ubuntu, iOS, Windows, Raspbian, etc]
+ - What is the output of `rustup show`?
+ - What is the output of `rustc -V`?
  - Python/MATLAB version if relevant
 
 
