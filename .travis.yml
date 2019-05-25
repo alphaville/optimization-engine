@@ -2,13 +2,20 @@ language: rust
 
 matrix:
   include:
-    - env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      env: TARGET=x86_64-unknown-linux-gnu
       rust: nightly
 
-    - env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      env: TARGET=x86_64-unknown-linux-gnu
       rust: beta
 
-    - env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      env: TARGET=x86_64-unknown-linux-gnu
+      rust: stable
+
+    - os: osx
+      env: TARGET=i686-apple-darwin
       rust: stable
 
 before_install: set -e
