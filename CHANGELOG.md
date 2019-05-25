@@ -11,8 +11,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-* Windows interoperability of `matlab_open_root()` [issue #24]
+* Windows interoperability of `matlab_open_root()` [#24]
 
+### Added
+
+* Support for OSX and other linux distros on [travis](https://travis-ci.org/alphaville/optimization-engine/builds/537155440) [#25]
 
 
 
