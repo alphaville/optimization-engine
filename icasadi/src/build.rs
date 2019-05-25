@@ -5,7 +5,7 @@ fn main() {
         .flag_if_supported("-Wall")
         .flag_if_supported("-Wpedantic")
         .flag_if_supported("-Wno-long-long")
-        .flag("-Wno-unused-parameter")
+        .flag_if_supported("-Wno-unused-parameter")
         .pic(true)
         .include("src")
         .file("extern/auto_casadi_cost.c")
