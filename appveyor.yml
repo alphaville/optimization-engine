@@ -1,0 +1,90 @@
+os: Visual Studio 2015
+
+
+environment:
+  matrix:
+
+### MSVC Toolchains ###
+
+  # Stable 64-bit MSVC
+    - channel: stable
+      target: x86_64-pc-windows-msvc
+  # Stable 32-bit MSVC
+    - channel: stable
+      target: i686-pc-windows-msvc
+  # Beta 64-bit MSVC
+    - channel: beta
+      target: x86_64-pc-windows-msvc
+  # Beta 32-bit MSVC
+    - channel: beta
+      target: i686-pc-windows-msvc
+  # Nightly 64-bit MSVC
+    - channel: nightly
+      target: x86_64-pc-windows-msvc
+      #cargoflags: --features "unstable"
+  # Nightly 32-bit MSVC
+    - channel: nightly
+      target: i686-pc-windows-msvc
+      #cargoflags: --features "unstable"
+
+### GNU Toolchains ###
+
+  # Stable 64-bit GNU
+    - channel: stable
+      target: x86_64-pc-windows-gnu
+  # Stable 32-bit GNU
+    - channel: stable
+      target: i686-pc-windows-gnu
+  # Beta 64-bit GNU
+    - channel: beta
+      target: x86_64-pc-windows-gnu
+  # Beta 32-bit GNU
+    - channel: beta
+      target: i686-pc-windows-gnu
+  # Nightly 64-bit GNU
+    - channel: nightly
+      target: x86_64-pc-windows-gnu
+      #cargoflags: --features "unstable"
+  # Nightly 32-bit GNU
+    - channel: nightly
+      target: i686-pc-windows-gnu
+      #cargoflags: --features "unstable"
+
+### Allowed failures ###
+
+# See Appveyor documentation for specific details. In short, place any channel or targets you wish
+# to allow build failures on (usually nightly at least is a wise choice). This will prevent a build
+# or test failure in the matching channels/targets from failing the entire build.
+matrix:
+  allow_failures:
+    - channel: nightly
+
+# If you only care about stable channel build failures, uncomment the following line:
+    #- channel: beta
+
+## Install Script ##
+
+# This is the most important part of the Appveyor configuration. This installs the version of Rust
+# specified by the 'channel' and 'target' environment variables from the build matrix. This uses
+# rustup to install Rust.
+#
+# For simple configurations, instead of using the build matrix, you can simply set the
+# default-toolchain and default-host manually here.
+install:
+  - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init -yv --default-toolchain %channel% --default-host %target%
+  - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+  - rustc -vV
+  - cargo -vV
+
+## Build Script ##
+
+# 'cargo test' takes care of building for us, so disable Appveyor's build stage. This prevents
+# the "directory does not contain a project or solution file" error.
+build: false
+
+# Uses 'cargo test' to run tests and build. Alternatively, the project may call compiled programs
+#directly or perform other testing commands. Rust will automatically be placed in the PATH
+# environment variable.
+test_script:
+  - cargo test --verbose %cargoflags%
