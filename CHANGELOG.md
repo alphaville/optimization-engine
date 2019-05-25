@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+* Windows interoperability of `matlab_open_root()` [issue #24]
+
 ## [v0.3.0] - 2019-05-16
 
 This is a breaking API change.

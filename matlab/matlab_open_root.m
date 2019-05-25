@@ -1,5 +1,7 @@
-function rd = matlab_open_root()
+function open_root = matlab_open_root()
 
-rd = which('matlab_open_root');
-tokens = strsplit(rd, 'matlab/matlab_open_root.m');
-rd = tokens{1};
+this_file_path = which('matlab_open_root');
+matlab_path_str = fileparts(this_file_path);
+matlab_path_file = java.io.File(matlab_path_str);
+open_root = char(matlab_path_file.getParent());
+
