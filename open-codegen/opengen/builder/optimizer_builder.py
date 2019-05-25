@@ -45,13 +45,15 @@ class OpEnOptimizerBuilder:
         """target directory"""
         return os.path.abspath(
             os.path.join(
-                default_build_dir(), self._meta.optimizer_name()))
+                self._build_config.build_dir(),
+                self._meta.optimizer_name()))
 
     def _icasadi_target_dir(self):
         """icasadi target directory"""
         return os.path.abspath(
             os.path.join(
-                default_build_dir(), self._meta.optimizer_name(), "icasadi"))
+                self._build_config.build_dir(),
+                self._meta.optimizer_name(), "icasadi"))
 
     def _prepare_target_project(self):
         """Creates folder structure
@@ -78,8 +80,7 @@ class OpEnOptimizerBuilder:
 
     def _copy_icasadi_to_target(self):
         """Copy 'icasadi' into target directory"""
-        origin_icasadi_dir = os.path.abspath(
-            os.path.join(open_root_dir(), "icasadi"))
+        origin_icasadi_dir = original_icasadi_dir()
         target_icasadi_dir = self._icasadi_target_dir()
         os.makedirs(target_icasadi_dir, exist_ok=True)
         shutil.rmtree(target_icasadi_dir)
@@ -113,7 +114,9 @@ class OpEnOptimizerBuilder:
         file_loader = FileSystemLoader(templates_dir())
         env = Environment(loader=file_loader)
         template = env.get_template('optimizer_cargo.toml.template')
-        output_template = template.render(meta=self._meta)
+        output_template = template.render(
+            meta=self._meta,
+            open_version=self._build_config.open_version())
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(output_template)

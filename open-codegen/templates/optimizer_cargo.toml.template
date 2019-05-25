@@ -8,5 +8,7 @@ publish=false
 
 
 [dependencies]
-optimization_engine = {path = "{{open_path or '../../'}}"}
+#TODO: Update this -- change to: optimization_engine = "0.?.?"
+#optimization_engine = "{{open_version or '*'}}"
+optimization_engine = {path = "../../../"}
 icasadi = {path = "./icasadi/"}

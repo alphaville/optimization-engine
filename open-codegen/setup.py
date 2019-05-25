@@ -6,7 +6,8 @@ setup(name='opengen',
       author=['Pantelis Sopasakis', 'Emil Fresk'],
       author_email='p.sopasakis@gmail.com',
       license='MIT License',
-      packages=['opengen'],
+      packages=['opengen', 'templates'],
+      package_data={'templates':['*'], 'icasadi':['*']},
       install_requires=[
             'jinja2', 'casadi', 'numpy'
       ],
