@@ -14,6 +14,10 @@ matrix:
       rust: stable
       python: "3.6"
 
+    - env: TARGET=x86_64-unknown-linux-gnu
+      rust: stable
+      python: "2.7"
+
 before_install: set -e
 
 install:
