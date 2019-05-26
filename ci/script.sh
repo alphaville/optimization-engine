@@ -22,7 +22,7 @@ main() {
     source venv/bin/activate
     
     # install opengen
-    python setup.py install
+    sudo python setup.py install
     
     # run opengen main.py
     cd opengen
