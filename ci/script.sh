@@ -15,14 +15,17 @@ main() {
 
     # Create virtual environment
     cd open-codegen
+    export PYTHONPATH=.
     virtualenv venv
+    
     # activate venv
     source venv/bin/activate
+    
     # install opengen
     python setup.py install
+    
     # run opengen main.py
     cd opengen
-    export PYTHONPATH=.
     python main.py
 }
 
