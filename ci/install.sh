@@ -9,7 +9,6 @@ main() {
     python --version
     pip --version
     virtualenv --version
-    echo $TRAVIS_PYTHON_VERSION
 }
 
 main

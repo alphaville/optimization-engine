@@ -16,7 +16,7 @@ main() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    virtualenv venv
+    virtualenv -p python$(PYTHON_VERSION) venv
     
     # activate venv
     source venv/bin/activate
