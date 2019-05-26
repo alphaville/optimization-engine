@@ -70,7 +70,7 @@ class OpEnOptimizerBuilder:
             os.makedirs(target_dir)
         else:
             if not os.path.exists(target_dir):
-                os.makedirs(target_dir, exist_ok=True)
+                os.makedirs(target_dir)
 
 
         # Run `cargo init` in target folder
@@ -85,7 +85,7 @@ class OpEnOptimizerBuilder:
         origin_icasadi_dir = original_icasadi_dir()
         target_icasadi_dir = self._icasadi_target_dir()
         if not os.path.exists(target_icasadi_dir):
-            os.makedirs(target_icasadi_dir, exist_ok=True)
+            os.makedirs(target_icasadi_dir)
         shutil.rmtree(target_icasadi_dir)
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,

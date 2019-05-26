@@ -33,9 +33,9 @@ meta = OptimizerMeta() \
 # - build mode (debug/release), where to store it, which version
 #   of optimization_engine to use (must be on crates.io)
 build_config = BuildConfiguration() \
-    .with_rebuild(True) \
+    .with_rebuild(False) \
     .with_build_mode("debug") \
-    .with_build_directory("../x4356") \
+    .with_build_directory("../x4359") \
     .with_open_version("*")
 
 # Solver configuration (tolerance, L-BFGS memory, etc)
