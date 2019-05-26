@@ -26,6 +26,7 @@ main() {
     
     # run opengen main.py
     cd opengen
+    export PYTHONPATH=.
     python main.py
 }
 
