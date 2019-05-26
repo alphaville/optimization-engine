@@ -12,11 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 * Windows interoperability of `matlab_open_root()` [#24]
+* Issues with file separator on Windows [#26 and #27]
 
 ### Added
 
 * Support for OSX and other linux distros on [travis](https://travis-ci.org/alphaville/optimization-engine/builds/537155440) [#25]
-
+* Continuous integration on [Appveyor](https://ci.appveyor.com/project/alphaville/optimization-engine)
 
 
 ## [v0.3.1] - 2019-05-21
