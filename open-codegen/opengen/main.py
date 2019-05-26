@@ -1,7 +1,6 @@
 from casadi import SX, Function
 from opengen import *
 
-
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
 
@@ -51,7 +50,8 @@ builder = OpEnOptimizerBuilder(problem,
                                metadata=meta,
                                build_configuration=build_config,
                                solver_configuration=solver_config) \
-    .with_generate_not_build_flag(False) \
+    .with_generate_not_build_flag(True) \
     .build()
 
+print('DONE :-)')
 
