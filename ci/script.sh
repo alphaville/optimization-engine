@@ -16,7 +16,7 @@ main() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    virtualenv -p python$TRAVIS_PYTHON_VERSION venv
+    virtualenv -p python`echo $TRAVIS_PYTHON_VERSION` venv
     
     # activate venv
     source venv/bin/activate
