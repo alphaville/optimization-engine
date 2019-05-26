@@ -4,6 +4,12 @@ title: Frequently Asked Questions
 sidebar_label: FAQ
 ---
 
+### 0. Do I need to know Rust?
+
+No, you are not expected to write any Rust code.
+
+You can use OpEn through its [Python](./python-interface) or [MATLAB](./matlab-interface) interface, where you will be able to define your parametric optimization problem and generated an optimizer. The auto-generated optimizer will be in Rust - you just need to [install the Rust compiler](https://www.rust-lang.org/tools/install), but you will not be required to use the compiler directly (the Python/MATLAB interface will do that for you).
+
 ### 1. Can OpEn find the global optimum?
 No. 
 
@@ -17,7 +23,7 @@ Minimize f(u; p)
 subj. to: u in U(p)
 ```
 
-Set `U(p)` can be 
+Set `U(p)` can be a finite or binary set (on which it is easy to project).
 
 ### 3. Can OpEn solve multi-objective problems?
 No.
@@ -71,7 +77,7 @@ and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
 ### 6. I have a question; whom should I address it to?
 You can reach us on Discord and Gitter. 
 
-Find out more information [here](http://localhost:3000/optimization-engine/blog/2019/03/06/talk-to-us).
+Find out more information [here](https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us).
 
 ### 7. How can I report an issue?
 Please report any issues on [github](https://github.com/alphaville/optimization-engine/issues).
