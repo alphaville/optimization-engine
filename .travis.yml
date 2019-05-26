@@ -1,18 +1,18 @@
 language: rust
 
-python:
-  - "3.4"
-  
 matrix:
   include:
     - env: TARGET=x86_64-unknown-linux-gnu
       rust: nightly
+      python: "3.4"
 
     - env: TARGET=x86_64-unknown-linux-gnu
       rust: beta
+      python: "3.6"
 
     - env: TARGET=x86_64-unknown-linux-gnu
       rust: stable
+      python: "3.6"
 
 before_install: set -e
 
