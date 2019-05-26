@@ -1,3 +1,15 @@
+#This Appveyor configuration file is based on the configuration 
+#file of the following project:
+#
+#https://github.com/starkat99/appveyor-rust/
+#
+
+# Appveyor configuration template for Rust using rustup for Rust installation
+# https://github.com/starkat99/appveyor-rust
+
+## Operating System (VM environment) ##
+
+# Rust needs at least Visual Studio 2013 Appveyor OS for MSVC targets.
 os: Visual Studio 2015
 
 
