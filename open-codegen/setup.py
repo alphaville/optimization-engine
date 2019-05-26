@@ -7,7 +7,7 @@ setup(name='opengen',
       author_email='p.sopasakis@gmail.com',
       license='MIT License',
       packages=['opengen', 'opengen.builder', 'opengen.config', 'opengen.functions'],
-      data_files={'templates', 'icasadi'},
+      data_files={('templates', ['templates/*']), ('icasadi', ['icasadi/*'])},
       install_requires=[
             'jinja2', 'casadi', 'numpy'
       ],
