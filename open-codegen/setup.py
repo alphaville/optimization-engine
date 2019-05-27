@@ -11,5 +11,4 @@ setup(name='opengen',
       include_package_data = True,
       install_requires=[
             'jinja2', 'casadi', 'numpy'
-      ],
-      zip_safe=False)
+      ])
