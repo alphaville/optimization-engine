@@ -69,7 +69,9 @@ class OpEnOptimizerBuilder:
                 shutil.rmtree(target_dir)
             os.makedirs(target_dir)
         else:
-            os.makedirs(target_dir, exist_ok=True)
+            if not os.path.exists(target_dir):
+                os.makedirs(target_dir)
+
 
         # Run `cargo init` in target folder
         p = subprocess.Popen(['cargo', 'init'],
@@ -82,7 +84,8 @@ class OpEnOptimizerBuilder:
         """Copy 'icasadi' into target directory"""
         origin_icasadi_dir = original_icasadi_dir()
         target_icasadi_dir = self._icasadi_target_dir()
-        os.makedirs(target_icasadi_dir, exist_ok=True)
+        if not os.path.exists(target_icasadi_dir):
+            os.makedirs(target_icasadi_dir)
         shutil.rmtree(target_icasadi_dir)
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,
