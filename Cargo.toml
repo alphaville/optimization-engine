@@ -34,7 +34,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate
-version = "0.3.1-b"
+version = "0.3.2"
 
 edition = "2018"
 
