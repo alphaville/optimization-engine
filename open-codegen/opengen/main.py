@@ -1,5 +1,10 @@
 from casadi import SX, Function
 from opengen import *
+import pkg_resources
+
+
+DATA_PATH = pkg_resources.resource_filename('opengen', 'icasadi/')
+print(DATA_PATH)
 
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
@@ -35,7 +40,7 @@ meta = OptimizerMeta() \
 build_config = BuildConfiguration() \
     .with_rebuild(False) \
     .with_build_mode("debug") \
-    .with_build_directory("../x4359") \
+    .with_build_directory("x4359") \
     .with_open_version("*")
 
 # Solver configuration (tolerance, L-BFGS memory, etc)
@@ -50,7 +55,7 @@ builder = OpEnOptimizerBuilder(problem,
                                metadata=meta,
                                build_configuration=build_config,
                                solver_configuration=solver_config) \
-    .with_generate_not_build_flag(False) \
+    .with_generate_not_build_flag(True) \
     .build()
 
 print('DONE :-)')
