@@ -55,7 +55,7 @@ builder = OpEnOptimizerBuilder(problem,
                                metadata=meta,
                                build_configuration=build_config,
                                solver_configuration=solver_config) \
-    .with_generate_not_build_flag(True) \
+    .with_generate_not_build_flag(False) \
     .build()
 
 print('DONE :-)')

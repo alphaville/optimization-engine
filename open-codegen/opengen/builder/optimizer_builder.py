@@ -182,6 +182,7 @@ class OpEnOptimizerBuilder:
 
     def _build_optimizer(self):
         target_dir = self._target_dir()
+        print("TARGET = " + target_dir)
         command = self._make_build_command()
         p = subprocess.Popen(command, cwd=target_dir)
         p.wait()

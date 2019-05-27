@@ -9,6 +9,7 @@ publish=false
 
 [dependencies]
 #TODO: Update this -- change to: optimization_engine = "0.?.?"
+#TODO: use {{optimization_engine_version or '*'}} and provide version programmatically
 #optimization_engine = "{{open_version or '*'}}"
 optimization_engine = {path = "../../../"}
 icasadi = {path = "./icasadi/"}
