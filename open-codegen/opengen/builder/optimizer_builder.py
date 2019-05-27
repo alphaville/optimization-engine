@@ -185,7 +185,9 @@ class OpEnOptimizerBuilder:
         print("TARGET = " + target_dir)
         command = self._make_build_command()
         p = subprocess.Popen(command, cwd=target_dir)
-        p.wait()
+        process_completion = p.wait()
+        if process_completion != 0:
+            raise Exception('Rust build failed')
 
     def build(self):
         """
