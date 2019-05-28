@@ -1,6 +1,5 @@
 from casadi import *
 import opengen as og
-import pkg_resources
 
 u = SX.sym("u", 5)
 p = SX.sym("p", 2)
@@ -36,7 +35,7 @@ meta = og.config.OptimizerMeta() \
 build_config = og.config.BuildConfiguration() \
     .with_rebuild(False) \
     .with_build_mode("debug") \
-    .with_build_directory("x4359") \
+    .with_build_directory("xxx") \
     .with_open_version("0.3.2")
 
 # Solver configuration (tolerance, L-BFGS memory, etc)

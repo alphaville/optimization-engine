@@ -2,6 +2,10 @@ from setuptools import setup, find_packages
 import io
 import os
 
+NAME = 'opengen'
+VERSION = '0.0.4'
+DESCRIPTION = 'Optimization Engine Code Generator'
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
@@ -12,13 +16,9 @@ try:
 except FileNotFoundError:
     long_description = DESCRIPTION
 
-
-NAME = 'opengen'
-VERSION = '0.0.4'
-
 setup(name=NAME,
       version=VERSION,
-      description='Optimization Engine Code Generator',
+      description=DESCRIPTION,
       long_description=long_description,
       long_description_content_type='text/markdown',
       author=['Pantelis Sopasakis', 'Emil Fresk'],

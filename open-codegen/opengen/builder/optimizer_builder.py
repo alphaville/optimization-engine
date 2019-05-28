@@ -162,21 +162,26 @@ class OpEnOptimizerBuilder:
         shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
         shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
 
-        # If there are penalty-type constraints (function c(u; q)), we need
-        # to generate C code for these too
+        # Lastly, we generate code for the penalty constraints; if there aren't
+        # any, we generate the function c(u; p) = 0 (which will not be used)
         if ncp > 0:
-            # Target C file name
-            constraints_penalty_file_name = \
-                self._build_config.constraint_penalty_function_name() + ".c"
-            # Define CasADi function for c(u; q)
-            constraint_penalty_fun = cs.Function(
-                self._build_config.constraint_penalty_function_name(),
-                [u, p], [self._problem.penalty_constraints()])
-            # Generate code
-            constraint_penalty_fun.generate(constraints_penalty_file_name)
-            # Move auto-generated file to target folder
-            shutil.move(constraints_penalty_file_name,
-                        os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
+            penalty_constraints = self._problem.penalty_constraints()
+        else:
+            penalty_constraints = 0
+
+        # Target C file name
+        constraints_penalty_file_name = \
+            self._build_config.constraint_penalty_function_name() + ".c"
+        # Define CasADi function for c(u; q)
+        constraint_penalty_fun = cs.Function(
+            self._build_config.constraint_penalty_function_name(),
+            [u, p], [penalty_constraints])
+        # Generate code
+        constraint_penalty_fun.generate(constraints_penalty_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(constraints_penalty_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
+
 
     def _build_icasadi(self):
         icasadi_dir = self._icasadi_target_dir()
