@@ -71,11 +71,12 @@ where
         }
     }
 
-    fn initialize_param(&self, p_: &mut [f64]) {}
+    fn initialize_param(&self, _p: &mut [f64]) {}
 
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
         let homotopy_problem = &self.homotopy_problem;
         let idx_list = &homotopy_problem.idx;
+        println!("idx_list = {:?}", idx_list);
         let transition_list = &homotopy_problem.transition_mode;
         for (i, transition_mode) in idx_list.iter().zip(transition_list.iter()) {
             match transition_mode {
@@ -87,16 +88,12 @@ where
         p_[0] *= 2.0;
     }
 
-    fn check_outer_exit_condition(&self, _u: &[f64], _p: &mut [f64]) -> bool {
-        return true;
-    }
-
     /// Solve problem by homotopy method
     ///
-    pub fn solve(&'a mut self, u: &mut [f64], params: &[f64]) -> Result<(), Error> {
+    pub fn solve(&'a mut self, u: &mut [f64], q: &[f64]) -> Result<(), Error> {
         //NOTE: Above, by `param` we mean `q`...
 
-        let mut p_: Vec<f64> = params.to_vec();
+        let mut p_: Vec<f64> = q.to_vec();
         // If NCP = 0, there is no need to apply the homotopy method
         // Just run the problem once; think of a way to do this neatly!
         // Maybe, at the end of the loop, do: if NCP == 0: break
@@ -116,13 +113,18 @@ where
             let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
 
             //TODO: check status of inner solver...
-            panoc_.solve(u);
+            let status = panoc_.solve(u);
+            println!("{:#?}", status);
 
-            if self.check_outer_exit_condition(u, &mut p_) {
+            let mut c = [0.];
+            (homotopy_problem.penalty_function)(u, &p_, &mut c)?;
+            let continue_outer_iterations = c.iter().any(|&ci| ci > 0.01);
+            if !continue_outer_iterations {
                 break;
             } else {
                 self.update_continuation_parameters(&mut p_);
             }
+            println!("updated p = {:?}", p_);
         }
         // Need to return a different type of  SolverStatus (HomotopySolverStatus)
         // with the number of outer iterations, maximum number of inner iterations,

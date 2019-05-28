@@ -1,16 +1,14 @@
-from casadi import *
+import casadi.casadi as cs
 import opengen as og
 
-u = SX.sym("u", 5)
-p = SX.sym("p", 2)
+u = cs.SX.sym("u", 5)
+p = cs.SX.sym("p", 2)
 
 # cost function
 phi = og.functions.rosenbrock(u, p)
 
 # c(u; p)
-c = vertcat(norm_2(u) - 1.,
-            u[0] + p[0] * u[1] - 3.,
-            (p[0] + p[1]) * (u[0] + u[1]) - 2.)
+c = 1.5*u[0] - u[1]
 
 # Constraints
 xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
@@ -19,7 +17,7 @@ bounds = og.constraints.Rectangle(xmin, xmax)
 
 # Problem statement: the oracle
 problem = og.builder.Problem(u, p, phi) \
-    .with_penalty_constraints(None) \
+    .with_penalty_constraints(c) \
     .with_constraints(bounds)
 
 # Metadata of auto-generated Rust package

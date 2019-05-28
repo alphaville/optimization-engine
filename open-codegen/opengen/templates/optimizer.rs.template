@@ -45,7 +45,7 @@ pub fn initialize_solver() -> PANOCCache {
 
 
 // -- work in progress --
-pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) {
+pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Error> {
 	//TODO: better error management (in closures)
 
 	/* cost function, f(u; q) */
@@ -111,5 +111,5 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) {
     //parameter and `y0`. We can provide `y0` to be ANYTHING. Its actual
     //initial value will be set inside HomotopyOptimizer by the private
     //method `initialize_param`.
-    homotopy_optimizer.solve(u, p);
+    homotopy_optimizer.solve(u, p)
 }
