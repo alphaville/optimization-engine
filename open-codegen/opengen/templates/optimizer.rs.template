@@ -12,16 +12,43 @@ use icasadi;
 use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize, slice, time};
 
+// Tolerance of inner solver
 const TOLERANCE: f64 = {{solver_config.tolerance() or 0.0001}};
+
+// LBFGS memory
 const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory() or 10}};
+
+// Maximum number of iterations of the inner solver
 const MAX_ITERS: usize = {{solver_config.max_iterations() or 2000}};
+
+// Number of decision variables
 const NU: usize = {{problem.dim_decision_variables()}};
+
+// Number of parameters
 const NP: usize = {{problem.dim_parameters()}};
+
+// Number of additional penalty-type constraint-related parameters (y)
 const NCP: usize = {{problem.dim_constraints_penalty()}};
+
+// Number of parameters associated with augmented Lagrangian
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+
+// Required tolerance for c(u; p)
 const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance() or 0.0001}};
+
+// Maximum number of outer iterations
 const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations() or 10}};
+
+// Update factor for the penalty method
 const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor() or 5.0}};
+
+// Initial values of the weights
+{% if solver_config.initial_penalty_weights() | length == 1 -%}
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()[0]}}; NCP];
+{% else -%}
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()|join(', ')}}];
+{% endif %}
+// Parameters of the constraints
 {% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
 const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
 {%- elif 'Rectangle' == problem.constraints().__class__.__name__ -%}
@@ -38,6 +65,7 @@ const XMAX :Option<&[f64]> = None;
 {%- endif %}
 
 
+/// Initialisation of the solver
 pub fn initialize_solver() -> PANOCCache {
     let problem_size = NonZeroUsize::new(NU).unwrap();
     let lbfgs_memory_size = NonZeroUsize::new(LBFGS_MEMORY).unwrap();
@@ -78,7 +106,7 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Err
     };
 
 
-    //Constraints...
+    // Constraints...
 {%- if problem.constraints() is none %}
     let bounds = NoConstraints::new();
 {%- elif 'Ball2' == problem.constraints().__class__.__name__ %}
@@ -93,7 +121,6 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Err
 
 
     // Define homotopy problem
-    //TODO: This constructor may not need to know NP...
     let mut homotopy_problem = continuation::HomotopyProblem::new(
         bounds,
         gradient_function,
@@ -101,17 +128,16 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Err
         penalty_constr_function,
     );
 
-    // Do the following, only if there are some penalty-type constraints,
-    // otherwise skip it
-    if NCP > 0 {
-        let idx_y: Vec<usize> = (NP..NP + NCP).collect();
-        homotopy_problem.add_continuations(
-            &idx_y[..],
-            &[3.; NCP],
-            &[0.; NCP],
-            &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
-        );
-    }
+{% if problem.dim_constraints_penalty() > 0 %}
+    //
+    let idx_y: Vec<usize> = (NP..NP + NCP).collect();
+    homotopy_problem.add_continuations(
+        &idx_y[..],
+        INITIAL_PENALTY_WEIGHTS,
+        &[0.; NCP],
+        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
+    );
+{% endif %}
 
     let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)

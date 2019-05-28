@@ -8,7 +8,7 @@ p = cs.SX.sym("p", 2)
 phi = og.functions.rosenbrock(u, p)
 
 # c(u; p)
-c = 1.5*u[0] - u[1]
+c = cs.vertcat(1.5*u[0] - u[1], u[2] - u[3])
 
 # Constraints
 xmin = [-2.0, -2.0, -2.0, -2.0, -2.0]
@@ -42,7 +42,9 @@ solver_config = og.config.SolverConfiguration() \
     .with_tolerance(1e-5) \
     .with_max_iterations(155) \
     .with_constraints_tolerance(1e-4) \
-    .with_max_outer_iterations(15)
+    .with_max_outer_iterations(15) \
+    .with_penalty_weight_update_factor(8.0) \
+    .with_initial_penalty_weights([20.0, 5.0])
 
 # Auto-generate code and build project
 # - We can generate the code, but not build it
