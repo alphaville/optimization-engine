@@ -1,3 +1,9 @@
+/*
+ * Auto-generated file by OptimizationEngine
+ * See https://alphaville.github.io/optimization-engine/
+ *
+ * Generated at: {{timestamp_created}}
+ */
 #![allow(unused_attributes,dead_code,unused_imports)]
 
 extern crate optimization_engine;
@@ -38,20 +44,29 @@ pub fn initialize_solver() -> PANOCCache {
 }
 
 
-pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
+// -- work in progress --
+pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) {
+	//TODO: better error management (in closures)
 
-	let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-		icasadi::icasadi_grad(u, &p, grad);
-		Ok(())
-	};
+	/* cost function, f(u; q) */
+    let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), Error> {
+        icasadi::icasadi_cost(u, q, cost);
+        Ok(())
+    };
 
-	let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-		if icasadi::icasadi_cost(u, &p, c) == 0 {
-		    Ok(())
-		} else {
-		    Err(Error::Cost)
-		}
-	};
+    /* parametric gradient, df(u, q) */
+    let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+        icasadi::icasadi_grad(u, q, grad);
+        Ok(())
+    };
+
+	/* penalty-type constraints: c(u; p) */
+    let penalty_constr_function =
+    |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), Error> {
+        icasadi::icasadi_constraints_as_penalty(u, q, constraints);
+        Ok(())
+    };
+
 
     //Constraints...
 {%- if problem.constraints() is none %}
@@ -66,10 +81,35 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
     let bounds = Rectangle::new(XMIN, XMAX);
 {%- endif %}
 
-	let problem = Problem::new(&bounds, df, f);
-    let mut panoc = PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERS);
-    let status = panoc.solve(u);
 
-	status
+    // Define homotopy problem
+    //TODO: This constructor may not need to know NP...
+    let mut homotopy_problem = continuation::HomotopyProblem::new(
+        bounds,
+        gradient_function,
+        cost_function,
+        penalty_constr_function,
+        NP,
+    );
 
+    // Do the following, only if there are some penalty-type constraints,
+    // otherwise skip it
+    if NCP > 0 {
+        let idx_y: Vec<usize> = (NP+1..=NP+NCP).collect();
+        homotopy_problem.add_continuations(
+            &idx_y[..],
+            &[1.; 2],
+            &[1000.; 2],
+            &[continuation::ContinuationMode::Geometric(5.0); 2],
+        );
+    }
+
+    let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache);
+
+    //TODO: Here, instead of `p`, we need to provide `q`, which need to
+    //be properly initialised as `q = [p, y0]`, with `p` being the given
+    //parameter and `y0`. We can provide `y0` to be ANYTHING. Its actual
+    //initial value will be set inside HomotopyOptimizer by the private
+    //method `initialize_param`.
+    homotopy_optimizer.solve(u, p);
 }

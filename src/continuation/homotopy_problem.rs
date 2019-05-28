@@ -98,5 +98,3 @@ where
         self.transition_mode.extend(transition_);
     }
 }
-
-// Note: PenaltyFunction: c(u, params, result) -> Result.

@@ -108,7 +108,7 @@ class OpEnOptimizerBuilder:
         template = env.get_template('icasadi_config.h.template')
         output_template = template.render(problem=self._problem,
                                           build_config=self._build_config,
-                                          timestamp_created=datetime.datetime.utcnow())
+                                          timestamp_created=datetime.datetime.now())
         icasadi_config_h_path = os.path.abspath(
             os.path.join(
                 self._icasadi_target_dir(),
@@ -195,7 +195,8 @@ class OpEnOptimizerBuilder:
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self._solver_config,
-                                          problem=self._problem)
+                                          problem=self._problem,
+                                          timestamp_created=datetime.datetime.now())
         target_scr_lib_rs_path = os.path.join(target_dir, "src", "lib.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
