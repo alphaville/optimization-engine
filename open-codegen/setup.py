@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import io
 import os
 
@@ -24,7 +24,8 @@ setup(name=NAME,
       author=['Pantelis Sopasakis', 'Emil Fresk'],
       author_email='p.sopasakis@gmail.com',
       license='MIT License',
-      packages=['opengen', 'opengen.builder', 'opengen.config', 'opengen.functions'],
+      packages=find_packages(
+            exclude=["tests", "icasadi", "templates"]),
       include_package_data=True,
       install_requires=[
           'jinja2', 'casadi', 'numpy'
