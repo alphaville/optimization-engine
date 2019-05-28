@@ -11,8 +11,8 @@ phi = og.functions.rosenbrock(u, p)
 c = 1.5*u[0] - u[1]
 
 # Constraints
-xmin = [-1.0, -2.0, -1.0, -1.0, -3.0]
-xmax = [2.0, 1.0, 3.0, 4.0, 1.0]
+xmin = [-2.0, -2.0, -2.0, -2.0, -2.0]
+xmax = [2.0, 2.0, 2.0, 2.0, 2.0]
 bounds = og.constraints.Rectangle(xmin, xmax)
 
 # Problem statement: the oracle
@@ -40,7 +40,9 @@ build_config = og.config.BuildConfiguration() \
 solver_config = og.config.SolverConfiguration() \
     .with_lfbgs_memory(15) \
     .with_tolerance(1e-5) \
-    .with_max_iterations(155)
+    .with_max_iterations(155) \
+    .with_constraints_tolerance(1e-4) \
+    .with_max_outer_iterations(15)
 
 # Auto-generate code and build project
 # - We can generate the code, but not build it

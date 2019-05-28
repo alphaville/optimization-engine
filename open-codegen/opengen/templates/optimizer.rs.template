@@ -19,6 +19,9 @@ const NU: usize = {{problem.dim_decision_variables()}};
 const NP: usize = {{problem.dim_parameters()}};
 const NCP: usize = {{problem.dim_constraints_penalty()}};
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance() or 0.0001}};
+const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations() or 10}};
+const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor() or 5.0}};
 {% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
 const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
 {%- elif 'Rectangle' == problem.constraints().__class__.__name__ -%}
@@ -46,8 +49,15 @@ pub fn initialize_solver() -> PANOCCache {
 
 // -- work in progress --
 pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Error> {
-	//TODO: better error management (in closures)
 
+    assert_eq!(p.len(), NP, "Wrong number of parameters (p)");
+    assert_eq!(u.len(), NU, "Wrong number of decision variables (u)");
+
+    let mut q_augmented_params = [0.0; NP + NCP];
+    q_augmented_params[0..NP].copy_from_slice(p);
+
+
+    //TODO: better error management (in closures)
 	/* cost function, f(u; q) */
     let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), Error> {
         icasadi::icasadi_cost(u, q, cost);
@@ -89,27 +99,23 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Err
         gradient_function,
         cost_function,
         penalty_constr_function,
-        NP,
     );
 
     // Do the following, only if there are some penalty-type constraints,
     // otherwise skip it
     if NCP > 0 {
-        let idx_y: Vec<usize> = (NP+1..=NP+NCP).collect();
+        let idx_y: Vec<usize> = (NP..NP + NCP).collect();
         homotopy_problem.add_continuations(
             &idx_y[..],
-            &[1.; 2],
-            &[1000.; 2],
-            &[continuation::ContinuationMode::Geometric(5.0); 2],
+            &[3.; NCP],
+            &[0.; NCP],
+            &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
         );
     }
 
-    let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache);
+    let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
+        .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
+        .with_max_outer_iterations(MAX_OUTER_ITERATIONS);
 
-    //TODO: Here, instead of `p`, we need to provide `q`, which need to
-    //be properly initialised as `q = [p, y0]`, with `p` being the given
-    //parameter and `y0`. We can provide `y0` to be ANYTHING. Its actual
-    //initial value will be set inside HomotopyOptimizer by the private
-    //method `initialize_param`.
-    homotopy_optimizer.solve(u, p)
+    homotopy_optimizer.solve(u, &q_augmented_params)
 }

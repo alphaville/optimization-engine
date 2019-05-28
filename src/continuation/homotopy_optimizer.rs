@@ -9,6 +9,9 @@ use crate::{
     Error,
 };
 
+const DEFAULT_CONSTRAINT_TOLERANCE: f64 = 1e-4;
+const DEFAULT_MAX_OUTER_ITERATIONS: usize = 10;
+
 pub struct HomotopyOptimizer<
     'a,
     ParametricPenaltyFunctionType,
@@ -28,6 +31,8 @@ pub struct HomotopyOptimizer<
         ParametricCostType,
     >,
     panoc_cache: &'a mut panoc::PANOCCache,
+    constraint_tolerance: f64,
+    max_outer_iterations: usize,
 }
 
 impl<
@@ -68,11 +73,32 @@ where
         HomotopyOptimizer {
             homotopy_problem: homotopy_problem,
             panoc_cache: panoc_cache,
+            constraint_tolerance: DEFAULT_CONSTRAINT_TOLERANCE,
+            max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
         }
     }
 
-    fn initialize_param(&self, _p: &mut [f64]) {}
+    fn initialize_param(&self, q_augmented_params: &mut [f64]) {
+        let homotopy_problem = &self.homotopy_problem;
+        let idx_list = &homotopy_problem.idx;
+        let from_list = &homotopy_problem.from;
+        for (i, from_value) in idx_list.iter().zip(from_list.iter()) {
+            q_augmented_params[*i] = *from_value;
+        }
+    }
 
+    pub fn with_constraint_tolerance(mut self, constraint_tolerance: f64) -> Self {
+        self.constraint_tolerance = constraint_tolerance;
+        self
+    }
+
+    pub fn with_max_outer_iterations(mut self, max_outer_iterations: usize) -> Self {
+        self.max_outer_iterations = max_outer_iterations;
+        self
+    }
+
+    // TODO: return a status code (target_reached_flag); this way we will know
+    // whether to continue iterating
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
         let homotopy_problem = &self.homotopy_problem;
         let idx_list = &homotopy_problem.idx;
@@ -85,46 +111,47 @@ where
                 _ => (),
             }
         }
-        p_[0] *= 2.0;
     }
 
     /// Solve problem by homotopy method
     ///
-    pub fn solve(&'a mut self, u: &mut [f64], q: &[f64]) -> Result<(), Error> {
-        //NOTE: Above, by `param` we mean `q`...
-
-        let mut p_: Vec<f64> = q.to_vec();
-        // If NCP = 0, there is no need to apply the homotopy method
-        // Just run the problem once; think of a way to do this neatly!
-        // Maybe, at the end of the loop, do: if NCP == 0: break
+    pub fn solve(&'a mut self, u: &mut [f64], q_augmented_param: &[f64]) -> Result<(), Error> {
+        let mut q_augmented_param_vec: Vec<f64> = q_augmented_param.to_vec();
+        self.initialize_param(&mut q_augmented_param_vec);
 
         // Another consideration is the total time; the time should be monitored
         // and every next instance of the (inner) solver should be given the
         // time that is left
-        for _i in 1..10 {
+        for _i in 1..=self.max_outer_iterations {
+            println!("\niter = {}", _i);
+
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
-                (homotopy_problem.parametric_cost)(u, &p_, cost)
+                (homotopy_problem.parametric_cost)(u, &q_augmented_param_vec, cost)
             };
             let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-                (homotopy_problem.parametric_gradient)(u, &p_, grad)
+                (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
             let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
             let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
 
-            //TODO: check status of inner solver...
+            //TODO: check status of inner solver... what happens if the inner solver has not
+            //converged? we need to come up with a heuristic. Is the situation salvagable?
+            //If ||norm_fpr|| is "reasonably" low, we can still continue hoping that the
+            //next problem will converge (this is likely to happen)
             let status = panoc_.solve(u);
             println!("{:#?}", status);
 
             let mut c = [0.];
-            (homotopy_problem.penalty_function)(u, &p_, &mut c)?;
-            let continue_outer_iterations = c.iter().any(|&ci| ci > 0.01);
+            (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut c)?;
+            println!("constraints = {:?}", c);
+            let continue_outer_iterations = c.iter().any(|&ci| ci > self.constraint_tolerance);
             if !continue_outer_iterations {
                 break;
             } else {
-                self.update_continuation_parameters(&mut p_);
+                self.update_continuation_parameters(&mut q_augmented_param_vec);
             }
-            println!("updated p = {:?}", p_);
+            println!("updated p = {:?}", q_augmented_param_vec);
         }
         // Need to return a different type of  SolverStatus (HomotopySolverStatus)
         // with the number of outer iterations, maximum number of inner iterations,
