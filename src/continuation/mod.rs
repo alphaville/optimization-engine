@@ -48,11 +48,9 @@ mod tests {
     use crate::{mocks, Error};
     use std::num::NonZeroUsize;
 
-
     #[test]
     fn t_homotopy_basic() -> Result<(), Error> {
         let tolerance = 1e-14;
-        let np: usize = 3;
         let problem_size = NonZeroUsize::new(2).unwrap();
         let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
         let a = 1.0;
@@ -80,7 +78,7 @@ mod tests {
 
         let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
 
-        let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp, np);
+        let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp);
         homotopy_problem.add_continuations(
             &[1, 2],
             &[1.; 2],
