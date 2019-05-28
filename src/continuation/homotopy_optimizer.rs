@@ -1,9 +1,8 @@
-#![allow(unused_attributes, dead_code, unused_imports)] //TODO: WORK IN PROGRESS - Remove when done!
-
 use crate::{
     constraints,
     continuation::homotopy_problem::HomotopyProblem,
     continuation::ContinuationMode,
+    continuation::HomotopySolverStatus,
     core::panoc::*,
     core::{panoc, Optimizer, Problem},
     Error,
@@ -99,6 +98,9 @@ where
 
     // TODO: return a status code (target_reached_flag); this way we will know
     // whether to continue iterating
+    //
+    // TODO: Now all parameters are updated; maybe update only those which
+    // violate the termination conditions (c)
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
         let homotopy_problem = &self.homotopy_problem;
         let idx_list = &homotopy_problem.idx;
@@ -115,15 +117,22 @@ where
 
     /// Solve problem by homotopy method
     ///
-    pub fn solve(&'a mut self, u: &mut [f64], q_augmented_param: &[f64]) -> Result<(), Error> {
+    pub fn solve(
+        &'a mut self,
+        u: &mut [f64],
+        q_augmented_param: &[f64],
+    ) -> Result<HomotopySolverStatus, Error> {
         let mut q_augmented_param_vec: Vec<f64> = q_augmented_param.to_vec();
         self.initialize_param(&mut q_augmented_param_vec);
 
         // Another consideration is the total time; the time should be monitored
         // and every next instance of the (inner) solver should be given the
         // time that is left
-        for _i in 1..=self.max_outer_iterations {
-            println!("\niter = {}", _i);
+        let mut num_outer_iterations = 0;
+        let mut num_inner_iterations = 0;
+        for iter_outer in 1..=self.max_outer_iterations {
+            num_outer_iterations += 1;
+            println!("\niter = {}", iter_outer);
 
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
@@ -140,6 +149,7 @@ where
             //If ||norm_fpr|| is "reasonably" low, we can still continue hoping that the
             //next problem will converge (this is likely to happen)
             let status = panoc_.solve(u);
+            num_inner_iterations += status.iterations();
             println!("{:#?}", status);
 
             let mut c = [0.];
@@ -156,6 +166,11 @@ where
         // Need to return a different type of  SolverStatus (HomotopySolverStatus)
         // with the number of outer iterations, maximum number of inner iterations,
         // total outer time etc
-        Ok(())
+        Ok(HomotopySolverStatus::new(
+            true,
+            num_outer_iterations,
+            num_inner_iterations,
+            0.,
+        ))
     }
 }

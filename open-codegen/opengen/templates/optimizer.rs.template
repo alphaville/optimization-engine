@@ -75,8 +75,11 @@ pub fn initialize_solver() -> PANOCCache {
 }
 
 
-// -- work in progress --
-pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> Result<(), Error> {
+pub fn solve(
+    p: &[f64],
+    cache: &mut PANOCCache,
+    u: &mut [f64],
+) -> Result<continuation::HomotopySolverStatus, Error> {
 
     assert_eq!(p.len(), NP, "Wrong number of parameters (p)");
     assert_eq!(u.len(), NU, "Wrong number of decision variables (u)");

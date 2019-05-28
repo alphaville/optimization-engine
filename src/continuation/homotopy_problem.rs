@@ -1,5 +1,3 @@
-#![allow(unused_attributes, dead_code, unused_imports)] //TODO: WORK IN PROGRESS - Remove when done!
-
 use crate::{
     constraints,
     continuation::ContinuationMode,
@@ -7,6 +5,9 @@ use crate::{
     Error,
 };
 
+/// Homotopy problem definition
+///
+///
 pub struct HomotopyProblem<
     ParametricPenaltyFunctionType,
     ParametricGradientType,

@@ -1,6 +1,27 @@
-//! Continuation: penalty method
+//! Continuation/Homotopy methods for parametric optimization problems
 //!
+//! Consider a parametric optimization problem of the general form
 //!
+//! ```txt
+//! Minimize_u f(u; p)
+//! subject to: u in U(p)
+//! ```
+//!
+//! Suppose that for a particular value of `p`, this problem is ill
+//! conditioned.
+//!
+//! It then makes sense to solve the problem for a sequence of values
+//! `p_k`, which converge to the target value `p`, starting from an
+//! initial value `p_0` and using each solution as a warm start for the
+//! next optimization problem.
+//!
+//! The target value of `p` can be equal to infinity. In that case we
+//! have the so-called "penalty method".
+//!
+//! The above parametric problem is accompanied by a function `c(u; p)`,
+//! used as a termination criterion. In particular, when `c(u; p)`
+//! drops below a desired tolerance, then the iterative procedure
+//! is terminated.
 //!
 
 //TODO: WORK IN PROGRESS - Remove when done!
@@ -8,9 +29,11 @@
 
 mod homotopy_optimizer;
 mod homotopy_problem;
+mod homotopy_solver_status;
 
 pub use homotopy_optimizer::HomotopyOptimizer;
 pub use homotopy_problem::HomotopyProblem;
+pub use homotopy_solver_status::HomotopySolverStatus;
 
 /// Continuation mode for free parameters
 #[derive(Debug, Clone, Copy)]
