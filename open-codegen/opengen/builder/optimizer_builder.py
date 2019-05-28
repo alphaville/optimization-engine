@@ -2,18 +2,25 @@ import subprocess
 import shutil
 import datetime
 
-from opengen.config import *
-from jinja2 import Environment, FileSystemLoader
-from casadi import *
+import opengen.config as og_cfg
+import opengen.definitions as og_dfn
+import casadi.casadi as cs
+import os
+import jinja2
+
+_AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
+_AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
+_AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_constraints_type_penalty.c'
+_ICASADI_CFG_HEADER_FNAME = 'icasadi_config.h'
 
 
 class OpEnOptimizerBuilder:
 
     def __init__(self,
                  problem,
-                 metadata=OptimizerMeta(),
-                 build_configuration=BuildConfiguration(),
-                 solver_configuration=SolverConfiguration()):
+                 metadata=og_cfg.OptimizerMeta(),
+                 build_configuration=og_cfg.BuildConfiguration(),
+                 solver_configuration=og_cfg.SolverConfiguration()):
         self._problem = problem
         self._meta = metadata
         self._build_config = build_configuration
@@ -72,7 +79,6 @@ class OpEnOptimizerBuilder:
             if not os.path.exists(target_dir):
                 os.makedirs(target_dir)
 
-
         # Run `cargo init` in target folder
         p = subprocess.Popen(['cargo', 'init'],
                              cwd=target_dir,
@@ -82,7 +88,7 @@ class OpEnOptimizerBuilder:
 
     def _copy_icasadi_to_target(self):
         """Copy 'icasadi' into target directory"""
-        origin_icasadi_dir = original_icasadi_dir()
+        origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self._icasadi_target_dir()
         if not os.path.exists(target_icasadi_dir):
             os.makedirs(target_icasadi_dir)
@@ -97,8 +103,8 @@ class OpEnOptimizerBuilder:
 
         Generates icasadi_header.h
         """
-        file_loader = FileSystemLoader(templates_dir())
-        env = Environment(loader=file_loader)
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
         template = env.get_template('icasadi_config.h.template')
         output_template = template.render(problem=self._problem,
                                           build_config=self._build_config,
@@ -106,16 +112,15 @@ class OpEnOptimizerBuilder:
         icasadi_config_h_path = os.path.abspath(
             os.path.join(
                 self._icasadi_target_dir(),
-                "extern",
-                "icasadi_config.h"))
+                "extern", _ICASADI_CFG_HEADER_FNAME))
         with open(icasadi_config_h_path, "w") as fh:
             fh.write(output_template)
 
     def _generate_cargo_toml(self):
         """Generates Cargo.toml for generated project"""
         target_dir = self._target_dir()
-        file_loader = FileSystemLoader(templates_dir())
-        env = Environment(loader=file_loader)
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer_cargo.toml.template')
         output_template = template.render(
             meta=self._meta,
@@ -130,38 +135,48 @@ class OpEnOptimizerBuilder:
         p = self._problem.parameter_variables()
         ncp = self._problem.dim_constraints_penalty()
         phi = self._problem.cost_function()
-        penalty_function = self._problem.penalty_function()
 
+        # If there are penalty-type constraints, we need to define a modified
+        # cost function
         if ncp > 0:
-            mu = SX.sym("mu", self._problem.dim_constraints_penalty())
-            p = vertcat(p, mu)
-            phi += dot(mu, penalty_function(self._problem.penalty_constraints()))
+            penalty_function = self._problem.penalty_function()
+            mu = cs.SX.sym("mu", self._problem.dim_constraints_penalty())
+            p = cs.vertcat(p, mu)
+            phi += cs.dot(mu, penalty_function(self._problem.penalty_constraints()))
 
-        cost_fun = Function(self._build_config.cost_function_name(), [u, p], [phi])
+        # Define cost and its gradient as CasADi functions
+        cost_fun = cs.Function(self._build_config.cost_function_name(), [u, p], [phi])
+        grad_cost_fun = cs.Function(self._build_config.grad_function_name(),
+                                 [u, p], [cs.jacobian(phi, u)])
 
-        grad_cost_fun = Function(self._build_config.grad_function_name(),
-                                 [u, p], [jacobian(phi, u)])
-
-        constraint_penalty_fun = Function(
-            self._build_config.constraint_penalty_function_name(),
-            [u, p], [self._problem.penalty_constraints()])
-
+        # Filenames of cost and gradient (C file names)
         cost_file_name = self._build_config.cost_function_name() + ".c"
         grad_file_name = self._build_config.grad_function_name() + ".c"
-        constraints_penalty_file_name = \
-            self._build_config.constraint_penalty_function_name() + ".c"
 
-        # code generation using CasADi
+        # Code generation using CasADi (cost and gradient)
         cost_fun.generate(cost_file_name)
         grad_cost_fun.generate(grad_file_name)
-        constraint_penalty_fun.generate(constraints_penalty_file_name)
 
         # Move generated files to target folder
         icasadi_extern_dir = os.path.join(self._icasadi_target_dir(), "extern")
-        shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, "auto_casadi_cost.c"))
-        shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, "auto_casadi_grad.c"))
-        shutil.move(constraints_penalty_file_name,
-                    os.path.join(icasadi_extern_dir, "auto_casadi_constraints_type_penalty.c"))
+        shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
+        shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
+
+        # If there are penalty-type constraints (function c(u; q)), we need
+        # to generate C code for these too
+        if ncp > 0:
+            # Target C file name
+            constraints_penalty_file_name = \
+                self._build_config.constraint_penalty_function_name() + ".c"
+            # Define CasADi function for c(u; q)
+            constraint_penalty_fun = cs.Function(
+                self._build_config.constraint_penalty_function_name(),
+                [u, p], [self._problem.penalty_constraints()])
+            # Generate code
+            constraint_penalty_fun.generate(constraints_penalty_file_name)
+            # Move auto-generated file to target folder
+            shutil.move(constraints_penalty_file_name,
+                        os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
     def _build_icasadi(self):
         icasadi_dir = self._icasadi_target_dir()
@@ -171,8 +186,8 @@ class OpEnOptimizerBuilder:
 
     def _generate_main_project_code(self):
         target_dir = self._target_dir()
-        file_loader = FileSystemLoader(templates_dir())
-        env = Environment(loader=file_loader)
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self._solver_config,
                                           problem=self._problem)
@@ -182,7 +197,6 @@ class OpEnOptimizerBuilder:
 
     def _build_optimizer(self):
         target_dir = self._target_dir()
-        print("TARGET = " + target_dir)
         command = self._make_build_command()
         p = subprocess.Popen(command, cwd=target_dir)
         process_completion = p.wait()

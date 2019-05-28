@@ -32,6 +32,9 @@ class Problem:
         Returns:
             self
         """
+        if penalty_constraints is None:
+            pass
+
         self._penalty_constraints = penalty_constraints
         if penalty_function is None:
             # default penalty function: quadratic
