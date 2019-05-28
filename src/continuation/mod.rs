@@ -101,7 +101,7 @@ mod tests {
 
         let mut panoc_cache = PANOCCache::new(problem_size, tolerance, lbfgs_memory_size);
 
-        let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp);
+        let mut homotopy_problem = continuation::HomotopyProblem::new(bounds, df, f, cp, 2);
         homotopy_problem.add_continuations(
             &[1, 2],
             &[1.; 2],

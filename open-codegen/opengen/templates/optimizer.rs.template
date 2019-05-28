@@ -4,22 +4,21 @@
  *
  * Generated at: {{timestamp_created}}
  */
-#![allow(unused_attributes,dead_code,unused_imports)]
 
 extern crate optimization_engine;
 
 use icasadi;
 use optimization_engine::{constraints::*, panoc::*, *};
-use std::{num::NonZeroUsize, slice, time};
+use std::{num::NonZeroUsize};
 
 // Tolerance of inner solver
-const TOLERANCE: f64 = {{solver_config.tolerance() or 0.0001}};
+const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance() or 0.0001}};
 
 // LBFGS memory
 const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory() or 10}};
 
 // Maximum number of iterations of the inner solver
-const MAX_ITERS: usize = {{solver_config.max_iterations() or 2000}};
+const MAX_INNER_ITERS: usize = {{solver_config.max_iterations() or 2000}};
 
 // Number of decision variables
 const NU: usize = {{problem.dim_decision_variables()}};
@@ -30,8 +29,10 @@ const NP: usize = {{problem.dim_parameters()}};
 // Number of additional penalty-type constraint-related parameters (y)
 const NCP: usize = {{problem.dim_constraints_penalty()}};
 
+{% if problem.dim_constraints_aug_lagrangian() > 0 %}
 // Number of parameters associated with augmented Lagrangian
 const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+{% endif %}
 
 // Required tolerance for c(u; p)
 const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance() or 0.0001}};
@@ -69,7 +70,7 @@ const XMAX :Option<&[f64]> = None;
 pub fn initialize_solver() -> PANOCCache {
     let problem_size = NonZeroUsize::new(NU).unwrap();
     let lbfgs_memory_size = NonZeroUsize::new(LBFGS_MEMORY).unwrap();
-    let panoc_cache = PANOCCache::new(problem_size, TOLERANCE, lbfgs_memory_size);
+    let panoc_cache = PANOCCache::new(problem_size, TOLERANCE_INNER_SOLVER, lbfgs_memory_size);
 
     panoc_cache
 }
@@ -129,6 +130,7 @@ pub fn solve(
         gradient_function,
         cost_function,
         penalty_constr_function,
+        NCP
     );
 
 {% if problem.dim_constraints_penalty() > 0 %}
@@ -144,7 +146,8 @@ pub fn solve(
 
     let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
-        .with_max_outer_iterations(MAX_OUTER_ITERATIONS);
+        .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
+        .with_max_inner_iterations(MAX_INNER_ITERS);
 
     homotopy_optimizer.solve(u, &q_augmented_params)
 }

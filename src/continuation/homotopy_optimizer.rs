@@ -5,12 +5,14 @@ use crate::{
     continuation::HomotopySolverStatus,
     core::panoc::*,
     core::{panoc, Optimizer, Problem},
-    Error,
+    matrix_operations, Error,
 };
 
 const DEFAULT_CONSTRAINT_TOLERANCE: f64 = 1e-4;
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 10;
+const DEFAULT_MAX_INNER_ITERATIONS: usize = 500;
 
+/// Homotopy optimizer
 pub struct HomotopyOptimizer<
     'a,
     ParametricPenaltyFunctionType,
@@ -23,15 +25,21 @@ pub struct HomotopyOptimizer<
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
+    /// Definition of parametric problem
     homotopy_problem: &'a HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
         ParametricCostType,
     >,
+    /// Instance of PANOCCache
     panoc_cache: &'a mut panoc::PANOCCache,
+    /// Tolerance on constraint satisfaction
     constraint_tolerance: f64,
+    /// Maximum number of outer iterations
     max_outer_iterations: usize,
+    /// Maximum number of inner iterations
+    max_inner_iterations: usize,
 }
 
 impl<
@@ -54,6 +62,19 @@ where
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
+    /// Constructor for `HomotopyOptimizer`
+    ///
+    ///
+    /// ## Arguments
+    /// - homotopy_problem
+    /// - panoc_cache
+    /// - constraint_tolerance
+    /// - max_outer_iterations
+    ///
+    /// ## Returns
+    ///
+    /// - New instance of `HomotopyOptimizer`
+    ///
     pub fn new(
         homotopy_problem: &'a HomotopyProblem<
             ParametricPenaltyFunctionType,
@@ -74,6 +95,7 @@ where
             panoc_cache: panoc_cache,
             constraint_tolerance: DEFAULT_CONSTRAINT_TOLERANCE,
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
+            max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
         }
     }
 
@@ -96,6 +118,11 @@ where
         self
     }
 
+    pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
+        self.max_inner_iterations = max_inner_iterations;
+        self
+    }
+
     // TODO: return a status code (target_reached_flag); this way we will know
     // whether to continue iterating
     //
@@ -104,7 +131,6 @@ where
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
         let homotopy_problem = &self.homotopy_problem;
         let idx_list = &homotopy_problem.idx;
-        println!("idx_list = {:?}", idx_list);
         let transition_list = &homotopy_problem.transition_mode;
         for (i, transition_mode) in idx_list.iter().zip(transition_list.iter()) {
             match transition_mode {
@@ -122,18 +148,20 @@ where
         u: &mut [f64],
         q_augmented_param: &[f64],
     ) -> Result<HomotopySolverStatus, Error> {
+        let now = std::time::Instant::now();
         let mut q_augmented_param_vec: Vec<f64> = q_augmented_param.to_vec();
         self.initialize_param(&mut q_augmented_param_vec);
 
         // Another consideration is the total time; the time should be monitored
         // and every next instance of the (inner) solver should be given the
         // time that is left
+        let mut last_norm_fpr: f64 = 1.;
         let mut num_outer_iterations = 0;
         let mut num_inner_iterations = 0;
-        for iter_outer in 1..=self.max_outer_iterations {
+        let num_penalty_constraints = self.homotopy_problem.num_penalty_constraints;
+        let mut constraint_values: Vec<f64> = vec![0.0; num_penalty_constraints];
+        for _iter_outer in 1..=self.max_outer_iterations {
             num_outer_iterations += 1;
-            println!("\niter = {}", iter_outer);
-
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
                 (homotopy_problem.parametric_cost)(u, &q_augmented_param_vec, cost)
@@ -150,27 +178,28 @@ where
             //next problem will converge (this is likely to happen)
             let status = panoc_.solve(u);
             num_inner_iterations += status.iterations();
-            println!("{:#?}", status);
-
-            let mut c = [0.];
-            (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut c)?;
-            println!("constraints = {:?}", c);
-            let continue_outer_iterations = c.iter().any(|&ci| ci > self.constraint_tolerance);
+            last_norm_fpr = status.norm_fpr();
+            (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut constraint_values)?;
+            let continue_outer_iterations = constraint_values
+                .iter()
+                .any(|&ci| ci > self.constraint_tolerance);
             if !continue_outer_iterations {
                 break;
             } else {
                 self.update_continuation_parameters(&mut q_augmented_param_vec);
             }
-            println!("updated p = {:?}", q_augmented_param_vec);
         }
         // Need to return a different type of  SolverStatus (HomotopySolverStatus)
         // with the number of outer iterations, maximum number of inner iterations,
         // total outer time etc
+        let max_constraint_violation = matrix_operations::norm_inf(&constraint_values);
         Ok(HomotopySolverStatus::new(
             true,
             num_outer_iterations,
             num_inner_iterations,
-            0.,
+            last_norm_fpr,
+            max_constraint_violation,
+            now.elapsed(),
         ))
     }
 }

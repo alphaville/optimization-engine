@@ -31,6 +31,7 @@ pub struct HomotopyProblem<
     pub(crate) from: Vec<f64>,
     pub(crate) to: Vec<f64>,
     pub(crate) transition_mode: Vec<ContinuationMode>,
+    pub(crate) num_penalty_constraints: usize,
 }
 
 impl<ParametricPenaltyFunctionType, ParametricGradientType, ConstraintType, ParametricCostType>
@@ -51,6 +52,7 @@ where
         parametric_gradient: ParametricGradientType,
         parametric_cost: ParametricCostType,
         penalty_function: ParametricPenaltyFunctionType,
+        num_penalty_constraints: usize,
     ) -> HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
@@ -66,6 +68,7 @@ where
             from: Vec::new(),
             to: Vec::new(),
             transition_mode: Vec::new(),
+            num_penalty_constraints: num_penalty_constraints,
         }
     }
 
