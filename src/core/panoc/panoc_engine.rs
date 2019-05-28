@@ -34,7 +34,7 @@ where
     CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    problem: Problem<GradientType, ConstraintType, CostType>,
+    problem: Problem<'a, GradientType, ConstraintType, CostType>,
     pub(crate) cache: &'a mut PANOCCache,
 }
 
@@ -57,7 +57,7 @@ where
     ///
     ///
     pub fn new(
-        problem: Problem<GradientType, ConstraintType, CostType>,
+        problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
     ) -> PANOCEngine<'a, GradientType, ConstraintType, CostType> {
         PANOCEngine { problem, cache }
@@ -375,7 +375,7 @@ mod tests {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let box_constraints = constraints::NoConstraints::new();
-        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -404,7 +404,7 @@ mod tests {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -427,7 +427,7 @@ mod tests {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -453,7 +453,7 @@ mod tests {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::Ball2::new(None, 0.5);
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -478,7 +478,7 @@ mod tests {
         let n = NonZeroUsize::new(3).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -518,7 +518,7 @@ mod tests {
         let n = NonZeroUsize::new(2).unwrap();
         let mem = NonZeroUsize::new(5).unwrap();
         let bounds = constraints::Ball2::new(None, 0.5);
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 

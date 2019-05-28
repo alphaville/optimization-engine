@@ -14,7 +14,7 @@ fn t_solve_fbs_hard() {
     let bounds = constraints::NoConstraints::new();
 
     let problem = Problem::new(
-        bounds,
+        &bounds,
         mocks::hard_quadratic_gradient,
         mocks::hard_quadratic_cost,
     );
@@ -35,7 +35,7 @@ fn t_solve_fbs_hard() {
 #[test]
 fn t_fbs_step_no_constraints() {
     let no_constraints = constraints::NoConstraints::new();
-    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -60,7 +60,7 @@ fn t_fbs_step_no_constraints() {
 #[test]
 fn t_fbs_step_ball_constraints() {
     let no_constraints = constraints::Ball2::new(None, 0.1);
-    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -83,7 +83,7 @@ fn t_fbs_step_ball_constraints() {
 fn t_solve_fbs() {
     let radius = 0.2;
     let box_constraints = constraints::Ball2::new(None, radius);
-    let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -115,7 +115,7 @@ fn t_solve_fbs_many_times() {
         let box_constraints = constraints::Ball2::new(None, 0.2);
 
         // The problem is surely update at every execution of NMPC
-        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
 
         // Here comes the new initial condition
         u[0] = 2.0 * _i as f64;

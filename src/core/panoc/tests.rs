@@ -9,7 +9,7 @@ const N_DIM: usize = 2;
 fn t_panoc_init() {
     let radius = 0.2;
     let ball = constraints::Ball2::new(None, radius);
-    let problem = Problem::new(ball, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&ball, mocks::my_gradient, mocks::my_cost);
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(N_DIM).unwrap(),
         1e-6,
@@ -59,7 +59,7 @@ fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
 #[test]
 fn t_test_panoc_basic() {
     let bounds = constraints::Ball2::new(None, 0.2);
-    let problem = Problem::new(bounds, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&bounds, mocks::my_gradient, mocks::my_cost);
     let tolerance = 1e-9;
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(2).unwrap(),
@@ -93,7 +93,7 @@ fn t_test_panoc_hard() {
     let radius: f64 = 0.05;
     let bounds = constraints::Ball2::new(None, radius);
     let problem = Problem::new(
-        bounds,
+        &bounds,
         mocks::hard_quadratic_gradient,
         mocks::hard_quadratic_cost,
     );
@@ -141,7 +141,7 @@ fn t_test_panoc_rosenbrock() {
         Ok(())
     };
     let bounds = constraints::Ball2::new(None, 1.0);
-    let problem = Problem::new(bounds, df, f);
+    let problem = Problem::new(&bounds, df, f);
     let mut panoc_cache = PANOCCache::new(
         NonZeroUsize::new(2).unwrap(),
         tolerance,

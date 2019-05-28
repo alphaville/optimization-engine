@@ -41,7 +41,7 @@ where
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
-        problem: Problem<GradientType, ConstraintType, CostType>,
+        problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut FBSCache,
     ) -> FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
         FBSOptimizer {
