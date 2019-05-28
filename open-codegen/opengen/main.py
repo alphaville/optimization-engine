@@ -19,7 +19,7 @@ bounds = og.constraints.Rectangle(xmin, xmax)
 
 # Problem statement: the oracle
 problem = og.builder.Problem(u, p, phi) \
-    .with_penalty_constraints(c) \
+    .with_penalty_constraints(None) \
     .with_constraints(bounds)
 
 # Metadata of auto-generated Rust package
@@ -27,7 +27,7 @@ meta = og.config.OptimizerMeta() \
     .with_version("0.0.2") \
     .with_authors(["P. Sopasakis", "E. Fresk"]) \
     .with_licence("CC4.0-By") \
-    .with_optimizer_name("funky_optimizer")
+    .with_optimizer_name("wow_optimizer")
 
 # Build configuration
 # - build mode (debug/release), where to store it, which version
@@ -35,7 +35,7 @@ meta = og.config.OptimizerMeta() \
 build_config = og.config.BuildConfiguration() \
     .with_rebuild(False) \
     .with_build_mode("debug") \
-    .with_build_directory("xxx") \
+    .with_build_directory("yyy") \
     .with_open_version("0.3.2")
 
 # Solver configuration (tolerance, L-BFGS memory, etc)

@@ -90,7 +90,16 @@ where
     /// Solve problem by homotopy method
     ///
     pub fn solve(&'a mut self, u: &mut [f64], params: &[f64]) -> Result<(), Error> {
+        //NOTE: Above, by `param` we mean `q`... 
+
         let mut p_: Vec<f64> = params.to_vec();
+        // If NCP = 0, there is no need to apply the homotopy method
+        // Just run the problem once; think of a way to do this neatly!
+        // Maybe, at the end of the loop, do: if NCP == 0: break
+
+        // Another consideration is the total time; the time should be monitored
+        // and every next instance of the (inner) solver should be given the 
+        // time that is left
         for _i in 1..3 {
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
@@ -102,12 +111,13 @@ where
             let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
             let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
             panoc_.solve(u);
-            println!("u = {:#?}", u);
             let mut c = [0.];
-            (homotopy_problem.penalty_function)(u, &p_, &mut c)?;
-            println!("c = {:#?}", c);
+            (homotopy_problem.penalty_function)(u, &p_, &mut c)?;            
             self.update_continuation_parameters(&mut p_);
         }
+        // Need to return a different type of  SolverStatus (HomotopySolverStatus)
+        // with the number of outer iterations, maximum number of inner iterations,
+        // total outer time etc
         Ok(())
     }
 }

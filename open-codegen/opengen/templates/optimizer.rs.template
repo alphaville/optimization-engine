@@ -66,7 +66,7 @@ pub fn solve(p: &[f64], cache: &mut PANOCCache, u: &mut [f64]) -> SolverStatus {
     let bounds = Rectangle::new(XMIN, XMAX);
 {%- endif %}
 
-	let problem = Problem::new(bounds, df, f);
+	let problem = Problem::new(&bounds, df, f);
     let mut panoc = PANOCOptimizer::new(problem, cache).with_max_iter(MAX_ITERS);
     let status = panoc.solve(u);
 

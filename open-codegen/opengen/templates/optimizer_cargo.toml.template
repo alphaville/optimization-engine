@@ -8,5 +8,7 @@ publish=false
 
 
 [dependencies]
-optimization_engine = "{{open_version or '*'}}"
+#TODO: Important! Change this in production to:
+#optimization_engine = "{{open_version or '*'}}"
+optimization_engine = { path = "../../../../" }
 icasadi = {path = "./icasadi/"}
