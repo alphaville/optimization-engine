@@ -30,7 +30,6 @@ pub struct HomotopyProblem<
     pub(crate) from: Vec<f64>,
     pub(crate) to: Vec<f64>,
     pub(crate) transition_mode: Vec<ContinuationMode>,
-    num_parameters: usize,
 }
 
 impl<ParametricPenaltyFunctionType, ParametricGradientType, ConstraintType, ParametricCostType>
@@ -51,7 +50,6 @@ where
         parametric_gradient: ParametricGradientType,
         parametric_cost: ParametricCostType,
         penalty_function: ParametricPenaltyFunctionType,
-        num_parameters: usize,
     ) -> HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
@@ -67,7 +65,6 @@ where
             from: Vec::new(),
             to: Vec::new(),
             transition_mode: Vec::new(),
-            num_parameters: num_parameters,
         }
     }
 
@@ -78,7 +75,6 @@ where
         to_: f64,
         transition_: ContinuationMode,
     ) {
-        assert!(idx_ < self.num_parameters, "idx_ is out of bounds");
         self.idx.push(idx_);
         self.from.push(from_);
         self.to.push(to_);
