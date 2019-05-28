@@ -159,7 +159,7 @@ where
         let mut num_outer_iterations = 0;
         let mut num_inner_iterations = 0;
         let num_penalty_constraints = self.homotopy_problem.num_penalty_constraints;
-        let mut constraint_values: Vec<f64> = vec![0.0; num_penalty_constraints];
+        let mut constraint_values: Vec<f64> = vec![0.0; 1 + num_penalty_constraints];
         for _iter_outer in 1..=self.max_outer_iterations {
             num_outer_iterations += 1;
             let homotopy_problem = &self.homotopy_problem;
