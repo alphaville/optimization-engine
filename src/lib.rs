@@ -19,6 +19,8 @@ extern crate num;
 pub enum SolverError {
     /// If the gradient or cost function cannot be evaluated
     Cost,
+    /// Computation failed and NaN/Infinite value was obtained
+    NotFiniteComputation,
 }
 
 pub mod constraints;

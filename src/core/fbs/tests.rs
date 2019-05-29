@@ -18,7 +18,7 @@ fn t_solve_fbs_hard() {
         mocks::hard_quadratic_gradient,
         mocks::hard_quadratic_cost,
     );
-    let gamma = 0.005;
+    let gamma = 0.0005;
     let tolerance = 1e-6;
 
     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
@@ -30,6 +30,25 @@ fn t_solve_fbs_hard() {
     println!("solution = {:?}", u);
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);
+}
+
+#[test]
+fn t_solve_fbs_hard_failure_nan() {
+    let bounds = constraints::NoConstraints::new();
+
+    let problem = Problem::new(
+        &bounds,
+        mocks::hard_quadratic_gradient,
+        mocks::hard_quadratic_cost,
+    );
+    let gamma = 0.005;
+    let tolerance = 1e-6;
+
+    let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
+    let mut u = [-12., -160., 55.];
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(10000);
+    let status = optimizer.solve(&mut u);
+    assert_eq!(Err(SolverError::NotFiniteComputation), status);
 }
 
 #[test]

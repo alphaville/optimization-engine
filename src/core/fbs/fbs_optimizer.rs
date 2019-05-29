@@ -6,7 +6,7 @@ use crate::{
         fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, Optimizer, Problem,
         SolverStatus,
     },
-    SolverError,
+    matrix_operations, SolverError,
 };
 use std::time;
 
@@ -116,6 +116,10 @@ where
         // cost at the solution [propagate error upstream]
         let mut cost_value = 0.0;
         (self.fbs_engine.problem.cost)(u, &mut cost_value)?;
+
+        if !matrix_operations::is_finite(&u) || !cost_value.is_finite() {
+            return Err(SolverError::NotFiniteComputation);
+        }
 
         // export solution status
         Ok(SolverStatus::new(

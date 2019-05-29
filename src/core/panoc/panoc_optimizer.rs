@@ -6,7 +6,7 @@ use crate::{
         panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, ExitStatus,
         Optimizer, Problem, SolverStatus,
     },
-    SolverError,
+    matrix_operations, SolverError,
 };
 use std::time;
 
@@ -123,6 +123,11 @@ where
                 continue_num_iters = num_iter < self.max_iter;
                 step_flag = self.panoc_engine.step(u)?;
             }
+        }
+
+        // check for possible NaN/inf
+        if !matrix_operations::is_finite(&u) {
+            return Err(SolverError::NotFiniteComputation);
         }
 
         // exit status
