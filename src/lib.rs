@@ -16,7 +16,7 @@ extern crate num;
 
 /// Exceptions/Errors that may arise while solving a problem
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Error {
+pub enum SolverError {
     /// If the gradient or cost function cannot be evaluated
     Cost,
 }

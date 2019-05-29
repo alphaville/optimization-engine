@@ -44,11 +44,6 @@ const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations() or 10
 // Update factor for the penalty method
 const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor() or 5.0}};
 
-{% if solver_config.max_duration_micros() > 0 %}
-// Maximum execution duration in microseconds
-const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros()}};
-{% endif %}
-
 // Initial values of the weights
 {% if solver_config.initial_penalty_weights() | length == 1 -%}
 const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()[0]}}; NCP];
@@ -73,6 +68,13 @@ const XMAX :Option<&[f64]> = None;
 {%- endif %}
 
 
+{% if solver_config.max_duration_micros() > 0 %}
+// Maximum execution duration in microseconds
+const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros()}};
+{% else %}
+# --- {{ solver_config.max_duration_micros() }}
+{% endif %}
+
 /// Initialisation of the solver
 pub fn initialize_solver() -> PANOCCache {
     let problem_size = NonZeroUsize::new(NU).unwrap();
@@ -87,7 +89,7 @@ pub fn solve(
     p: &[f64],
     cache: &mut PANOCCache,
     u: &mut [f64],
-) -> Result<continuation::HomotopySolverStatus, Error> {
+) -> Result<continuation::HomotopySolverStatus, SolverError> {
 
     assert_eq!(p.len(), NP, "Wrong number of parameters (p)");
     assert_eq!(u.len(), NU, "Wrong number of decision variables (u)");
@@ -98,20 +100,20 @@ pub fn solve(
 
     //TODO: better error management (in closures)
 	/* cost function, f(u; q) */
-    let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), Error> {
+    let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
         icasadi::icasadi_cost(u, q, cost);
         Ok(())
     };
 
     /* parametric gradient, df(u, q) */
-    let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+    let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
         icasadi::icasadi_grad(u, q, grad);
         Ok(())
     };
 
 	/* penalty-type constraints: c(u; p) */
     let penalty_constr_function =
-    |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), Error> {
+    |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
         icasadi::icasadi_constraints_as_penalty(u, q, constraints);
         Ok(())
     };
@@ -141,7 +143,7 @@ pub fn solve(
     );
 
 {% if problem.dim_constraints_penalty() > 0 %}
-    //
+    // Define the initial weights, the update rule and the update factor
     let idx_y: Vec<usize> = (NP..NP + NCP).collect();
     homotopy_problem.add_continuations(
         &idx_y[..],
@@ -151,14 +153,18 @@ pub fn solve(
     );
 {% endif %}
 
+    // construct a homotopy optimizer
     let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERS);
 
 {% if solver_config.max_duration_micros() > 0 %}
+    // set the maximum execution duration
     homotopy_optimizer.with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
 {% endif %}
 
+    // solve the problem and return its status
+    // parameter `u` is updated with the solution
     homotopy_optimizer.solve(u, &q_augmented_params)
 }

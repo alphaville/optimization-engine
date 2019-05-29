@@ -1,7 +1,7 @@
 use crate::core::panoc::panoc_engine::PANOCEngine;
 use crate::core::panoc::*;
 use crate::core::*;
-use crate::{mocks, Error};
+use crate::{mocks, SolverError};
 use std::num::NonZeroUsize;
 
 const N_DIM: usize = 2;
@@ -44,8 +44,8 @@ fn t_panoc_init() {
 fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
     panoc_engine: &PANOCEngine<'a, GradientType, ConstraintType, CostType>,
 ) where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     println!("> fpr       = {:?}", &panoc_engine.cache.gamma_fpr);
@@ -132,11 +132,11 @@ fn t_test_panoc_rosenbrock() {
     let tolerance = 1e-12;
     let a = 1.0;
     let b = 100.0;
-    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
         mocks::rosenbrock_grad(a, b, u, grad);
         Ok(())
     };
-    let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
+    let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
         *c = mocks::rosenbrock_cost(a, b, u);
         Ok(())
     };

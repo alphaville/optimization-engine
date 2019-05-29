@@ -68,30 +68,30 @@ mod tests {
     use crate::core::constraints::Ball2;
     use crate::core::panoc::*;
     use crate::core::*;
-    use crate::{mocks, Error};
+    use crate::{mocks, SolverError};
     use std::num::NonZeroUsize;
 
     #[test]
-    fn t_homotopy_basic() -> Result<(), Error> {
+    fn t_homotopy_basic() -> Result<(), SolverError> {
         let tolerance = 1e-14;
         let problem_size = NonZeroUsize::new(2).unwrap();
         let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
         let a = 1.0;
 
         /* parametric cost */
-        let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), Error> {
+        let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), SolverError> {
             *cost = mocks::rosenbrock_cost(a, p[1], u);
             Ok(())
         };
 
         /* parametric gradient */
-        let df = |u: &[f64], p: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+        let df = |u: &[f64], p: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
             mocks::rosenbrock_grad(p[0], p[1], u, grad);
             Ok(())
         };
 
         /* parametric constraints, c(u; p) */
-        let cp = |u: &[f64], p: &[f64], constraints: &mut [f64]| -> Result<(), Error> {
+        let cp = |u: &[f64], p: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
             let t = crate::matrix_operations::norm2(u);
             constraints[0] = if t < 1. { 0. } else { p[0] * (t - 1.) };
             Ok(())

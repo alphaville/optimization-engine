@@ -3,15 +3,15 @@
 use crate::{
     constraints,
     core::{fbs::FBSCache, AlgorithmEngine, Problem},
-    matrix_operations, Error,
+    matrix_operations, SolverError,
 };
 
 /// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
 ///
 pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     pub(crate) problem: Problem<'a, GradientType, ConstraintType, CostType>,
@@ -21,8 +21,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// Constructor for instances of `FBSEngine`
@@ -64,8 +64,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error> + 'a,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error> + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError> + 'a,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError> + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
     /// Take a forward-backward step and check whether the algorithm should terminate
@@ -83,7 +83,7 @@ where
     ///
     /// The method may panick if the computation of the gradient of the cost function
     /// or the cost function panics.
-    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, Error> {
+    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, SolverError> {
         self.cache.work_u_previous.copy_from_slice(u_current); // cache the previous step
         self.gradient_step(u_current); // compute the gradient
         self.projection_step(u_current); // project
@@ -93,7 +93,7 @@ where
         Ok(self.cache.norm_fpr > self.cache.tolerance)
     }
 
-    fn init(&mut self, _u_current: &mut [f64]) -> Result<(), Error> {
+    fn init(&mut self, _u_current: &mut [f64]) -> Result<(), SolverError> {
         Ok(())
     }
 }

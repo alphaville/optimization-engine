@@ -28,12 +28,12 @@ fn main() {
     let radius = 1.0;
 
     // define the cost function and its gradient
-    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
         rosenbrock_grad(a, b, u, grad);
         Ok(())
     };
 
-    let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
+    let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
         *c = rosenbrock_cost(a, b, u);
         Ok(())
     };

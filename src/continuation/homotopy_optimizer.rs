@@ -5,7 +5,7 @@ use crate::{
     continuation::HomotopySolverStatus,
     core::panoc::*,
     core::{panoc, ExitStatus, Optimizer, Problem},
-    matrix_operations, Error,
+    matrix_operations, SolverError,
 };
 
 const DEFAULT_CONSTRAINT_TOLERANCE: f64 = 1e-4;
@@ -20,9 +20,9 @@ pub struct HomotopyOptimizer<
     ConstraintType,
     ParametricCostType,
 > where
-    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// Definition of parametric problem
@@ -59,9 +59,9 @@ impl<
         ParametricCostType,
     >
 where
-    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// Constructor for `HomotopyOptimizer`
@@ -218,7 +218,7 @@ where
         &'a mut self,
         u: &mut [f64],
         q_augmented_param: &[f64],
-    ) -> Result<HomotopySolverStatus, Error> {
+    ) -> Result<HomotopySolverStatus, SolverError> {
         let now = std::time::Instant::now();
         let mut q_augmented_param_vec: Vec<f64> = q_augmented_param.to_vec();
         self.initialize_param(&mut q_augmented_param_vec);
@@ -250,10 +250,10 @@ where
 
             num_outer_iterations += 1;
             let homotopy_problem = &self.homotopy_problem;
-            let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
+            let f_ = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> {
                 (homotopy_problem.parametric_cost)(u, &q_augmented_param_vec, cost)
             };
-            let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+            let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
                 (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
             let inner_problem = Problem::new(&self.homotopy_problem.constraints, df_, f_);
@@ -267,7 +267,7 @@ where
             //converged? we need to come up with a heuristic. Is the situation salvagable?
             //If ||norm_fpr|| is "reasonably" low, we can still continue hoping that the
             //next problem will converge (this is likely to happen)
-            let status = inner_panoc.solve(u);
+            let status = inner_panoc.solve(u).unwrap();
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();
             exit_status = status.exit_status();

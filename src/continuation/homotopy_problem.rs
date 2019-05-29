@@ -2,7 +2,7 @@ use crate::{
     constraints,
     continuation::ContinuationMode,
     core::{panoc, Optimizer},
-    Error,
+    SolverError,
 };
 
 /// Homotopy problem definition
@@ -14,9 +14,9 @@ pub struct HomotopyProblem<
     ConstraintType,
     ParametricCostType,
 > where
-    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// constraints
@@ -47,9 +47,9 @@ impl<ParametricPenaltyFunctionType, ParametricGradientType, ConstraintType, Para
         ParametricCostType,
     >
 where
-    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), Error>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
+    ParametricPenaltyFunctionType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     pub fn new(

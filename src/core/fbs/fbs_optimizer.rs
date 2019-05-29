@@ -6,7 +6,7 @@ use crate::{
         fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, Optimizer, Problem,
         SolverStatus,
     },
-    Error,
+    SolverError,
 };
 use std::time;
 
@@ -24,8 +24,8 @@ const MAX_ITER: usize = 100_usize;
 ///
 pub struct FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     fbs_engine: FBSEngine<'a, GradientType, ConstraintType, CostType>,
@@ -36,8 +36,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     pub fn new(
@@ -88,11 +88,11 @@ where
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
     for FBSOptimizer<'life, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error> + 'life,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error> + 'life,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError> + 'life,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError> + 'life,
     ConstraintType: constraints::Constraint + 'life,
 {
-    fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
+    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
         let now = time::Instant::now();
 
         if let Ok(_) = self.fbs_engine.init(u) {
@@ -120,7 +120,7 @@ where
             );
 
             // export solution status
-            SolverStatus::new(
+            Ok(SolverStatus::new(
                 if num_iter < self.max_iter {
                     ExitStatus::Converged
                 } else {
@@ -130,16 +130,16 @@ where
                 now.elapsed(),
                 self.fbs_engine.cache.norm_fpr,
                 cost_value,
-            )
+            ))
         } else {
             // The cost function failed somewhere
-            SolverStatus::new(
+            Ok(SolverStatus::new(
                 ExitStatus::NotConvergedIterations,
                 0,
                 now.elapsed(),
                 std::f64::INFINITY,
                 std::f64::INFINITY,
-            )
+            ))
         }
     }
 }
