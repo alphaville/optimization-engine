@@ -3,7 +3,7 @@
 use crate::{
     constraints,
     core::{
-        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, Optimizer, Problem,
+        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, Optimizer, Problem,
         SolverStatus,
     },
     Error,
@@ -121,7 +121,11 @@ where
 
             // export solution status
             SolverStatus::new(
-                num_iter < self.max_iter,
+                if num_iter < self.max_iter {
+                    ExitStatus::Converged
+                } else {
+                    ExitStatus::NotConvergedIterations
+                },
                 num_iter,
                 now.elapsed(),
                 self.fbs_engine.cache.norm_fpr,
@@ -130,7 +134,7 @@ where
         } else {
             // The cost function failed somewhere
             SolverStatus::new(
-                false,
+                ExitStatus::NotConvergedIterations,
                 0,
                 now.elapsed(),
                 std::f64::INFINITY,

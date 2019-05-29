@@ -76,6 +76,7 @@ impl SolverStatus {
         self.cost_value
     }
 
+    /// exit status of solver
     pub fn exit_status(&self) -> ExitStatus {
         self.exit_status
     }

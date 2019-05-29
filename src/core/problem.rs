@@ -43,6 +43,9 @@ where
     /// - `cost_gradient` gradient of the cost function
     /// - `cost` cost function
     ///
+    /// ## Returns
+    ///
+    /// New instance of `Problem`
     pub fn new(
         constraints: &'a ConstraintType,
         cost_gradient: GradientType,

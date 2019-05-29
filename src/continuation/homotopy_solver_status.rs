@@ -3,16 +3,37 @@ use crate::core::ExitStatus;
 ///
 #[derive(Debug)]
 pub struct HomotopySolverStatus {
+    /// Exit status
     exit_status: ExitStatus,
+    /// Number of outer iterations
     num_outer_iterations: usize,
+    /// Total number of inner iterations
+    ///
+    /// This is the sum of the numbers of iterations of
+    /// inner solvers
     num_inner_iterations: usize,
+    /// Norm of the fixed-point residual of the the problem
     last_problem_norm_fpr: f64,
+    /// Maximum constraint violation
     max_constraint_violation: f64,
+    /// Total solve time
     solve_time: std::time::Duration,
 }
 
-// TODO: add: time
 impl HomotopySolverStatus {
+    /// Construct a new instance of `HomotopySolverStatus`
+    ///
+    /// ## Arguments
+    /// - exit_status: exit status
+    /// - num_outer_iterations: number of outer iterations
+    /// - num_inner_iterations: number of inner iterations
+    /// - last_problem_norm_fpr: norm of the FPR of the last solved inner problem
+    /// - max_constraint_violation: maximum constraint violation
+    /// - solve_time: total solve time
+    ///
+    /// ## Returns
+    ///
+    /// New instance of `HomotopySolverStatus`
     pub fn new(
         exit_status: ExitStatus,
         num_outer_iterations: usize,
