@@ -15,7 +15,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(c) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_build_directory(".yyy")
+            .with_build_directory(".yyy") \
+            .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
@@ -28,7 +29,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(None) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_build_directory(".yyy")
+            .with_build_directory(".yyy") \
+            .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
     
@@ -49,7 +51,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_licence("CC4.0-By") \
             .with_optimizer_name("wow_optimizer")
         build_config = og.config.BuildConfiguration() \
-            .with_rebuild(True) \
+            .with_rebuild(False) \
             .with_build_mode("debug") \
             .with_build_directory(".yyy") \
             .with_open_version("0.3.2")
