@@ -108,16 +108,20 @@ where
         let mut num_iter: usize = 0;
         let mut continue_num_iters = true;
         let mut continue_runtime = true;
+
+        let mut step_flag = self.panoc_engine.step(u)?;
         if let Some(dur) = self.max_duration {
-            while self.panoc_engine.step(u) == Ok(true) && continue_num_iters && continue_runtime {
+            while step_flag && continue_num_iters && continue_runtime {
                 num_iter += 1;
                 continue_num_iters = num_iter < self.max_iter;
                 continue_runtime = now.elapsed() <= dur;
+                step_flag = self.panoc_engine.step(u)?;
             }
         } else {
-            while self.panoc_engine.step(u) == Ok(true) && continue_num_iters {
+            while step_flag && continue_num_iters {
                 num_iter += 1;
                 continue_num_iters = num_iter < self.max_iter;
+                step_flag = self.panoc_engine.step(u)?;
             }
         }
 
