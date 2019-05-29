@@ -3,8 +3,8 @@
 use crate::{
     constraints,
     core::{
-        panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, Optimizer, Problem,
-        SolverStatus,
+        panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, ExitStatus,
+        Optimizer, Problem, SolverStatus,
     },
     Error,
 };
@@ -84,40 +84,58 @@ where
     fn solve(&mut self, u: &mut [f64]) -> SolverStatus {
         let now = time::Instant::now();
 
-        if let Ok(_) = self.panoc_engine.init(u) {
-            let mut num_iter: usize = 0;
-
-            if let Some(dur) = self.max_duration {
-                while self.panoc_engine.step(u) == Ok(true)
-                    && num_iter < self.max_iter
-                    && now.elapsed() <= dur
-                {
-                    num_iter += 1;
-                }
-            } else {
-                while self.panoc_engine.step(u) == Ok(true) && num_iter < self.max_iter {
-                    num_iter += 1;
-                }
+        /*
+         * Initialise [call panoc_engine.init()]
+         * and check whether it returns Ok(())
+         */
+        match self.panoc_engine.init(u) {
+            Ok(_) => { /* all good! */ }
+            Err(_) => {
+                /* Something terrible happened! */
+                return SolverStatus::new(
+                    ExitStatus::Failure,
+                    0,
+                    std::time::Duration::from_secs(0),
+                    std::f64::INFINITY,
+                    std::f64::INFINITY,
+                );
             }
+        };
 
-            // export solution status
-            SolverStatus::new(
-                num_iter < self.max_iter,
-                num_iter,
-                now.elapsed(),
-                self.panoc_engine.cache.norm_gamma_fpr,
-                self.panoc_engine.cache.cost_value,
-            )
+        /* Main loop */
+        let mut num_iter: usize = 0;
+        let mut continue_num_iters = true;
+        let mut continue_runtime = true;
+        if let Some(dur) = self.max_duration {
+            while self.panoc_engine.step(u) == Ok(true) && continue_num_iters && continue_runtime {
+                num_iter += 1;
+                continue_num_iters = num_iter < self.max_iter;
+                continue_runtime = now.elapsed() <= dur;
+            }
         } else {
-            // The cost function failed somewhere
-            SolverStatus::new(
-                false,
-                0,
-                now.elapsed(),
-                std::f64::INFINITY,
-                std::f64::INFINITY,
-            )
+            while self.panoc_engine.step(u) == Ok(true) && continue_num_iters {
+                num_iter += 1;
+                continue_num_iters = num_iter < self.max_iter;
+            }
         }
+
+        // exit status
+        let exit_status = if !continue_num_iters {
+            ExitStatus::NotConvergedIterations
+        } else if !continue_runtime {
+            ExitStatus::NotConvergedOutOfTime
+        } else {
+            ExitStatus::Converged
+        };
+
+        // export solution status (exit status, num iterations and more)
+        SolverStatus::new(
+            exit_status,
+            num_iter,
+            now.elapsed(),
+            self.panoc_engine.cache.norm_gamma_fpr,
+            self.panoc_engine.cache.cost_value,
+        )
     }
 }
 

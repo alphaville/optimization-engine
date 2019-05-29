@@ -169,12 +169,13 @@ where
         let num_penalty_constraints = self.homotopy_problem.num_penalty_constraints;
         let mut constraint_values: Vec<f64> = vec![0.0; 1 + num_penalty_constraints];
         let mut available_time_left = self.max_duration;
-
         let mut exit_status = ExitStatus::Converged;
 
         // OUTER ITERATIONS
         for _iter_outer in 1..=self.max_outer_iterations {
-            // Figure out whether there is any time left
+            // Figure out whether there is any time left; Note: this is done differently
+            // compared to `panoc_optimizer` because we need to set the maximum allowed
+            // runtime for the inner solver (otherwise it may run for too long)
             if let Some(max_duration) = self.max_duration {
                 available_time_left = max_duration.checked_sub(now.elapsed());
                 if None == available_time_left {
@@ -206,6 +207,7 @@ where
             let status = inner_panoc.solve(u);
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();
+            exit_status = status.exit_status();
             (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut constraint_values)?;
             let continue_outer_iterations = constraint_values
                 .iter()
