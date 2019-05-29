@@ -68,14 +68,16 @@ where
     ///
     ///
     /// ## Arguments
-    /// - homotopy_problem
-    /// - panoc_cache
-    /// - constraint_tolerance
-    /// - max_outer_iterations
+    /// - homotopy_problem: definition of homotopy problem
+    /// - panoc_cache: re-useable instance of `PANOCCache`
     ///
     /// ## Returns
     ///
     /// - New instance of `HomotopyOptimizer`
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
     ///
     pub fn new(
         homotopy_problem: &'a HomotopyProblem<
@@ -111,21 +113,68 @@ where
         }
     }
 
+    /// Specify tolerance on constraint violation
+    ///
+    /// ## Arguments
+    ///
+    /// - constraint_tolerance: tolerance
+    ///
+    /// ## Returns
+    ///
+    /// The current mutable instance of `HomotopyOptimizer`
+    ///
     pub fn with_constraint_tolerance(mut self, constraint_tolerance: f64) -> Self {
         self.constraint_tolerance = constraint_tolerance;
         self
     }
 
+    /// Specify maximum number of outer iterations
+    ///
+    /// ## Arguments
+    ///
+    /// - max_outer_iterations: maximum number of iterations of outer solvers
+    ///
+    /// ## Returns
+    ///
+    /// The current mutable instance of `HomotopyOptimizer`
+    ///
     pub fn with_max_outer_iterations(mut self, max_outer_iterations: usize) -> Self {
         self.max_outer_iterations = max_outer_iterations;
         self
     }
 
+    /// Specify the maximum number of iterations of each inner solver
+    ///
+    /// ## Arguments
+    ///
+    /// - max_inner_iterations: maximum number of iterations of inner solvers
+    ///
+    /// ## Returns
+    ///
+    /// The current mutable instance of `HomotopyOptimizer`
+    ///
     pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
         self.max_inner_iterations = max_inner_iterations;
         self
     }
 
+    /// Specify the maximum time duration for the homotopy solver
+    ///
+    /// If the maximum duration of execution is exceeded, the solver will
+    /// return the status code `ExitStatus::NotConvergedOutOfTime`; see
+    /// [`#solve`](#method.solve)
+    ///
+    /// ## Arguments
+    ///
+    /// - max_duration: maximum duration as an instance of `std::time::Duration`
+    ///
+    /// ## Returns
+    ///
+    /// - A reference to the current mutable instance of `HomotopyOptimizer`
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic.
     pub fn with_max_duration(&mut self, max_duration: std::time::Duration) -> &Self {
         self.max_duration = Some(max_duration);
         self
@@ -151,6 +200,20 @@ where
 
     /// Solve problem by homotopy method
     ///
+    /// ## Arguments:
+    /// - `u` - on entry, this is the initial guess of the solution, on exit,
+    ///   it gets updated with the approximate solution that the solver computed
+    ///   (check also the exit status)
+    /// - `q_augmented_param` - vector of parameters of the parametric problem
+    ///
+    /// ## Returns
+    ///
+    /// - A `Result`, which, if successful contains an instance of `HomotopySolverStatus`,
+    ///   otherwise, it returns an appropriate error
+    ///
+    /// ## Panic
+    ///
+    /// To be updated
     pub fn solve(
         &'a mut self,
         u: &mut [f64],

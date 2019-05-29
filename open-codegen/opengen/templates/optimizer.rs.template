@@ -44,6 +44,11 @@ const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations() or 10
 // Update factor for the penalty method
 const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor() or 5.0}};
 
+{% if solver_config.max_duration_micros() > 0 %}
+// Maximum execution duration in microseconds
+const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros()}};
+{% endif %}
+
 // Initial values of the weights
 {% if solver_config.initial_penalty_weights() | length == 1 -%}
 const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()[0]}}; NCP];
@@ -152,7 +157,7 @@ pub fn solve(
         .with_max_inner_iterations(MAX_INNER_ITERS);
 
 {% if solver_config.max_duration_micros() > 0 %}
-    homotopy_optimizer.with_max_duration(std::time::Duration::from_micros({{solver_config.max_duration_micros()}}));
+    homotopy_optimizer.with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
 {% endif %}
 
     homotopy_optimizer.solve(u, &q_augmented_params)

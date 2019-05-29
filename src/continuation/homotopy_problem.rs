@@ -19,18 +19,23 @@ pub struct HomotopyProblem<
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
-    // constraints
+    /// constraints
     pub(crate) constraints: ConstraintType,
-    // gradient of paramtric cost function, df(u; p)
+    /// gradient of paramtric cost function, df(u; p)
     pub(crate) parametric_gradient: ParametricGradientType,
-    // parametric cost function, f(u; p)
+    /// parametric cost function, f(u; p)
     pub(crate) parametric_cost: ParametricCostType,
-    // penalty function, c(; p)
+    /// penalty function, c(; p)
     pub(crate) penalty_function: ParametricPenaltyFunctionType,
+    /// indices of elements of c(u; p) on which to apply continuation
     pub(crate) idx: Vec<usize>,
+    /// initial value of continuation
     pub(crate) from: Vec<f64>,
+    /// fianl value of continuation
     pub(crate) to: Vec<f64>,
+    /// transition mode of continuation
     pub(crate) transition_mode: Vec<ContinuationMode>,
+    /// number of penalty constraints (dimension of range of c(u;p))
     pub(crate) num_penalty_constraints: usize,
 }
 

@@ -30,6 +30,16 @@ where
     CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
     ConstraintType: constraints::Constraint,
 {
+    /// Constructor of `PANOCOptimizer`
+    ///
+    /// ## Arguments
+    ///
+    /// - problem: definition of optimization problem
+    /// - cache: cache object constructed once
+    ///
+    /// ## Panic
+    ///
+    /// Does not panic
     pub fn new(
         problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
@@ -57,6 +67,10 @@ where
     }
 
     /// Sets the maximum number of iterations
+    ///
+    /// ## Panic
+    ///
+    /// Panics if the provided number of iterations is equal to zero
     pub fn with_max_iter(
         mut self,
         max_iter: usize,
