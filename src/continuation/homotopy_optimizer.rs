@@ -4,7 +4,7 @@ use crate::{
     continuation::ContinuationMode,
     continuation::HomotopySolverStatus,
     core::panoc::*,
-    core::{panoc, Optimizer, Problem},
+    core::{panoc, ExitStatus, Optimizer, Problem},
     matrix_operations, Error,
 };
 
@@ -170,6 +170,8 @@ where
         let mut constraint_values: Vec<f64> = vec![0.0; 1 + num_penalty_constraints];
         let mut available_time_left = self.max_duration;
 
+        let mut exit_status = ExitStatus::Converged;
+
         // OUTER ITERATIONS
         for _iter_outer in 1..=self.max_outer_iterations {
             // Figure out whether there is any time left
@@ -177,6 +179,7 @@ where
                 available_time_left = max_duration.checked_sub(now.elapsed());
                 if None == available_time_left {
                     // no time left!
+                    exit_status = ExitStatus::NotConvergedOutOfTime;
                     break;
                 }
             }
@@ -217,7 +220,7 @@ where
         // TODO: return correct status code
         let max_constraint_violation = matrix_operations::norm_inf(&constraint_values);
         Ok(HomotopySolverStatus::new(
-            true,
+            exit_status,
             num_outer_iterations,
             num_inner_iterations,
             last_norm_fpr,

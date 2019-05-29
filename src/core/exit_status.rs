@@ -2,5 +2,5 @@
 pub enum ExitStatus {
     Converged,
     NotConvergedIterations,
-    NotConvergedTime,
+    NotConvergedOutOfTime,
 }
