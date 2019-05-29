@@ -40,6 +40,8 @@ pub struct HomotopyOptimizer<
     max_outer_iterations: usize,
     /// Maximum number of inner iterations
     max_inner_iterations: usize,
+    /// Maximum duration
+    max_duration: Option<std::time::Duration>,
 }
 
 impl<
@@ -96,6 +98,7 @@ where
             constraint_tolerance: DEFAULT_CONSTRAINT_TOLERANCE,
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
             max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
+            max_duration: None,
         }
     }
 
@@ -120,6 +123,11 @@ where
 
     pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
         self.max_inner_iterations = max_inner_iterations;
+        self
+    }
+
+    pub fn with_max_duration(&mut self, max_duration: std::time::Duration) -> &Self {
+        self.max_duration = Some(max_duration);
         self
     }
 
@@ -160,7 +168,19 @@ where
         let mut num_inner_iterations = 0;
         let num_penalty_constraints = self.homotopy_problem.num_penalty_constraints;
         let mut constraint_values: Vec<f64> = vec![0.0; 1 + num_penalty_constraints];
+        let mut available_time_left = self.max_duration;
+
+        // OUTER ITERATIONS
         for _iter_outer in 1..=self.max_outer_iterations {
+            // Figure out whether there is any time left
+            if let Some(max_duration) = self.max_duration {
+                available_time_left = max_duration.checked_sub(now.elapsed());
+                if None == available_time_left {
+                    // no time left!
+                    break;
+                }
+            }
+
             num_outer_iterations += 1;
             let homotopy_problem = &self.homotopy_problem;
             let f_ = |u: &[f64], cost: &mut f64| -> Result<(), Error> {
@@ -169,14 +189,18 @@ where
             let df_ = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
                 (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
-            let problem_ = Problem::new(&self.homotopy_problem.constraints, df_, f_);
-            let mut panoc_ = panoc::PANOCOptimizer::new(problem_, &mut self.panoc_cache);
+            let inner_problem = Problem::new(&self.homotopy_problem.constraints, df_, f_);
+            let mut inner_panoc = panoc::PANOCOptimizer::new(inner_problem, &mut self.panoc_cache);
+
+            if available_time_left != None {
+                inner_panoc.with_max_duration(available_time_left.unwrap());
+            }
 
             //TODO: check status of inner solver... what happens if the inner solver has not
             //converged? we need to come up with a heuristic. Is the situation salvagable?
             //If ||norm_fpr|| is "reasonably" low, we can still continue hoping that the
             //next problem will converge (this is likely to happen)
-            let status = panoc_.solve(u);
+            let status = inner_panoc.solve(u);
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();
             (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut constraint_values)?;
@@ -189,9 +213,8 @@ where
                 self.update_continuation_parameters(&mut q_augmented_param_vec);
             }
         }
-        // Need to return a different type of  SolverStatus (HomotopySolverStatus)
-        // with the number of outer iterations, maximum number of inner iterations,
-        // total outer time etc
+
+        // TODO: return correct status code
         let max_constraint_violation = matrix_operations::norm_inf(&constraint_values);
         Ok(HomotopySolverStatus::new(
             true,

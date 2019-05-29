@@ -68,10 +68,7 @@ where
     }
 
     /// Sets the maximum solution time, useful in real-time applications
-    pub fn with_max_duration(
-        mut self,
-        max_duation: time::Duration,
-    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    pub fn with_max_duration(&mut self, max_duation: time::Duration) -> &Self {
         self.max_duration = Some(max_duation);
         self
     }
