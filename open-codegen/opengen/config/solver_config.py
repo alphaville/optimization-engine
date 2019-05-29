@@ -3,12 +3,13 @@ class SolverConfiguration:
     def __init__(self):
         self._tolerance = 1e-4
         self._lbfgs_memory = 10
-        self._max_iterations = 500
+        self._max_inner_iterations = 500
         self._max_time_millis = 20
         self._max_outer_iterations = 10
         self._constraints_tolerance = 1e-4
         self._penalty_weight_update_factor = 5.0
         self._initial_weights = 10.0
+        self._max_duration_micros = 5000000
 
     # --------- GETTERS -----------------------------
     def tolerance(self):
@@ -17,8 +18,8 @@ class SolverConfiguration:
     def lbfgs_memory(self):
         return self._lbfgs_memory
 
-    def max_iterations(self):
-        return self._max_iterations
+    def max_inner_iterations(self):
+        return self._max_inner_iterations
 
     def max_time_millis(self):
         return self._max_time_millis
@@ -38,6 +39,9 @@ class SolverConfiguration:
         else:
             return [self._initial_weights]
 
+    def max_duration_micros(self):
+        return self._max_duration_micros
+
     # --------- SETTERS -----------------------------
     def with_tolerance(self, tolerance):
         assert tolerance > 0
@@ -49,9 +53,9 @@ class SolverConfiguration:
         self._lbfgs_memory = lbfgs_memory
         return self
 
-    def with_max_iterations(self, max_iters):
+    def with_max_inner_iterations(self, max_iters):
         assert max_iters > 1
-        self._max_iterations = max_iters
+        self._max_inner_iterations = max_iters
         return self
 
     def with_constraints_tolerance(self, constraints_tolerance):
@@ -71,4 +75,8 @@ class SolverConfiguration:
 
     def with_initial_penalty_weights(self, initial_weights):
         self._initial_weights = initial_weights
+        return self
+
+    def with_max_duration_micros(self, max_duration_micros):
+        self._max_duration_micros = max_duration_micros
         return self

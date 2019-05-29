@@ -18,7 +18,7 @@ const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance() or 0.0001}};
 const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory() or 10}};
 
 // Maximum number of iterations of the inner solver
-const MAX_INNER_ITERS: usize = {{solver_config.max_iterations() or 2000}};
+const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations() or 2000}};
 
 // Number of decision variables
 const NU: usize = {{problem.dim_decision_variables()}};
@@ -150,6 +150,10 @@ pub fn solve(
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERS);
+
+{% if solver_config.max_duration_micros() > 0 %}
+    homotopy_optimizer.with_max_duration(std::time::Duration::from_micros({{solver_config.max_duration_micros()}}));
+{% endif %}
 
     homotopy_optimizer.solve(u, &q_augmented_params)
 }
