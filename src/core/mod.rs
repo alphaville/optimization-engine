@@ -2,12 +2,14 @@
 //!
 //!
 
+pub mod exit_status;
 pub mod fbs;
 pub mod panoc;
 pub mod problem;
 pub mod solver_status;
 
 pub use crate::{constraints, Error};
+pub use exit_status::ExitStatus;
 pub use problem::Problem;
 pub use solver_status::SolverStatus;
 
