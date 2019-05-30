@@ -12,13 +12,13 @@ use optimization_engine::{constraints::*, panoc::*, *};
 use std::{num::NonZeroUsize};
 
 // Tolerance of inner solver
-const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance() or 0.0001}};
+const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
 
 // LBFGS memory
-const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory() or 10}};
+const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory or 10}};
 
 // Maximum number of iterations of the inner solver
-const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations() or 2000}};
+const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations or 2000}};
 
 // Number of decision variables
 const NU: usize = {{problem.dim_decision_variables()}};
@@ -35,44 +35,44 @@ const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
 {% endif %}
 
 // Required tolerance for c(u; p)
-const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance() or 0.0001}};
+const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance or 0.0001}};
 
 // Maximum number of outer iterations
-const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations() or 10}};
+const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations or 10}};
 
 {% if problem.dim_constraints_penalty() > 0 %}
 // Update factor for the penalty method
-const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor() or 5.0}};
+const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 5.0}};
 
 // Initial values of the weights
-{% if solver_config.initial_penalty_weights() | length == 1 -%}
-const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()[0]}}; NCP];
+{% if solver_config.initial_penalty_weights | length == 1 -%}
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights[0]}}; NCP];
 {% else -%}
-const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights()|join(', ')}}];
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights|join(', ')}}];
 {% endif %}
 {% endif %}
 // Parameters of the constraints
-{% if 'Ball2' == problem.constraints().__class__.__name__ and problem.constraints().center() is not none -%}
-const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints().center()|join(', ')}}];
-{%- elif 'Rectangle' == problem.constraints().__class__.__name__ -%}
-{%- if problem.constraints().xmin is not none -%}
-const XMIN :Option<&[f64]> = Some(&[{{problem.constraints().xmin|join(', ')}}]);
+{% if 'Ball2' == problem.constraints.__class__.__name__ and problem.constraints.center is not none -%}
+const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints.center | join(', ')}}];
+{%- elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+{%- if problem.constraints.xmin is not none -%}
+const XMIN :Option<&[f64]> = Some(&[{{problem.constraints.xmin|join(', ')}}]);
 {%- else -%}
 const XMIN :Option<&[f64]> = None;
 {%- endif -%}
-{% if problem.constraints().xmax is not none %}
-const XMAX :Option<&[f64]> = Some(&[{{problem.constraints().xmax|join(', ')}}]);
+{% if problem.constraints.xmax is not none %}
+const XMAX :Option<&[f64]> = Some(&[{{problem.constraints.xmax|join(', ')}}]);
 {%- else -%}
 const XMAX :Option<&[f64]> = None;
 {% endif %}
 {%- endif %}
 
 
-{% if solver_config.max_duration_micros() > 0 %}
+{% if solver_config.max_duration_micros > 0 %}
 // Maximum execution duration in microseconds
-const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros()}};
+const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 {% else %}
-# --- {{ solver_config.max_duration_micros() }}
+# --- {{ solver_config.max_duration_micros }}
 {% endif %}
 
 /// Initialisation of the solver
@@ -120,15 +120,15 @@ pub fn solve(
 
 
     // Constraints...
-{%- if problem.constraints() is none %}
+{%- if problem.constraints is none %}
     let bounds = NoConstraints::new();
-{%- elif 'Ball2' == problem.constraints().__class__.__name__ %}
-{%- if problem.constraints().center() is none %}
-	let bounds = Ball2::new(None, {{problem.constraints().radius()}});
+{%- elif 'Ball2' == problem.constraints.__class__.__name__ %}
+{%- if problem.constraints.center is none %}
+	let bounds = Ball2::new(None, {{problem.constraints().radius}});
 {%- else %}
-	let bounds = Ball2::new(Some(&XC), {{problem.constraints().radius()}});
+	let bounds = Ball2::new(Some(&XC), {{problem.constraints.radius}});
 {%- endif %}
-{%- elif 'Rectangle' == problem.constraints().__class__.__name__ %}
+{%- elif 'Rectangle' == problem.constraints.__class__.__name__ %}
     let bounds = Rectangle::new(XMIN, XMAX);
 {%- endif %}
 
@@ -159,7 +159,7 @@ pub fn solve(
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERS);
 
-{% if solver_config.max_duration_micros() > 0 %}
+{% if solver_config.max_duration_micros > 0 %}
     // set the maximum execution duration
     homotopy_optimizer.with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
 {% endif %}

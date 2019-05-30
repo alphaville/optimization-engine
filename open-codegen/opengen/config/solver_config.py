@@ -24,33 +24,42 @@ class SolverConfiguration:
         self._max_duration_micros = 5000000
 
     # --------- GETTERS -----------------------------
+    @property
     def tolerance(self):
         return self._tolerance
 
+    @property
     def lbfgs_memory(self):
         return self._lbfgs_memory
 
+    @property
     def max_inner_iterations(self):
         return self._max_inner_iterations
 
+    @property
     def max_time_millis(self):
         return self._max_time_millis
 
+    @property
     def constraints_tolerance(self):
         return self._constraints_tolerance
 
+    @property
     def max_outer_iterations(self):
         return self._max_outer_iterations
 
+    @property
     def penalty_weight_update_factor(self):
         return self._penalty_weight_update_factor
 
+    @property
     def initial_penalty_weights(self):
         if isinstance(self._initial_weights, list):
             return self._initial_weights
         else:
             return [self._initial_weights]
 
+    @property
     def max_duration_micros(self):
         return self._max_duration_micros
 
@@ -103,5 +112,6 @@ class SolverConfiguration:
         return self
 
     def with_max_duration_micros(self, max_duration_micros):
+        assert(max_duration_micros >= 1)
         self._max_duration_micros = max_duration_micros
         return self

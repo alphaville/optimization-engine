@@ -10,17 +10,17 @@ class OptimizerMeta:
     """
 
     def __init__(self,
-                 optimizer_name_='open_optimizer',
-                 version_='0.0.0',
-                 licence_='MIT',
-                 authors_=['John Smith']):
+                 optimizer_name='open_optimizer',
+                 optimizer_version='0.0.0',
+                 optimizer_licence='MIT',
+                 optimizer_authors=['John Smith']):
         """Constructor of OptimizerMeta
 
         Args:
-            optimizer_name_: Optimizer name (default: "open_optimizer")
-            version_:        version (default: "0.0.0")
-            licence_:        licence name or URL (default: "MIT")
-            authors_:        List of authors, as list of strings (default: ["John Smith"])
+            optimizer_name_:    optimizer name (default: <code>"open_optimizer"</code>)
+            optimizer_version:  version (default: <code>"0.0.0"</code>)
+            optimizer_licence:  licence name or URL (default: <code>"MIT"</code>)
+            optimizer_author:   list of authors, as list of strings (default: <code>["John Smith"]</code>)
 
         Returns:
             New instance of OptimizerMeta
@@ -34,69 +34,77 @@ class OptimizerMeta:
             >>>     .with_optimizer_name("wow_optimizer")
 
         """
-        self._optimizer_name = optimizer_name_
-        self._version = version_
-        self._licence = licence_
-        self._authors = authors_
+        self.__optimizer_name = optimizer_name
+        self.__optimizer_version = optimizer_version
+        self.__optimizer_licence = optimizer_licence
+        self.__optimizer_author_list = optimizer_authors
 
-    def with_version(self, version_):
+    def with_version(self, optimizer_version):
         """Specify version
 
         Specify the version of the auto-generated optimizer.
 
         Args:
-            version_: version
+            optimizer_version: version of auto-generated optimizer
 
         Returns:
             The current instance of OptimizerMeta
         """
-        self._version = version_
+        self.__optimizer_version = optimizer_version
         return self
 
-    def with_authors(self, authors_):
+    def with_authors(self, optimizer_authors):
         """Specify list of authors
 
         Args:
-            authors_: list of authors
+            optimizer_authors: list of authors
 
         Returns:
             The current instance of OptimizerMeta
         """
-        self._authors = authors_
+        self.__optimizer_author_list = optimizer_authors
         return self
 
-    def with_optimizer_name(self, build_name):
+    def with_optimizer_name(self, optimizer_name):
         """Specify the name of the optimizer
 
         Args:
-            build_name: name of build
+            optimizer_name: name of build
 
         Returns:
             The current instance of OptimizerMeta
         """
-        self._optimizer_name = build_name
+        self.__optimizer_name = optimizer_name
         return self
 
-    def with_licence(self, licence):
+    def with_licence(self, optimizer_licence):
         """Specify licence of auto-generated code
 
         Args:
-            licence: licence name (e.g., MIT) or licence URL
+            optimizer_licence: licence name (e.g., MIT) or licence URL
 
         Returns:
             The current instance of OptimizerMeta
         """
-        self._licence = licence
+        self.__optimizer_licence = optimizer_licence
         return self
 
+    @property
     def optimizer_name(self):
-        return self._optimizer_name
+        """Name of optimizer"""
+        return self.__optimizer_name
 
+    @property
     def version(self):
-        return self._version
+        """Version of optimizer"""
+        return self.__optimizer_version
 
+    @property
     def authors(self):
-        return self._authors
+        """List of authors of optimizer"""
+        return self.__optimizer_author_list
 
+    @property
     def licence(self):
-        return self._licence
+        """Licence of optimizer"""
+        return self.__optimizer_licence

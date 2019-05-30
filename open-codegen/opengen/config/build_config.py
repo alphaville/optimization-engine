@@ -30,27 +30,35 @@ class BuildConfiguration:
 
     # ---------- GETTERS ---------------------------------------------
 
+    @property
     def rebuild(self):
         return self._rebuild
 
+    @property
     def cost_function_name(self):
         return self._cost_function_name
 
+    @property
     def grad_function_name(self):
         return self._grad_cost_function_name
 
+    @property
     def constraint_penalty_function_name(self):
         return self._constraint_penalty_function
 
+    @property
     def target_system(self):
         return self._target_system
 
+    @property
     def build_mode(self):
         return self._build_mode
 
+    @property
     def build_dir(self):
         return self._build_dir
 
+    @property
     def open_version(self):
         return self._open_version
 

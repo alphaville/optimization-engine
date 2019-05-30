@@ -6,10 +6,10 @@
 # Generated at: {{timestamp_created}}
 #
 [package]
-name = "{{meta.optimizer_name()}}"
-version = "{{meta.version()}}"
-license = "{{meta.licence()}}"
-authors = ["{{meta.authors()|join('", "')}}"]
+name = "{{meta.optimizer_name}}"
+version = "{{meta.version}}"
+license = "{{meta.licence}}"
+authors = ["{{meta.authors|join('", "')}}"]
 edition = "2018"
 publish=false
 

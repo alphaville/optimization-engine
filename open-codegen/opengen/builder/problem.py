@@ -4,6 +4,8 @@ from casadi import SX, Function
 class Problem:
     """Definition of an optimization problem
 
+    Provides the cost function, constraints and additional
+    penalty-type constraints.
     """
 
     def __init__(self, u, p, cost):
@@ -26,18 +28,30 @@ class Problem:
             >>> problem = og.builder.Problem(u, p, phi)
 
         """
-        self._u = u
-        self._p = p
-        self._cost = cost
-        self._u_constraints = None
-        self._penalty_constraints = None
-        self._penalty_function = None
-        self._al_constraints = None
+        self.__u = u
+        self.__p = p
+        self.__cost = cost
+        self.__u_constraints = None
+        self.__penalty_constraints = None
+        self.__penalty_function = None
+        self.__al_constraints = None
 
     # ---------- SETTERS -----------------------------------------------
 
     def with_constraints(self, u_constraints):
-        self._u_constraints = u_constraints
+        """Specify or update the constraints of the problem
+
+        Args:
+            u_constraints: constraints on the decision variable; must
+            be a Constraint object (such as
+            \link opengen.constraints.ball2.Ball2 Ball2 \endlink
+            and
+            \link opengen.constraints.rectangle.Rectangle Rectangle \endlink)
+
+        Returns:
+            Current object
+        """
+        self.__u_constraints = u_constraints
         return self
 
     def with_penalty_constraints(self, penalty_constraints, penalty_function=None):
@@ -57,54 +71,62 @@ class Problem:
         if penalty_constraints is None:
             pass
 
-        self._penalty_constraints = penalty_constraints
+        self.__penalty_constraints = penalty_constraints
         if penalty_function is None:
             # default penalty function: quadratic
             z = SX.sym("z")
-            self._penalty_function = Function('g_penalty_function', [z], [z ** 2])
+            self.__penalty_function = Function('g_penalty_function', [z], [z ** 2])
         else:
-            self._penalty_function = penalty_function
+            self.__penalty_function = penalty_function
         return self
 
     def with_aug_lagrangian_constraints(self, al_constraints):
-        self._al_constraints = al_constraints
+        # TODO This is not supported yet
+        self.__al_constraints = al_constraints
         return self
 
     # ---------- DIMENSIONS --------------------------------------------
 
     def dim_decision_variables(self):
-        return self._u.size(1)
+        return self.__u.size(1)
 
     def dim_parameters(self):
-        return self._p.size(1)
+        return self.__p.size(1)
 
     def dim_constraints_penalty(self):
-        return 0 if self._penalty_constraints is None \
-            else self._penalty_constraints.size(1)
+        return 0 if self.__penalty_constraints is None \
+            else self.__penalty_constraints.size(1)
 
     def dim_constraints_aug_lagrangian(self):
-        return 0 if self._al_constraints is None \
-            else self._al_constraints.size(1)
+        return 0 if self.__al_constraints is None \
+            else self.__al_constraints.size(1)
 
-    # ---------- GETTERS -----------------------------------------------
+    # ---------- OTHER GETTERS -----------------------------------------
 
-    def decision_variables(self):
-        return self._u
-
-    def parameter_variables(self):
-        return self._p
-
+    @property
     def cost_function(self):
-        return self._cost
+        return self.__cost
 
+    @property
     def penalty_constraints(self):
-        return self._penalty_constraints
+        return self.__penalty_constraints
 
+    @property
     def penalty_function(self):
-        return self._penalty_function
+        return self.__penalty_function
 
+    @property
     def constraints(self):
-        return self._u_constraints
+        return self.__u_constraints
 
+    @property
     def constraints_aug_lagrangian(self):
-        self._al_constraints
+        return self.__al_constraints
+
+    @property
+    def decision_variables(self):
+        return self.__u
+
+    @property
+    def parameter_variables(self):
+        return self.__p
