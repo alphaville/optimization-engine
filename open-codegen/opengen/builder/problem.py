@@ -107,7 +107,7 @@ class Problem:
 
     def dim_constraints_aug_lagrangian(self):
         """Not implemented yet"""
-        raise NotImplementedError
+        return 0
 
     # ---------- OTHER GETTERS -----------------------------------------
 
