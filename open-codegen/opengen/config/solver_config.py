@@ -1,6 +1,18 @@
 class SolverConfiguration:
+    """Configuration of solver parameters
+
+    """
 
     def __init__(self):
+        """Construct an instance of solver configuration parameters
+
+        Args:
+            None
+
+        Returns:
+            New instance of SolverConfiguration
+
+        """
         self._tolerance = 1e-4
         self._lbfgs_memory = 10
         self._max_inner_iterations = 500
@@ -44,26 +56,39 @@ class SolverConfiguration:
 
     # --------- SETTERS -----------------------------
     def with_tolerance(self, tolerance):
+        """Specify tolerance"""
         assert tolerance > 0
         self._tolerance = tolerance
         return self
 
     def with_lfbgs_memory(self, lbfgs_memory):
-        assert lbfgs_memory > 2
+        """Specify L-BFGS memory
+
+        Assertions:
+            It is required that the L-BFGS memory is larger than or
+            equal to 2
+
+        Returns:
+            Returns the current instance of SolverConfiguration
+        """
+        assert lbfgs_memory >= 2
         self._lbfgs_memory = lbfgs_memory
         return self
 
     def with_max_inner_iterations(self, max_iters):
+        """Maximum number of inner iterations"""
         assert max_iters > 1
         self._max_inner_iterations = max_iters
         return self
 
     def with_constraints_tolerance(self, constraints_tolerance):
+        """Tolerance on constraint violation"""
         assert constraints_tolerance > 0
         self._constraints_tolerance = constraints_tolerance
         return self
 
     def with_max_outer_iterations(self, max_outer_iterations):
+        """Maximum number of outer iterations"""
         assert max_outer_iterations > 1
         self._max_outer_iterations = max_outer_iterations
         return self

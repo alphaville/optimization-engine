@@ -15,12 +15,28 @@ _ICASADI_CFG_HEADER_FNAME = 'icasadi_config.h'
 
 
 class OpEnOptimizerBuilder:
+    """Builder for code generation
+
+    This class is a builder that can be used to generate
+    code for a parametric optimizer.
+    """
 
     def __init__(self,
                  problem,
                  metadata=og_cfg.OptimizerMeta(),
                  build_configuration=og_cfg.BuildConfiguration(),
                  solver_configuration=og_cfg.SolverConfiguration()):
+        """Constructor of OpEnOptimizerBuilder
+
+        Args:
+            problem: instance of \link opengen.builder.problem.Problem Problem \endlink
+            metadata: instance of \link opengen.config.meta.OptimizerMeta OptimizerMeta \endlink
+            build_configuration: instance of \link opengen.config.build_config.BuildConfiguration BuildConfiguration \endlink
+            solver_configuration: instance of \link  opengen.config.solver_config.SolverConfiguration SolverConfiguration \endlink
+
+        Returns:
+            New instance of OpEnOptimizerBuilder.
+        """
         self._problem = problem
         self._meta = metadata
         self._build_config = build_configuration
@@ -28,7 +44,14 @@ class OpEnOptimizerBuilder:
         self._generate_not_build = False
 
     def with_problem(self, problem):
-        """Specify problem"""
+        """Specify problem
+
+        Args:
+            problem: optimization problem data
+
+        Returns:
+            Current builder object
+        """
         self._problem = problem
         return self
 
@@ -38,6 +61,11 @@ class OpEnOptimizerBuilder:
         If set to true, the code will be generated, but it will not be 
         build (mainly for debugging purposes)
 
+        Args:
+            flag: generate and not build
+
+        Returns:
+            Current builder object
         """
         self._generate_not_build = flag
         return self
@@ -211,8 +239,10 @@ class OpEnOptimizerBuilder:
                 raise Exception('Rust build failed')
 
     def build(self):
-        """
-        Generate code and build project
+        """Generate code and build project
+
+        ## Errors
+            It raises an exception if the build process fails
         """
         self._prepare_target_project()      # create folders; init cargo project
         self._copy_icasadi_to_target()      # copy icasadi/ files to target dir

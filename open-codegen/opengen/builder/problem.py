@@ -2,8 +2,30 @@ from casadi import SX, Function
 
 
 class Problem:
+    """Definition of an optimization problem
+
+    """
 
     def __init__(self, u, p, cost):
+        """Construct an optimization problem
+
+        Args:
+            u: decision variable (CasADi variable)
+            p: parameter (CasADi variable)
+            cost: cost function (CasADi function of u and p)
+
+        Example:
+            >>> import casadi.casadi as cs
+            >>> import opengen as og
+            >>> # Define u and p
+            >>> u = cs.SX.sym('u', 5)
+            >>> p = cs.SX.sym('p', 2)
+            >>> # Cost function
+            >>> phi = og.functions.rosenbrock(u, p)
+            >>> # Define optimization problem
+            >>> problem = og.builder.Problem(u, p, phi)
+
+        """
         self._u = u
         self._p = p
         self._cost = cost

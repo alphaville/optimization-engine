@@ -2,8 +2,23 @@ from opengen.definitions import *
 
 
 class BuildConfiguration:
+    """Build configuration
+
+    Configuration for the code generator
+
+    """
 
     def __init__(self, build_dir=None):
+        """
+        Construct an instance of BuildConfiguration
+
+        Args:
+            build_dir: Target directory
+
+        Returns:
+            A new instance of BuildConfiguration
+
+        """
         self._target_system = 'default'
         self._build_mode = 'release'
         self._cost_function_name = 'phi'
@@ -42,6 +57,15 @@ class BuildConfiguration:
     # ---------- SETTERS ---------------------------------------------
 
     def with_rebuild(self, do_rebuild):
+        """Whether to clean and rebuild the code generator, if it already exists
+
+        Args:
+            do_rebuild: if set to True, the target code generator
+            will be cleaned and rebuilt from scratch
+
+        Returns:
+            The current instance of BuildConfiguration (self)
+        """
         self._rebuild = do_rebuild
         return self
 
@@ -58,10 +82,22 @@ class BuildConfiguration:
         return self
 
     def with_target_system(self, target_system):
+        #TODO This is not supported yet
         self._target_system = target_system
         return self
 
     def with_build_mode(self, build_mode):
+        """Set the build mode (debug/release)
+
+        Args:
+            build_mode: Choose either 'debug' or 'release'; the former is
+            fast, but suboptimal, while the later may take a while to compile,
+            but the generated binary is significantly faster
+
+        Returns:
+            The current instance of  BuildConfiguration (self)
+
+        """
         self._build_mode = build_mode
         return self
 
