@@ -51,4 +51,9 @@ impl HomotopySolverStatus {
             solve_time: solve_time,
         }
     }
+
+    /// exit status of solver
+    pub fn exit_status(&self) -> ExitStatus {
+        self.exit_status
+    }
 }
