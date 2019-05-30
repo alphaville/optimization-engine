@@ -92,11 +92,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">opengen.builder.problem.Problem Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Definition of an optimization problem.  
+ <a href="classopengen_1_1builder_1_1problem_1_1_problem.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3430a0694e5bd69a0be4bf6091920d59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3430a0694e5bd69a0be4bf6091920d59"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b></td></tr>
+<tr class="memitem:a3430a0694e5bd69a0be4bf6091920d59"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classopengen_1_1builder_1_1problem_1_1_problem.html#a3430a0694e5bd69a0be4bf6091920d59">__init__</a></td></tr>
+<tr class="memdesc:a3430a0694e5bd69a0be4bf6091920d59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an optimization problem.  <a href="#a3430a0694e5bd69a0be4bf6091920d59">More...</a><br/></td></tr>
 <tr class="separator:a3430a0694e5bd69a0be4bf6091920d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60e44e568da81532cceaeafbff3e4546"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a60e44e568da81532cceaeafbff3e4546"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>with_constraints</b></td></tr>
@@ -141,6 +144,67 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>constraints</b></td></
 def&#160;</td><td class="memItemRight" valign="bottom"><b>constraints_aug_lagrangian</b></td></tr>
 <tr class="separator:a91a3b94bce93a6dbc6a0ea9706078a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Definition of an optimization problem. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a3430a0694e5bd69a0be4bf6091920d59"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def opengen.builder.problem.Problem.__init__ </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>cost</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Construct an optimization problem. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">u</td><td>decision variable (CasADi variable) </td></tr>
+    <tr><td class="paramname">p</td><td>parameter (CasADi variable) </td></tr>
+    <tr><td class="paramname">cost</td><td>cost function (CasADi function of u and p)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p><b>Examples</b> </p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;&gt;&gt;&gt; <span class="keyword">import</span> casadi.casadi <span class="keyword">as</span> cs</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;&gt;&gt;&gt; <span class="keyword">import</span> opengen <span class="keyword">as</span> og</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;&gt;&gt;&gt; <span class="comment"># Define u and p</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;&gt;&gt;&gt; u = cs.SX.sym(<span class="stringliteral">&#39;</span><span class="stringliteral">u&#39;, 5)</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="stringliteral">&gt;&gt;&gt; p = cs.SX.sym(</span><span class="stringliteral">&#39;p&#39;</span>, 2)</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;&gt;&gt;&gt; <span class="comment"># Cost function</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;&gt;&gt;&gt; phi = og.functions.rosenbrock(u, p)</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;&gt;&gt;&gt; <span class="comment"># Define optimization problem</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;&gt;&gt;&gt; problem = og.builder.Problem(u, p, phi)</div>
+</div><!-- fragment --> 
+</div>
+</div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a792b509cc809ca65b61b796fd2cc4bc7"></a>
 <div class="memitem">
@@ -187,7 +251,7 @@ self </dd></dl>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu May 30 2019 01:03:54 for Optimization Engine by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu May 30 2019 03:18:14 for Optimization Engine by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
