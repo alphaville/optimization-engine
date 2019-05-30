@@ -25,11 +25,6 @@ pub enum ExitStatus {
     NotConvergedIterations,
     /// Failed to converge because the maximum execution time was reached
     NotConvergedOutOfTime,
-    /// The algorithm failed to converge for other reasons
-    ///
-    /// This exit code corresponds to highly exceptional circumstances; it may
-    /// occur if a function computation fails
-    Failure,
 }
 
 /// A general optimizer

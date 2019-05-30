@@ -236,9 +236,7 @@ where
 
         // OUTER ITERATIONS
         for _iter_outer in 1..=self.max_outer_iterations {
-            // Figure out whether there is any time left; Note: this is done differently
-            // compared to `panoc_optimizer` because we need to set the maximum allowed
-            // runtime for the inner solver (otherwise it may run for too long)
+            // Check for available time...
             if let Some(max_duration) = self.max_duration {
                 available_time_left = max_duration.checked_sub(now.elapsed());
                 if None == available_time_left {
@@ -264,10 +262,7 @@ where
                 inner_panoc.with_max_duration(available_time_left.unwrap());
             }
 
-            //TODO: check status of inner solver... what happens if the inner solver has not
-            //converged? we need to come up with a heuristic. Is the situation salvagable?
-            //If ||norm_fpr|| is "reasonably" low, we can still continue hoping that the
-            //next problem will converge (this is likely to happen)
+            //TODO: If inner problem does not converge, check whether it is salvagable
             let status = inner_panoc.solve(u).unwrap();
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();
@@ -280,6 +275,7 @@ where
                 break;
             } else {
                 self.update_continuation_parameters(&mut q_augmented_param_vec);
+                exit_status = ExitStatus::NotConvergedIterations;
             }
         }
 

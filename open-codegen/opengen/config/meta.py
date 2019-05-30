@@ -17,10 +17,10 @@ class OptimizerMeta:
         """Constructor of OptimizerMeta
 
         Args:
-            optimizer_name:    optimizer name (default: <code>"open_optimizer"</code>)
+            optimizer_name:     optimizer name (default: <code>"open_optimizer"</code>)
             optimizer_version:  version (default: <code>"0.0.0"</code>)
             optimizer_licence:  licence name or URL (default: <code>"MIT"</code>)
-            optimizer_authors:   list of authors, as list of strings (default: <code>["John Smith"]</code>)
+            optimizer_authors:  list of authors, as list of strings (default: <code>["John Smith"]</code>)
 
         Returns:
             New instance of OptimizerMeta
