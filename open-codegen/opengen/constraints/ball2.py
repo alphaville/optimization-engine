@@ -24,7 +24,7 @@ class Ball2:
         if center is not None and not isinstance(center, list):
             raise Exception("center is neither None nor a list")
 
-        self.__center = [float(i) for i in center]
+        self.__center = None if center is None else [float(i) for i in center]
         self.__radius = float(radius)
 
     @property

@@ -37,8 +37,8 @@ class Rectangle:
                     raise Exception("xmin must be <= xmax")
 
         # Store xmin and xmax in attributes
-        self.__xmin = [float(i) for i in xmin]
-        self.__xmax = [float(i) for i in xmax]
+        self.__xmin = None if xmin is None else [float(i) for i in xmin]
+        self.__xmax = None if xmax is None else [float(i) for i in xmax]
 
     @property
     def xmin(self):
