@@ -61,7 +61,7 @@ impl SolverStatus {
         self.num_iter
     }
 
-    /// number of iterations taken by the algorithm
+    /// total execution time
     pub fn solve_time(&self) -> time::Duration {
         self.solve_time
     }

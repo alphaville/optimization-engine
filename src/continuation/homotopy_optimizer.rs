@@ -3,7 +3,6 @@ use crate::{
     continuation::homotopy_problem::HomotopyProblem,
     continuation::ContinuationMode,
     continuation::HomotopySolverStatus,
-    core::panoc::*,
     core::{panoc, ExitStatus, Optimizer, Problem},
     matrix_operations, SolverError,
 };

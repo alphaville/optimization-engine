@@ -1,9 +1,4 @@
-use crate::{
-    constraints,
-    continuation::ContinuationMode,
-    core::{panoc, Optimizer},
-    SolverError,
-};
+use crate::{constraints, continuation::ContinuationMode, SolverError};
 
 /// Homotopy problem definition
 ///

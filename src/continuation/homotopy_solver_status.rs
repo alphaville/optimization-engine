@@ -52,8 +52,35 @@ impl HomotopySolverStatus {
         }
     }
 
-    /// exit status of solver
+    /// exit status of homotopy solver
     pub fn exit_status(&self) -> ExitStatus {
         self.exit_status
+    }
+
+    /// Norm of the FPR of the last instance of the inner solver
+    pub fn last_problem_norm_fpr(&self) -> f64 {
+        self.last_problem_norm_fpr
+    }
+
+    /// Total number of inner iterations
+    pub fn num_inner_iterations(&self) -> usize {
+        self.num_inner_iterations
+    }
+
+    /// Total number of outer iterations
+    pub fn num_outer_iterations(&self) -> usize {
+        self.num_outer_iterations
+    }
+
+    /// Infinity norm of constraint violation
+    ///
+    /// Infinity norm of c(u; p) at the approximate solution
+    pub fn max_constraint_violation(&self) -> f64 {
+        self.max_constraint_violation
+    }
+
+    /// total execution time
+    pub fn solve_time(&self) -> std::time::Duration {
+        self.solve_time
     }
 }
