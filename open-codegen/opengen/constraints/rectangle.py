@@ -2,6 +2,21 @@ class Rectangle:
     """A Rectangle (Box) constraint"""
 
     def __init__(self, xmin, xmax):
+        """Construct a new instance of Rectangle
+
+        Args:
+            xmin: minimum bounds (can be None)
+            xmax: maximum bounds (can be None)
+
+        Raises:
+            Exception: if both xmin and xmax is None
+            Exception: if xmin/xmax is not None and not a list (wrong type)
+            Exception: if xmin and xmax have incompatible lengths
+            Exception: if xmin(i) > xmax(i) for some i (empty set)
+
+        Returns:
+             A new instance of Rectangle
+        """
         # (None, None) is not allowed
         if xmin is None and xmax is None:
             raise Exception("At least one of xmin and xmax must be not None")
@@ -22,21 +37,16 @@ class Rectangle:
                     raise Exception("xmin must be <= xmax")
 
         # Store xmin and xmax in attributes
-        self.__xmin = xmin
-        self.__xmax = xmax
+        self.__xmin = [float(i) for i in xmin]
+        self.__xmax = [float(i) for i in xmax]
 
     @property
     def xmin(self):
+        """Minimum bound"""
         return self.__xmin
 
     @property
     def xmax(self):
+        """Maximum bound"""
         return self.__xmax
 
-    @xmin.setter
-    def xmin(self, xmin):
-        self.__xmin = xmin
-
-    @xmax.setter
-    def xmax(self, xmax):
-        self.__xmax = xmax

@@ -256,9 +256,9 @@ class OpEnOptimizerBuilder:
     def build(self):
         """Generate code and build project
 
-        Errors:
-            - if the build process fails
-            - if there some parameters have wrong, inadmissible or incompatible values
+        Raises:
+            Exception: if the build process fails
+            Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
         self.__initialize()                      # initialize default value (if not provided)

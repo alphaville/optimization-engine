@@ -1,6 +1,3 @@
-from opengen.definitions import *
-
-
 class BuildConfiguration:
     """Build configuration
 
@@ -32,6 +29,7 @@ class BuildConfiguration:
 
     @property
     def rebuild(self):
+        """Whether to re-build the optimizer from scratch"""
         return self._rebuild
 
     @property
@@ -48,18 +46,22 @@ class BuildConfiguration:
 
     @property
     def target_system(self):
+        """Target system"""
         return self._target_system
 
     @property
     def build_mode(self):
+        """Build mode (release or debug)"""
         return self._build_mode
 
     @property
     def build_dir(self):
+        """Directory in which the auto-generated optimizer will be stored"""
         return self._build_dir
 
     @property
     def open_version(self):
+        """OpEn version used with the auto-generated solver"""
         return self._open_version
 
     # ---------- SETTERS ---------------------------------------------
@@ -77,22 +79,9 @@ class BuildConfiguration:
         self._rebuild = do_rebuild
         return self
 
-    def with_cost_function_name(self, cost_function_name):
-        self._cost_function_name = cost_function_name
-        return self
-
-    def with_grad_function_name(self, grad_function_name):
-        self._grad_cost_function_name = grad_function_name
-        return self
-
-    def with_penalty_constraints_function_name(self, constraint_penalty_function_name):
-        self._constraint_penalty_function = constraint_penalty_function_name
-        return self
-
-    def with_target_system(self, target_system):
-        #TODO This is not supported yet
-        self._target_system = target_system
-        return self
+    def with_target_system(self, _target_system):
+        """Not implemented yet"""
+        raise NotImplementedError
 
     def with_build_mode(self, build_mode):
         """Set the build mode (debug/release)
@@ -110,9 +99,11 @@ class BuildConfiguration:
         return self
 
     def with_build_directory(self, build_dir):
+        """Specify the build directory"""
         self._build_dir = build_dir
         return self
 
     def with_open_version(self, open_version):
+        """Specify the version of OpEn to link to"""
         self._open_version = open_version
         return self

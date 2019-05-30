@@ -49,6 +49,7 @@ class Problem:
 
         Returns:
             Current object
+
         """
         self.__u_constraints = u_constraints
         return self
@@ -86,52 +87,61 @@ class Problem:
         return self
 
     def with_aug_lagrangian_constraints(self, al_constraints):
-        # TODO This is not supported yet
-        self.__al_constraints = al_constraints
-        return self
+        """Not implemented yet"""
+        raise NotImplementedError
 
     # ---------- DIMENSIONS --------------------------------------------
 
     def dim_decision_variables(self):
+        """Number of decision variables"""
         return self.__u.size(1)
 
     def dim_parameters(self):
+        """Number of parameters"""
         return self.__p.size(1)
 
     def dim_constraints_penalty(self):
+        """Number of penalty-type constraints"""
         return 0 if self.__penalty_constraints is None \
             else self.__penalty_constraints.size(1)
 
     def dim_constraints_aug_lagrangian(self):
-        return 0 if self.__al_constraints is None \
-            else self.__al_constraints.size(1)
+        """Not implemented yet"""
+        raise NotImplementedError
 
     # ---------- OTHER GETTERS -----------------------------------------
 
     @property
     def cost_function(self):
+        """Cost function as a CaADi symbol"""
         return self.__cost
 
     @property
     def penalty_constraints(self):
+        """Penalty constraints as a CasADi symbol (function c)"""
         return self.__penalty_constraints
 
     @property
     def penalty_function(self):
+        """Penalty function, <code>g</code>"""
         return self.__penalty_function
 
     @property
     def constraints(self):
+        """Hard constraints"""
         return self.__u_constraints
 
     @property
     def constraints_aug_lagrangian(self):
-        return self.__al_constraints
+        """Not implemented yet"""
+        raise NotImplementedError
 
     @property
     def decision_variables(self):
+        """Decision variables (CasADi symbol)"""
         return self.__u
 
     @property
     def parameter_variables(self):
+        """Parameter variables (CasADi symbol)"""
         return self.__p
