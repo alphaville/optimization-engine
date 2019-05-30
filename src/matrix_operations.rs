@@ -96,12 +96,18 @@ where
         })
 }
 
+/// Checks whether all elements of a vector are finite
+///
+/// ## Returns
+///
+/// Returns `true` if all elements are finite and `false` if any
+/// of the elements are either NaN or Infinity
 #[inline(always)]
 pub fn is_finite<T>(a: &[T]) -> bool
 where
     T: Float,
 {
-    a.iter().all(|&xi| xi.is_finite())
+    !a.iter().any(|&xi| !xi.is_finite())
 }
 
 /* ---------------------------------------------------------------------------- */
