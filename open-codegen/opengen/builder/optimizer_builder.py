@@ -238,17 +238,36 @@ class OpEnOptimizerBuilder:
             if process_completion != 0:
                 raise Exception('Rust build failed')
 
+    def __initialize(self):
+        sc = self.__solver_config
+        pr = self.__problem
+        ncp = pr.dim_constraints_penalty()
+        if ncp > 0 and sc.initial_penalty_weights is None:
+            # set default initial values
+            self.__solver_config.with_initial_penalty_weights([1] * int(ncp))
+
+    def __check_user_provided_parameters(self):
+        sc = self.__solver_config
+        pr = self.__problem
+        ncp = pr.dim_constraints_penalty()
+        if 1 != len(sc.initial_penalty_weights) != ncp > 0:
+            raise Exception("Initial penalty weights have incompatible dimensions with c(u, p)")
+
     def build(self):
         """Generate code and build project
 
         Errors:
-            It raises an exception if the build process fails
+            - if the build process fails
+            - if there some parameters have wrong, inadmissible or incompatible values
+
         """
-        self.__prepare_target_project()      # create folders; init cargo project
-        self.__copy_icasadi_to_target()      # copy icasadi/ files to target dir
-        self.__generate_cargo_toml()         # generate Cargo.toml using tempalte
-        self.__generate_icasadi_header()     # generate icasadi_config.h
-        self.__generate_casadi_code()        # generate all necessary CasADi C files
-        self.__generate_main_project_code()  # generate main part of code (at build/{name}/src/main.rs)
+        self.__initialize()                      # initialize default value (if not provided)
+        self.__check_user_provided_parameters()  # check the provided parameters
+        self.__prepare_target_project()          # create folders; init cargo project
+        self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
+        self.__generate_cargo_toml()             # generate Cargo.toml using tempalte
+        self.__generate_icasadi_header()         # generate icasadi_config.h
+        self.__generate_casadi_code()            # generate all necessary CasADi C files
+        self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         if not self.__generate_not_build:
-            self.__build_optimizer()         # build overall project
+            self.__build_optimizer()             # build overall project

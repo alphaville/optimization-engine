@@ -1,4 +1,4 @@
-from casadi import SX, Function
+import casadi.casadi as cs
 
 
 class Problem:
@@ -45,8 +45,7 @@ class Problem:
             u_constraints: constraints on the decision variable; must
             be a Constraint object (such as
             \link opengen.constraints.ball2.Ball2 Ball2 \endlink
-            and
-            \link opengen.constraints.rectangle.Rectangle Rectangle \endlink)
+            and \link opengen.constraints.rectangle.Rectangle Rectangle \endlink)
 
         Returns:
             Current object
@@ -61,9 +60,15 @@ class Problem:
         function c(u; p)) and the penalty function, g. If no penalty function
         is specified, the quadratic penalty will be used.
 
-        Parameters:
-            penalty_constraints:
-            penalty_function:
+        Args:
+            penalty_constraints: a function <code>c(u, p)</code>, of the decision
+            variable <code>u</code> and the parameter vector <code>p</code>, which
+            corresponds to the constraints <code>c(u, p)</code>
+            penalty_function: a function <code>g: R -> R</code>, used to define the
+            penalty in the penalty method; the default is <code>g(z) = z^2</code>.
+            You typically will not need to change this, but if you very much want to,
+            you need to provide an instance of <code>casadi.casadi.Function</code>
+            (not a CasADi symbol such as <code>SX</code>).
 
         Returns:
             self
@@ -74,8 +79,8 @@ class Problem:
         self.__penalty_constraints = penalty_constraints
         if penalty_function is None:
             # default penalty function: quadratic
-            z = SX.sym("z")
-            self.__penalty_function = Function('g_penalty_function', [z], [z ** 2])
+            z = cs.SX.sym("z")
+            self.__penalty_function = cs.Function('g_penalty_function', [z], [z ** 2])
         else:
             self.__penalty_function = penalty_function
         return self

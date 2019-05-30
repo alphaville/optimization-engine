@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn t_rectangle_closed() {
+fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
@@ -9,7 +9,31 @@ fn t_rectangle_closed() {
 
     rectangle.project(&mut x);
 
-    println!("x = {:?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[2.0, 2.0, 3.0, 4.0, 4.5],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on bounded rectangle",
+    );
+}
+
+#[test]
+fn t_rectangle_bounded_negative_entries() {
+    let xmin = [-5.0, -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+    let xmax = [-1.0, -2.0, -1.0, 2.0, 1.0, 0.0, 4.0, 6.0, 9.0, 100.0, 500.0];
+    let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
+    let mut x = [-6.0, -3.0, 0.0, 3.0, -5.0, 1.0, 2.0, 3.0, -1.0, 0.0, 0.0];
+
+    rectangle.project(&mut x);
+
+    unit_test_utils::assert_nearly_equal_array(
+        &[-5.0, -3.0, -1.0, 2.0, -1.0, 0.0, 2.0, 3.0, 3.0, 4.0, 5.0],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on bounded rectangle v2",
+    );
 }
 
 #[test]
@@ -20,7 +44,30 @@ fn t_rectangle_only_xmin() {
 
     rectangle.project(&mut x);
 
-    println!("x = {:?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[2.0, 2.0, 3.0, 4.0, 5.0],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on halfspace (xmin)",
+    );
+}
+
+#[test]
+fn t_rectangle_only_xmax() {
+    let xmax = vec![-3.0; 5];
+    let rectangle = Rectangle::new(None, Some(&xmax[..]));
+    let mut x = [-10.0, -20.0, 0.0, 5.0, 3.0];
+
+    rectangle.project(&mut x);
+
+    unit_test_utils::assert_nearly_equal_array(
+        &[-10.0, -20.0, -3.0, -3.0, -3.0],
+        &x,
+        1e-8,
+        1e-8,
+        "projection",
+    );
 }
 
 #[test]
@@ -31,7 +78,13 @@ fn t_ball_at_origin() {
 
     ball.project(&mut x);
 
-    println!("x = {:?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.7071067811865476, 0.7071067811865476],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on ball centered at origin",
+    );
 }
 
 #[test]
@@ -43,7 +96,13 @@ fn t_ball_elsewhere() {
 
     ball.project(&mut x);
 
-    println!("x = {:?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1.7071067811865476, 1.7071067811865476],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on ball centered at [1, 1]",
+    );
 }
 
 #[test]

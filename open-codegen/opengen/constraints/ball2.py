@@ -18,7 +18,12 @@ class Ball2:
         Returns:
             New instance of Ball2 with given center and radius
         """
-        assert(radius > 0)
+        if radius <= 0:
+            raise Exception("The radius must be a positive number")
+
+        if center is not None and not isinstance(center, list):
+            raise Exception("center is neither None nor a list")
+
         self.__center = center
         self.__radius = radius
 
@@ -32,11 +37,3 @@ class Ball2:
         """Returns the radius of the ball"""
         return self.__radius
 
-    @center.setter
-    def center(self, center):
-        self.__center = center
-
-    @radius.setter
-    def radius(self, radius):
-        assert(radius > 0)
-        self.__radius = radius

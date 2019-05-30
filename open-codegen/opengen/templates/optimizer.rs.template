@@ -62,7 +62,7 @@ const XMIN :Option<&[f64]> = None;
 {%- endif -%}
 {% if problem.constraints.xmax is not none %}
 const XMAX :Option<&[f64]> = Some(&[{{problem.constraints.xmax|join(', ')}}]);
-{%- else -%}
+{%- else %}
 const XMAX :Option<&[f64]> = None;
 {% endif %}
 {%- endif %}
@@ -124,7 +124,7 @@ pub fn solve(
     let bounds = NoConstraints::new();
 {%- elif 'Ball2' == problem.constraints.__class__.__name__ %}
 {%- if problem.constraints.center is none %}
-	let bounds = Ball2::new(None, {{problem.constraints().radius}});
+	let bounds = Ball2::new(None, {{problem.constraints.radius}});
 {%- else %}
 	let bounds = Ball2::new(Some(&XC), {{problem.constraints.radius}});
 {%- endif %}

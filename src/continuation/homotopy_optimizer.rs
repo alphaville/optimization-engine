@@ -230,7 +230,7 @@ where
         let mut num_outer_iterations = 0;
         let mut num_inner_iterations = 0;
         let num_penalty_constraints = self.homotopy_problem.num_penalty_constraints;
-        let mut constraint_values: Vec<f64> = vec![0.0; 1 + num_penalty_constraints];
+        let mut constraint_values: Vec<f64> = vec![0.0; std::cmp::max(1, num_penalty_constraints)];
         let mut available_time_left = self.max_duration;
         let mut exit_status = ExitStatus::Converged;
 
@@ -257,7 +257,8 @@ where
                 (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
             let inner_problem = Problem::new(&self.homotopy_problem.constraints, df_, f_);
-            let mut inner_panoc = panoc::PANOCOptimizer::new(inner_problem, &mut self.panoc_cache);
+            let mut inner_panoc = panoc::PANOCOptimizer::new(inner_problem, &mut self.panoc_cache)
+                .with_max_iter(self.max_inner_iterations);
 
             if available_time_left != None {
                 inner_panoc.with_max_duration(available_time_left.unwrap());
@@ -274,7 +275,7 @@ where
             (homotopy_problem.penalty_function)(u, &q_augmented_param_vec, &mut constraint_values)?;
             let continue_outer_iterations = constraint_values
                 .iter()
-                .any(|&ci| ci > self.constraint_tolerance);
+                .any(|&ci| ci.abs() > self.constraint_tolerance);
             if !continue_outer_iterations {
                 break;
             } else {
