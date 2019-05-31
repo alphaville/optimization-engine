@@ -103,7 +103,27 @@ class RustBuildTestCase(unittest.TestCase):
             .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
-    
+
+    def test_rust_build_with_tcp_server(self):
+        u = cs.SX.sym("u", 15)
+        p = cs.SX.sym("p", 2)
+        phi = og.functions.rosenbrock(u, p)
+        bounds = og.constraints.Ball2(None, 1.5)
+        problem = og.builder.Problem(u, p, phi) \
+            .with_penalty_constraints(None) \
+            .with_constraints(bounds)
+        build_config = og.config.BuildConfiguration() \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode("debug")
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("tcp_enabled_optimizer")
+        builder = og.builder.OpEnOptimizerBuilder(problem,
+                                                  metadata=meta,
+                                                  build_configuration=build_config) \
+            .with_generate_not_build_flag(False)
+        builder.enable_tcp_interface()
+        builder.build()
+
     def test_fully_featured_release_mode(self):
         u = cs.SX.sym("u", 5)
         p = cs.SX.sym("p", 2)

@@ -43,6 +43,19 @@ class OpEnOptimizerBuilder:
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
         self.__tcp_server_configuration = None
+        self.__verbosity_level = 0
+
+    def with_verbosity_level(self, verbosity_level):
+        """Sepcify the verbosity level
+
+        Args:
+            verbosity_level: level of verbosity (0,1,2,3)
+
+        Returns:
+            Current builder object
+        """
+        self.__verbosity_level = verbosity_level
+        return self
 
     def with_problem(self, problem):
         """Specify problem
@@ -231,13 +244,20 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __build_optimizer(self):
-        target_dir = self.__target_dir()
+        target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
-        with open(os.devnull, 'w') as FNULL:
+        verbose = int(self.__verbosity_level)
+        print(target_dir)
+        print(command)
+        if verbose == 0:
+            with open(os.devnull, 'w') as FNULL:
+                p = subprocess.Popen(command, cwd=target_dir, stdout=FNULL, stderr=FNULL)
+        else:
             p = subprocess.Popen(command, cwd=target_dir)
-            process_completion = p.wait()
-            if process_completion != 0:
-                raise Exception('Rust build failed')
+
+        process_completion = p.wait()
+        if process_completion != 0:
+            raise Exception('Rust build failed')
 
     def __initialize(self):
         sc = self.__solver_config
@@ -254,7 +274,7 @@ class OpEnOptimizerBuilder:
         if 1 != len(sc.initial_penalty_weights) != ncp > 0:
             raise Exception("Initial penalty weights have incompatible dimensions with c(u, p)")
 
-    def __build_tcp_interface(self):
+    def __generate_code_tcp_interface(self):
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -267,7 +287,7 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def enable_tcp_interface(self,
-                             tcp_server_configuration = og_cfg.TcpServerConfiguration()):
+                             tcp_server_configuration=og_cfg.TcpServerConfiguration()):
         self.__tcp_server_configuration = tcp_server_configuration
 
     def build(self):
@@ -287,6 +307,6 @@ class OpEnOptimizerBuilder:
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         if self.__tcp_server_configuration is not None:
-            self.__build_tcp_interface()
+            self.__generate_code_tcp_interface()
         if not self.__generate_not_build:
             self.__build_optimizer()             # build overall project
