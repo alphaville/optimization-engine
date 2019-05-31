@@ -9,6 +9,7 @@ main() {
     python --version
     pip --version
     virtualenv --version
+    which python3
 }
 
 main
