@@ -1,4 +1,11 @@
-language: rust
+language: 
+  - rust
+  - python
+
+python:
+  - "3.4"
+  - "3.6"
+  - "2.7"
 
 matrix:
   include:

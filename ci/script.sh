@@ -4,11 +4,7 @@ set -euxo pipefail
 main() {
     # Run Rust tests
     # ------------------------------------
-    
-    cargo check --target $TARGET
-    cargo build --target $TARGET
     cargo test --target $TARGET
-
 
 
 
