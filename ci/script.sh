@@ -1,3 +1,4 @@
+#! /bin/bash
 set -euxo pipefail
 
 main() {
@@ -17,7 +18,7 @@ main() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    virtualenv -p python$(PYTHON_VERSION) venv
+    virtualenv -p python$PYTHON_VERSION venv
     
     # activate venv
     source venv/bin/activate
