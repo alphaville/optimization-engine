@@ -109,7 +109,7 @@ install:
   - bash ci/install.sh
 
 script:
-  #- bash ci/script.sh
+  - bash ci/script.sh
 
 after_script: set +e
 
