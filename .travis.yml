@@ -2,29 +2,84 @@ language: rust
 
 matrix:
   include:
-    - env: 
+    # ------------------------------------------------------
+    # Linux Xenial distributions, Various Python versions
+    # Rust: Stable, Beta and Nightly
+    # ------------------------------------------------------
+    #
+    - os: linux
+      dist: xenial
+      env: 
       - TARGET=x86_64-unknown-linux-gnu
       - PYTHON_VERSION=3.4
       rust: nightly
       python: "3.4"
 
-    - env: 
+    - os: linux
+      dist: xenial
+      env: 
       - TARGET=x86_64-unknown-linux-gnu
       - PYTHON_VERSION=3.6
       rust: beta
       python: "3.6"
 
-    - env: 
+    - os: linux
+      dist: xenial
+      env: 
       - TARGET=x86_64-unknown-linux-gnu
       - PYTHON_VERSION=3.6
       rust: stable
       python: "3.6"
 
-    - env: 
+    - os: linux
+      dist: xenial
+      env: 
       - TARGET=x86_64-unknown-linux-gnu
       - PYTHON_VERSION=2.7
       rust: stable
       python: "2.7"
+
+    # ------------------------------------------------------
+    # Linux Trusty distributions, Python 3.6 and 2.7
+    # Stable Rust
+    # ------------------------------------------------------
+    # 
+    - os: linux
+      dist: trusty
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=2.7
+      rust: stable
+      python: "2.7"
+
+    - os: linux
+      dist: trusty
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=3.6
+      rust: stable
+      python: "3.6"
+
+    # ------------------------------------------------------
+    # OSX Darwin, Python 3.6 and 2.7
+    # Stable Rust
+    # ------------------------------------------------------
+    #
+    - os: osx
+      env: 
+      - TARGET=i686-apple-darwin
+      - PYTHON_VERSION=2.7
+      rust: stable
+      python: "2.7"
+
+    - os: linux
+      env: 
+      - TARGET=i686-apple-darwin
+      - PYTHON_VERSION=3.6
+      rust: stable
+      python: "3.6"
+
+
 
 before_install: set -e
 
