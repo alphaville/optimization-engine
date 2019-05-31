@@ -16,53 +16,63 @@ class BuildConfiguration:
             A new instance of BuildConfiguration
 
         """
-        self._target_system = 'default'
-        self._build_mode = 'release'
-        self._cost_function_name = 'phi'
-        self._grad_cost_function_name = 'grad_phi'
-        self._constraint_penalty_function = 'constraints_penalty'
-        self._rebuild = False
-        self._build_dir = build_dir
-        self._open_version = '*'
+        self.__target_system = 'default'
+        self.__build_mode = 'release'
+        self.__cost_function_name = 'phi'
+        self.__grad_cost_function_name = 'grad_phi'
+        self.__constraint_penalty_function = 'constraints_penalty'
+        self.__rebuild = False
+        self.__build_dir = build_dir
+        self.__open_version = '*'
+        self.__build_c_bindings = False
+        self.__build_tcp_interface = False
 
     # ---------- GETTERS ---------------------------------------------
 
     @property
     def rebuild(self):
         """Whether to re-build the optimizer from scratch"""
-        return self._rebuild
+        return self.__rebuild
 
     @property
     def cost_function_name(self):
-        return self._cost_function_name
+        return self.__cost_function_name
 
     @property
     def grad_function_name(self):
-        return self._grad_cost_function_name
+        return self.__grad_cost_function_name
 
     @property
     def constraint_penalty_function_name(self):
-        return self._constraint_penalty_function
+        return self.__constraint_penalty_function
 
     @property
     def target_system(self):
         """Target system"""
-        return self._target_system
+        return self.__target_system
 
     @property
     def build_mode(self):
         """Build mode (release or debug)"""
-        return self._build_mode
+        return self.__build_mode
 
     @property
     def build_dir(self):
         """Directory in which the auto-generated optimizer will be stored"""
-        return self._build_dir
+        return self.__build_dir
 
     @property
     def open_version(self):
         """OpEn version used with the auto-generated solver"""
-        return self._open_version
+        return self.__open_version
+
+    @property
+    def build_c_bindings(self):
+        return self.__build_c_bindings
+
+    @property
+    def build_tcp_interface(self):
+        return self.__build_tcp_interface
 
     # ---------- SETTERS ---------------------------------------------
 
@@ -76,10 +86,10 @@ class BuildConfiguration:
         Returns:
             The current instance of BuildConfiguration (self)
         """
-        self._rebuild = do_rebuild
+        self.__rebuild = do_rebuild
         return self
 
-    def with_target_system(self, _target_system):
+    def with_target_system(self, target_system):
         """Not implemented yet"""
         raise NotImplementedError
 
@@ -95,15 +105,23 @@ class BuildConfiguration:
             The current instance of  BuildConfiguration (self)
 
         """
-        self._build_mode = build_mode
+        self.__build_mode = build_mode
         return self
 
     def with_build_directory(self, build_dir):
         """Specify the build directory"""
-        self._build_dir = build_dir
+        self.__build_dir = build_dir
         return self
 
     def with_open_version(self, open_version):
         """Specify the version of OpEn to link to"""
-        self._open_version = open_version
+        self.__open_version = open_version
+        return self
+
+    def with_build_c_bindings(self, build_c_bindings):
+        self.__build_c_bindings = build_c_bindings
+        return self
+
+    def with_build_tcp_interface(self, build_tcp_interface):
+        self.__build_tcp_interface = build_tcp_interface
         return self

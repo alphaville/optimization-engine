@@ -42,6 +42,7 @@ class OpEnOptimizerBuilder:
         self.__build_config = build_configuration
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
+        self.__tcp_server_configuration = None
 
     def with_problem(self, problem):
         """Specify problem
@@ -83,7 +84,7 @@ class OpEnOptimizerBuilder:
                 self.__build_config.build_dir,
                 self.__meta.optimizer_name))
 
-    def __icasadi__target_dir(self):
+    def __icasadi_target_dir(self):
         """icasadi target directory"""
         return os.path.abspath(
             os.path.join(
@@ -117,7 +118,7 @@ class OpEnOptimizerBuilder:
     def __copy_icasadi_to_target(self):
         """Copy 'icasadi' into target directory"""
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
-        target_icasadi_dir = self.__icasadi__target_dir()
+        target_icasadi_dir = self.__icasadi_target_dir()
         if not os.path.exists(target_icasadi_dir):
             os.makedirs(target_icasadi_dir)
         shutil.rmtree(target_icasadi_dir)
@@ -139,7 +140,7 @@ class OpEnOptimizerBuilder:
                                           timestamp_created=datetime.datetime.now())
         icasadi_config_h_path = os.path.abspath(
             os.path.join(
-                self.__icasadi__target_dir(),
+                self.__icasadi_target_dir(),
                 "extern", _ICASADI_CFG_HEADER_FNAME))
         with open(icasadi_config_h_path, "w") as fh:
             fh.write(output_template)
@@ -152,7 +153,8 @@ class OpEnOptimizerBuilder:
         template = env.get_template('optimizer_cargo.toml.template')
         output_template = template.render(
             meta=self.__meta,
-            open_version=self.__build_config.open_version)
+            open_version=self.__build_config.open_version,
+            activate_tcp_server=self.__tcp_server_configuration is not None)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(output_template)
@@ -186,7 +188,7 @@ class OpEnOptimizerBuilder:
         grad_cost_fun.generate(grad_file_name)
 
         # Move generated files to target folder
-        icasadi_extern_dir = os.path.join(self.__icasadi__target_dir(), "extern")
+        icasadi_extern_dir = os.path.join(self.__icasadi_target_dir(), "extern")
         shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
         shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
 
@@ -210,9 +212,8 @@ class OpEnOptimizerBuilder:
         shutil.move(constraints_penalty_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
-
     def __build_icasadi(self):
-        icasadi_dir = self.__icasadi__target_dir()
+        icasadi_dir = self.__icasadi_target_dir()
         command = self.__make_build_command()
         p = subprocess.Popen(command, cwd=icasadi_dir)
         p.wait()
@@ -233,7 +234,7 @@ class OpEnOptimizerBuilder:
         target_dir = self.__target_dir()
         command = self.__make_build_command()
         with open(os.devnull, 'w') as FNULL:
-            p = subprocess.Popen(command, cwd=target_dir, stderr=FNULL, stdout=FNULL)
+            p = subprocess.Popen(command, cwd=target_dir)
             process_completion = p.wait()
             if process_completion != 0:
                 raise Exception('Rust build failed')
@@ -253,6 +254,22 @@ class OpEnOptimizerBuilder:
         if 1 != len(sc.initial_penalty_weights) != ncp > 0:
             raise Exception("Initial penalty weights have incompatible dimensions with c(u, p)")
 
+    def __build_tcp_interface(self):
+        target_dir = self.__target_dir()
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('tcp_server.rs.template')
+        output_template = template.render(meta=self.__meta,
+                                          tcp_server_config=self.__tcp_server_configuration,
+                                          timestamp_created=datetime.datetime.now())
+        target_scr_lib_rs_path = os.path.join(target_dir, "src", "main.rs")
+        with open(target_scr_lib_rs_path, "w") as fh:
+            fh.write(output_template)
+
+    def enable_tcp_interface(self,
+                             tcp_server_configuration = og_cfg.TcpServerConfiguration()):
+        self.__tcp_server_configuration = tcp_server_configuration
+
     def build(self):
         """Generate code and build project
 
@@ -269,5 +286,7 @@ class OpEnOptimizerBuilder:
         self.__generate_icasadi_header()         # generate icasadi_config.h
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
+        if self.__tcp_server_configuration is not None:
+            self.__build_tcp_interface()
         if not self.__generate_not_build:
             self.__build_optimizer()             # build overall project

@@ -127,7 +127,7 @@ matrix:
       python: "2.7"
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 5: OSX + Stable Rust + Python 3.6
+    # Job 8: OSX + Stable Rust + Python 3.6
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: osx
       env: 

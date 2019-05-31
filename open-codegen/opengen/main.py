@@ -20,7 +20,7 @@ meta = og.config.OptimizerMeta() \
     .with_version("0.0.2") \
     .with_authors(["P. Sopasakis", "E. Fresk"]) \
     .with_licence("CC4.0-By") \
-    .with_optimizer_name("test_optimizer")
+    .with_optimizer_name("yo_optimizer")
 
 build_config = og.config.BuildConfiguration() \
     .with_rebuild(False) \
@@ -38,9 +38,10 @@ solver_config = og.config.SolverConfiguration() \
     .with_initial_penalty_weights(2.0) \
     .with_max_duration_micros(3000000)
 
-og.builder.OpEnOptimizerBuilder(problem,
-                                metadata=meta,
-                                build_configuration=build_config,
-                                solver_configuration=solver_config) \
-    .with_generate_not_build_flag(False) \
-    .build()
+builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          metadata=meta,
+                                          build_configuration=build_config,
+                                          solver_configuration=solver_config) \
+    .with_generate_not_build_flag(False)
+builder.enable_tcp_interface()
+builder.build()
