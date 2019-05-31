@@ -6,12 +6,6 @@ main() {
     fi
     sudo pip install --upgrade pip
     sudo pip install virtualenv --upgrade
-    python --version
-    pip --version
-    virtualenv --version
-    which python3
-    which python3.6
-    which python2.7
 }
 
 main
