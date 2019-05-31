@@ -1,13 +1,10 @@
+#! /bin/bash
 set -euxo pipefail
 
 main() {
     # Run Rust tests
     # ------------------------------------
-    
-    cargo check --target $TARGET
-    cargo build --target $TARGET
     cargo test --target $TARGET
-
 
 
 
@@ -17,7 +14,7 @@ main() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    virtualenv -p python$(PYTHON_VERSION) venv
+    virtualenv -p python$PYTHON_VERSION venv
     
     # activate venv
     source venv/bin/activate
