@@ -1,4 +1,6 @@
-language: rust
+language: 
+  - rust
+  - python
   
 python:
   - "2.7"
