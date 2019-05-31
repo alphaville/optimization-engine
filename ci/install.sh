@@ -8,16 +8,10 @@ main() {
     sudo pip install virtualenv --upgrade
     python --version
     pip --version
-    which python3
-    export P3=`which python3`
-    if [ ! -n "$P3" ]
-    then
-        echo "NO PYTHON3"
-    else
-        echo "PYTHON3 FOUND!"
-        python3 --version
-    fi
     virtualenv --version
+    which python3
+    which python3.6
+    which python2.7
 }
 
 main

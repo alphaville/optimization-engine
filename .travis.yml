@@ -1,10 +1,4 @@
-language: 
-  - rust
-  - python
-  
-python:
-  - "2.7"
-  - "3.6"
+language: rust
 
 matrix:
   include:
@@ -24,8 +18,8 @@ matrix:
             - python3.4
             - python3.4-dev
       env: 
-      - TARGET=x86_64-unknown-linux-gnu
-      - PYTHON_VERSION=3.4
+        - TARGET=x86_64-unknown-linux-gnu
+        - PYTHON_VERSION=3.4
       rust: nightly
       python: "3.4"
 
@@ -68,8 +62,8 @@ matrix:
     - os: linux
       dist: trusty
       env: 
-      - TARGET=x86_64-unknown-linux-gnu
-      - PYTHON_VERSION=2.7
+        - TARGET=x86_64-unknown-linux-gnu
+        - PYTHON_VERSION=2.7
       rust: stable
       python: "2.7"
 
@@ -83,8 +77,8 @@ matrix:
             - python3.6
             - python3.6-dev
       env: 
-      - TARGET=x86_64-unknown-linux-gnu
-      - PYTHON_VERSION=3.6
+        - TARGET=x86_64-unknown-linux-gnu
+        - PYTHON_VERSION=3.6
       rust: stable
       python: "3.6"
 
@@ -95,15 +89,15 @@ matrix:
     #
     - os: osx
       env: 
-      - TARGET=i686-apple-darwin
-      - PYTHON_VERSION=2.7
+        - TARGET=i686-apple-darwin
+        - PYTHON_VERSION=2.7
       rust: stable
       python: "2.7"
 
     - os: osx
       env: 
-      - TARGET=i686-apple-darwin
-      - PYTHON_VERSION=3.6
+        - TARGET=i686-apple-darwin
+        - PYTHON_VERSION=3.6
       rust: stable
       python: "3.6"
 
