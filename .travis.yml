@@ -1,12 +1,5 @@
-language: 
-  - rust
-  - python
-
-python:
-  - "3.4"
-  - "3.6"
-  - "2.7"
-
+language: rust
+  
 matrix:
   include:
     # ------------------------------------------------------
@@ -16,10 +9,11 @@ matrix:
     #
     - os: linux
       dist: xenial
+      # Note: Python 3.4 needs to be installed
       addons:
         apt:
           sources:
-            - deadsnakes # source required so it finds the package definition below
+            - deadsnakes
           packages:
             - python3.4
             - python3.4-dev
@@ -29,21 +23,21 @@ matrix:
       rust: nightly
       python: "3.4"
 
-    # - os: linux
-    #   dist: xenial
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=3.6
-    #   rust: beta
-    #   python: "3.6"
+    - os: linux
+      dist: xenial
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=3.6
+      rust: beta
+      python: "3.6"
 
-    # - os: linux
-    #   dist: xenial
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=3.6
-    #   rust: stable
-    #   python: "3.6"
+    - os: linux
+      dist: xenial
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=3.6
+      rust: stable
+      python: "3.6"
 
     - os: linux
       dist: xenial
@@ -58,21 +52,21 @@ matrix:
     # Stable Rust
     # ------------------------------------------------------
     # 
-    # - os: linux
-    #   dist: trusty
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=2.7
-    #   rust: stable
-    #   python: "2.7"
+    - os: linux
+      dist: trusty
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=2.7
+      rust: stable
+      python: "2.7"
 
-    # - os: linux
-    #   dist: trusty
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=3.6
-    #   rust: stable
-    #   python: "3.6"
+    - os: linux
+      dist: trusty
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=3.6
+      rust: stable
+      python: "3.6"
 
     # ------------------------------------------------------
     # OSX Darwin, Python 3.6 and 2.7
