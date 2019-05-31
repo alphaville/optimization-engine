@@ -7,9 +7,14 @@ matrix:
     # Rust: Stable, Beta and Nightly
     # ------------------------------------------------------
     #
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 1: Xenial + Nightly Rust + Python 3.4
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: xenial
       # Note: Python 3.4 needs to be installed
+      # Note: Prints lots of warnings when installing numpy
       addons:
         apt:
           sources:
@@ -23,6 +28,9 @@ matrix:
       rust: nightly
       python: "3.4"
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 2: Xenial + Beta Rust + Python 3.6
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: xenial
       addons:
@@ -38,27 +46,37 @@ matrix:
       rust: beta
       python: "3.6"
 
-    # - os: linux
-    #   dist: xenial
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=3.6
-    #   rust: stable
-    #   python: "3.6"
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 3: Xenial + Stable Rust + Python 3.6
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    - os: linux
+      dist: xenial
+      env: 
+        - TARGET=x86_64-unknown-linux-gnu
+        - PYTHON_VERSION=3.6
+      rust: stable
+      python: "3.6"
 
-    # - os: linux
-    #   dist: xenial
-    #   env: 
-    #   - TARGET=x86_64-unknown-linux-gnu
-    #   - PYTHON_VERSION=2.7
-    #   rust: stable
-    #   python: "2.7"
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 4: Xenial + Stable Rust + Python 2.7
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    - os: linux
+      dist: xenial
+      env: 
+      - TARGET=x86_64-unknown-linux-gnu
+      - PYTHON_VERSION=2.7
+      rust: stable
+      python: "2.7"
 
     # ------------------------------------------------------
     # Linux Trusty distributions, Python 3.6 and 2.7
     # Stable Rust
     # ------------------------------------------------------
     # 
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 5: Trusty + Stable Rust + Python 2.7
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: trusty
       env: 
@@ -67,6 +85,9 @@ matrix:
       rust: stable
       python: "2.7"
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 6: Trusty + Stable Rust + Python 3.6
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: trusty
       addons:
@@ -87,6 +108,10 @@ matrix:
     # Stable Rust
     # ------------------------------------------------------
     #
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 7: OSX + Stable Rust + Python 2.7
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: osx
       env: 
         - TARGET=i686-apple-darwin
@@ -94,11 +119,15 @@ matrix:
       rust: stable
       python: "2.7"
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 5: OSX + Stable Rust + Python 3.6
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: osx
       env: 
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.6
       rust: stable
+      # Note: Python 3.6 is available by default
       python: "3.6"
 
 
