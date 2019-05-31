@@ -72,7 +72,7 @@ matrix:
       rust: stable
       python: "2.7"
 
-    - os: linux
+    - os: osx
       env: 
       - TARGET=i686-apple-darwin
       - PYTHON_VERSION=3.6
