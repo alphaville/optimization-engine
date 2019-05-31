@@ -5,6 +5,7 @@ main() {
     # ------------------------------------
     
     cargo check --target $TARGET
+    cargo build --target $TARGET
     cargo test --target $TARGET
 
 
@@ -27,7 +28,7 @@ main() {
     # run opengen main.py
     cd opengen
     export PYTHONPATH=.
-    python test/test.py
+    python -W ignore test/test.py -v
 }
 
 main

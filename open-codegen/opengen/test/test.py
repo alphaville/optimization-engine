@@ -59,6 +59,22 @@ class RustBuildTestCase(unittest.TestCase):
         with self.assertRaises(Exception) as __context:
             og.config.SolverConfiguration().with_max_inner_iterations()
 
+    def test_build_incompatible_dim_(self):
+        u = cs.SX.sym("u", 5)
+        p = cs.SX.sym("p", 2)
+        phi = og.functions.rosenbrock(u, p)
+        c = cs.vertcat(u[0], u[1],  u[2] - u[3])
+        problem = og.builder.Problem(u, p, phi) \
+            .with_penalty_constraints(c)
+        build_config = og.config.BuildConfiguration()
+        solver_config = og.config.SolverConfiguration() \
+            .with_initial_penalty_weights([1.0, 2.0]) # should have dim = 3
+        with self.assertRaises(Exception) as __context:
+            og.builder.OpEnOptimizerBuilder(problem,
+                                            build_configuration=build_config,
+                                            solver_configuration=solver_config) \
+                .with_generate_not_build_flag(True).build()
+
     def test_rust_build_with_penalty(self):
         u = cs.SX.sym("u", 15)
         p = cs.SX.sym("p", 2)
