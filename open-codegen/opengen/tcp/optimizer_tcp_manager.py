@@ -35,8 +35,10 @@ class OptimizerTcpManager:
         return data.decode()
 
     def ping(self):
-        with self.__obtain_socket_connection() as s:
-            data = self.__ping(s)
+        s = self.__obtain_socket_connection()
+        data = self.__ping(s)
+        s.shutdown(socket.SHUT_RDWR)
+        s.close()
         return data
 
     def start(self):
@@ -55,8 +57,10 @@ class OptimizerTcpManager:
         s.sendall(ping_message)
 
     def kill(self):
-        with self.__obtain_socket_connection() as s:
-            self.__kill(s)
+        s = self.__obtain_socket_connection()
+        self.__kill(s)
+        s.shutdown(socket.SHUT_RDWR)
+        s.close()
 
     def __call(self, p, s, buffer_len=1024):
         run_message = '{"Run" : {"parameter": ['
@@ -69,6 +73,8 @@ class OptimizerTcpManager:
         return data.decode()
 
     def call(self, p, buffer_len=1024):
-        with self.__obtain_socket_connection() as s:
-            result = self.__call(p, s, buffer_len)
+        s = self.__obtain_socket_connection()
+        result = self.__call(p, s, buffer_len)
+        s.shutdown(socket.SHUT_RDWR)
+        s.close()
         return result
