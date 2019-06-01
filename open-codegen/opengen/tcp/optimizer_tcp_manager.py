@@ -21,11 +21,13 @@ class OptimizerTcpManager:
 
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
+        print('[TRY] connecting...')
         tcp_data = self.__tcp_details
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((ip, port))
+        print('[OK] connected!...')
         return s
 
     def __ping(self, s):
