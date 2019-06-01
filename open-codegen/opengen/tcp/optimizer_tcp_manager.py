@@ -57,7 +57,25 @@ class OptimizerTcpManager:
         pong = self.ping()
         print(pong)
 
-    def call(self, p):
-        em = b'{"Run" : {"parameter", [1.0, 2.0]}}'
+    def __kill(self, s):
+        ping_message = b'{"Kill" : 1}'
+        s.sendall(ping_message)
 
-        # ---- WIP
+    def kill(self):
+        with self.__obtain_socket_connection() as s:
+            self.__kill(s)
+
+    def __call(self, p, s):
+        run_message = '{"Run" : {"parameter": ['
+        parameter_comma_separated_list = ','.join(map(str, p))
+        run_message += parameter_comma_separated_list
+        run_message += ']}}'
+
+        s.sendall(run_message.encode())
+        data = s.recv(256)  # 256 is more than enough
+        return data.decode()
+
+    def call(self, p):
+        with self.__obtain_socket_connection() as s:
+            result = self.__call(p, s)
+        return result
