@@ -30,20 +30,22 @@ class OptimizerTcpManager:
         print('[OK] connected!...')
         return s
 
-    def __ping(self, s):
-        print("[>] Starting ping")
-        ping_message = b'{"Ping" : 1}'
-        s.sendall(ping_message)
-        print("[>] Ping sent")
-        data = s.recv(256)  # 256 is more than enough
-        print("[>] Data received")
+    def __send_receive_data(self, text_to_send, buffer_size=512):
+        conn_socket = self.__obtain_socket_connection()
+        encoded_data = text_to_send.encode()
+        conn_socket.sendall(encoded_data)
+        conn_socket.shutdown(socket.SHUT_WR)
+        for _i in range(100):
+            data = conn_socket.recv(buffer_size)
+            if data is not None:
+                break
+        conn_socket.close()
         return data.decode()
 
     def ping(self):
-        s = self.__obtain_socket_connection()
-        data = self.__ping(s)
+        request = '{"Ping":1}'
+        data = self.__send_receive_data(request)
         print(data)
-        s.close()
         return data
 
     def start(self):
@@ -55,29 +57,18 @@ class OptimizerTcpManager:
 
         # ping the server until it responds so that we know it's
         # up and running
-        pong = self.ping()
-
-    def __kill(self, s):
-        ping_message = b'{"Kill" : 1}'
-        s.sendall(ping_message)
+        self.ping()
 
     def kill(self):
-        s = self.__obtain_socket_connection()
-        self.__kill(s)
-        s.close()
+        request = '{"Kill":1}'
+        self.__send_receive_data(request)
 
-    def __call(self, p, s, buffer_len=1024):
+    def call(self, p, buffer_len=4096):
+        # Make request
         run_message = '{"Run" : {"parameter": ['
         parameter_comma_separated_list = ','.join(map(str, p))
         run_message += parameter_comma_separated_list
         run_message += ']}}'
 
-        s.sendall(run_message.encode())
-        data = s.recv(buffer_len)  # 256 is more than enough
-        return data.decode()
-
-    def call(self, p, buffer_len=1024):
-        s = self.__obtain_socket_connection()
-        result = self.__call(p, s, buffer_len)
-        s.close()
-        return result
+        data = self.__send_receive_data(run_message, buffer_len)
+        return data
