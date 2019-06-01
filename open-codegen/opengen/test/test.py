@@ -120,7 +120,7 @@ class RustBuildTestCase(unittest.TestCase):
         builder = og.builder.OpEnOptimizerBuilder(problem,
                                                   metadata=meta,
                                                   build_configuration=build_config) \
-            .with_generate_not_build_flag(False)
+            .with_generate_not_build_flag(False).with_verbosity_level(1)
         builder.enable_tcp_interface()
         builder.build()
 
@@ -160,7 +160,13 @@ class RustBuildTestCase(unittest.TestCase):
             .with_generate_not_build_flag(False).with_verbosity_level(0)
         builder.build()
 
-
+    def test_tcp_server(self):
+        tcp_manager = og.tcp.OptimizerTcpManager('.python_test_build/tcp_enabled_optimizer')
+        tcp_manager.start()
+        tcp_manager.ping()
+        tcp_manager.call([1.0, 10.0])
+        tcp_manager.kill()
+        print("DONE! (tcp)")
 
 if __name__ == '__main__':
     unittest.main()

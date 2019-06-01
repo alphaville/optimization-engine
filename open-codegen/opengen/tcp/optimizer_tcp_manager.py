@@ -1,10 +1,6 @@
-import yaml
-import os
-import subprocess
-import socket
+import yaml, os, subprocess, socket, json
 from threading import Thread
 from retry import retry
-import time
 
 
 class OptimizerTcpManager:
@@ -25,13 +21,11 @@ class OptimizerTcpManager:
 
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
-        print("connecting...")
         tcp_data = self.__tcp_details
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((ip, port))
-        print("CONNECTED :-)")
         return s
 
     def __ping(self, s):
@@ -55,7 +49,6 @@ class OptimizerTcpManager:
         # ping the server until it responds so that we know it's
         # up and running
         pong = self.ping()
-        print(pong)
 
     def __kill(self, s):
         ping_message = b'{"Kill" : 1}'
@@ -65,17 +58,17 @@ class OptimizerTcpManager:
         with self.__obtain_socket_connection() as s:
             self.__kill(s)
 
-    def __call(self, p, s):
+    def __call(self, p, s, buffer_len=1024):
         run_message = '{"Run" : {"parameter": ['
         parameter_comma_separated_list = ','.join(map(str, p))
         run_message += parameter_comma_separated_list
         run_message += ']}}'
 
         s.sendall(run_message.encode())
-        data = s.recv(256)  # 256 is more than enough
+        data = s.recv(buffer_len)  # 256 is more than enough
         return data.decode()
 
-    def call(self, p):
+    def call(self, p, buffer_len=1024):
         with self.__obtain_socket_connection() as s:
-            result = self.__call(p, s)
+            result = self.__call(p, s, buffer_len)
         return result
