@@ -31,15 +31,18 @@ class OptimizerTcpManager:
         return s
 
     def __ping(self, s):
+        print("[>] Starting ping")
         ping_message = b'{"Ping" : 1}'
         s.sendall(ping_message)
+        print("[>] Ping sent")
         data = s.recv(256)  # 256 is more than enough
+        print("[>] Data received")
         return data.decode()
 
     def ping(self):
         s = self.__obtain_socket_connection()
         data = self.__ping(s)
-        s.shutdown(socket.SHUT_RDWR)
+        print(data)
         s.close()
         return data
 
@@ -61,7 +64,6 @@ class OptimizerTcpManager:
     def kill(self):
         s = self.__obtain_socket_connection()
         self.__kill(s)
-        s.shutdown(socket.SHUT_RDWR)
         s.close()
 
     def __call(self, p, s, buffer_len=1024):
@@ -77,6 +79,5 @@ class OptimizerTcpManager:
     def call(self, p, buffer_len=1024):
         s = self.__obtain_socket_connection()
         result = self.__call(p, s, buffer_len)
-        s.shutdown(socket.SHUT_RDWR)
         s.close()
         return result

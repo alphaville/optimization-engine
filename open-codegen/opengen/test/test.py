@@ -59,7 +59,7 @@ class RustBuildTestCase(unittest.TestCase):
         with self.assertRaises(Exception) as __context:
             og.config.SolverConfiguration().with_max_inner_iterations()
 
-    def test_build_incompatible_dim_(self):
+    def _test_build_incompatible_dim_(self):
         u = cs.SX.sym("u", 5)
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
@@ -75,7 +75,7 @@ class RustBuildTestCase(unittest.TestCase):
                                             solver_configuration=solver_config) \
                 .with_generate_not_build_flag(True).build()
 
-    def test_rust_build_with_penalty(self):
+    def _test_rust_build_with_penalty(self):
         u = cs.SX.sym("u", 15)
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
@@ -90,7 +90,7 @@ class RustBuildTestCase(unittest.TestCase):
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
-    def test_rust_build_without_penalty(self):
+    def _test_rust_build_without_penalty(self):
         u = cs.SX.sym("u", 15)
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
@@ -124,7 +124,7 @@ class RustBuildTestCase(unittest.TestCase):
         builder.enable_tcp_interface()
         builder.build()
 
-    def test_fully_featured_release_mode(self):
+    def _test_fully_featured_release_mode(self):
         u = cs.SX.sym("u", 5)
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
@@ -161,10 +161,15 @@ class RustBuildTestCase(unittest.TestCase):
         builder.build()
 
     def test_tcp_server(self):
+        print("(1)")
         tcp_manager = og.tcp.OptimizerTcpManager('.python_test_build/tcp_enabled_optimizer')
+        print("(2)")
         tcp_manager.start()
+        print("(3)")
         tcp_manager.ping()
+        print("(4)")
         tcp_manager.call([1.0, 10.0])
+        print("(5)")
         tcp_manager.kill()
         print("DONE! (tcp)")
 
