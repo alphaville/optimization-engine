@@ -30,7 +30,7 @@ setup(name=NAME,
             exclude=["tests", "icasadi", "templates"]),
       include_package_data=True,
       install_requires=[
-          'jinja2', 'casadi', 'numpy'
+          'jinja2', 'casadi', 'numpy', 'pyyaml', 'retry'
       ],
       classifiers=[
             'Development Status :: 2 - Pre-Alpha',

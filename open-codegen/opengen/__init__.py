@@ -1,5 +1,6 @@
-from opengen.definitions import *
-from opengen.builder import *
-from opengen.config import *
-from opengen.functions import *
-from opengen.constraints import *
+import opengen.definitions
+import opengen.builder
+import opengen.config
+import opengen.functions
+import opengen.constraints
+import opengen.tcp

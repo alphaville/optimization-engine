@@ -7,6 +7,7 @@ use std::{
 use {{ meta.optimizer_name }}::*;
 
 extern crate pretty_env_logger;
+
 #[macro_use]
 extern crate log;
 
@@ -22,6 +23,7 @@ struct ExecutionParameter {
 #[derive(Deserialize, Debug)]
 enum ClientRequest {
     Run(ExecutionParameter),
+    Ping(i32),
     Kill(i32),
 }
 
@@ -37,12 +39,23 @@ struct OptimizerSolution<'a> {
     solution: &'a [f64],
 }
 
+fn pong(stream: &mut std::net::TcpStream, code: i32) {
+    let error_message = format!(
+        {% raw %}"{{\n\t\"Pong\" : {}\n}}\n"{% endraw %},
+        code
+    );
+    stream
+        .write(error_message.as_bytes())
+        .expect("cannot write to stream");
+}
+
 /// Writes an error to the communication stream
 fn write_error(stream: &mut std::net::TcpStream, code: i32) {
     let error_message = format!(
         {% raw %}"{{\n\t\"Error\" : \"Invalid Request\"\n\t\"Code\" : {}\n}}\n"{% endraw %},
         code
     );
+    warn!("Invalid request {:?}", code);
     stream
         .write(error_message.as_bytes())
         .expect("cannot write to stream");
@@ -81,6 +94,10 @@ fn execution_handler(
     let parameter = &execution_parameter.parameter;
     match parameter {
         Some(parameter_value) => {
+            if parameter_value.len() != NP {
+                write_error(stream, 3003);
+                return;
+            }
             p.copy_from_slice(&parameter_value);
             let status = solve(&p, cache, u);
             match status {
@@ -88,13 +105,11 @@ fn execution_handler(
                     return_solution_to_client(ok_status, u, stream);
                 }
                 Err(_) => {
-                    warn!("Invalid Request: Error 2000");
                     write_error(stream, 2000);
                 }
             }
         }
         None => {
-            warn!("Invalid Request: Error 1001");
             write_error(stream, 1001);
         }
     }
@@ -112,11 +127,16 @@ fn run_server() {
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
 
-        let mut buffer = String::new();
-        stream.read_to_string(&mut buffer).expect("can't read stream");
+        //The following is more robust compared to `read_to_string`
+        let mut bytes_buffer = [0u8; 64];
+        stream
+            .read(&mut bytes_buffer)
+            .expect("count not read stream");
+        let message_len = bytes_buffer.iter().position(|&r| r == 0u8).unwrap() as usize;
+        let buffer = String::from_utf8(bytes_buffer[0..message_len].to_vec()).unwrap();
 
         let received_request: serde_json::Result<ClientRequest> = serde_json::from_str(&buffer);
-
+        trace!("Received new request");
         match received_request {
             Ok(request_content) => match request_content {
                 ClientRequest::Run(param) => {
@@ -127,14 +147,19 @@ fn run_server() {
                     info!("Quitting on request");
                     break;
                 }
+                ClientRequest::Ping(ping_code) => {
+                    info!("Ping received");
+                    pong(&mut stream, ping_code);
+                }
             },
             Err(_) => {
-                warn!("Invalid Request: Error 1000");
                 write_error(&mut stream, 1000);
             }
         }
     }
 }
+
+
 fn main() {
     run_server();
     info!("Exiting... (adios!)");

@@ -139,7 +139,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_version("0.0.0")                      \
             .with_authors(["P. Sopasakis", "E. Fresk"]) \
             .with_licence("CC4.0-By")                   \
-            .with_optimizer_name("wow_optimizer")
+            .with_optimizer_name("the_optimizer")
         build_config = og.config.BuildConfiguration()         \
             .with_rebuild(False)                              \
             .with_build_mode("debug")                         \
@@ -153,12 +153,13 @@ class RustBuildTestCase(unittest.TestCase):
             .with_max_outer_iterations(15)                \
             .with_penalty_weight_update_factor(8.0)       \
             .with_initial_penalty_weights([20.0, 5.0])
-        og.builder.OpEnOptimizerBuilder(problem,
-                                        metadata=meta,
-                                        build_configuration=build_config,
-                                        solver_configuration=solver_config) \
-            .with_generate_not_build_flag(False) \
-            .build()
+        builder = og.builder.OpEnOptimizerBuilder(problem,
+                                                  metadata=meta,
+                                                  build_configuration=build_config,
+                                                  solver_configuration=solver_config) \
+            .with_generate_not_build_flag(False).with_verbosity_level(0)
+        builder.build()
+
 
 
 if __name__ == '__main__':

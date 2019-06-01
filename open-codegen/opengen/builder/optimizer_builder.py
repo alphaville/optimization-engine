@@ -1,6 +1,7 @@
 import subprocess
 import shutil
 import datetime
+import yaml
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
@@ -247,8 +248,7 @@ class OpEnOptimizerBuilder:
         target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
         verbose = int(self.__verbosity_level)
-        print(target_dir)
-        print(command)
+
         if verbose == 0:
             with open(os.devnull, 'w') as FNULL:
                 p = subprocess.Popen(command, cwd=target_dir, stdout=FNULL, stderr=FNULL)
@@ -286,6 +286,16 @@ class OpEnOptimizerBuilder:
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
+    def __generate_yaml_data_file(self):
+        tcp_config = self.__tcp_server_configuration
+        target_dir = self.__target_dir()
+        target_yaml_file_path = os.path.join(target_dir, "optimizer.yml")
+        tcp_details = None if tcp_config is None \
+            else {'ip': tcp_config.bind_ip, 'port': tcp_config.bind_port}
+        details = {'tcp': tcp_details}
+        with open(target_yaml_file_path, 'w') as outfile:
+            yaml.dump(details, outfile, Dumper=yaml.Dumper)
+
     def enable_tcp_interface(self,
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
         self.__tcp_server_configuration = tcp_server_configuration
@@ -308,5 +318,6 @@ class OpEnOptimizerBuilder:
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         if self.__tcp_server_configuration is not None:
             self.__generate_code_tcp_interface()
+        self.__generate_yaml_data_file()
         if not self.__generate_not_build:
             self.__build_optimizer()             # build overall project
