@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Python · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;The Python interface is under development&lt;/p&gt;
-"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Python · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;p&gt;The Python interface is under development&lt;/p&gt;
-"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Interfaces</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust">OpEn Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Interfaces</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-interface">Python</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/udp-sockets">UDP sockets</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nmpc">Population dynamics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nav">Navigation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Python · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Python · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Interfaces</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust">OpEn Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Interfaces</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-interface">Python</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/udp-sockets">UDP sockets</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nmpc">Population dynamics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nav">Navigation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
             var coll = document.getElementsByClassName('collapsible');
             var checkActiveCategory = true;
             for (var i = 0; i < coll.length; i++) {
@@ -50,51 +48,282 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Python</h1></header><article><div><span><p>The Python interface is under development</p>
-<p>Sample:</p>
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Python</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<p>We present <code>opengen</code>: a Python interface to Optimization
+Engine (OpEn), which facilitates the process of code generation
+of high-performance parametric optimizers.</p>
+<p><img src="https://s14-eu5.startpage.com/cgi-bin/serveimage?url=http%3A%2F%2Ft0.gstatic.com%2Fimages%3Fq%3Dtbn%3AANd9GcTiiIJQouorHLZpUz4M681L3_EvS0tk0j_HlgG3Vh5WjNAmeZ571A&amp;sp=14f4c783ddaa87f5183c91e3977e5ee1&amp;anticache=611854" alt="Python logo"></p>
+<h2><a class="anchor" aria-hidden="true" id="about"></a><a href="#about" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>About</h2>
+<p>Opegen is a Python package that facilitates the design of parametric
+optimizers and generates Rust code using Optimization Engine. The user
+designs the parametric optimization problem entirely in Python.
+The auto-generated code is then compiled in Rust can be used in any
+of the following ways:</p>
+<ul>
+<li>Directly in Rust (you can include it in you Rust project as a dependency)</li>
+<li>Over a TCP/IP interface based on JSON (which can be accessed easily from any programming language)</li>
+<li>In Python (using the TCP/IP interface in the background)</li>
+<li>In C or C++ (support will be released soon)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="installation"></a><a href="#installation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation</h2>
+<p>In order to install <code>opengen</code> you need:</p>
+<ul>
+<li>Python (tested against versions 2.7, 3.4 and 3.6)</li>
+<li><a href="https://www.rust-lang.org/tools/install">Rust 2018</a> (tested with nightly, beta and stable)</li>
+<li><a href="https://web.casadi.org/">CasADi</a> (install with <code>pip install casadi</code>)</li>
+</ul>
+<p>You may install <code>opengen</code> using <code>pip</code>; just open a terminal
+and type in:</p>
+<pre><code class="hljs">pip install opengen==<span class="hljs-number">0.5</span><span class="hljs-number">.0</span>
+</code></pre>
+<p>On some linux systems you may need to prepend <code>sudo</code>. We recommend
+that you use <code>virtualenv</code>, but it is not necessary.</p>
+<h2><a class="anchor" aria-hidden="true" id="getting-started"></a><a href="#getting-started" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting started</h2>
+<h3><a class="anchor" aria-hidden="true" id="problem-specification"></a><a href="#problem-specification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem specification</h3>
+<p>Here we will demonstrate how to use <code>opengen</code> to generate a
+parametric optimizer</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
+<p>The first step is to import <code>opengen</code> and <code>casadi</code> in your Python
+code:</p>
 <pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
 <span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
-
-u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)
-p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)
-phi = og.functions.rosenbrock(u, p)
-c = cs.vertcat(<span class="hljs-number">1.5</span>*u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>],
-               u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>],
-               cs.cos(u[<span class="hljs-number">4</span>]),)
-xmin = [<span class="hljs-number">-2.</span>, <span class="hljs-number">-1.</span>, <span class="hljs-number">-1.</span>, <span class="hljs-number">-1.</span>, <span class="hljs-number">-4.</span>]
-xmax = [<span class="hljs-number">1.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">4.</span>]
-
-bounds = og.constraints.Rectangle(xmin, xmax)
-
-problem = og.builder.Problem(u, p, phi) \
-    .with_penalty_constraints(c) \
-    .with_constraints(bounds)
-
-meta = og.config.OptimizerMeta() \
-    .with_version(<span class="hljs-string">"0.0.2"</span>) \
-    .with_authors([<span class="hljs-string">"P. Sopasakis"</span>, <span class="hljs-string">"E. Fresk"</span>]) \
-    .with_licence(<span class="hljs-string">"CC4.0-By"</span>) \
-    .with_optimizer_name(<span class="hljs-string">"wow_optimizer"</span>)
-build_config = og.config.BuildConfiguration() \
-    .with_rebuild(<span class="hljs-literal">False</span>) \
-    .with_build_mode(<span class="hljs-string">"debug"</span>) \
-    .with_build_directory(<span class="hljs-string">".python_codegen_builds"</span>) \
-    .with_open_version(<span class="hljs-string">"0.3.2"</span>)
-solver_config = og.config.SolverConfiguration() \
-    .with_lfbgs_memory(<span class="hljs-number">15</span>) \
-    .with_tolerance(<span class="hljs-number">1e-5</span>) \
-    .with_max_inner_iterations(<span class="hljs-number">1000</span>) \
-    .with_constraints_tolerance(<span class="hljs-number">1e-4</span>) \
-    .with_max_outer_iterations(<span class="hljs-number">25</span>) \
-    .with_penalty_weight_update_factor(<span class="hljs-number">1.8</span>) \
-    .with_initial_penalty_weights([<span class="hljs-number">5.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">2.0</span>]) \
-    .with_max_duration_micros(<span class="hljs-number">3000000</span>)
-
-og.builder.OpEnOptimizerBuilder(problem,
-                                metadata=meta,
-                                build_configuration=build_config,
-                                solver_configuration=solver_config) \
-    .with_generate_not_build_flag(<span class="hljs-literal">False</span>) \
-    .build()
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/matlab-interface"><span class="arrow-prev">← </span><span>MATLAB</span></a><a class="docs-next button" href="/optimization-engine/docs/udp-sockets"><span>UDP sockets</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+<p>Next, we define the cost function. Suppose that we want to minimize
+the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock function</a>
+defined as</p>
+<div class="math">
+\[f(u) = \sum_{i=1}^{n_u - 1} b (u_{i+1} - u_{i}^2)^2 + (a-u_i)^2\]</div>
+<p>where $u=(u_1,\ldots, u_{n_u})$ is the decision variable and
+$p=(a, b)$ is a parameter vector.</p>
+<p>Consider the case with $n_u=5$. The cost function is defined
+using CasADi <code>SX</code> symbols as follows:</p>
+<pre><code class="hljs css language-python">u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)                 <span class="hljs-comment"># decision variable (nu = 5)</span>
+p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)                 <span class="hljs-comment"># parameter (np = 2)</span>
+phi = og.functions.rosenbrock(u, p)   <span class="hljs-comment"># cost function</span>
+</code></pre>
+<p>Next, we need to define the constraints. Support that
+$U$ is a Euclidean ball with radius $r=1.5$ centered at
+the origin, $U= {u \in \mathbb{R}^5 {}:{} |u| \leq r}$.
+This is,</p>
+<pre><code class="hljs css language-python">bounds = og.constraints.Ball2(<span class="hljs-literal">None</span>, <span class="hljs-number">1.5</span>) 
+</code></pre>
+<p>We may now define the optimization problem as follows:</p>
+<pre><code class="hljs css language-python">problem = og.builder.Problem(u, p, phi) \
+    .with_constraints(bounds)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation</h3>
+<p>In order to generate a parametric optimizer in Rust for the
+above problem we need to specify the following information
+which, albeit optional, will need to be configured and customized
+in most cases</p>
+<ul>
+<li>Metadata: general metadata about the auto-generated solver;
+The most important piece of information here is the
+<code>optimizer_name</code>. The optimizer will be stored in a folder
+with the same name</li>
+<li>Build configuration: build options such as the path where the
+generated optimizer should be stored and the build mode
+(debug or release)</li>
+<li>Solver configuration: solver-specific parameters such as the
+tolerance, L-BFGS memory length and more</li>
+</ul>
+<p>Here is an example of metadata:</p>
+<pre><code class="hljs css language-python">meta = og.config.OptimizerMeta()                \
+    .with_version(<span class="hljs-string">"0.0.0"</span>)                      \
+    .with_authors([<span class="hljs-string">"P. Sopasakis"</span>, <span class="hljs-string">"E. Fresk"</span>]) \
+    .with_licence(<span class="hljs-string">"CC4.0-By"</span>)                   \
+    .with_optimizer_name(<span class="hljs-string">"the_optimizer"</span>)
+</code></pre>
+<p>Note that <code>with_authors</code> takes a list of strings. The licence
+is either the name of a licence or a URL. The optimizer name
+is the name of the auto-generated crate and the name of the
+folder in which all generated files will be stored.</p>
+<p>Next, let us create a basic build configuration:</p>
+<pre><code class="hljs css language-python">build_config = og.config.BuildConfiguration() \
+    .with_build_directory(<span class="hljs-string">"python_build"</span>) \
+    .with_build_mode(<span class="hljs-string">"debug"</span>) 
+</code></pre>
+<p>This will instruct opegen to store the generated optimizer in
+<code>python_build/the_optimizer</code>. The build mode can be either
+<code>debug</code> (fast compilation, suboptimal performance) or
+<code>release</code> (slow compilation, best performance).</p>
+<p>There are some additional parameters one might be interested in
+such as <code>with_rebuild(True/False)</code> (whether to re-build the
+optimizer from scratch - equivalent of clean+build).</p>
+<p>Lastly, one needs to specify certain solver parameters; an
+example is given below:</p>
+<pre><code class="hljs css language-python">solver_config = og.config.SolverConfiguration()   \
+            .with_lfbgs_memory(<span class="hljs-number">15</span>)                \
+            .with_tolerance(<span class="hljs-number">1e-5</span>)                 \
+            .with_max_inner_iterations(<span class="hljs-number">155</span>)
+</code></pre>
+<p>Method <code>.with_max_inner_iterations</code> is used to specify the
+maximum number of iterations. We refer to it as &quot;inner&quot; iterations
+to distinguish from &quot;outer&quot; iterations in the <a href="https://en.wikipedia.org/wiki/Penalty_method">penalty method</a>
+(see below).</p>
+<p>We are now ready to call the code generator providing
+the above information:</p>
+<pre><code class="hljs css language-python">builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          metadata=meta,
+                                          build_configuration=build_config,
+                                          solver_configuration=solver_config)
+builder.enable_tcp_interface()
+builder.build()
+</code></pre>
+<p>Method <code>.enable_tcp_interface()</code> will activate the generation of a
+TCP/IP interface with which we will be able to call the solver from
+Python and other languages. You do not need to activate it if you
+plan to use the optimizer on an embedded device.</p>
+<p><em>Note.</em> You may configure the TCP parameters of the server using
+<code>og.config.TcpServerConfiguration</code>. By default, the server will
+bind on <code>127.0.0.1</code> and will listen for requests at port <code>4598</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="calling-the-optimizer"></a><a href="#calling-the-optimizer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling the optimizer</h3>
+<p>Provided you have generated code using <code>.enable_tcp_interface()</code>,
+you will be able to call it from Python.</p>
+<p>All you need to do is create an instance of <code>OptimizerTcpManager</code>
+providing the path to your optimizer.</p>
+<p>The typical steps involved in calling an optimizer over its
+TPC/IP interface are:</p>
+<ul>
+<li>Start the server (starts in a separate thread and runs as
+a sub-process in the background)</li>
+<li>Consume it</li>
+<li>Stop it</li>
+</ul>
+<p>The following code snippet should be self explanatory</p>
+<pre><code class="hljs css language-python">mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_build/the_optimizer'</span>)
+mng.start()
+
+pong = mng.ping()                 <span class="hljs-comment"># check if the server is alive</span>
+print(pong)
+solution = mng.call([<span class="hljs-number">1.0</span>, <span class="hljs-number">50.0</span>])  <span class="hljs-comment"># call the solver over TCP</span>
+print(solution)
+
+mng.kill()
+</code></pre>
+<p>The ping will return the dictionary <code>{&quot;Pong&quot;:1}</code> and <code>solution</code>
+is also a dictionary containing the solution and other useful
+solver information:</p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"exit_status"</span>: <span class="hljs-string">"Converged"</span>, 
+  <span class="hljs-attr">"num_outer_iterations"</span>: <span class="hljs-number">1</span>, 
+  <span class="hljs-attr">"num_inner_iterations"</span>: <span class="hljs-number">28</span>, 
+  <span class="hljs-attr">"last_problem_norm_fpr"</span>: <span class="hljs-number">6.415335992359856e-06</span>, 
+  <span class="hljs-attr">"max_constraint_violation"</span>: <span class="hljs-number">0.0</span>, 
+  <span class="hljs-attr">"solve_time_ms"</span>: <span class="hljs-number">4.39725</span>, 
+  <span class="hljs-attr">"solution"</span>: [
+    <span class="hljs-number">0.9064858741205364</span>, 
+    <span class="hljs-number">0.8255064578408071</span>, 
+    <span class="hljs-number">0.6864317421667316</span>, 
+    <span class="hljs-number">0.4750545892829331</span>, 
+    <span class="hljs-number">0.22352733342511494</span> ]
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="general-constraints"></a><a href="#general-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General constraints</h2>
+<p>Opengen can handle more general constraints of the form
+$c(u; p) = 0$ using the <a href="https://en.wikipedia.org/wiki/Penalty_method">penalty method</a>.
+In particular, opengen can solve problems of the form</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(p),\\ &c(u; p) = 0,\end{split}\]</div> 
+<p>where $c:\mathbb{R}^{n_u}\times \mathbb{R}^{n_p} \to \mathbb{R}^{n_c}$.
+This can be used to encode either equality or inequality constraints
+of the form $\psi(u; p) \leq 0$ using</p>
+<div class="math">
+\[c(u; p) = \max\{0, \psi(u; p)\}.\]</div>
+<p>As an example, consider again the problem of minimizing the
+Rosenbrock function subject to the constraints</p>
+<div class="math">
+\[\begin{split}
+1.5u_1 - u_2 {}={}& 0,\\
+u_3 - u_4 + 0.1 {}\leq{}& 0.
+\end{split}\]</div>
+<p>To that end, we define the constraints function</p>
+<div class="math">
+\[c(u; p) = 
+\begin{bmatrix}
+  1.5u_1 - u_2
+  \\
+  \max\{0, u_3 - u_4 + 0.1\}
+\end{bmatrix}.\]</div>
+<p>It is now very easy to include this in out problem formulation.
+We first need to define function $c$:</p>
+<pre><code class="hljs css language-python">c = cs.vertcat(<span class="hljs-number">1.5</span> * u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>], 
+               cs.fmax(<span class="hljs-number">0.0</span>, u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>] + <span class="hljs-number">0.1</span>))
+</code></pre>
+<p>and include it in the problem formulation:</p>
+<pre><code class="hljs css language-python">problem = og.builder.Problem(u, p, phi)  \
+    .with_penalty_constraints(c)         \
+    .with_constraints(bounds)
+</code></pre>
+<p>The rest of the code remains the same. The solution will
+now be</p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"exit_status"</span>: <span class="hljs-string">"Converged"</span>, 
+  <span class="hljs-attr">"num_outer_iterations"</span>: <span class="hljs-number">6</span>, 
+  <span class="hljs-attr">"num_inner_iterations"</span>: <span class="hljs-number">35</span>, 
+  <span class="hljs-attr">"last_problem_norm_fpr"</span>: <span class="hljs-number">3.1976300788348913e-06</span>, 
+  <span class="hljs-attr">"max_constraint_violation"</span>: <span class="hljs-number">7.659485695667156e-05</span>, 
+  <span class="hljs-attr">"solve_time_ms"</span>: <span class="hljs-number">3.842833</span>, 
+  <span class="hljs-attr">"solution"</span>: [
+    <span class="hljs-number">0.02196420476411661</span>, 
+    <span class="hljs-number">0.032927537058737015</span>, 
+    <span class="hljs-number">-0.031152544256866314</span>, 
+    <span class="hljs-number">0.06877086088617702</span>, 
+    <span class="hljs-number">0.004151858447457505</span> ]
+}
+</code></pre>
+<p>Note here that the solver performed 6 outer
+<a href="https://en.wikipedia.org/wiki/Penalty_method">penalty-type iterations</a>
+and 35 inner iterations overall. The infinity norm of the constraint
+violations is approximately $7.66\cdot 10^{-5}$ (which is below the
+default tolerance of $10^{-4}$. This means that the solution $u^\star$
+satisfies</p>
+<div class="math">
+\[
+\|c(u^\star; p)\|_{\infty}\leq 7.66\cdot 10^{-5}.
+\]
+</div>
+<p>The user may change the maximum constraint violation using</p>
+<pre><code class="hljs css language-python">solver_config.with_constraints_tolerance(<span class="hljs-number">1e-6</span>)
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="calling-the-optimizer-from-c-c"></a><a href="#calling-the-optimizer-from-c-c" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling the optimizer from C/C++</h2>
+<p>This is under development and will be released soon.
+Users will be able to generate C bindings to call the
+auto-generated parametric optimizer from their C or C++
+project.
+Check the progress <a href="https://github.com/alphaville/optimization-engine/issues/8">here</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="advanced-options"></a><a href="#advanced-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced options</h2>
+<h3><a class="anchor" aria-hidden="true" id="solver-options"></a><a href="#solver-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solver options</h3>
+<p>The user may wish to modify some additional solver parameters.</p>
+<p>When using the penalty method to account for general constraints,
+the most important parameters which determine the speed of
+convergence are the <strong>initial values</strong> of the penalty weights and the
+<strong>update factor</strong>. These are set using</p>
+<pre><code class="hljs css language-python">solver_config.with_penalty_weight_update_factor(<span class="hljs-number">8.0</span>)       \
+             .with_initial_penalty_weights([<span class="hljs-number">20.0</span>, <span class="hljs-number">5.0</span>])
+</code></pre>
+<p>The number of the initial penalty weights must be equal to
+$n_c$; the number of constraints. If you need to set all
+weights to the same value, use</p>
+<pre><code class="hljs css language-python">solver_config.with_initial_penalty_weights(<span class="hljs-number">100.0</span>)
+</code></pre>
+<p>In embedded applications it is often important that the solver
+is forced to terminate within a given time period. The user may
+set the <strong>maximum runtime</strong> (in microseconds) using</p>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Maximum duration: 50ms</span>
+solver_config.with_max_duration_micros(<span class="hljs-number">50000</span>)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="tcp-ip-options"></a><a href="#tcp-ip-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TCP/IP options</h3>
+<p>In order to change the IP and port at which the server listens
+for requests (e.g., for remote connections), you may crate an
+<code>TcpServerConfiguration</code> object as follows</p>
+<pre><code class="hljs css language-python">tcp_config = og.config.TcpServerConfiguration(<span class="hljs-string">'10.8.0.12'</span>, <span class="hljs-number">9555</span>)
+</code></pre>
+<p>and then provide it to the builder using</p>
+<pre><code class="hljs css language-python">builder.enable_tcp_interface(tcp_config)
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/matlab-interface"><span class="arrow-prev">← </span><span>MATLAB</span></a><a class="docs-next button" href="/optimization-engine/docs/udp-sockets"><span>UDP sockets</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#about">About</a></li><li><a href="#installation">Installation</a></li><li><a href="#getting-started">Getting started</a><ul class="toc-headings"><li><a href="#problem-specification">Problem specification</a></li><li><a href="#code-generation">Code generation</a></li><li><a href="#calling-the-optimizer">Calling the optimizer</a></li></ul></li><li><a href="#general-constraints">General constraints</a></li><li><a href="#calling-the-optimizer-from-c-c">Calling the optimizer from C/C++</a></li><li><a href="#advanced-options">Advanced options</a><ul class="toc-headings"><li><a href="#solver-options">Solver options</a></li><li><a href="#tcp-ip-options">TCP/IP options</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
