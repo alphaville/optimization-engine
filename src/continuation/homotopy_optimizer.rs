@@ -12,6 +12,9 @@ const DEFAULT_MAX_OUTER_ITERATIONS: usize = 10;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 500;
 
 /// Homotopy optimizer
+///
+/// This struct solves a parametric optimization problem - which has been defined using
+/// HomotopyProblem - and solves it with the homotopy method.
 pub struct HomotopyOptimizer<
     'a,
     ParametricPenaltyFunctionType,
@@ -78,6 +81,56 @@ where
     ///
     /// Does not panic
     ///
+    /// ## Example
+    ///
+    /// ```
+    /// use optimization_engine::{
+    ///     SolverError,
+    ///     continuation,constraints::*,
+    ///     core::panoc::PANOCCache
+    ///    };
+    ///
+    /// fn main() {
+    ///
+    ///     let mut cache = PANOCCache::new(std::num::NonZeroUsize::new(1).unwrap(),
+    ///         1e-5, std::num::NonZeroUsize::new(10).unwrap());
+    ///
+    ///     /* cost function, f(u; q) */
+    ///     let cost_fun = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {        
+    ///         // your implementation goes here
+    ///         Ok(())
+    ///     };
+    ///
+    ///     /* parametric gradient, df(u, q) */
+    ///     let grad_fun = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    ///         // your implementation goes here
+    ///             Ok(())
+    ///         };
+    ///    
+    ///     /* penalty-type constraints: c(u; p) */
+    ///     let penalty_constr_fun =
+    ///     |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
+    ///        // your implementation goes here
+    ///        Ok(())
+    ///     };
+    ///    
+    ///     // Constraints...
+    ///     let bounds = Ball2::new(None, 1.5);
+    ///    
+    ///     // Define homotopy problem
+    ///     let  homotopy_problem = continuation::HomotopyProblem::new(
+    ///        bounds,
+    ///        grad_fun,
+    ///        cost_fun,
+    ///        penalty_constr_fun,
+    ///        1
+    ///     );
+    ///    
+    ///     let mut homotopy_optimizer =
+    ///         continuation::HomotopyOptimizer::new(&homotopy_problem, &mut cache);
+    /// }
+    /// ```
+    ///    
     pub fn new(
         homotopy_problem: &'a HomotopyProblem<
             ParametricPenaltyFunctionType,

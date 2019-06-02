@@ -2,7 +2,8 @@ use crate::{constraints, continuation::ContinuationMode, SolverError};
 
 /// Homotopy problem definition
 ///
-///
+/// Definition of a parametric optimization problem to be solved with
+/// the homotopy method
 pub struct HomotopyProblem<
     ParametricPenaltyFunctionType,
     ParametricGradientType,
@@ -47,6 +48,17 @@ where
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
+    /// Constructs instances of Homotopy problem
+    ///
+    /// ## Arguments
+    ///
+    /// - `constraints`: hard constraints
+    /// - `parametric_gradient`: gradient of the parametric cost function, df(u; p)
+    /// - `parametric_cost`: parametric cost function, f(u; p)
+    /// - `penalty_function`: parametric penalty function: c(u; p)
+    /// - `num_penalty_constraints`: number of penalty-type constraints. This is the
+    ///   range dimension of c(u; p)
+    ///
     pub fn new(
         constraints: ConstraintType,
         parametric_gradient: ParametricGradientType,
@@ -72,29 +84,48 @@ where
         }
     }
 
+    /// Adds a continuation directive
+    ///
+    /// ## Arguments
+    ///
+    /// - `idx`: indes of the vector c(u; p) on which continuation should be
+    ///   applied
+    /// - `from`: starting value
+    /// - `to`: target value
+    /// - `transition`: transition type (see ContinuationMode)
     pub fn add_continuation(
         &mut self,
-        idx_: usize,
-        from_: f64,
-        to_: f64,
-        transition_: ContinuationMode,
+        idx: usize,
+        from: f64,
+        to: f64,
+        transition: ContinuationMode,
     ) {
-        self.idx.push(idx_);
-        self.from.push(from_);
-        self.to.push(to_);
-        self.transition_mode.push(transition_);
+        self.idx.push(idx);
+        self.from.push(from);
+        self.to.push(to);
+        self.transition_mode.push(transition);
     }
 
+    /// Adds multiple continuation directives
+    ///
+    /// ## Arguments
+    ///
+    /// - `idx`: indices of the vector c(u; p) on which continuation should be
+    ///   applied
+    /// - `from`: starting values
+    /// - `to`: target values
+    /// - `transition`: transition types (see ContinuationMode)
+    ///
     pub fn add_continuations(
         &mut self,
-        idx_: &[usize],
-        from_: &[f64],
-        to_: &[f64],
-        transition_: &[ContinuationMode],
+        idx: &[usize],
+        from: &[f64],
+        to: &[f64],
+        transition: &[ContinuationMode],
     ) {
-        self.idx.extend(idx_);
-        self.from.extend(from_);
-        self.to.extend(to_);
-        self.transition_mode.extend(transition_);
+        self.idx.extend(idx);
+        self.from.extend(from);
+        self.to.extend(to);
+        self.transition_mode.extend(transition);
     }
 }
