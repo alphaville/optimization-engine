@@ -6,6 +6,7 @@ import opengen as og
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
+    OPEN_VERSION = "0.4.0-alpha"
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -86,7 +87,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug")
+            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
@@ -100,7 +101,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug")
+            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
@@ -114,7 +115,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug")
+            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("tcp_enabled_optimizer")
         builder = og.builder.OpEnOptimizerBuilder(problem,
@@ -144,7 +145,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_rebuild(False)                              \
             .with_build_mode("debug")                         \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_open_version("0.3.2")
+            .with_open_version(self.OPEN_VERSION)
         solver_config = og.config.SolverConfiguration()   \
             .with_lfbgs_memory(15)                        \
             .with_tolerance(1e-5)                         \
@@ -169,8 +170,9 @@ class RustBuildTestCase(unittest.TestCase):
             tcp_manager.ping()
 
         for i in range(100):
-            tcp_manager.call(p=[1.0, 10.0+i],
-                             initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0])
+            result = tcp_manager.call(p=[1.0, 10.0+i],
+                                      initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0])
+            _exit_status = result['exit_status']
 
         tcp_manager.kill()
 

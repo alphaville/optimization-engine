@@ -15,9 +15,7 @@ publish=false
 
 
 [dependencies]
-#TODO: Important! Change this in production to:
-#optimization_engine = "{{open_version or '*'}}"
-optimization_engine = { path = "../../../../" }
+optimization_engine = "{{open_version or '0.4.0-alpha'}}"
 icasadi = {path = "./icasadi/"}
 
 # TCP Server: activated

@@ -23,7 +23,7 @@ class BuildConfiguration:
         self.__constraint_penalty_function = 'constraints_penalty'
         self.__rebuild = False
         self.__build_dir = build_dir
-        self.__open_version = '*'
+        self.__open_version = None
         self.__build_c_bindings = False
         self.__build_tcp_interface = False
 

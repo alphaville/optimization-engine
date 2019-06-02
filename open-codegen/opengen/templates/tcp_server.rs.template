@@ -115,7 +115,7 @@ fn execution_handler(
     let initial_guess = &execution_parameter.initial_guess;
     match initial_guess {
         None => {
-            warn!("no initial guess provided");
+            info!("no initial guess provided");
         },
         Some(u0) => {
             if u0.len() != NU {
@@ -160,11 +160,9 @@ fn run_server() {
 
         //The following is more robust compared to `read_to_string`
         let mut bytes_buffer = vec![0u8; 1024];
-        warn!("1");
         stream
             .read(&mut bytes_buffer)
             .expect("count not read stream");
-        warn!("2");
         // there must be a more efficient way to do that
         // ::take_while ?
         // the following line will fail if there is no EOF in the buffer
