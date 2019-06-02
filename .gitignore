@@ -7,6 +7,10 @@ target/
 *.egg-info
 *.pyc
 
+# Python tests create this folder:
+open-codegen/opengen/.python_test_build/
+
+# Haphazard files:
 __main.rs
 design/open-card.odp
 design/open-interfaces.jpeg
