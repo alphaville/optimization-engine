@@ -83,7 +83,12 @@ lbfgs = "0.1.0"
 # These dependencies are only used for testing
 [dev-dependencies]
 unit_test_utils = "0.1.3"
-icasadi_test = { path = "test/icasadi_test/" }
+# Note: path dependencies (even dev-dependencies) cannot be local in order 
+#       to publish a crate, so the following line can only be used when 
+#       testing locally
+# icasadi_test = { path = "test/icasadi_test/" }
+#       instead, use:
+icasadi_test = "0.0.1"
 
 
 
