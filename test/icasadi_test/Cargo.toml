@@ -3,11 +3,11 @@ authors = ["Pantelis Sopasakis"]
 name = "icasadi_test"
 categories = ["api-bindings", "no-std", "science", "science::robotics", "simulation"]
 keywords = ["casadi", "optimization", "interface"]
-description = "Rust interface to CasADi functions"
+description = "Rust interface to CasADi functions (for testing purposes only)"
 documentation = "https://docs.rs/icasadi"
 license = "MIT"
 readme = "README.md"
-version = "0.2.1"
+version = "0.0.1"
 edition = "2018"
 
 [dependencies]
