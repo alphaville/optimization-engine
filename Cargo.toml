@@ -14,14 +14,11 @@ categories = ["embedded",
               "simulation"]
 
 # Keywords
-keywords = ["embedded", 
-            "optimization", 
+keywords = ["embedded optimization", 
+            "parametric optimization", 
             "solver", 
-            "science", 
-            "math", 
-            "nonlinear MPC",
-            "model predictive control",
-            "NMPC"]
+            "nonlinear model predictive control", 
+            "MPC"]
 
 # Short description
 description = "A pure Rust framework for embedded nonconvex optimization. Ideal for robotics!"
