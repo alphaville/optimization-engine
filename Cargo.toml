@@ -14,10 +14,10 @@ categories = ["embedded",
               "simulation"]
 
 # Keywords
-keywords = ["embedded optimization", 
-            "parametric optimization", 
+keywords = ["embedded", 
+            "optimization", 
             "solver", 
-            "nonlinear model predictive control", 
+            "NMPC", 
             "MPC"]
 
 # Short description
