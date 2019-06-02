@@ -288,11 +288,35 @@ class OpEnOptimizerBuilder:
 
     def __generate_yaml_data_file(self):
         tcp_config = self.__tcp_server_configuration
+        metadata = self.__meta
+        build_config = self.__build_config
+        solver_config = self.__solver_config
         target_dir = self.__target_dir()
+
         target_yaml_file_path = os.path.join(target_dir, "optimizer.yml")
+
         tcp_details = None if tcp_config is None \
             else {'ip': tcp_config.bind_ip, 'port': tcp_config.bind_port}
-        details = {'tcp': tcp_details}
+        metadata_details = {'optimizer_name': metadata.optimizer_name,
+                            'version': metadata.version,
+                            'authors': metadata.authors,
+                            'licence': metadata.licence}
+        build_details = {'open_version': build_config.open_version,
+                         'build_dir': build_config.build_dir,
+                         'build_mode': build_config.build_mode,
+                         'target_system': build_config.target_system
+                         }
+        solver_details = {'initial_penalty_weights': solver_config.initial_penalty_weights,
+                          'lbfgs_memory': solver_config.lbfgs_memory,
+                          'tolerance': solver_config.tolerance,
+                          'constraints_tolerance': solver_config.constraints_tolerance,
+                          'penalty_weight_update_factor': solver_config.penalty_weight_update_factor,
+                          'max_outer_iterations': solver_config.max_outer_iterations,
+                          'max_inner_iterations': solver_config.max_inner_iterations,
+                          'max_duration_micros': solver_config.max_duration_micros
+                          }
+        details = {'meta': metadata_details, 'tcp': tcp_details, 'build': build_details,
+                   'solver': solver_details}
         with open(target_yaml_file_path, 'w') as outfile:
             yaml.dump(details, outfile, Dumper=yaml.Dumper)
 

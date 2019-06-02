@@ -5,7 +5,7 @@ import opengen as og
 
 class RustBuildTestCase(unittest.TestCase):
 
-    TEST_DIR = ".pythontest_build"
+    TEST_DIR = ".python_test_build"
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -105,7 +105,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_generate_not_build_flag(False).build()
 
     def test_rust_build_with_tcp_server(self):
-        u = cs.SX.sym("u", 15)
+        u = cs.SX.sym("u", 5)
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
@@ -161,10 +161,17 @@ class RustBuildTestCase(unittest.TestCase):
         builder.build()
 
     def test_tcp_server(self):
-        tcp_manager = og.tcp.OptimizerTcpManager('.pythontest_build/tcp_enabled_optimizer')
+        tcp_manager = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/tcp_enabled_optimizer')
         tcp_manager.start()
-        tcp_manager.ping()
-        tcp_manager.call([1.0, 10.0])
+
+        for i in range(100):
+            tcp_manager.ping()
+
+        for i in range(100):
+            tcp_manager.call(p=[1.0, 10.0+i],
+                             initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0])
+
         tcp_manager.kill()
 
 
