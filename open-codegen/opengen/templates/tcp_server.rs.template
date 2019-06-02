@@ -17,14 +17,14 @@ extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 
-/// End of file byte
-const EOF: u8 = 0;
-
 /// IP of server (use 0.0.0.0 to bind to any IP)
 const BIND_IP: &str = "{{tcp_server_config.bind_ip}}";
 
 /// Port
 const BIND_PORT: i32 = {{tcp_server_config.bind_port}};
+
+/// Size of read buffer
+const READ_BUFFER_SIZE: usize = 1024;
 
 #[derive(Deserialize, Debug)]
 struct ExecutionParameter {
@@ -159,15 +159,18 @@ fn run_server() {
         let mut stream = stream.unwrap();
 
         //The following is more robust compared to `read_to_string`
-        let mut bytes_buffer = vec![0u8; 1024];
-        stream
-            .read(&mut bytes_buffer)
-            .expect("count not read stream");
-        // there must be a more efficient way to do that
-        // ::take_while ?
-        // the following line will fail if there is no EOF in the buffer
-        let message_len = bytes_buffer.iter().position(|&r| r == EOF).unwrap() as usize;
-        let buffer = String::from_utf8(bytes_buffer[0..message_len].to_vec()).unwrap();
+        let mut bytes_buffer = vec![0u8; READ_BUFFER_SIZE];
+        let mut read_data_length = 1;
+        let mut buffer = String::new();
+        while read_data_length != 0 {
+            read_data_length = stream
+                .read(&mut bytes_buffer)
+                .expect("count not read stream");
+            let new_string = String::from_utf8(bytes_buffer[0..read_data_length].to_vec())
+                .expect("sent data is not UFT-8");
+            buffer.push_str(&new_string);
+        }
+
         let received_request: serde_json::Result<ClientRequest> = serde_json::from_str(&buffer);
         trace!("Received new request");
         match received_request {
