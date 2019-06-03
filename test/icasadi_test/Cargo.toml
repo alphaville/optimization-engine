@@ -7,7 +7,7 @@ description = "Rust interface to CasADi functions (for testing purposes only)"
 documentation = "https://docs.rs/icasadi"
 license = "MIT"
 readme = "README.md"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2018"
 
 [dependencies]
