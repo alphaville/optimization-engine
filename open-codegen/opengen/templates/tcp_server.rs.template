@@ -2,7 +2,7 @@
 /// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
 /// Generated at: {{timestamp_created}}
 ///
-use optimization_engine::continuation::HomotopySolverStatus;
+use optimization_engine::continuation::{HomotopyCache, HomotopySolverStatus};
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -103,7 +103,7 @@ fn return_solution_to_client(
 
 /// Handles an execution request
 fn execution_handler(
-    cache: &mut optimization_engine::core::panoc::PANOCCache,
+    cache: &mut HomotopyCache,
     execution_parameter: &ExecutionParameter,
     u: &mut [f64],
     p: &mut [f64],

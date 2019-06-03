@@ -73,12 +73,10 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 {% endif %}
 
 /// Initialisation of the solver
-pub fn initialize_solver(
-    inner_tolerance: f64,
-) -> continuation::HomotopyCache {
-    let panoc_cache = PANOCCache::new(NU, inner_tolerance, LBFGS_MEM);
+pub fn initialize_solver() -> continuation::HomotopyCache {
+    let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
 
-    let mut homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
+    let homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
 
 {% if problem.dim_constraints_penalty() > 0 %}
     // Define the initial weights, the update rule and the update factor
@@ -149,7 +147,7 @@ pub fn solve(
 
 
     // Define homotopy problem
-    let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_problem = continuation::HomotopyProblem::new(
+    let homotopy_problem = continuation::HomotopyProblem::new(
         bounds,
         gradient_function,
         cost_function,
@@ -158,7 +156,7 @@ pub fn solve(
     );
 
     // construct a homotopy optimizer
-    let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
+    let homotopy_optimizer = continuation::HomotopyOptimizer::new(homotopy_problem, cache)
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERS);
