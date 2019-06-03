@@ -7,10 +7,18 @@ authors = ["Emil Fresk <emil.fresk@gmail.com>",
            "Pantelis Sopasakis (https://alphaville.github.io)"]
 
 # Crate categories (chosed from a list of valid categories at https://crates.io/categories)
-categories = ["Embedded development", "Algorithms", "Science", "Development tools"]
+categories = ["embedded", 
+              "algorithms",
+              "science::robotics",
+              "development-tools",
+              "simulation"]
 
 # Keywords
-keywords = ["embedded", "optimization", "solver", "science", "math"]
+keywords = ["embedded", 
+            "optimization", 
+            "solver", 
+            "NMPC", 
+            "MPC"]
 
 # Short description
 description = "A pure Rust framework for embedded nonconvex optimization. Ideal for robotics!"
@@ -33,8 +41,8 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 # Link to github repo
 repository = "https://github.com/alphaville/optimization-engine"
 
-# Version of this crate
-version = "0.3.1"
+# Version of this crate (SemVer)
+version = "0.4.0"
 
 edition = "2018"
 
@@ -59,7 +67,7 @@ exclude = [
 num = "0.2.0"
 
 # Our own stuff - L-BFGS: limited-memory BFGS directions
-lbfgs = "0.1.0"
+lbfgs = "0.2"
 
 
 
@@ -72,6 +80,12 @@ lbfgs = "0.1.0"
 # These dependencies are only used for testing
 [dev-dependencies]
 unit_test_utils = "0.1.3"
+# Note: path dependencies (even dev-dependencies) cannot be local in order 
+#       to publish a crate, so the following line can only be used when 
+#       testing locally
+# icasadi_test = { path = "test/icasadi_test/" }
+#       instead, use:
+icasadi_test = "0.0.1"
 
 
 

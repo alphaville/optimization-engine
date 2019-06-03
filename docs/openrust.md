@@ -61,17 +61,18 @@ The construction of a constraint is very easy. Here is an example of a Euclidean
 
 ```rust
 let radius = 0.5;
-let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+let bounds = constraints::Ball2::new(None, radius);
 ```
 
 ### Problems
 Having defined a cost function, its gradient and the constraints, we may define an optimization problem. Here is an example:
 
 ```rust
-let problem = Problem::new(bounds, df, f);
+let problem = Problem::new(&bounds, df, f);
 ```
 
-Note that `problem` now owns the constraints, the gradient and the cost function.
+Note that `problem` now owns the gradient and the cost function
+and borrows the constraints.
 
 ## Calling the solver
 
@@ -95,14 +96,14 @@ let mut panoc_cache = PANOCCache::new(
 The last necessary step is the construction of an Optimizer. An Optimizer uses an instance of the problem adn the cache to run the algorithm and solve the optimization problem. An optimizer may have additional parameters such as the maximum number of iterations, which can be configured. Here is an example:
 
 ```rust
-let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache);
-panoc.with_max_iter(max_iters);
+let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache)
+    .with_max_iter(max_iters);
 ```
 
 We may then call the solver using the method `solve` and providing an initial guess:
 
 ```rust
-let status = panoc.solve(&mut u);
+let status = panoc.solve(&mut u).unwrap();
 ```
 This will return the solver status and will update `u` with the solution.
 
@@ -151,10 +152,10 @@ fn main() {
 	};
 
 	// define the constraints
-	let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
+	let bounds = constraints::Ball2::new(None, radius);
 
 	/* PROBLEM STATEMENT */
-	let problem = Problem::new(bounds, df, f);
+	let problem = Problem::new(&bounds, df, f);
 	let mut panoc_cache = PANOCCache::new(
 	    NonZeroUsize::new(n).unwrap(),
 	    tolerance,
@@ -189,6 +190,16 @@ In the following example, we solve 100 problems while modifying the parameters, 
 Note also that the initial guess of each problem is the solution of the previous problem.
 
 ```rust
+fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
+    (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
+}
+
+fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
+    grad[0] = 2.0 * u[0] - 2.0 * a - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
+    grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
+}
+
+
 fn main() {
 	let tolerance = 1e-6;
 	let mut a = 1.0;
@@ -214,33 +225,32 @@ fn main() {
 		radius += 0.001;
 
 		// update the function definitions (`f` and `df`)
-		let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
-			mocks::rosenbrock_grad(a, b, u, grad);
+		let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+			rosenbrock_grad(a, b, u, grad);
 			Ok(())
 		};
-		let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
-			*c = mocks::rosenbrock_cost(a, b, u);
+		let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+			*c = rosenbrock_cost(a, b, u);
 			Ok(())
-		};
+		};		
 
-		// define the bounds at every iteration
-		let bounds = constraints::Ball2::new_at_origin_with_radius(radius);
-
+	    // define the bounds at every iteration
+	    let bounds = constraints::Ball2::new(None, radius);
+	
 		// the problem definition is updated at every iteration
-		let problem = Problem::new(bounds, df, f);
+		let problem = Problem::new(&bounds, df, f);
 
 		// updated instance of the solver
-		let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache);
-		panoc.with_max_iter(max_iters);
+		let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
-		let status = panoc.solve(&mut u);
+		let status = panoc.solve(&mut u).unwrap();
 
 		i += 1;
 
 		// print useful information
 		println!(
 			"parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
-			a, b, radius, status.get_number_iterations()
+			a, b, radius, status.iterations()
 		);
 		println!("u = {:#.6?}", u);
 	}

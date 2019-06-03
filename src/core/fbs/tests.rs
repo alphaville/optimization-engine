@@ -14,17 +14,17 @@ fn t_solve_fbs_hard() {
     let bounds = constraints::NoConstraints::new();
 
     let problem = Problem::new(
-        bounds,
+        &bounds,
         mocks::hard_quadratic_gradient,
         mocks::hard_quadratic_cost,
     );
-    let gamma = 0.005;
+    let gamma = 0.0005;
     let tolerance = 1e-6;
 
     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
     let mut u = [-12., -160., 55.];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(100000);
-    let status = optimizer.solve(&mut u);
+    let status = optimizer.solve(&mut u).unwrap();
 
     println!("|fpr| = {}", status.norm_fpr());
     println!("solution = {:?}", u);
@@ -33,9 +33,28 @@ fn t_solve_fbs_hard() {
 }
 
 #[test]
+fn t_solve_fbs_hard_failure_nan() {
+    let bounds = constraints::NoConstraints::new();
+
+    let problem = Problem::new(
+        &bounds,
+        mocks::hard_quadratic_gradient,
+        mocks::hard_quadratic_cost,
+    );
+    let gamma = 0.005;
+    let tolerance = 1e-6;
+
+    let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
+    let mut u = [-12., -160., 55.];
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(10000);
+    let status = optimizer.solve(&mut u);
+    assert_eq!(Err(SolverError::NotFiniteComputation), status);
+}
+
+#[test]
 fn t_fbs_step_no_constraints() {
     let no_constraints = constraints::NoConstraints::new();
-    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
+    let problem = Problem::new(&no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -59,8 +78,8 @@ fn t_fbs_step_no_constraints() {
 
 #[test]
 fn t_fbs_step_ball_constraints() {
-    let no_constraints = constraints::Ball2::new_at_origin_with_radius(0.1);
-    let problem = Problem::new(no_constraints, mocks::my_gradient, mocks::my_cost);
+    let no_constraints = constraints::Ball2::new(None, 0.1);
+    let problem = Problem::new(&no_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -82,8 +101,8 @@ fn t_fbs_step_ball_constraints() {
 #[test]
 fn t_solve_fbs() {
     let radius = 0.2;
-    let box_constraints = constraints::Ball2::new_at_origin_with_radius(radius);
-    let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+    let box_constraints = constraints::Ball2::new(None, radius);
+    let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
     let gamma = 0.1;
     let tolerance = 1e-6;
 
@@ -91,7 +110,7 @@ fn t_solve_fbs() {
     let mut u = [0.0; N_DIM];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
-    let status = optimizer.solve(&mut u);
+    let status = optimizer.solve(&mut u).unwrap();
 
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);
@@ -112,10 +131,10 @@ fn t_solve_fbs_many_times() {
 
     for _i in 1..10 {
         // Every time NMPC is executed, the constraints may change
-        let box_constraints = constraints::Ball2::new_at_origin_with_radius(0.2);
+        let box_constraints = constraints::Ball2::new(None, 0.2);
 
         // The problem is surely update at every execution of NMPC
-        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
 
         // Here comes the new initial condition
         u[0] = 2.0 * _i as f64;
@@ -124,7 +143,7 @@ fn t_solve_fbs_many_times() {
         // Create a new optimizer...
         let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
-        let status = optimizer.solve(&mut u);
+        let status = optimizer.solve(&mut u).unwrap();
 
         assert!(status.norm_fpr() < tolerance);
     }

@@ -7,8 +7,7 @@ description = "Rust interface to CasADi functions"
 documentation = "https://docs.rs/icasadi"
 license = "MIT"
 readme = "README.md"
-version = "0.1.2"
-build = "src/build.rs"
+version = "0.2.0"
 edition = "2018"
 
 [dependencies]
@@ -16,6 +15,7 @@ libc = { version = "0.2.0", default-features = false }
 
 [build-dependencies]
 cc = "1.0"
+bindgen = "0.49.0"
 
 [profile.dev]
 opt-level = 0

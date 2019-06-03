@@ -4,9 +4,9 @@ use std::num::NonZeroUsize;
 #[test]
 fn t_access() {
     let radius = 0.2;
-    let box_constraints = Ball2::new_at_origin_with_radius(radius);
+    let box_constraints = Ball2::new(None, radius);
     let problem = Problem::new(
-        box_constraints,
+        &box_constraints,
         super::mocks::my_gradient,
         super::mocks::my_cost,
     );
@@ -17,7 +17,7 @@ fn t_access() {
     let mut u = [0.0; 2];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 
-    let status = optimizer.solve(&mut u);
+    let status = optimizer.solve(&mut u).unwrap();
 
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);

@@ -13,12 +13,12 @@
 //! use optimization_engine::constraints::Ball2;
 //! use std::num::NonZeroUsize;
 //!
-//! fn my_cost(u: &[f64], cost: &mut f64) -> Result<(), Error> {
+//! fn my_cost(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
 //!     *cost = u[0] * u[0] + 2. * u[1] * u[1] + u[0] - u[1] + 3.0;
 //!     Ok(())
 //! }
 //!
-//! fn my_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), Error> {
+//! fn my_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
 //!     grad[0] = u[0] + u[1] + 1.0;
 //!     grad[1] = u[0] + 2. * u[1] - 1.0;
 //!     Ok(())
@@ -26,8 +26,8 @@
 //!
 //! fn main() {
 //!     let radius = 0.2;
-//!     let box_constraints = Ball2::new_at_origin_with_radius(radius);
-//!     let problem = Problem::new(box_constraints, my_gradient, my_cost);
+//!     let box_constraints = Ball2::new(None, radius);
+//!     let problem = Problem::new(&box_constraints, my_gradient, my_cost);
 //!     let gamma = 0.3;
 //!     let tolerance = 1e-6;
 //!
@@ -35,7 +35,7 @@
 //!     let mut u = [0.0; 2];
 //!     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 //!
-//!     let status = optimizer.solve(&mut u);
+//!     let status = optimizer.solve(&mut u).unwrap();
 //!
 //!     assert!(status.has_converged());
 //! }

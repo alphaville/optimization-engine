@@ -7,9 +7,25 @@ pub mod panoc;
 pub mod problem;
 pub mod solver_status;
 
-pub use crate::{constraints, Error};
+pub use crate::{constraints, SolverError};
 pub use problem::Problem;
 pub use solver_status::SolverStatus;
+
+/// Exit status of an algorithm (not algorithm specific)
+///
+///
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ExitStatus {
+    /// The algorithm has converged
+    ///
+    /// All termination criteria are satisfied and the algorithm
+    /// converged within the available time and number of iterations
+    Converged,
+    /// Failed to converge because the maximum number of iterations was reached
+    NotConvergedIterations,
+    /// Failed to converge because the maximum execution time was reached
+    NotConvergedOutOfTime,
+}
 
 /// A general optimizer
 pub trait Optimizer {
@@ -17,7 +33,7 @@ pub trait Optimizer {
     ///
     /// Returns the solver status
     ///
-    fn solve(&mut self, u: &mut [f64]) -> SolverStatus;
+    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError>;
 }
 
 /// Engine supporting an algorithm
@@ -31,8 +47,8 @@ pub trait Optimizer {
 ///
 pub trait AlgorithmEngine {
     /// Take a step of the algorithm and return `Ok(true)` only if the iterations should continue
-    fn step(&mut self, u: &mut [f64]) -> Result<bool, Error>;
+    fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError>;
 
     /// Initializes the algorithm
-    fn init(&mut self, u: &mut [f64]) -> Result<(), Error>;
+    fn init(&mut self, u: &mut [f64]) -> Result<(), SolverError>;
 }

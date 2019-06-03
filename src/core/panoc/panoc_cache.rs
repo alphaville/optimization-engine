@@ -1,5 +1,3 @@
-use std::num::NonZeroUsize;
-
 /// Cache for PANOC
 ///
 /// This struct carries all the information needed at every step of the algorithm.
@@ -52,20 +50,16 @@ impl PANOCCache {
     ///
     /// It allocates a total of `8*problem_size + 2*lbfgs_memory_size*problem_size + 2*lbfgs_memory_size + 11` floats (`f64`)
     ///
-    pub fn new(
-        problem_size: NonZeroUsize,
-        tolerance: f64,
-        lbfgs_memory_size: NonZeroUsize,
-    ) -> PANOCCache {
+    pub fn new(problem_size: usize, tolerance: f64, lbfgs_memory_size: usize) -> PANOCCache {
         assert!(tolerance > 0., "tolerance must be positive");
 
         PANOCCache {
-            gradient_u: vec![0.0; problem_size.get()],
-            u_half_step: vec![0.0; problem_size.get()],
-            gamma_fpr: vec![0.0; problem_size.get()],
-            direction_lbfgs: vec![0.0; problem_size.get()],
-            gradient_step: vec![0.0; problem_size.get()],
-            u_plus: vec![0.0; problem_size.get()],
+            gradient_u: vec![0.0; problem_size],
+            u_half_step: vec![0.0; problem_size],
+            gamma_fpr: vec![0.0; problem_size],
+            direction_lbfgs: vec![0.0; problem_size],
+            gradient_step: vec![0.0; problem_size],
+            u_plus: vec![0.0; problem_size],
             gamma: 0.0,
             tolerance,
             norm_gamma_fpr: std::f64::INFINITY,
@@ -82,5 +76,17 @@ impl PANOCCache {
             cost_value: 0.0,
             iteration: 0,
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.lbfgs.reset();
+        self.lhs_ls = 0.0;
+        self.rhs_ls = 0.0;
+        self.tau = 1.0;
+        self.lipschitz_constant = 0.0;
+        self.sigma = 0.0;
+        self.cost_value = 0.0;
+        self.iteration = 0;
+        self.gamma = 0.0;
     }
 }

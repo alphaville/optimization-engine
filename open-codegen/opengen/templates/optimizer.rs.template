@@ -1,0 +1,173 @@
+//
+// Auto-generated file by OptimizationEngine
+// See https://alphaville.github.io/optimization-engine/
+//
+// Generated at: {{timestamp_created}}
+//
+
+use icasadi;
+use optimization_engine::{constraints::*, panoc::*, *};
+
+// Tolerance of inner solver
+const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
+
+// LBFGS memory
+const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory or 10}};
+
+// Maximum number of iterations of the inner solver
+const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations or 2000}};
+
+// Number of decision variables
+pub const NU: usize = {{problem.dim_decision_variables()}};
+
+// Number of parameters
+pub const NP: usize = {{problem.dim_parameters()}};
+
+// Number of additional penalty-type constraint-related parameters (y)
+const NCP: usize = {{problem.dim_constraints_penalty()}};
+
+{% if problem.dim_constraints_aug_lagrangian() > 0 %}
+// Number of parameters associated with augmented Lagrangian
+const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
+{% endif %}
+
+// Required tolerance for c(u; p)
+const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance or 0.0001}};
+
+// Maximum number of outer iterations
+const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations or 10}};
+
+{% if problem.dim_constraints_penalty() > 0 %}
+// Update factor for the penalty method
+const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 5.0}};
+
+// Initial values of the weights
+{% if solver_config.initial_penalty_weights | length == 1 -%}
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights[0]}}; NCP];
+{% else -%}
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights|join(', ')}}];
+{% endif %}
+{% endif %}
+// Parameters of the constraints
+{% if 'Ball2' == problem.constraints.__class__.__name__ and problem.constraints.center is not none -%}
+const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints.center | join(', ')}}];
+{%- elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+{%- if problem.constraints.xmin is not none -%}
+const XMIN :Option<&[f64]> = Some(&[{{problem.constraints.xmin|join(', ')}}]);
+{%- else -%}
+const XMIN :Option<&[f64]> = None;
+{%- endif -%}
+{% if problem.constraints.xmax is not none %}
+const XMAX :Option<&[f64]> = Some(&[{{problem.constraints.xmax|join(', ')}}]);
+{%- else %}
+const XMAX :Option<&[f64]> = None;
+{% endif %}
+{%- endif %}
+
+
+{% if solver_config.max_duration_micros > 0 %}
+// Maximum execution duration in microseconds
+const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
+{% else %}
+# --- {{ solver_config.max_duration_micros }}
+{% endif %}
+
+/// Initialisation of the solver
+pub fn initialize_solver() -> continuation::HomotopyCache {
+    let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
+
+    let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
+
+{% if problem.dim_constraints_penalty() > 0 %}
+    // Define the initial weights, the update rule and the update factor
+    let idx_y: Vec<usize> = (NP..NP + NCP).collect();
+    homotopy_cache.add_continuations(
+        &idx_y[..],
+        INITIAL_PENALTY_WEIGHTS,
+        &[0.; NCP],
+        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
+    );
+{% endif %}
+
+    homotopy_cache
+}
+
+
+pub fn solve(
+    p: &[f64],
+    cache: &mut continuation::HomotopyCache,
+    u: &mut [f64],
+) -> Result<continuation::HomotopySolverStatus, SolverError> {
+
+    assert_eq!(p.len(), NP, "Wrong number of parameters (p)");
+    assert_eq!(u.len(), NU, "Wrong number of decision variables (u)");
+
+    let mut q_augmented_params = [0.0; NP + NCP];
+    q_augmented_params[0..NP].copy_from_slice(p);
+
+
+	// cost function, f(u; q)
+    let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+        icasadi::icasadi_cost(u, q, cost);
+        Ok(())
+    };
+
+    // parametric gradient, df(u, q)
+    let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        if icasadi::icasadi_grad(u, q, grad) == 0 {
+            Ok(())
+        } else {
+            Err(SolverError::Cost)
+        }
+
+    };
+
+	/* penalty-type constraints: c(u; p) */
+    let penalty_constr_function =
+    |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
+        if icasadi::icasadi_constraints_as_penalty(u, q, constraints) == 0 {
+            Ok(())
+        } else {
+            Err(SolverError::Cost)
+        }
+    };
+
+    // Constraints...
+{%- if problem.constraints is none %}
+    let bounds = NoConstraints::new();
+{%- elif 'Ball2' == problem.constraints.__class__.__name__ %}
+{%- if problem.constraints.center is none %}
+	let bounds = Ball2::new(None, {{problem.constraints.radius}});
+{%- else %}
+	let bounds = Ball2::new(Some(&XC), {{problem.constraints.radius}});
+{%- endif %}
+{%- elif 'Rectangle' == problem.constraints.__class__.__name__ %}
+    let bounds = Rectangle::new(XMIN, XMAX);
+{%- endif %}
+
+
+    // Define homotopy problem
+    let homotopy_problem = continuation::HomotopyProblem::new(
+        bounds,
+        gradient_function,
+        cost_function,
+        penalty_constr_function,
+        NCP
+    );
+
+    // construct a homotopy optimizer
+    let homotopy_optimizer = continuation::HomotopyOptimizer::new(homotopy_problem, cache)
+        .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
+        .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
+        .with_max_inner_iterations(MAX_INNER_ITERS);
+
+{% if solver_config.max_duration_micros > 0 %}
+    // set the maximum execution duration
+    let mut homotopy_optimizer = homotopy_optimizer
+        .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
+{% endif %}
+
+    // solve the problem and return its status
+    // parameter `u` is updated with the solution
+    homotopy_optimizer.solve(u, &q_augmented_params)
+}

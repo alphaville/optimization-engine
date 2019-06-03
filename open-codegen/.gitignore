@@ -1,0 +1,7 @@
+__pycache__
+venv
+.idea
+*.pyc
+build
+dist
+x4356

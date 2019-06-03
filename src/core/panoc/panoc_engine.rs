@@ -1,7 +1,7 @@
 use crate::{
     constraints,
     core::{panoc::PANOCCache, AlgorithmEngine, Problem},
-    matrix_operations, Error,
+    matrix_operations, SolverError,
 };
 
 /// gamma = GAMMA_L_COEFF/L
@@ -30,19 +30,19 @@ const MAX_LINESEARCH_ITERATIONS: u32 = 10;
 /// Engine for PANOC algorithm
 pub struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
-    problem: Problem<GradientType, ConstraintType, CostType>,
+    problem: Problem<'a, GradientType, ConstraintType, CostType>,
     pub(crate) cache: &'a mut PANOCCache,
 }
 
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new Engine for PANOC
@@ -57,14 +57,14 @@ where
     ///
     ///
     pub fn new(
-        problem: Problem<GradientType, ConstraintType, CostType>,
+        problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
     ) -> PANOCEngine<'a, GradientType, ConstraintType, CostType> {
         PANOCEngine { problem, cache }
     }
 
     /// Estimate the local Lipschitz constant at `u`
-    fn estimate_loc_lip(&mut self, u: &mut [f64]) -> Result<(), Error> {
+    fn estimate_loc_lip(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
         let mut lipest = crate::lipschitz_estimator::LipschitzEstimator::new(
             u,
             &self.problem.gradf,
@@ -158,7 +158,7 @@ where
     }
 
     /// Updates the estimate of the Lipscthiz constant
-    fn update_lipschitz_constant(&mut self, u_current: &[f64]) -> Result<(), Error> {
+    fn update_lipschitz_constant(&mut self, u_current: &[f64]) -> Result<(), SolverError> {
         let mut cost_u_half_step = 0.0;
 
         // Compute the cost at the half step
@@ -233,7 +233,7 @@ where
 
     /// Computes the left hand side of the line search condition and compares it with the RHS;
     /// returns `true` if and only if lhs > rhs (when the line search should continue)
-    fn line_search_condition(&mut self, u: &[f64]) -> Result<bool, Error> {
+    fn line_search_condition(&mut self, u: &[f64]) -> Result<bool, SolverError> {
         let gamma = self.cache.gamma;
 
         // u_plus ← u - (1-tau)*gamma_fpr + tau*direction
@@ -263,7 +263,7 @@ where
     }
 
     /// Update without performing a line search; this is executed at the first iteration
-    fn update_no_linesearch(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+    fn update_no_linesearch(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
@@ -274,7 +274,7 @@ where
     }
 
     /// Performs a line search to select tau
-    fn linesearch(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+    fn linesearch(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         self.cache.tau = 1.0; // initialise tau ← 1.0
@@ -298,8 +298,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// PANOC step
@@ -312,7 +312,7 @@ where
     ///   iterate of PANOC
     ///
     ///
-    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, Error> {
+    fn step(&mut self, u_current: &mut [f64]) -> Result<bool, SolverError> {
         // compute the fixed point residual
         self.compute_fpr(u_current);
 
@@ -344,7 +344,8 @@ where
     /// gradient of the cost at the initial point, initial estimates for `gamma` and `sigma`,
     /// a gradient step and a half step (projected gradient step)
     ///
-    fn init(&mut self, u_current: &mut [f64]) -> Result<(), Error> {
+    fn init(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
+        self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
         self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
@@ -367,14 +368,13 @@ mod tests {
     use crate::core::panoc::*;
     use crate::core::Problem;
     use crate::mocks;
-    use std::num::NonZeroUsize;
 
     #[test]
     fn t_compute_fpr() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let box_constraints = constraints::NoConstraints::new();
-        let problem = Problem::new(box_constraints, mocks::my_gradient, mocks::my_cost);
+        let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -400,10 +400,10 @@ mod tests {
 
     #[test]
     fn t_gradient_step() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -423,10 +423,10 @@ mod tests {
 
     #[test]
     fn t_gradient_step_uplus() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -449,10 +449,10 @@ mod tests {
 
     #[test]
     fn t_half_step() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
-        let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let n = 2;
+        let mem = 5;
+        let bounds = constraints::Ball2::new(None, 0.5);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -474,10 +474,10 @@ mod tests {
 
     #[test]
     fn t_lipschitz_update_rhs() {
-        let n = NonZeroUsize::new(3).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 3;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
@@ -514,10 +514,10 @@ mod tests {
 
     #[test]
     fn t_compute_rhs_ls() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
-        let bounds = constraints::Ball2::new_at_origin_with_radius(0.5);
-        let problem = Problem::new(bounds, mocks::void_gradient, mocks::void_cost);
+        let n = 2;
+        let mem = 5;
+        let bounds = constraints::Ball2::new(None, 0.5);
+        let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 

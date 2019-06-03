@@ -97,7 +97,7 @@ z0 = casadi.SX.sym('z0', nx);
 x = z0(1); y = z0(2); theta = z0(3);
 cost = 0;
 for t = 1:nu:nu*N
-    cost = cost + q*((x-xref)^2 + (y-yref)^2) + qtheta*(theta-thetaref)^2 ;  
+    cost = cost + q*((x-xref)^2 + (y-yref)^2) + qtheta*(theta-thetaref)^2;  
     u_t = u(t:t+1);
     theta_dot = (1/L)*(u_t(2)*cos(theta) - u_t(1)*sin(theta));
     cost = cost + r*(u_t'*u_t);
@@ -126,12 +126,129 @@ optimizer = builder.build();
 
 The solution is presented below (the algorithm converges in 25 iterations after 3.2ms):
 
-<img src="/optimization-engine/img/nav-oc-sol-xyt.jpg" alt="Navigation (x,y) vs time" width="500"/>
+<img src="/optimization-engine/img/nav-oc-sol-xyt.jpg" 
+    alt="Navigation (x,y) vs time" 
+    width="500"/>
 
-<img src="/optimization-engine/img/nav-oc-sol-xy.jpg" alt="Navigation (x,y) profile" width="500"/>
+<img src="/optimization-engine/img/nav-oc-sol-xy.jpg" 
+    alt="Navigation (x,y) profile" 
+    width="500"/>
 
-<img src="/optimization-engine/img/nav-oc-sol-theta.jpg" alt="Navigation (x,y) profile" width="500"/>
+<img src="/optimization-engine/img/nav-oc-sol-theta.jpg" 
+    alt="Navigation (x,y) profile" 
+    width="500"/>
 
+
+
+## Free references
+Let's get a little creative!
+
+<p>
+    We may define the parameter of the optimization problem to be 
+    <div class="math">
+    \[p = (z_0, z^{\mathrm{ref}})\]
+    </div>
+    where $z^{\mathrm{ref}} = (x^{\mathrm{ref}},y^{\mathrm{ref}},\theta^{\mathrm{ref}})$.
+    This way, we will have an optimal control module that will allow us to plan 
+    trajectories from any initial position and pose to any final position and pose.
+    This can then be used as a model predictive controller, where the references
+    can be provided either by the user, manually, or by a higher-level system.
+</p>
+
+<p>
+    We will define the parameter $p$, instead of $z_0$, as follows:
+</p>
+
+```matlab
+p = casadi.SX.sym('p', 2*nx);
+x = p(1); y = p(2); theta = p(3);
+xref = p(4); yref = p(5); thetaref = p(6);
+```
+
+<p>
+    the rest of the problem definition remains the same.
+</p>
+
+<p>
+    The optimizer should now be called as follows:
+</p>
+
+```matlab
+z_init = [1.0; -0.3; deg2rad(30)];
+z_ref  = [1.5;  0.7; deg2rad(50)];
+out = optimizer.consume([z_init; z_ref]);
+```
+
+<img src="/optimization-engine/img/nav-oc-sol-refs.jpg" 
+    alt="Multiple references" 
+    title="Different refernece positions and poses" 
+    width="500"/>
+
+
+## Obstacle avoidance
+Consider the problem of determining a minimum-cost trajectory which 
+avoids an obstacle, $O$, which is described by 
+<div class="math">
+    \[O = \{z = (x,y) {}\mid{}  h(z) > 0\},\]
+</div>
+where $h:\mathbb{R}^2\to\mathbb{R}$ is a $C^{1,1}$-function. The obstacle avoidance constraint
+$z\notin O$ is satisfied if and only if 
+<div class="math">
+    \[[{}h(z){}]_+^2 {}={} 0,\]
+</div>
+<p>
+    where $[x]_+ = \max\{0, x\}$ is the plus operator.
+</p>
+<p>
+    We now define the modified stage cost function
+</p>
+<div class="math">
+    \[\tilde{\ell}(z,u) {}={} \ell(z,u) + \eta [{}h(z){}]_+^2,\]
+</div>
+<p>
+    and the modified terminal cost function
+</p>
+<div class="math">
+    \[\tilde{\ell}_N(z) {}={} \ell_N(z) + \eta_N [{}h(z){}]_+^2,\]
+</div>
+where $\eta$ and $\eta_N$ are positive weights.
+In the following plot we show trajectories for different values of 
+$\eta$ and $\eta_N$...
+
+
+<img src="/optimization-engine/img/nav-oc-sol-xy-obst.jpg" 
+    alt="Obstacle avoidance" 
+    title="Obstacle avoidance" 
+    width="500"/>
+
+For completeness, here is the modified code:
+
+```matlab
+nu = 2; nx = 3;
+u = casadi.SX.sym('u', nu*N); 
+p = casadi.SX.sym('p', 2*nx+1);
+x = p(1); y = p(2); theta = p(3);
+xref = p(4); yref = p(5); thetaref=p(6);
+h_penalty = p(end);
+cost = 0;
+
+% Obstacle (disc centered at `zobs` with radius `c`)
+c = 0.4; zobs = [0.7; 0.5];
+
+for t = 1:nu:nu*N    
+    z = [x; y];
+    cost = cost + q*norm(z-zref) + qtheta*(theta-thetaref)^2;        
+    cost = cost + h_penalty * max(c^2 - norm(z-zobs)^2, 0)^2;
+    u_t = u(t:t+1);
+    theta_dot = (1/L)*(u_t(2)*cos(theta) - u_t(1)*sin(theta));
+    cost = cost + r*(u_t'*u_t);
+    x = x + ts * (u_t(1) + L * sin(theta) * theta_dot);
+    y = y + ts * (u_t(2) - L * cos(theta) * theta_dot);
+    theta = theta + ts * theta_dot;
+end
+cost = cost + qN*((x-xref)^2 + (y-yref)^2) + qthetaN*(theta-thetaref)^2;
+cost = cost + h_penalty * max(c^2 - norm(z-zobs)^2, 0)^2;
+```
 
 
 ## Experimental validation

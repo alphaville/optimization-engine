@@ -10,11 +10,11 @@
 //! and `epsilon` are small numbers.
 //!
 
-use crate::{matrix_operations, Error};
+use crate::{matrix_operations, SolverError};
 
 pub struct LipschitzEstimator<'a, F>
 where
-    F: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    F: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
 {
     /// `u_decision_var` is the point where the Lipschitz constant is estimated
     u_decision_var: &'a mut [f64],
@@ -36,7 +36,7 @@ where
 
 impl<'a, F> LipschitzEstimator<'a, F>
 where
-    F: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
+    F: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
 {
     /// Creates a new instance of this structure
     ///
@@ -116,11 +116,11 @@ where
     /// # Example
     ///
     /// ```
-    /// use optimization_engine::Error;
+    /// use optimization_engine::SolverError;
     ///
     /// let mut u = [1.0, 2.0, 3.0];
     /// let mut function_value = [0.0; 3];
-    /// let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> {
+    /// let f = |u: &[f64], g: &mut [f64]| -> Result<(), SolverError> {
     ///     g[0] = 3.0 * u[0];
     ///     g[1] = 2.0 * u[1];
     ///     g[2] = 4.5;
@@ -136,7 +136,7 @@ where
     /// No rust-side panics, unless the C function which is called via this interface
     /// fails.
     ///
-    pub fn estimate_local_lipschitz(&mut self) -> Result<f64, Error> {
+    pub fn estimate_local_lipschitz(&mut self) -> Result<f64, SolverError> {
         // function_value = gradient(u, p)
         (self.function)(self.u_decision_var, &mut self.function_value_at_u)?;
         let epsilon_lip = self.epsilon_lip;
@@ -187,7 +187,8 @@ mod tests {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
         let mut function_value = [0.0; 3];
 
-        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
+        let f =
+            |u: &[f64], g: &mut [f64]| -> Result<(), SolverError> { mocks::lipschitz_mock(u, g) };
 
         let mut lip_estimator = LipschitzEstimator::new(&mut u, &f, &mut function_value)
             .with_delta(1e-4)
@@ -231,7 +232,8 @@ mod tests {
     fn t_test_lip_estimator_mock() {
         let mut u: [f64; 3] = [1.0, 2.0, 3.0];
 
-        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
+        let f =
+            |u: &[f64], g: &mut [f64]| -> Result<(), SolverError> { mocks::lipschitz_mock(u, g) };
 
         let mut function_value = [0.0; 3];
 
@@ -254,7 +256,8 @@ mod tests {
         let mut function_value = [0.0; 10];
         let mut u_copy = u.clone();
 
-        let f = |u: &[f64], g: &mut [f64]| -> Result<(), Error> { mocks::lipschitz_mock(u, g) };
+        let f =
+            |u: &[f64], g: &mut [f64]| -> Result<(), SolverError> { mocks::lipschitz_mock(u, g) };
 
         let mut lip_estimator = LipschitzEstimator::new(&mut u_copy, &f, &mut function_value);
         {

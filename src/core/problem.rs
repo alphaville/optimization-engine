@@ -6,7 +6,7 @@
 //! Cost functions are user defined. They can either be defined in Rust or in
 //! C (and then invoked from Rust via an interface such as icasadi).
 //!
-use crate::{constraints, Error};
+use crate::{constraints, SolverError};
 
 /// Definition of an optimisation problem
 ///
@@ -15,24 +15,24 @@ use crate::{constraints, Error};
 /// - the cost function
 /// - the set of constraints, which is described by implementations of
 ///   [Constraint](../../panoc_rs/constraints/trait.Constraint.html)
-pub struct Problem<GradientType, ConstraintType, CostType>
+pub struct Problem<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// constraints
-    pub(crate) constraints: ConstraintType,
+    pub(crate) constraints: &'a ConstraintType,
     /// gradient of the cost
     pub(crate) gradf: GradientType,
     /// cost function
     pub(crate) cost: CostType,
 }
 
-impl<GradientType, ConstraintType, CostType> Problem<GradientType, ConstraintType, CostType>
+impl<'a, GradientType, ConstraintType, CostType> Problem<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), Error>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), Error>,
+    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new instance of an optimisation problem
@@ -43,11 +43,14 @@ where
     /// - `cost_gradient` gradient of the cost function
     /// - `cost` cost function
     ///
+    /// ## Returns
+    ///
+    /// New instance of `Problem`
     pub fn new(
-        constraints: ConstraintType,
+        constraints: &'a ConstraintType,
         cost_gradient: GradientType,
         cost: CostType,
-    ) -> Problem<GradientType, ConstraintType, CostType> {
+    ) -> Problem<'a, GradientType, ConstraintType, CostType> {
         Problem {
             constraints,
             gradf: cost_gradient,

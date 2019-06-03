@@ -20,6 +20,7 @@ or, show us your love:
 - Give us a [**star on gitub**](https://github.com/alphaville/optimization-engine)
 - Spread the word on [**Twitter**](https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Flocalhost%3A3000%2Foptimization-engine%2Fblog%2F2019%2F03%2F06%2Ftalk-to-us&ref_src=twsrc%5Etfw&text=Fast%20and%20accurate%20embedded%20nonconvex%20optimization%20with%20%23OptimizationEngine&tw_p=tweetbutton&url=http%3A%2F%2Flocalhost%3A3000%2Foptimization-engine%2Fblog%2F2019%2F03%2F06%2Ftalk-to-us&via=isToxic)
 
+![Star](https://media.giphy.com/media/ZxblqUVrPVmcqATkC4/giphy.gif)
 
 ## I just have a question!
 The easiest and quickest way to ask a question is to reach us on [**Discord**](https://discord.gg/mfYpn4V) or [**Gitter**](https://gitter.im/alphaville/optimization-engine).
@@ -58,15 +59,27 @@ Things to keep in mind:
 
 ### Rust
 
-### MATLAB
+*General guidelines:* Read [this](https://rust-lang-nursery.github.io/api-guidelines/about.html)
+
+*Naming convention:* We follow the [standard naming convention](https://rust-lang-nursery.github.io/api-guidelines/naming.html) of Rust.
+
+*Documentation:* We follow [these guidelines](https://rust-lang-nursery.github.io/api-guidelines/documentation.html). Everything should be documented.
 
 ### Python
+
+We follow [this style guide](https://www.python.org/dev/peps/pep-0008) and its [naming convention](https://www.python.org/dev/peps/pep-0008/#naming-conventions)
+
+### MATLAB
+
+
 
 ### Website
 This documentation is generated with Docusaurus - read a detailed guide [here](https://github.com/alphaville/optimization-engine/blob/master/website/README.md).
 
 - All docs are in `docs/`
 - Blog entries are in `website/blog/`
+
+To start the website locally (at [http://localhost:3000](http://localhost:3000)) change directory to `website` and run `yarn start`. To update the website, execute `./publish.sh` (you need to be a collaborator on github).
 
 ## Using Git
 When using Git, keep in mind the following guidelines:
@@ -89,14 +102,18 @@ Given a version number `MAJOR.MINOR.PATCH`, increment the:
 
 Additional labels for pre-release and build metadata are available as extensions to the `MAJOR.MINOR.PATCH` format.
 
+We also keep a [log of changes](https://github.com/alphaville/optimization-engine/blob/master/CHANGELOG.md) where we summarize the main changes since last version.
+
 ## Crates.io
 
 Each time the major or minor number of the Rust library is updated, a new crate should be published on [crates.io](https://crates.io/crates/optimization_engine).
 
 In order to publish a new version on `crates.io` make sure that:
 
+- You have updated CHANGELOG
 - You have updated the version (SemVer)
 - You have resolved all associated issues on github (and you have created tests for these)
+- You have merged into master (your pull request has been approved)
 - You have updated the documentation
 - All tests pass
 - You have set `publish=true` in `Cargo.toml` (set it back to `false` for safety)

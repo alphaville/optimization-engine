@@ -32,14 +32,14 @@
             continue;
         }
 
-        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), Error> {
+        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
             icasadi::icasadi_grad(u, &p, grad);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> Result<(), Error> {
+        let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
             if icasadi::icasadi_cost(u, &p, c) == 0 {
                 Ok(())
             } else {
-                Err(Error::Cost)
+                Err(SolverError::Cost)
             }
         };

@@ -1,6 +1,7 @@
 //! Status of the result of a solver (number of iterations, etc)
 //!
 //!
+use crate::core::ExitStatus;
 use std::time;
 
 /// Solver status
@@ -8,10 +9,10 @@ use std::time;
 /// This structure contais information about the solver status. Instances of
 /// `SolverStatus` are returned by optimizers.
 ///
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SolverStatus {
-    /// whether the algorithm has converged
-    converged: bool,
+    /// exit status of the algorithm
+    exit_status: ExitStatus,
     /// number of iterations for convergence
     num_iter: usize,
     /// time it took to solve
@@ -35,14 +36,14 @@ impl SolverStatus {
     /// - `cost_value` the value of the cost function at the solution
     ///
     pub fn new(
-        converged: bool,
+        exit_status: ExitStatus,
         num_iter: usize,
         solve_time: time::Duration,
         fpr_norm: f64,
         cost_value: f64,
     ) -> SolverStatus {
         SolverStatus {
-            converged,
+            exit_status,
             num_iter,
             solve_time,
             fpr_norm,
@@ -52,7 +53,7 @@ impl SolverStatus {
 
     /// whether the algorithm has converged
     pub fn has_converged(&self) -> bool {
-        self.converged
+        self.exit_status == ExitStatus::Converged
     }
 
     /// number of iterations taken by the algorithm
@@ -60,7 +61,7 @@ impl SolverStatus {
         self.num_iter
     }
 
-    /// number of iterations taken by the algorithm
+    /// total execution time
     pub fn solve_time(&self) -> time::Duration {
         self.solve_time
     }
@@ -73,5 +74,10 @@ impl SolverStatus {
     /// value of the cost at the solution
     pub fn cost_value(&self) -> f64 {
         self.cost_value
+    }
+
+    /// exit status of solver
+    pub fn exit_status(&self) -> ExitStatus {
+        self.exit_status
     }
 }

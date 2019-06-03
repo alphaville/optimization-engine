@@ -1,0 +1,202 @@
+///
+/// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
+/// Generated at: {{timestamp_created}}
+///
+use optimization_engine::continuation::{HomotopyCache, HomotopySolverStatus};
+use serde::{Deserialize, Serialize};
+
+use std::{
+    io::{prelude::Read, Write},
+    net::TcpListener,
+};
+
+use {{ meta.optimizer_name }}::*;
+
+extern crate pretty_env_logger;
+
+#[macro_use]
+extern crate log;
+
+/// IP of server (use 0.0.0.0 to bind to any IP)
+const BIND_IP: &str = "{{tcp_server_config.bind_ip}}";
+
+/// Port
+const BIND_PORT: i32 = {{tcp_server_config.bind_port}};
+
+/// Size of read buffer
+const READ_BUFFER_SIZE: usize = 1024;
+
+#[derive(Deserialize, Debug)]
+struct ExecutionParameter {
+    /// Parameter
+    parameter: Vec<f64>,
+    /// Initial guess (can be null)
+    initial_guess: Option<Vec<f64>>,
+}
+
+/// Request from the client
+#[derive(Deserialize, Debug)]
+enum ClientRequest {
+    /// Command: run solver
+    Run(ExecutionParameter),
+    /// Command: ping (check if server is up)
+    Ping(i32),
+    /// Command: kill gracefully
+    Kill(i32),
+}
+
+/// Solution and solution status of optimizer
+#[derive(Serialize, Debug)]
+struct OptimizerSolution<'a> {
+    exit_status: String,
+    num_outer_iterations: usize,
+    num_inner_iterations: usize,
+    last_problem_norm_fpr: f64,
+    max_constraint_violation: f64,
+    solve_time_ms: f64,
+    solution: &'a [f64],
+}
+
+fn pong(stream: &mut std::net::TcpStream, code: i32) {
+    let error_message = format!(
+        {% raw %}"{{\n\t\"Pong\" : {}\n}}\n"{% endraw %},
+        code
+    );
+    stream
+        .write(error_message.as_bytes())
+        .expect("cannot write to stream");
+}
+
+/// Writes an error to the communication stream
+fn write_error(stream: &mut std::net::TcpStream, code: i32) {
+    let error_message = format!(
+        {% raw %}"{{\n\t\"Error\" : \"Invalid Request\"\n\t\"Code\" : {}\n}}\n"{% endraw %},
+        code
+    );
+    warn!("Invalid request {:?}", code);
+    stream
+        .write(error_message.as_bytes())
+        .expect("cannot write to stream");
+}
+
+/// Serializes the solution and solution status and returns it
+/// to the client
+fn return_solution_to_client(
+    status: HomotopySolverStatus,
+    solution: &[f64],
+    stream: &mut std::net::TcpStream,
+) {
+    let solution: OptimizerSolution = OptimizerSolution {
+        exit_status: format!("{:?}", status.exit_status()),
+        num_outer_iterations: status.num_outer_iterations(),
+        num_inner_iterations: status.num_inner_iterations(),
+        last_problem_norm_fpr: status.last_problem_norm_fpr(),
+        max_constraint_violation: status.max_constraint_violation(),
+        solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
+        solution: solution,
+    };
+    let solution_json = serde_json::to_string_pretty(&solution).unwrap();
+    stream
+        .write(solution_json.as_bytes())
+        .expect("cannot write to stream");
+}
+
+/// Handles an execution request
+fn execution_handler(
+    cache: &mut HomotopyCache,
+    execution_parameter: &ExecutionParameter,
+    u: &mut [f64],
+    p: &mut [f64],
+    stream: &mut std::net::TcpStream,
+) {
+    // ----------------------------------------------------
+    // Set initial value
+    // ----------------------------------------------------
+    let initial_guess = &execution_parameter.initial_guess;
+    match initial_guess {
+        None => {
+            info!("no initial guess provided");
+        },
+        Some(u0) => {
+            if u0.len() != NU {
+                warn!("initial guess has incompatible dimensions");
+                write_error(stream, 1600);
+                return;
+            }
+            u.copy_from_slice(&u0);
+        }
+    }
+
+    // ----------------------------------------------------
+    // Run solver
+    // ----------------------------------------------------
+    let parameter = &execution_parameter.parameter;
+    if parameter.len() != NP {
+        write_error(stream, 3003);
+        return;
+    }
+    p.copy_from_slice(&parameter);
+    let status = solve(&p, cache, u);
+    match status {
+        Ok(ok_status) => {
+            return_solution_to_client(ok_status, u, stream);
+        }
+        Err(_) => {
+            write_error(stream, 2000);
+        }
+    }
+}
+
+fn run_server() {
+    info!("Initializing cache...");
+    let mut p = [0.0; NP];
+    let mut cache = initialize_solver();
+    info!("Done");
+    let listener = TcpListener::bind(format!("{}:{}", BIND_IP, BIND_PORT)).unwrap();
+    let mut u = [0.0; NU];
+    info!("listening started, ready to accept");
+    for stream in listener.incoming() {
+        let mut stream = stream.unwrap();
+
+        //The following is more robust compared to `read_to_string`
+        let mut bytes_buffer = vec![0u8; READ_BUFFER_SIZE];
+        let mut read_data_length = 1;
+        let mut buffer = String::new();
+        while read_data_length != 0 {
+            read_data_length = stream
+                .read(&mut bytes_buffer)
+                .expect("count not read stream");
+            let new_string = String::from_utf8(bytes_buffer[0..read_data_length].to_vec())
+                .expect("sent data is not UFT-8");
+            buffer.push_str(&new_string);
+        }
+
+        let received_request: serde_json::Result<ClientRequest> = serde_json::from_str(&buffer);
+        trace!("Received new request");
+        match received_request {
+            Ok(request_content) => match request_content {
+                ClientRequest::Run(param) => {
+                    trace!("Running solver");
+                    execution_handler(&mut cache, &param, &mut u, &mut p, &mut stream);
+                }
+                ClientRequest::Kill(_) => {
+                    info!("Quitting on request");
+                    break;
+                }
+                ClientRequest::Ping(ping_code) => {
+                    info!("Ping received");
+                    pong(&mut stream, ping_code);
+                }
+            },
+            Err(_) => {
+                write_error(&mut stream, 1000);
+            }
+        }
+    }
+}
+
+fn main() {
+    pretty_env_logger::init();
+    run_server();
+    info!("Exiting... (adios!)");
+}

@@ -1,0 +1,34 @@
+/*
+ * Auto-generated header file
+ * This file is part of OptimizationEngine
+ * (see https://alphaville.github.io/optimization-engine/)
+ *
+ * Generated at: {{timestamp_created}}
+ */
+#ifndef ICASADI_CONFIG_HEADER_SENTINEL
+#define ICASADI_CONFIG_HEADER_SENTINEL
+
+/* Global constant definitions */
+
+/* Number of decision variables */
+#define CASADI_NU {{problem.dim_decision_variables()}}
+
+/* Number of parameters */
+#define CASADI_NP {{problem.dim_parameters()}}
+
+/* Number of constraints to be treated using the penalty method */
+#define CASADI_NUM_CONSTAINTS_TYPE_PENALTY {{problem.dim_constraints_penalty() or 0}}
+
+/* Name of cost function */
+#define CASADI_COST_NAME {{build_config.cost_function_name or 'phi'}}
+
+/* Name of the gradient of the cost function */
+#define CASADI_GRAD_NAME {{build_config.grad_function_name  or 'grad_phi'}}
+
+/* Name of c(x) -- constraints as penalties */
+#define CASADI_CONSTRAINTS_AS_PENALTY_NAME {{build_config.constraint_penalty_function_name  or 'constraints_penalty'}}
+
+/* Name of c'(x) -- constraints for AL */
+#define CASADI_CONSTRAINTS_AL_NAME constraints_aug_lagrangian
+
+#endif

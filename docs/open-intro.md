@@ -19,6 +19,8 @@ Relevant application domains include
 
 to name a few.
 
+<img src="/optimization-engine/img/open-functionality.jpg" alt="OpEn functionality" />
+
 **Optimization Engine** (OpEn) is a framework that allows engineers to **design** and **embed** optimization-based control and monitoring modules on such autonomous highly dynamical systems.
 
 The aim of **Optimization Engine** is to become a widely used software solution, which stands up to the high performance requirements of modern cyber-physical systems, runs **fast**, makes good use of the available computation **resources** (CPU, RAM), is **reliable** and has **fully predictable behavior**.
