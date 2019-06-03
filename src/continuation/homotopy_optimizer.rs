@@ -1,8 +1,8 @@
 use crate::{
     constraints,
-    continuation::homotopy_problem::HomotopyProblem,
-    continuation::ContinuationMode,
-    continuation::HomotopySolverStatus,
+    continuation::{
+        homotopy_problem::HomotopyProblem, ContinuationMode, HomotopyCache, HomotopySolverStatus,
+    },
     core::{panoc, ExitStatus, Optimizer, Problem},
     matrix_operations, SolverError,
 };
@@ -28,14 +28,13 @@ pub struct HomotopyOptimizer<
     ConstraintType: constraints::Constraint,
 {
     /// Definition of parametric problem
-    homotopy_problem: &'a HomotopyProblem<
+    homotopy_problem: HomotopyProblem<
         ParametricPenaltyFunctionType,
         ParametricGradientType,
         ConstraintType,
         ParametricCostType,
     >,
-    /// Instance of PANOCCache
-    panoc_cache: &'a mut panoc::PANOCCache,
+    homotopy_cache: &'a mut HomotopyCache,
     /// Tolerance on constraint satisfaction
     constraint_tolerance: f64,
     /// Maximum number of outer iterations
@@ -86,17 +85,18 @@ where
     /// ```
     /// use optimization_engine::{
     ///     SolverError,
-    ///     continuation,constraints::*,
+    ///     continuation, constraints::*,
     ///     core::panoc::PANOCCache
     ///    };
     ///
     /// fn main() {
     ///     let n = 2;
     ///     let lbfgs_mem = 10;
-    ///     let mut cache = PANOCCache::new(n, 1e-5, lbfgs_mem);
+    ///     let mut panoc_cache = PANOCCache::new(n, 1e-5, lbfgs_mem);
+    ///     let mut homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
     ///
     ///     /* cost function, f(u; q) */
-    ///     let cost_fun = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {        
+    ///     let cost_fun = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
     ///         // your implementation goes here
     ///         Ok(())
     ///     };
@@ -106,17 +106,17 @@ where
     ///         // your implementation goes here
     ///             Ok(())
     ///         };
-    ///    
+    ///
     ///     /* penalty-type constraints: c(u; p) */
     ///     let penalty_constr_fun =
     ///     |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
     ///        // your implementation goes here
     ///        Ok(())
     ///     };
-    ///    
+    ///
     ///     // Constraints...
     ///     let bounds = Ball2::new(None, 1.5);
-    ///    
+    ///
     ///     // Define homotopy problem
     ///     let  homotopy_problem = continuation::HomotopyProblem::new(
     ///        bounds,
@@ -125,20 +125,20 @@ where
     ///        penalty_constr_fun,
     ///        1
     ///     );
-    ///    
+    ///
     ///     let mut homotopy_optimizer =
-    ///         continuation::HomotopyOptimizer::new(&homotopy_problem, &mut cache);
+    ///         continuation::HomotopyOptimizer::new(homotopy_problem, &mut homotopy_cache);
     /// }
     /// ```
-    ///    
+    ///
     pub fn new(
-        homotopy_problem: &'a HomotopyProblem<
+        homotopy_problem: HomotopyProblem<
             ParametricPenaltyFunctionType,
             ParametricGradientType,
             ConstraintType,
             ParametricCostType,
         >,
-        panoc_cache: &'a mut panoc::PANOCCache,
+        homotopy_cache: &'a mut HomotopyCache,
     ) -> HomotopyOptimizer<
         'a,
         ParametricPenaltyFunctionType,
@@ -147,8 +147,8 @@ where
         ParametricCostType,
     > {
         HomotopyOptimizer {
-            homotopy_problem: homotopy_problem,
-            panoc_cache: panoc_cache,
+            homotopy_problem,
+            homotopy_cache,
             constraint_tolerance: DEFAULT_CONSTRAINT_TOLERANCE,
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
             max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
@@ -157,9 +157,9 @@ where
     }
 
     fn initialize_param(&self, q_augmented_params: &mut [f64]) {
-        let homotopy_problem = &self.homotopy_problem;
-        let idx_list = &homotopy_problem.idx;
-        let from_list = &homotopy_problem.from;
+        let cache = &self.homotopy_cache;
+        let idx_list = &cache.idx;
+        let from_list = &cache.from;
         for (i, from_value) in idx_list.iter().zip(from_list.iter()) {
             q_augmented_params[*i] = *from_value;
         }
@@ -227,7 +227,7 @@ where
     /// ## Panics
     ///
     /// Does not panic.
-    pub fn with_max_duration(&mut self, max_duration: std::time::Duration) -> &Self {
+    pub fn with_max_duration(mut self, max_duration: std::time::Duration) -> Self {
         self.max_duration = Some(max_duration);
         self
     }
@@ -238,9 +238,9 @@ where
     // TODO: Now all parameters are updated; maybe update only those which
     // violate the termination conditions (c)
     fn update_continuation_parameters(&self, p_: &mut [f64]) {
-        let homotopy_problem = &self.homotopy_problem;
-        let idx_list = &homotopy_problem.idx;
-        let transition_list = &homotopy_problem.transition_mode;
+        let cache = &self.homotopy_cache;
+        let idx_list = &cache.idx;
+        let transition_list = &cache.transition_mode;
         for (i, transition_mode) in idx_list.iter().zip(transition_list.iter()) {
             match transition_mode {
                 ContinuationMode::Arithmetic(s) => p_[*i] += s,
@@ -307,14 +307,15 @@ where
                 (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
             let inner_problem = Problem::new(&self.homotopy_problem.constraints, df_, f_);
-            let mut inner_panoc = panoc::PANOCOptimizer::new(inner_problem, &mut self.panoc_cache)
-                .with_max_iter(self.max_inner_iterations);
+            let mut inner_panoc =
+                panoc::PANOCOptimizer::new(inner_problem, &mut self.homotopy_cache.panoc_cache)
+                    .with_max_iter(self.max_inner_iterations);
 
             if available_time_left != None {
                 inner_panoc.with_max_duration(available_time_left.unwrap());
             }
 
-            //TODO: If inner problem does not converge, check whether it is salvagable
+            //TODO: If inner problem does not converge, check whether it is salvageable
             let status = inner_panoc.solve(u).unwrap();
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();

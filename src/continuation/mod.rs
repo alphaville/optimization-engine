@@ -24,10 +24,12 @@
 //! is terminated.
 //!
 
+mod homotopy_cache;
 mod homotopy_optimizer;
 mod homotopy_problem;
 mod homotopy_solver_status;
 
+pub use homotopy_cache::HomotopyCache;
 pub use homotopy_optimizer::HomotopyOptimizer;
 pub use homotopy_problem::HomotopyProblem;
 pub use homotopy_solver_status::HomotopySolverStatus;
