@@ -1,6 +1,6 @@
 ---
 id: python-interface
-title: Python
+title: Opengen
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -27,24 +27,25 @@ of the following ways:
 - In Python (using the TCP/IP interface in the background)
 - In C or C++ (support will be released soon)
 
+<img src="/optimization-engine/img/python-iface.gif" alt="Opengen code generation" />
 
 ## Installation
 
 In order to install `opengen` you need:
 
-- Python (tested against versions 2.7, 3.4 and 3.6)
+- [Python](https://www.python.org/) (tested against versions 2.7, 3.4 and 3.6)
 - [Rust 2018](https://www.rust-lang.org/tools/install) (tested with nightly, beta and stable)
-- [CasADi](https://web.casadi.org/) (install with `pip install casadi`)
 
 You may install `opengen` using `pip`; just open a terminal
 and type in:
 
 ```
-pip install opengen==0.5.0
+pip install opengen
 ```
 
 On some linux systems you may need to prepend `sudo`. We recommend
-that you use `virtualenv`, but it is not necessary.
+that you use [virtualenv](https://virtualenv.pypa.io/en/latest/),
+but it is not necessary.
 
 ## Getting started
 
@@ -55,10 +56,10 @@ parametric optimizer
 
 <div class="math">
 \[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
-\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
+\mathrm{subject\ to} &amp;\ \ u \in U\end{split}\]</div>
 
-The first step is to import `opengen` and `casadi` in your Python
-code:
+The first step is to import `opengen` and 
+[`casadi`](https://web.casadi.org/) in your Python code:
 
 ```python
 import casadi.casadi as cs
@@ -86,18 +87,29 @@ phi = og.functions.rosenbrock(u, p)   # cost function
 
 Next, we need to define the constraints. Support that 
 $U$ is a Euclidean ball with radius $r=1.5$ centered at 
-the origin, $U= \{u \in \mathbb{R}^5 {}:{} \|u\| \leq r\}$.
+the origin, $U= \\{u \in \mathbb{R}^5 {}:{} \|u\| \leq r \\}$.
 This is,
 
 ```python
-bounds = og.constraints.Ball2(None, 1.5) 
+bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
 ``` 
+
+Alternatively, you may choose `bounds` to be a box of 
+the form 
+
+<div class="math">
+\[U = \{u \in \mathbb{R}^{n_u} {}:{} u_{\min}
+\leq u \leq u_{\max} \}\]</div>
+ 
+using `og.constraints.Rectangle`. Set `U` is a simple set (typically
+a ball or a box). Opegen supports more general constraints of the 
+form $c(u; p) = 0$ and $c(u; p) \leq 0$ 
+(see [next section](#general-constraints)). 
 
 We may now define the optimization problem as follows:
 
-```python 
-problem = og.builder.Problem(u, p, phi) \
-    .with_constraints(bounds)
+```python
+problem = og.builder.Problem(u, p, phi).with_constraints(bounds)
 ```
 
 ### Code generation
@@ -135,8 +147,8 @@ folder in which all generated files will be stored.
 Next, let us create a basic build configuration:
 
 ```python
-build_config = og.config.BuildConfiguration() \
-    .with_build_directory("python_build") \
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory("python_build")      \
     .with_build_mode("debug") 
 ```
 
@@ -238,6 +250,15 @@ solver information:
 }
 ```
 
+Alongside the solution vector (`solution`), the solver returns 
+other useful information such as the solution status (`Converged`),
+the total number of iterations (`num_inner_iterations`), the norm
+of the fixed-point residual (`last_problem_norm_fpr`) which 
+quantifies the solution quality  and the solution time in milliseconds
+(`solve_time_ms`). The parameters `num_outer_iterations` and 
+`max_constraint_violation` will be elucidated in the next section.
+
+
 
 ## General constraints
 
@@ -246,8 +267,11 @@ $c(u; p) = 0$ using the [penalty method](https://en.wikipedia.org/wiki/Penalty_m
 In particular, opengen can solve problems of the form 
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
-\mathrm{subject\ to} &amp;\ \ u \in U(p),\\ &c(u; p) = 0,\end{split}\]</div> 
+\[\begin{split}
+\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\
+\mathrm{subject\ to}\, &u \in U,
+\\ 
+&c(u; p) = 0,\end{split}\]</div> 
 
 where $c:\mathbb{R}^{n_u}\times \mathbb{R}^{n_p} \to \mathbb{R}^{n_c}$. 
 This can be used to encode either equality or inequality constraints 
@@ -330,13 +354,6 @@ The user may change the maximum constraint violation using
 solver_config.with_constraints_tolerance(1e-6)
 ``` 
 
-## Calling the optimizer from C/C++
-
-This is under development and will be released soon.
-Users will be able to generate C bindings to call the
-auto-generated parametric optimizer from their C or C++
-project. 
-Check the progress [here](https://github.com/alphaville/optimization-engine/issues/8).
 
 
 ## Advanced options
@@ -369,9 +386,33 @@ set the **maximum runtime** (in microseconds) using
 ```python
 # Maximum duration: 50ms
 solver_config.with_max_duration_micros(50000)
-```  
+```
+
+Lastly, the maximum number of outer iterations can be set using
+
+```python
+solver_config.with_max_outer_iterations(num_out_iters)
+```
+
+The number of outer iterations should be kept reasonably small
+to avoid too high values of the penalty parameters (which increase
+exponentially).
 
 
+### Build options
+
+During the design phase, one needs to experiment with the problem
+formulation and solver parameters. This is way the default build
+mode is the "debug" mode, which compiles fast, but it suboptimal.
+Building in "release" mode takes slightly longer to compile, but
+can lead to a significant speed-up. To do so, use the option
+
+```python
+build_config.with_build_mode("debug")
+```
+
+*Note.* Coming soon: cross-compilation for different targets
+(e.g., a Raspberry Pi).
  
 ### TCP/IP options
 

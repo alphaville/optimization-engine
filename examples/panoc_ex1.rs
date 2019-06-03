@@ -5,7 +5,6 @@
 //! [Rosenbrock function]: https://en.wikipedia.org/wiki/Rosenbrock_function
 
 use optimization_engine::{constraints::*, panoc::*, *};
-use std::num::NonZeroUsize;
 
 fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
     (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
@@ -21,8 +20,8 @@ fn main() {
     let tolerance = 1e-14;
     let a = 1.0;
     let b = 200.0;
-    let problem_size = NonZeroUsize::new(2).unwrap();
-    let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
+    let problem_size = 2;
+    let lbfgs_memory_size = 10;
     let max_iters = 80;
     let mut u = [-1.5, 0.9];
     let radius = 1.0;

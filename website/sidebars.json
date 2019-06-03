@@ -3,11 +3,21 @@
     "OpEn Guide": [
       "open-intro",
       "installation",
+      "algorithm"
+    ],
+    "Python" : [
+      "python-interface",
+      "python-advanced",
+      "python-c",
+      "python-examples"
+    ],
+    "MATLAB": [
+      "matlab-interface"
+    ],
+    "Rust" : [
       "openrust"
     ],
-    "Interfaces": [
-      "matlab-interface",
-      "python-interface",
+    "Socket interface" : [
       "udp-sockets"
     ],
     "Examples": [

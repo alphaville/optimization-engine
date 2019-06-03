@@ -4,12 +4,29 @@ title: Frequently Asked Questions
 sidebar_label: FAQ
 ---
 
-### 1. Can OpEn find the global optimum?
+### 1. Do I need to be able to program in Rust?
+
+No. Although the core solver is written in Rust, you can
+generate code in Python or MATLAB and use it from Python.
+You can also use the auto-generated C/C++ bindings to use 
+it in your embedded project.
+
+Even if you are working in a Rust project, it is more 
+convenient to generate Rust code using OpEn's Python
+interface and then use the auto-generated code in your
+project.
+
+If your project is in some different language, you can 
+either use the C/C++ bindings (if possible), or call
+the solver over a TCP socket (supported by all modern
+programming languages).
+  
+### 2. Can OpEn find the global optimum?
 No. 
 
 OpEn does not offer any guarantees that the solution it returns is a global optimum.
 
-### 2. Can OpEn solve mixed integer problems?
+### 3. Can OpEn solve mixed integer problems?
 Yes. OpEn solves parametric problems of the form
 
 ```text
@@ -17,17 +34,17 @@ Minimize f(u; p)
 subj. to: u in U(p)
 ```
 
-Set `U(p)` can be 
+Set `U(p)` can be a finite set.
 
-### 3. Can OpEn solve multi-objective problems?
+### 4. Can OpEn solve multi-objective problems?
 No.
 
-### 4. How should I choose the L-BFGS memory?
+### 5. How should I choose the L-BFGS memory?
 A value between 3 and 20 should suffice, although the performance is not too sensitive to the exact value of the L-BFGS memory. You shouldn't choose too high values as this will increase the memory requirements of your program (esp. for large-scale problems) and might have a negative effect on performance. 
 
 Long story short... if you need very high performance, you should experiment with it. Otherwise, stick with any value between 3 and 20.
 
-### 5. How can I cite OpEn?
+### 6. How can I cite OpEn?
 Please, cite the original PANOC paper as follows:
 ```bibtex
 @inconference{panoc2017,
@@ -66,13 +83,18 @@ and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
 }
 ```
 
+### 7. Does it work on all operating systems?
+Yes. We have tested the code on Linux (Trusty, Precise 
+and Xenial), OSX Darwin and Windows x32 adn x64
+using Travis CI and Appveyor reprectively. We have 
+also cross-compiled the Rust solver and tested it 
+on a Raspberry Pi v2.
 
-
-### 6. I have a question; whom should I address it to?
+### 8. I have a question; whom should I address it to?
 You can reach us on Discord and Gitter. 
 
 Find out more information [here](http://localhost:3000/optimization-engine/blog/2019/03/06/talk-to-us).
 
-### 7. How can I report an issue?
+### 9. How can I report an issue?
 Please report any issues on [github](https://github.com/alphaville/optimization-engine/issues).
 
