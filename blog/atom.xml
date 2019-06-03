@@ -2,12 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-05-23T06:00:00Z</updated>
+    <updated>2019-06-03T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
     <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
+    <entry>
+        <title type="html"><![CDATA[Python interface]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html">
+        </link>
+        <updated>2019-06-03T06:00:00Z</updated>
+        <summary type="html"><![CDATA[  <p>The new Python interface is finally out and the solver now supports generic constraints of the form</p> <div class="math"> \[\begin{split} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\ \mathrm{subject\ to}\, &u \in U, \\ &c(u; p) = 0,\end{split}\]</div> <p>w...</p>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[One shot two hares]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</id>

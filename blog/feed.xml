@@ -4,7 +4,7 @@
         <title>Optimization Engine Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
-        <lastBuildDate>Thu, 23 May 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 03 Jun 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,13 @@
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
+        <item>
+            <title><![CDATA[Python interface]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</guid>
+            <pubDate>Mon, 03 Jun 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[  <p>The new Python interface is finally out and the solver now supports generic constraints of the form</p> <div class="math"> \[\begin{split} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\ \mathrm{subject\ to}\, &u \in U, \\ &c(u; p) = 0,\end{split}\]</div> <p>w...</p>]]></description>
+        </item>
         <item>
             <title><![CDATA[One shot two hares]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</link>
