@@ -1,11 +1,9 @@
-/*
- * Auto-generated file by OptimizationEngine
- * See https://alphaville.github.io/optimization-engine/
- *
- * Generated at: {{timestamp_created}}
- */
-
-extern crate optimization_engine;
+//
+// Auto-generated file by OptimizationEngine
+// See https://alphaville.github.io/optimization-engine/
+//
+// Generated at: {{timestamp_created}}
+//
 
 use icasadi;
 use optimization_engine::{constraints::*, panoc::*, *};
@@ -75,16 +73,31 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 {% endif %}
 
 /// Initialisation of the solver
-pub fn initialize_solver() -> PANOCCache {
-    let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
+pub fn initialize_solver(
+    inner_tolerance: f64,
+) -> continuation::HomotopyCache {
+    let panoc_cache = PANOCCache::new(NU, inner_tolerance, LBFGS_MEM);
 
-    panoc_cache
+    let mut homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
+
+{% if problem.dim_constraints_penalty() > 0 %}
+    // Define the initial weights, the update rule and the update factor
+    let idx_y: Vec<usize> = (NP..NP + NCP).collect();
+    homotopy_cache.add_continuations(
+        &idx_y[..],
+        INITIAL_PENALTY_WEIGHTS,
+        &[0.; NCP],
+        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
+    );
+{% endif %}
+
+    homotopy_cache
 }
 
 
 pub fn solve(
     p: &[f64],
-    cache: &mut PANOCCache,
+    cache: &mut continuation::HomotopyCache,
     u: &mut [f64],
 ) -> Result<continuation::HomotopySolverStatus, SolverError> {
 
@@ -95,26 +108,31 @@ pub fn solve(
     q_augmented_params[0..NP].copy_from_slice(p);
 
 
-    //TODO: better error management (in closures)
-	/* cost function, f(u; q) */
+	// cost function, f(u; q)
     let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
         icasadi::icasadi_cost(u, q, cost);
         Ok(())
     };
 
-    /* parametric gradient, df(u, q) */
+    // parametric gradient, df(u, q)
     let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        icasadi::icasadi_grad(u, q, grad);
-        Ok(())
+        if icasadi::icasadi_grad(u, q, grad) == 0 {
+            Ok(())
+        } else {
+            Err(SolverError::Cost)
+        }
+
     };
 
 	/* penalty-type constraints: c(u; p) */
     let penalty_constr_function =
     |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
-        icasadi::icasadi_constraints_as_penalty(u, q, constraints);
-        Ok(())
+        if icasadi::icasadi_constraints_as_penalty(u, q, constraints) == 0 {
+            Ok(())
+        } else {
+            Err(SolverError::Cost)
+        }
     };
-
 
     // Constraints...
 {%- if problem.constraints is none %}
@@ -139,17 +157,6 @@ pub fn solve(
         NCP
     );
 
-{% if problem.dim_constraints_penalty() > 0 %}
-    // Define the initial weights, the update rule and the update factor
-    let idx_y: Vec<usize> = (NP..NP + NCP).collect();
-    homotopy_problem.add_continuations(
-        &idx_y[..],
-        INITIAL_PENALTY_WEIGHTS,
-        &[0.; NCP],
-        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
-    );
-{% endif %}
-
     // construct a homotopy optimizer
     let mut homotopy_optimizer = continuation::HomotopyOptimizer::new(&homotopy_problem, cache)
         .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
@@ -158,7 +165,8 @@ pub fn solve(
 
 {% if solver_config.max_duration_micros > 0 %}
     // set the maximum execution duration
-    homotopy_optimizer.with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
+    let mut homotopy_optimizer = homotopy_optimizer
+        .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
 {% endif %}
 
     // solve the problem and return its status
