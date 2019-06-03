@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 <!-- ---------------------
-      Unreleased
+      v0.4.0
      --------------------- -->
-## [Unreleased]
+## [v0.4.0] - 2019-06-03
 
 ### Fixed
 
@@ -68,7 +68,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/master...dev/python
+[v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/alphaville/optimization-engine/compare/v0.2.2...v0.3.0
 
