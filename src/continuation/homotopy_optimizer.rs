@@ -91,9 +91,9 @@ where
     ///    };
     ///
     /// fn main() {
-    ///
-    ///     let mut cache = PANOCCache::new(std::num::NonZeroUsize::new(1).unwrap(),
-    ///         1e-5, std::num::NonZeroUsize::new(10).unwrap());
+    ///     let n = 2;
+    ///     let lbfgs_mem = 10;
+    ///     let mut cache = PANOCCache::new(n, 1e-5, lbfgs_mem);
     ///
     ///     /* cost function, f(u; q) */
     ///     let cost_fun = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {        

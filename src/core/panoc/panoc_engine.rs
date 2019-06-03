@@ -368,12 +368,11 @@ mod tests {
     use crate::core::panoc::*;
     use crate::core::Problem;
     use crate::mocks;
-    use std::num::NonZeroUsize;
 
     #[test]
     fn t_compute_fpr() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let box_constraints = constraints::NoConstraints::new();
         let problem = Problem::new(&box_constraints, mocks::my_gradient, mocks::my_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
@@ -401,8 +400,8 @@ mod tests {
 
     #[test]
     fn t_gradient_step() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
         let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
@@ -424,8 +423,8 @@ mod tests {
 
     #[test]
     fn t_gradient_step_uplus() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
         let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
@@ -450,8 +449,8 @@ mod tests {
 
     #[test]
     fn t_half_step() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::Ball2::new(None, 0.5);
         let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
@@ -475,8 +474,8 @@ mod tests {
 
     #[test]
     fn t_lipschitz_update_rhs() {
-        let n = NonZeroUsize::new(3).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 3;
+        let mem = 5;
         let bounds = constraints::NoConstraints::new();
         let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
@@ -515,8 +514,8 @@ mod tests {
 
     #[test]
     fn t_compute_rhs_ls() {
-        let n = NonZeroUsize::new(2).unwrap();
-        let mem = NonZeroUsize::new(5).unwrap();
+        let n = 2;
+        let mem = 5;
         let bounds = constraints::Ball2::new(None, 0.5);
         let problem = Problem::new(&bounds, mocks::void_gradient, mocks::void_cost);
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);

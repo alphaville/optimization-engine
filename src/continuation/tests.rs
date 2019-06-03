@@ -4,7 +4,6 @@ use crate::core::panoc::*;
 use crate::core::*;
 use crate::{mocks, SolverError};
 use icasadi_test;
-use std::num::NonZeroUsize;
 
 const NU: usize = 5; // Number of decision variables
 const NP: usize = 2; // Number of parameters
@@ -16,10 +15,7 @@ const LBFGS_MEM: usize = 10;
 
 /// Initialisation of the solver
 pub fn initialize_solver(inner_tolerance: f64) -> PANOCCache {
-    let problem_size = NonZeroUsize::new(self::NU).unwrap();
-    let lbfgs_memory_size = NonZeroUsize::new(self::LBFGS_MEM).unwrap();
-    let panoc_cache = PANOCCache::new(problem_size, inner_tolerance, lbfgs_memory_size);
-
+    let panoc_cache = PANOCCache::new(NU, inner_tolerance, LBFGS_MEM);
     panoc_cache
 }
 
@@ -93,8 +89,8 @@ pub fn solve(
 #[test]
 fn t_homotopy_basic() -> Result<(), SolverError> {
     let tolerance = 1e-14;
-    let problem_size = NonZeroUsize::new(2).unwrap();
-    let lbfgs_memory_size = NonZeroUsize::new(10).unwrap();
+    let problem_size = 2;
+    let lbfgs_memory_size = 10;
     let a = 1.0;
 
     /* parametric cost */
@@ -179,7 +175,16 @@ fn t_homotopy_rosenbrock_convergent_in_loop() {
 
     for _i in 1..20 {
         let p = [1.0, 100. + 50. * (_i as f64)];
-        let out = solve(&p, &mut cache, &mut u, 500000, constraint_violation_tolerance, 10.0, 30, 500);
+        let out = solve(
+            &p,
+            &mut cache,
+            &mut u,
+            500000,
+            constraint_violation_tolerance,
+            10.0,
+            30,
+            500,
+        );
         let status = out.unwrap();
         assert_eq!(status.exit_status(), ExitStatus::Converged);
         assert!(status.last_problem_norm_fpr() < inner_tolerance);

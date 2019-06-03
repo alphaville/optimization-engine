@@ -9,7 +9,6 @@ extern crate optimization_engine;
 
 use icasadi;
 use optimization_engine::{constraints::*, panoc::*, *};
-use std::{num::NonZeroUsize};
 
 // Tolerance of inner solver
 const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
@@ -77,9 +76,7 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 
 /// Initialisation of the solver
 pub fn initialize_solver() -> PANOCCache {
-    let problem_size = NonZeroUsize::new(NU).unwrap();
-    let lbfgs_memory_size = NonZeroUsize::new(LBFGS_MEMORY).unwrap();
-    let panoc_cache = PANOCCache::new(problem_size, TOLERANCE_INNER_SOLVER, lbfgs_memory_size);
+    let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
 
     panoc_cache
 }

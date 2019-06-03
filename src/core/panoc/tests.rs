@@ -2,7 +2,6 @@ use crate::core::panoc::panoc_engine::PANOCEngine;
 use crate::core::panoc::*;
 use crate::core::*;
 use crate::{mocks, SolverError};
-use std::num::NonZeroUsize;
 
 const N_DIM: usize = 2;
 #[test]
@@ -10,11 +9,7 @@ fn t_panoc_init() {
     let radius = 0.2;
     let ball = constraints::Ball2::new(None, radius);
     let problem = Problem::new(&ball, mocks::my_gradient, mocks::my_cost);
-    let mut panoc_cache = PANOCCache::new(
-        NonZeroUsize::new(N_DIM).unwrap(),
-        1e-6,
-        NonZeroUsize::new(5).unwrap(),
-    );
+    let mut panoc_cache = PANOCCache::new(N_DIM, 1e-6, 5);
 
     {
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
@@ -61,11 +56,7 @@ fn t_test_panoc_basic() {
     let bounds = constraints::Ball2::new(None, 0.2);
     let problem = Problem::new(&bounds, mocks::my_gradient, mocks::my_cost);
     let tolerance = 1e-9;
-    let mut panoc_cache = PANOCCache::new(
-        NonZeroUsize::new(2).unwrap(),
-        tolerance,
-        NonZeroUsize::new(5).unwrap(),
-    );
+    let mut panoc_cache = PANOCCache::new(2, tolerance, 5);
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
     let mut u = [0.0, 0.0];
@@ -100,11 +91,7 @@ fn t_test_panoc_hard() {
     let n: usize = 3;
     let lbfgs_memory: usize = 10;
     let tolerance_fpr: f64 = 1e-12;
-    let mut panoc_cache = PANOCCache::new(
-        NonZeroUsize::new(n).unwrap(),
-        tolerance_fpr,
-        NonZeroUsize::new(lbfgs_memory).unwrap(),
-    );
+    let mut panoc_cache = PANOCCache::new(n, tolerance_fpr, lbfgs_memory);
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
     let mut u = [-20., 10., 0.2];
@@ -142,11 +129,7 @@ fn t_test_panoc_rosenbrock() {
     };
     let bounds = constraints::Ball2::new(None, 1.0);
     let problem = Problem::new(&bounds, df, f);
-    let mut panoc_cache = PANOCCache::new(
-        NonZeroUsize::new(2).unwrap(),
-        tolerance,
-        NonZeroUsize::new(2).unwrap(),
-    );
+    let mut panoc_cache = PANOCCache::new(2, tolerance, 2);
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
     let mut u = [-1.5, 0.9];
     panoc_engine.init(&mut u).unwrap();

@@ -159,7 +159,6 @@ mod tests {
     use crate::core::panoc::*;
     use crate::core::*;
     use crate::{mocks, SolverError};
-    use std::num::NonZeroUsize;
 
     #[test]
     fn t_panoc_optimizer_rosenbrock() {
@@ -184,11 +183,7 @@ mod tests {
         /* CONSTRAINTS */
         let radius = 2.0;
         let bounds = constraints::Ball2::new(None, radius);
-        let mut panoc_cache = PANOCCache::new(
-            NonZeroUsize::new(n).unwrap(),
-            tolerance,
-            NonZeroUsize::new(lbfgs_memory).unwrap(),
-        );
+        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
         let problem = Problem::new(&bounds, df, f);
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
@@ -213,11 +208,7 @@ mod tests {
         let lbfgs_memory = 10;
         let max_iters = 100;
         let mut u = [-1.5, 0.9];
-        let mut panoc_cache = PANOCCache::new(
-            NonZeroUsize::new(n).unwrap(),
-            tolerance,
-            NonZeroUsize::new(lbfgs_memory).unwrap(),
-        );
+        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
         let mut radius = 1.0;
         for _ in 1..100 {
             b *= 1.01;
