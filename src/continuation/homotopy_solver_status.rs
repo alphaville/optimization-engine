@@ -43,12 +43,12 @@ impl HomotopySolverStatus {
         solve_time: std::time::Duration,
     ) -> HomotopySolverStatus {
         HomotopySolverStatus {
-            exit_status: exit_status,
-            num_outer_iterations: num_outer_iterations,
-            num_inner_iterations: num_inner_iterations,
-            last_problem_norm_fpr: last_problem_norm_fpr,
-            max_constraint_violation: max_constraint_violation,
-            solve_time: solve_time,
+            exit_status,
+            num_outer_iterations,
+            num_inner_iterations,
+            last_problem_norm_fpr,
+            max_constraint_violation,
+            solve_time,
         }
     }
 
