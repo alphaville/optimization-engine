@@ -110,7 +110,7 @@ Each time the major or minor number of the Rust library is updated, a new crate 
 
 In order to publish a new version on `crates.io` make sure that:
 
-- You can updated CHANGELOG
+- You have updated CHANGELOG
 - You have updated the version (SemVer)
 - You have resolved all associated issues on github (and you have created tests for these)
 - You have merged into master (your pull request has been approved)

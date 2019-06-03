@@ -3,6 +3,10 @@ id: python-examples
 title: Examples
 ---
 
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
 ## Rosenbrock function
 This is the example we presented in the previous section. You can copy
 it and experiment with it.
@@ -162,4 +166,54 @@ plt.show()
 
 <img src="/optimization-engine/img/unobstructed_navigation_trajectories_python.png" alt="Matplotlib unobstructed navigation" />
 
+
+
 ## Obstructed navigation
+
+Let us add an obstable: consider a ball centered at the origin
+with radius $r=1$, which needs to be avoided. To that end, we
+introduce the constraint $c(u; p) = 0$ where
+
+<div class="math">
+\[c(u; p) = \sum_{t=0}^{N-1}[1-\|z_t\|^2]_+,\]</div>
+
+where $z_t=(x_t,y_t)$ is the position of the vehicle at time $t$ and 
+$[z]_+ = \max\\{0, z\\}$. 
+
+The decision variable, as above, is $u = (u_0, \ldots, u_{N-1})$
+and $z_t = z_t(u)$.
+
+In order to define function $c$ in Python, we need to add one 
+line in the above code:
+
+```python
+c = 0
+for t in range(0, N):
+    cost += q*((x-xref)**2 + (y-yref)**2) + qtheta*(theta-thetaref)**2
+    u_t = u[t*nu:(t+1)*nu]
+    theta_dot = (1/L) * (u_t[1] * cs.cos(theta) - u_t[0] * cs.sin(theta))
+    cost += r * cs.dot(u_t, u_t)
+    x += ts * (u_t[0] + L * cs.sin(theta) * theta_dot)
+    y += ts * (u_t[1] - L * cs.cos(theta) * theta_dot)    
+    theta += ts * theta_dot
+    # ADD THIS LINE:
+    c += cs.fmax(0, 1 - x**2 - y**2)
+```
+
+It makes sense to customize the solver parameters, especially
+the allowed violation of the constraints (`with_constraints_tolerance`),
+the update factor for the penalty weights (`with_penalty_weight_update_factor`)
+and the initial weights (`with_initial_penalty_weights`):
+ 
+```python
+solver_config = og.config.SolverConfiguration()  \
+    .with_tolerance(1e-4)                        \
+    .with_max_outer_iterations(5)                \
+    .with_constraints_tolerance(1e-2)            \
+    .with_penalty_weight_update_factor(10.0)     \
+    .with_initial_penalty_weights(100.0)
+```
+
+Here is a trajectory of the system with $N=60$. 
+
+<img src="/optimization-engine/img/obstructed_navigation_trajectories_python.png" alt="Matplotlib obstructed navigation" />

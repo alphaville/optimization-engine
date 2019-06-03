@@ -6,9 +6,9 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Build parametric optimizer
 # ---------------------------------------------------------------------------
-(nu, nx, N) = (2, 3, 30)
+(nu, nx, N) = (2, 3, 60)
 L = 0.5
-ts = 0.1
+ts = 0.05
 (xref , yref, thetaref) = (2, 2, 0)
 (q, qtheta, r, qN, qthetaN) = (10, 0.1, 1, 200, 2)
 
@@ -37,19 +37,19 @@ bounds = og.constraints.Rectangle(umin, umax)
 problem = og.builder.Problem(u, z0, cost).with_constraints(bounds).with_penalty_constraints(c)
 build_config = og.config.BuildConfiguration() \
     .with_build_directory(".python_test_build") \
-    .with_build_mode("release").with_rebuild(True)
+    .with_build_mode("release")
 meta = og.config.OptimizerMeta() \
     .with_optimizer_name("navigation")
 solver_config = og.config.SolverConfiguration().with_tolerance(1e-4)\
-    .with_constraints_tolerance(1e-2)\
-    .with_constraints_tolerance(1e-2)\
+    .with_constraints_tolerance(1e-2) \
+    .with_max_outer_iterations(5)     \
     .with_penalty_weight_update_factor(10.0)\
     .with_initial_penalty_weights(100.0)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
                                           build_config, solver_config) \
     .with_verbosity_level(1)
 builder.enable_tcp_interface()
-#builder.build()
+builder.build()
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +105,12 @@ xy = x_states[1:nx*N:nx]
 
 print(x_states)
 print(xx)
+
+t = np.arange(0, 6.4, 0.1)
+x_circ = np.sin(t)
+y_circ = np.cos(t)
+plt.plot(x_circ, y_circ, 'r-')
+
 plt.plot(xx, xy, '-o')
 plt.ylabel('y')
 plt.xlabel('x')
