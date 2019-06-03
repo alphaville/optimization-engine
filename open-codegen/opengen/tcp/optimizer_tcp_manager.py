@@ -25,22 +25,25 @@ class OptimizerTcpManager:
             New instance of <code>OptimizerTcpManager</code>
         """
         self.__optimizer_path = optimizer_path
-        self.__tcp_details = None
+        self.__optimizer_details_from_yml = None
         self.__load_tcp_details()
 
     def __load_tcp_details(self):
         yaml_file = os.path.join(self.__optimizer_path, "optimizer.yml")
         with open(yaml_file, 'r') as stream:
-            self.__tcp_details = yaml.safe_load(stream)
+            self.__optimizer_details_from_yml = yaml.safe_load(stream)
 
     def __threaded_start(self):
+        optimizer_details = self.__optimizer_details_from_yml
         command = ['cargo', 'run']
+        if optimizer_details['build']['build_mode'] == 'release':
+            command.append('--release')
         p = subprocess.Popen(command, cwd=self.__optimizer_path)
         p.wait()
 
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
-        tcp_data = self.__tcp_details
+        tcp_data = self.__optimizer_details_from_yml
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)

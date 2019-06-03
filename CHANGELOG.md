@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 * Rust API: Using `Option<>` and `Result<>` to handle errors
-
+* Updated L-BFGS dependency; now using version `0.2` (no NonZeroUsize)
 
 <!-- ---------------------
       v0.3.1

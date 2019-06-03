@@ -11,7 +11,7 @@ We present `opengen`: a Python interface to Optimization
 Engine (OpEn), which facilitates the process of code generation
 of high-performance parametric optimizers. 
 
-![Python logo](https://s14-eu5.startpage.com/cgi-bin/serveimage?url=http%3A%2F%2Ft0.gstatic.com%2Fimages%3Fq%3Dtbn%3AANd9GcTiiIJQouorHLZpUz4M681L3_EvS0tk0j_HlgG3Vh5WjNAmeZ571A&sp=14f4c783ddaa87f5183c91e3977e5ee1&anticache=611854)
+<img src="/optimization-engine/img/open-functionality.jpg" alt="Opengen code generation" width="85%"/>
 
 
 ## About
@@ -27,7 +27,7 @@ of the following ways:
 - In Python (using the TCP/IP interface in the background)
 - In C or C++ (support will be released soon)
 
-<img src="/optimization-engine/img/python-iface.gif" alt="Opengen code generation" />
+<img src="/optimization-engine/img/python-iface-workflow.jpg" alt="Opengen code generation" width="85%"/>
 
 ## Installation
 
