@@ -76,7 +76,7 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 pub fn initialize_solver() -> continuation::HomotopyCache {
     let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
 
-    let homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
+    let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
 
 {% if problem.dim_constraints_penalty() > 0 %}
     // Define the initial weights, the update rule and the update factor
