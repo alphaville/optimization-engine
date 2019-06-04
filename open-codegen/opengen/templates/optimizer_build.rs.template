@@ -1,7 +1,10 @@
+{% if activate_clib_generation -%}
 use cbindgen::{Builder, Language};
 use std::env;
+{% endif %}
 
 fn main() {
+{% if activate_clib_generation -%}
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
     let mut header = String::new();
@@ -29,4 +32,5 @@ fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=open_clib.h");
     println!("cargo:rerun-if-changed=open_clib.hpp");
+{% endif %}
 }
