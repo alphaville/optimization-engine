@@ -9,7 +9,7 @@ use icasadi;
 {% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
 {% endif %}
-use optimization_engine::{constraints::*, continuation::*, core::ExitStatus, panoc::*, *};
+use optimization_engine::{constraints::*, panoc::*, *};
 
 // Tolerance of inner solver
 const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
@@ -148,9 +148,9 @@ pub extern "C" fn solver_solve(
     match status {
         Ok(status) => CHomotopySolverStatus {
             exit_status: match status.exit_status() {
-                ExitStatus::Converged => CExitStatus::Converged,
-                ExitStatus::NotConvergedIterations => CExitStatus::NotConvergedIterations,
-                ExitStatus::NotConvergedOutOfTime => CExitStatus::NotConvergedOutOfTime,
+                core::ExitStatus::Converged => CExitStatus::Converged,
+                core::ExitStatus::NotConvergedIterations => CExitStatus::NotConvergedIterations,
+                core::ExitStatus::NotConvergedOutOfTime => CExitStatus::NotConvergedOutOfTime,
             },
             num_outer_iterations: status.num_outer_iterations() as c_ulong,
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
