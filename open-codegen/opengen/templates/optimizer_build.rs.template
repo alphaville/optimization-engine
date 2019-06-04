@@ -19,7 +19,7 @@ fn main() {
         .with_header(&header)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file("open_clib.h");
+        .write_to_file("open_bindings.h");
 
     Builder::new()
         .with_crate(&crate_dir)
@@ -27,10 +27,10 @@ fn main() {
         .with_header(&header)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file("open_clib.hpp");
+        .write_to_file("open_bindings.hpp");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
-    println!("cargo:rerun-if-changed=open_clib.h");
-    println!("cargo:rerun-if-changed=open_clib.hpp");
+    println!("cargo:rerun-if-changed=open_bindings.h");
+    println!("cargo:rerun-if-changed=open_bindings.hpp");
 {% endif %}
 }
