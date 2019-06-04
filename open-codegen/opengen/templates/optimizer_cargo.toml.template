@@ -16,7 +16,7 @@ publish=false
 
 [dependencies]
 #TODO: In production, change the following line
-optimization_engine = { git = "https://github.com/alphaville/optimization-engine", branch = "dev/python" }
+optimization_engine = { git = "https://github.com/alphaville/optimization-engine" }
 #optimization_engine = "{{open_version or '0.4.0-alpha'}}"
 icasadi = {path = "./icasadi/"}
 
