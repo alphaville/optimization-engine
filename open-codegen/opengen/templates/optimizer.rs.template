@@ -6,7 +6,9 @@
 //
 
 use icasadi;
+{% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
+{% endif %}
 use optimization_engine::{constraints::*, continuation::*, core::ExitStatus, panoc::*, *};
 
 // Tolerance of inner solver
@@ -73,6 +75,7 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 # --- {{ solver_config.max_duration_micros }}
 {% endif %}
 
+{% if activate_clib_generation -%}
 /// C version of ExitStatus
 #[repr(C)]
 pub enum CExitStatus {
@@ -178,7 +181,7 @@ pub extern "C" fn solver_free(instance: *mut HomotopyCache) {
         Box::from_raw(instance);
     }
 }
-
+{% endif %}
 
 /// Initialisation of the solver
 pub fn initialize_solver() -> continuation::HomotopyCache {
