@@ -44,6 +44,7 @@ class OpEnOptimizerBuilder:
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
         self.__tcp_server_configuration = None
+        self.__generate_clib = None
         self.__verbosity_level = 0
 
     def with_verbosity_level(self, verbosity_level):
@@ -73,7 +74,7 @@ class OpEnOptimizerBuilder:
     def with_generate_not_build_flag(self, flag):
         """Whether to build (or just generate code)
 
-        If set to true, the code will be generated, but it will not be 
+        If set to true, the code will be generated, but it will not be
         build (mainly for debugging purposes)
 
         Args:
@@ -168,7 +169,8 @@ class OpEnOptimizerBuilder:
         output_template = template.render(
             meta=self.__meta,
             open_version=self.__build_config.open_version,
-            activate_tcp_server=self.__tcp_server_configuration is not None)
+            activate_tcp_server=self.__tcp_server_configuration is not None,
+            activate_clib_generation=self.__generate_clib is not None)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(output_template)
@@ -239,8 +241,19 @@ class OpEnOptimizerBuilder:
         template = env.get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self.__solver_config,
                                           problem=self.__problem,
-                                          timestamp_created=datetime.datetime.now())
+                                          timestamp_created=datetime.datetime.now(),
+                                          activate_clib_generation=self.__generate_clib is not None)
         target_scr_lib_rs_path = os.path.join(target_dir, "src", "lib.rs")
+        with open(target_scr_lib_rs_path, "w") as fh:
+            fh.write(output_template)
+
+    def __generate_build_rs(self):
+        target_dir = self.__target_dir()
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('optimizer_build.rs.template')
+        output_template = template.render(activate_clib_generation=self.__generate_clib is not None)
+        target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
@@ -324,6 +337,9 @@ class OpEnOptimizerBuilder:
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
         self.__tcp_server_configuration = tcp_server_configuration
 
+    def enable_clib_generation(self):
+        self.__generate_clib = True
+
     def build(self):
         """Generate code and build project
 
@@ -340,6 +356,7 @@ class OpEnOptimizerBuilder:
         self.__generate_icasadi_header()         # generate icasadi_config.h
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
+        self.__generate_build_rs()               # generate build.rs file
         if self.__tcp_server_configuration is not None:
             self.__generate_code_tcp_interface()
         self.__generate_yaml_data_file()
