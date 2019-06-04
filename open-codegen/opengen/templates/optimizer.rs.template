@@ -8,6 +8,7 @@
 use icasadi;
 {% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
+use optimization_engine::continuation::HomotopyCache;
 {% endif %}
 use optimization_engine::{constraints::*, panoc::*, *};
 
