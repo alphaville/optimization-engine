@@ -159,7 +159,7 @@ class RustBuildTestCase(unittest.TestCase):
                                                   build_configuration=build_config,
                                                   solver_configuration=solver_config) \
             .with_generate_not_build_flag(False).with_verbosity_level(0)
-        builder.enable_clib_generation()
+        builder.enable_c_bindings_generation()
         builder.build()
 
     def test_tcp_server(self):

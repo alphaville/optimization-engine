@@ -44,7 +44,7 @@ class OpEnOptimizerBuilder:
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
         self.__tcp_server_configuration = None
-        self.__generate_clib = None
+        self.__generate_c_bindings = None
         self.__verbosity_level = 0
 
     def with_verbosity_level(self, verbosity_level):
@@ -170,7 +170,7 @@ class OpEnOptimizerBuilder:
             meta=self.__meta,
             open_version=self.__build_config.open_version,
             activate_tcp_server=self.__tcp_server_configuration is not None,
-            activate_clib_generation=self.__generate_clib is not None)
+            activate_clib_generation=self.__generate_c_bindings is not None)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(output_template)
@@ -242,7 +242,7 @@ class OpEnOptimizerBuilder:
         output_template = template.render(solver_config=self.__solver_config,
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
-                                          activate_clib_generation=self.__generate_clib is not None)
+                                          activate_clib_generation=self.__generate_c_bindings is not None)
         target_scr_lib_rs_path = os.path.join(target_dir, "src", "lib.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
@@ -252,7 +252,7 @@ class OpEnOptimizerBuilder:
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer_build.rs.template')
-        output_template = template.render(activate_clib_generation=self.__generate_clib is not None)
+        output_template = template.render(activate_clib_generation=self.__generate_c_bindings is not None)
         target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
@@ -337,8 +337,11 @@ class OpEnOptimizerBuilder:
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
         self.__tcp_server_configuration = tcp_server_configuration
 
-    def enable_clib_generation(self):
-        self.__generate_clib = True
+    def enable_c_bindings_generation(self):
+        """Generate C/C++ bindings together with statically and dynamically linkable libraries
+
+        """
+        self.__generate_c_bindings = True
 
     def build(self):
         """Generate code and build project
