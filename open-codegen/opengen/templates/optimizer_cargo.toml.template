@@ -19,10 +19,12 @@ publish=false
 #optimization_engine = { git = "https://github.com/alphaville/optimization-engine" }
 optimization_engine = "{{open_version or '0.4.0'}}"
 icasadi = {path = "./icasadi/"}
+{% if activate_clib_generation -%}
 libc = "0.2.0"
 
 [build-dependencies]
 cbindgen = "0.8.0"
+{% endif %}
 
 # TCP Server: activated
 {% if activate_tcp_server -%}
@@ -32,5 +34,7 @@ pretty_env_logger = "0.3.0"
 log = "0.4.6"
 {% endif %}
 
+{% if activate_clib_generation -%}
 [lib]
 crate-type = ["staticlib", "cdylib"]
+{% endif %}
