@@ -6,7 +6,8 @@
 //
 
 use icasadi;
-use optimization_engine::{constraints::*, panoc::*, *};
+use libc::{c_double, c_ulong, c_ulonglong};
+use optimization_engine::{constraints::*, continuation::*, core::ExitStatus, panoc::*, *};
 
 // Tolerance of inner solver
 const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
@@ -18,10 +19,10 @@ const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory or 10}};
 const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations or 2000}};
 
 // Number of decision variables
-pub const NU: usize = {{problem.dim_decision_variables()}};
+pub const NUM_DECISION_VARIABLES: usize = {{problem.dim_decision_variables()}};
 
 // Number of parameters
-pub const NP: usize = {{problem.dim_parameters()}};
+pub const NUM_PARAMETERS: usize = {{problem.dim_parameters()}};
 
 // Number of additional penalty-type constraint-related parameters (y)
 const NCP: usize = {{problem.dim_constraints_penalty()}};
@@ -72,15 +73,122 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 # --- {{ solver_config.max_duration_micros }}
 {% endif %}
 
+/// C version of ExitStatus
+#[repr(C)]
+pub enum CExitStatus {
+    /// The algorithm has converged
+    ///
+    /// All termination criteria are satisfied and the algorithm
+    /// converged within the available time and number of iterations
+    Converged,
+    /// Failed to converge because the maximum number of iterations was reached
+    NotConvergedIterations,
+    /// Failed to converge because the maximum execution time was reached
+    NotConvergedOutOfTime,
+    /// If the gradient or cost function cannot be evaluated internally
+    NotConvergedCost,
+    /// Computation failed and NaN/Infinite value was obtained
+    NotConvergedNotFiniteComputation,
+}
+
+/// C version of HomotopySolverStatus
+#[repr(C)]
+pub struct CHomotopySolverStatus {
+    /// Exit status
+    exit_status: CExitStatus,
+    /// Number of outer iterations
+    num_outer_iterations: c_ulong,
+    /// Total number of inner iterations
+    ///
+    /// This is the sum of the numbers of iterations of
+    /// inner solvers
+    num_inner_iterations: c_ulong,
+    /// Norm of the fixed-point residual of the the problem
+    last_problem_norm_fpr: c_double,
+    /// Maximum constraint violation
+    max_constraint_violation: c_double,
+    /// Total solve time
+    solve_time_ns: c_ulonglong,
+}
+
+/// Allocate memory and setup the solver
+#[no_mangle]
+pub extern "C" fn solver_new() -> *mut HomotopyCache {
+    Box::into_raw(Box::new(initialize_solver()))
+}
+
+/// Run the solver on the input and parameters
+#[no_mangle]
+pub extern "C" fn solver_solve(
+    instance: *mut HomotopyCache,
+    u: *mut c_double,
+    params: *const c_double,
+) -> CHomotopySolverStatus {
+    // Convert all pointers into the required data structures
+    let instance: &mut HomotopyCache = unsafe {
+        assert!(!instance.is_null());
+        &mut *instance
+    };
+
+    let u = unsafe {
+        assert!(!u.is_null());
+        std::slice::from_raw_parts_mut(u as *mut f64, NUM_DECISION_VARIABLES)
+    };
+
+    let params = unsafe {
+        assert!(!params.is_null());
+        std::slice::from_raw_parts(params as *const f64, NUM_PARAMETERS)
+    };
+
+    let status = solve(params, instance, u);
+
+    match status {
+        Ok(status) => CHomotopySolverStatus {
+            exit_status: match status.exit_status() {
+                ExitStatus::Converged => CExitStatus::Converged,
+                ExitStatus::NotConvergedIterations => CExitStatus::NotConvergedIterations,
+                ExitStatus::NotConvergedOutOfTime => CExitStatus::NotConvergedOutOfTime,
+            },
+            num_outer_iterations: status.num_outer_iterations() as c_ulong,
+            num_inner_iterations: status.num_inner_iterations() as c_ulong,
+            last_problem_norm_fpr: status.last_problem_norm_fpr(),
+            max_constraint_violation: status.max_constraint_violation(),
+            solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
+        },
+        Err(e) => CHomotopySolverStatus {
+            exit_status: match e {
+                SolverError::Cost => CExitStatus::NotConvergedCost,
+                SolverError::NotFiniteComputation => CExitStatus::NotConvergedNotFiniteComputation,
+            },
+            num_outer_iterations: std::u64::MAX as c_ulong,
+            num_inner_iterations: std::u64::MAX as c_ulong,
+            last_problem_norm_fpr: std::f64::INFINITY,
+            max_constraint_violation: std::f64::INFINITY,
+            solve_time_ns: std::u64::MAX as c_ulonglong,
+        },
+    }
+}
+
+/// Deallocate the solver's memory
+#[no_mangle]
+pub extern "C" fn solver_free(instance: *mut HomotopyCache) {
+    // Add impl
+    unsafe {
+        assert!(!instance.is_null());
+        Box::from_raw(instance);
+    }
+}
+
+
 /// Initialisation of the solver
 pub fn initialize_solver() -> continuation::HomotopyCache {
-    let panoc_cache = PANOCCache::new(NU, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
+    let panoc_cache = PANOCCache::new(NUM_DECISION_VARIABLES, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
 
     let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
 
 {% if problem.dim_constraints_penalty() > 0 %}
     // Define the initial weights, the update rule and the update factor
-    let idx_y: Vec<usize> = (NP..NP + NCP).collect();
+    let idx_y: Vec<usize> = (NUM_PARAMETERS..NUM_PARAMETERS + NCP).collect();
     homotopy_cache.add_continuations(
         &idx_y[..],
         INITIAL_PENALTY_WEIGHTS,
@@ -99,11 +207,11 @@ pub fn solve(
     u: &mut [f64],
 ) -> Result<continuation::HomotopySolverStatus, SolverError> {
 
-    assert_eq!(p.len(), NP, "Wrong number of parameters (p)");
-    assert_eq!(u.len(), NU, "Wrong number of decision variables (u)");
+    assert_eq!(p.len(), NUM_PARAMETERS, "Wrong number of parameters (p)");
+    assert_eq!(u.len(), NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
-    let mut q_augmented_params = [0.0; NP + NCP];
-    q_augmented_params[0..NP].copy_from_slice(p);
+    let mut q_augmented_params = [0.0; NUM_PARAMETERS + NCP];
+    q_augmented_params[0..NUM_PARAMETERS].copy_from_slice(p);
 
 
 	// cost function, f(u; q)
