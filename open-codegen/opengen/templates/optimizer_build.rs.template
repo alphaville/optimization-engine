@@ -8,7 +8,7 @@ fn main() {
     header.push_str("/* This is an auto-generated file made from optimization engine: ");
     header.push_str("https://crates.io/crates/optimization_engine */\n\n");
     header.push_str("#pragma once\n\n");
-    header.push_str("struct HomotopyCache;\n");
+    header.push_str("typedef struct HomotopyCache_ HomotopyCache;\n");
 
     Builder::new()
         .with_crate(&crate_dir)
