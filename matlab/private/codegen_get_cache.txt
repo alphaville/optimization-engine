@@ -1,9 +1,9 @@
 
 fn get_cache() -> PANOCCache {
     let panoc_cache: PANOCCache = PANOCCache::new(
-        NonZeroUsize::new(icasadi::NUM_DECISION_VARIABLES as usize).unwrap(),
+        icasadi::NUM_DECISION_VARIABLES as usize,
         TOLERANCE,
-        NonZeroUsize::new(LBFGS_MEMORY).unwrap(),
+        LBFGS_MEMORY as usize
     );
     panoc_cache
 }

@@ -172,7 +172,7 @@ end
 fprintf(fid_cargo, '"%s"]\n', opEnBuilder.authors{end});
 fprintf(fid_cargo, 'edition = "2018"\npublish=false\n');
 
-fprintf(fid_cargo, '\n\n[dependencies]\noptimization_engine = "0.3.1"\n');
+fprintf(fid_cargo, '\n\n[dependencies]\noptimization_engine = "0.4.0"\n');
 fprintf(fid_cargo, 'icasadi = {path = "./icasadi/"}\nserde = { version = "1.0", features = ["derive"] }\n');
 fprintf(fid_cargo, 'serde_json = "1.0"\n');
 

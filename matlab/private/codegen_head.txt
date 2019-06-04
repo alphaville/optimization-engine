@@ -1,7 +1,6 @@
 extern crate optimization_engine;
 
 use optimization_engine::{constraints::*, panoc::*, *};
-use std::num::NonZeroUsize;
 use std::net::UdpSocket;
 
 use serde::{Deserialize, Serialize};
