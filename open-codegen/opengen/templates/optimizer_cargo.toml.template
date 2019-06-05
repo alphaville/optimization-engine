@@ -33,4 +33,7 @@ cbindgen = "0.8.0"
 {% if activate_clib_generation -%}
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
+{% else %}
+[lib]
+crate-type = ["rlib"]
 {% endif %}

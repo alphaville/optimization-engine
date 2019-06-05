@@ -21,9 +21,21 @@ meta = og.config.OptimizerMeta() \
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
                                           build_config) \
     .with_verbosity_level(1)
-builder.enable_tcp_interface()
 builder.enable_c_bindings_generation()
 builder.build()
+
+# # ---------------------------------------------------------------------------
+# # Use TCP server
+# # ---------------------------------------------------------------------------
+# mng = og.tcp.OptimizerTcpManager('python_test_build/my_optimizer')
+# mng.start()
+#
+# x_init = [10.0, 1.0]
+# mng.ping()
+# solution = mng.call(x_init)
+# print(solution['exit_status'])
+# print(solution['solve_time_ms'])
+# mng.kill()
 
 # ---------------------------------------------------------------------------
 # Build parametric optimizer
@@ -75,18 +87,7 @@ builder.build()
 # builder.build()
 
 
-# # ---------------------------------------------------------------------------
-# # Use TCP server
-# # ---------------------------------------------------------------------------
-# mng = og.tcp.OptimizerTcpManager('.python_test_build/navigation')
-# mng.start()
-#
-# x_init = [-2.0, -2.0, 0.0]
-# mng.ping()
-# solution = mng.call(x_init, initial_guess=[1.0] * (nu*N))
-# print(solution['exit_status'])
-# print(solution['solve_time_ms'])
-# mng.kill()
+
 #
 # # ---------------------------------------------------------------------------
 # # Plot solution
