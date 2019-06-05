@@ -12,8 +12,6 @@ use std::{
 
 use {{ meta.optimizer_name }}::*;
 
-extern crate pretty_env_logger;
-
 #[macro_use]
 extern crate log;
 
