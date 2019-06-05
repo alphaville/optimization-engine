@@ -15,6 +15,10 @@ _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_constraints_type_penalty.c'
 _ICASADI_CFG_HEADER_FNAME = 'icasadi_config.h'
 
 
+def make_dir_if_not_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
 class OpEnOptimizerBuilder:
     """Builder for code generation
 
@@ -124,11 +128,11 @@ class OpEnOptimizerBuilder:
                 os.makedirs(target_dir)
 
         # Run `cargo init` in target folder
-        p = subprocess.Popen(['cargo', 'init'],
-                             cwd=target_dir,
-                             stderr=open(os.devnull, 'wb'),
-                             stdout=open(os.devnull, 'wb'))
-        p.wait()
+        # p = subprocess.Popen(['cargo', 'init'],
+        #                      cwd=target_dir,
+        #                      stderr=open(os.devnull, 'wb'),
+        #                      stdout=open(os.devnull, 'wb'))
+        # p.wait()
 
     def __copy_icasadi_to_target(self):
         """Copy 'icasadi' into target directory"""
@@ -289,13 +293,28 @@ class OpEnOptimizerBuilder:
 
     def __generate_code_tcp_interface(self):
         target_dir = self.__target_dir()
+        tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
+        tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
+
+        # make tcp_iface/ and tcp_iface/src
+        make_dir_if_not_exists(tcp_iface_dir)
+        make_dir_if_not_exists(tcp_iface_source_dir)
+
+        # generate main.rs for tcp_iface
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('tcp_server.rs.template')
         output_template = template.render(meta=self.__meta,
                                           tcp_server_config=self.__tcp_server_configuration,
                                           timestamp_created=datetime.datetime.now())
-        target_scr_lib_rs_path = os.path.join(target_dir, "src", "main.rs")
+        target_scr_lib_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
+        with open(target_scr_lib_rs_path, "w") as fh:
+            fh.write(output_template)
+
+        # generate Cargo.toml for tcp_iface
+        template = env.get_template('tcp_server_cargo.toml.template')
+        output_template = template.render(meta=self.__meta, timestamp_created=datetime.datetime.now())
+        target_scr_lib_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
