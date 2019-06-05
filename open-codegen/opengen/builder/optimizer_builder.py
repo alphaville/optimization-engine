@@ -8,6 +8,7 @@ import opengen.definitions as og_dfn
 import casadi.casadi as cs
 import os
 import jinja2
+import logging
 
 _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
@@ -18,6 +19,7 @@ _ICASADI_CFG_HEADER_FNAME = 'icasadi_config.h'
 def make_dir_if_not_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
 
 class OpEnOptimizerBuilder:
     """Builder for code generation
@@ -117,6 +119,8 @@ class OpEnOptimizerBuilder:
         Runs `cargo init` in that folder
 
         """
+        logging.info("Creating necessary folders")
+
         # Create target directory if it does not exist
         target_dir = self.__target_dir()
         if self.__build_config.rebuild:
@@ -124,18 +128,11 @@ class OpEnOptimizerBuilder:
                 shutil.rmtree(target_dir)
             os.makedirs(target_dir)
         else:
-            if not os.path.exists(target_dir):
-                os.makedirs(target_dir)
-
-        # Run `cargo init` in target folder
-        # p = subprocess.Popen(['cargo', 'init'],
-        #                      cwd=target_dir,
-        #                      stderr=open(os.devnull, 'wb'),
-        #                      stdout=open(os.devnull, 'wb'))
-        # p.wait()
+            make_dir_if_not_exists(target_dir)
 
     def __copy_icasadi_to_target(self):
         """Copy 'icasadi' into target directory"""
+        logging.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self.__icasadi_target_dir()
         if not os.path.exists(target_icasadi_dir):
@@ -151,6 +148,7 @@ class OpEnOptimizerBuilder:
 
         Generates icasadi_header.h
         """
+        logging.info("Generating icasadi C header file")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('icasadi_config.h.template')
@@ -166,6 +164,7 @@ class OpEnOptimizerBuilder:
 
     def __generate_cargo_toml(self):
         """Generates Cargo.toml for generated project"""
+        logging.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -181,6 +180,7 @@ class OpEnOptimizerBuilder:
 
     def __generate_casadi_code(self):
         """Generates CasADi code"""
+        logging.info("Defining CasADi functions and generating C code")
         u = self.__problem.decision_variables
         p = self.__problem.parameter_variables
         ncp = self.__problem.dim_constraints_penalty()
@@ -239,6 +239,7 @@ class OpEnOptimizerBuilder:
         p.wait()
 
     def __generate_main_project_code(self):
+        logging.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -247,11 +248,14 @@ class OpEnOptimizerBuilder:
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
                                           activate_clib_generation=self.__generate_c_bindings is not None)
-        target_scr_lib_rs_path = os.path.join(target_dir, "src", "lib.rs")
+        target_source_path = os.path.join(target_dir, "src");
+        target_scr_lib_rs_path = os.path.join(target_source_path, "lib.rs")
+        make_dir_if_not_exists(target_source_path)
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
     def __generate_build_rs(self):
+        logging.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -264,19 +268,23 @@ class OpEnOptimizerBuilder:
     def __build_optimizer(self):
         target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
-        verbose = int(self.__verbosity_level)
-
-        if verbose == 0:
-            with open(os.devnull, 'w') as FNULL:
-                p = subprocess.Popen(command, cwd=target_dir, stdout=FNULL, stderr=FNULL)
-        else:
-            p = subprocess.Popen(command, cwd=target_dir)
-
+        p = subprocess.Popen(command, cwd=target_dir)
         process_completion = p.wait()
         if process_completion != 0:
             raise Exception('Rust build failed')
 
+    def __build_tcp_iface(self):
+        logging.info("Building the TCP interface")
+        target_dir = os.path.abspath(self.__target_dir())
+        tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
+        command = self.__make_build_command()
+        p = subprocess.Popen(command, cwd=tcp_iface_dir)
+        process_completion = p.wait()
+        if process_completion != 0:
+            raise Exception('Rust build of TCP interface failed')
+
     def __initialize(self):
+        logging.info("Initialising builder")
         sc = self.__solver_config
         pr = self.__problem
         ncp = pr.dim_constraints_penalty()
@@ -285,6 +293,7 @@ class OpEnOptimizerBuilder:
             self.__solver_config.with_initial_penalty_weights([1] * int(ncp))
 
     def __check_user_provided_parameters(self):
+        logging.info("Checking user parameters")
         sc = self.__solver_config
         pr = self.__problem
         ncp = pr.dim_constraints_penalty()
@@ -292,6 +301,7 @@ class OpEnOptimizerBuilder:
             raise Exception("Initial penalty weights have incompatible dimensions with c(u, p)")
 
     def __generate_code_tcp_interface(self):
+        logging.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
         target_dir = self.__target_dir()
         tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
@@ -319,6 +329,7 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_yaml_data_file(self):
+        logging.info("Generating YAML configuration file")
         tcp_config = self.__tcp_server_configuration
         metadata = self.__meta
         build_config = self.__build_config
@@ -370,6 +381,7 @@ class OpEnOptimizerBuilder:
             Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
+        logging.basicConfig(level=logging.DEBUG)
         self.__initialize()                      # initialize default value (if not provided)
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project
@@ -379,8 +391,12 @@ class OpEnOptimizerBuilder:
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file
-        if self.__tcp_server_configuration is not None:
-            self.__generate_code_tcp_interface()
         self.__generate_yaml_data_file()
         if not self.__generate_not_build:
+            logging.info("Building optimizer")
             self.__build_optimizer()             # build overall project
+        if self.__tcp_server_configuration is not None:
+            logging.info("Generating TCP/IP server")
+            self.__generate_code_tcp_interface()
+            if not self.__generate_not_build:
+                self.__build_tcp_iface()
