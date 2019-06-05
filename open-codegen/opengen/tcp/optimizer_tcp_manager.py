@@ -3,6 +3,8 @@ import os
 import subprocess
 import socket
 import json
+import logging
+import time
 from threading import Thread
 from retry import retry
 
@@ -29,16 +31,23 @@ class OptimizerTcpManager:
         self.__load_tcp_details()
 
     def __load_tcp_details(self):
+        logging.info("loading TCP/IP details")
         yaml_file = os.path.join(self.__optimizer_path, "optimizer.yml")
         with open(yaml_file, 'r') as stream:
             self.__optimizer_details_from_yml = yaml.safe_load(stream)
+        details = self.__optimizer_details_from_yml
+        logging.info("TCP/IP details: %s:%d", details['tcp']['ip'], details['tcp']['port'])
 
     def __threaded_start(self):
         optimizer_details = self.__optimizer_details_from_yml
+        logging.info("Starting TCP/IP server at %s:%d (in a detached thread)",
+                     optimizer_details['tcp']['ip'],
+                     optimizer_details['tcp']['port'])
         command = ['cargo', 'run']
         if optimizer_details['build']['build_mode'] == 'release':
             command.append('--release')
-        p = subprocess.Popen(command, cwd=self.__optimizer_path)
+        tcp_iface_directory = os.path.join(self.__optimizer_path, "tcp_iface")
+        p = subprocess.Popen(command, cwd=tcp_iface_directory)
         p.wait()
 
     @retry(tries=10, delay=1)
@@ -75,15 +84,19 @@ class OptimizerTcpManager:
         """Starts the TCP server"""
         # TODO: start only if the server has not started
         # start the server in a separate thread
+        logging.info("Starting TCP/IP server thread")
         thread = Thread(target=self.__threaded_start)
         thread.start()
 
         # ping the server until it responds so that we know it's
         # up and running
+        logging.info("Waiting for server to start")
+        time.sleep(2)
         self.ping()
 
     def kill(self):
         """Kills the server"""
+        logging.info("Killing server")
         request = '{"Kill":1}'
         self.__send_receive_data(request)
 
@@ -111,6 +124,7 @@ class OptimizerTcpManager:
 
         """
         # Make request
+        logging.debug("Sending request to TCP/IP server")
         run_message = '{"Run" : {"parameter": ['
         run_message += ','.join(map(str, p))
         run_message += ']'
