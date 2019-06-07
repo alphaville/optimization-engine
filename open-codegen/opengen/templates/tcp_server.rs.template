@@ -12,8 +12,6 @@ use std::{
 
 use {{ meta.optimizer_name }}::*;
 
-extern crate pretty_env_logger;
-
 #[macro_use]
 extern crate log;
 
@@ -118,7 +116,7 @@ fn execution_handler(
             info!("no initial guess provided");
         },
         Some(u0) => {
-            if u0.len() != NU {
+            if u0.len() != NUM_DECISION_VARIABLES {
                 warn!("initial guess has incompatible dimensions");
                 write_error(stream, 1600);
                 return;
@@ -131,7 +129,7 @@ fn execution_handler(
     // Run solver
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
-    if parameter.len() != NP {
+    if parameter.len() != NUM_PARAMETERS {
         write_error(stream, 3003);
         return;
     }
@@ -149,11 +147,11 @@ fn execution_handler(
 
 fn run_server() {
     info!("Initializing cache...");
-    let mut p = [0.0; NP];
+    let mut p = [0.0; NUM_PARAMETERS];
     let mut cache = initialize_solver();
     info!("Done");
     let listener = TcpListener::bind(format!("{}:{}", BIND_IP, BIND_PORT)).unwrap();
-    let mut u = [0.0; NU];
+    let mut u = [0.0; NUM_DECISION_VARIABLES];
     info!("listening started, ready to accept");
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();

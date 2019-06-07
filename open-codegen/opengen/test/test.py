@@ -6,7 +6,6 @@ import opengen as og
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
-    OPEN_VERSION = "0.4.0-alpha"
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -87,7 +86,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
+            .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
@@ -101,7 +100,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
+            .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
 
@@ -115,7 +114,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug").with_open_version(self.OPEN_VERSION)
+            .with_build_mode("debug")
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("tcp_enabled_optimizer")
         builder = og.builder.OpEnOptimizerBuilder(problem,
@@ -144,8 +143,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration()         \
             .with_rebuild(False)                              \
             .with_build_mode("debug")                         \
-            .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_open_version(self.OPEN_VERSION)
+            .with_build_directory(RustBuildTestCase.TEST_DIR)
         solver_config = og.config.SolverConfiguration()   \
             .with_lfbgs_memory(15)                        \
             .with_tolerance(1e-5)                         \
@@ -159,6 +157,8 @@ class RustBuildTestCase(unittest.TestCase):
                                                   build_configuration=build_config,
                                                   solver_configuration=solver_config) \
             .with_generate_not_build_flag(False).with_verbosity_level(0)
+        builder.enable_c_bindings_generation()
+        builder.enable_tcp_interface()
         builder.build()
 
     def test_tcp_server(self):
