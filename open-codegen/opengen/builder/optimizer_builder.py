@@ -2,6 +2,7 @@ import subprocess
 import shutil
 import datetime
 import yaml
+import warnings
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
@@ -49,8 +50,6 @@ class OpEnOptimizerBuilder:
         self.__build_config = build_configuration
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
-        self.__tcp_server_configuration = None
-        self.__generate_c_bindings = None
         self.__verbosity_level = 0
 
     def with_verbosity_level(self, verbosity_level):
@@ -172,8 +171,8 @@ class OpEnOptimizerBuilder:
         output_template = template.render(
             meta=self.__meta,
             open_version=self.__build_config.open_version,
-            activate_tcp_server=self.__tcp_server_configuration is not None,
-            activate_clib_generation=self.__generate_c_bindings is not None)
+            activate_tcp_server=self.__build_config.tcp_interface_config is not None,
+            activate_clib_generation=self.__build_config.build_c_bindings)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(output_template)
@@ -247,7 +246,7 @@ class OpEnOptimizerBuilder:
         output_template = template.render(solver_config=self.__solver_config,
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
-                                          activate_clib_generation=self.__generate_c_bindings is not None)
+                                          activate_clib_generation=self.__build_config.build_c_bindings)
         target_source_path = os.path.join(target_dir, "src");
         target_scr_lib_rs_path = os.path.join(target_source_path, "lib.rs")
         make_dir_if_not_exists(target_source_path)
@@ -260,7 +259,7 @@ class OpEnOptimizerBuilder:
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer_build.rs.template')
-        output_template = template.render(activate_clib_generation=self.__generate_c_bindings is not None)
+        output_template = template.render(activate_clib_generation=self.__build_config.build_c_bindings)
         target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
@@ -302,9 +301,9 @@ class OpEnOptimizerBuilder:
 
     def __generate_code_tcp_interface(self):
         logging.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
-        logging.info("TCP serveri will bind at %s:%d",
-                     self.__tcp_server_configuration.bind_ip,
-                     self.__tcp_server_configuration.bind_port)
+        logging.info("TCP server will bind at %s:%d",
+                     self.__build_config.tcp_interface_config.bind_ip,
+                     self.__build_config.tcp_interface_config.bind_port)
         target_dir = self.__target_dir()
         tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
@@ -318,7 +317,7 @@ class OpEnOptimizerBuilder:
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('tcp_server.rs.template')
         output_template = template.render(meta=self.__meta,
-                                          tcp_server_config=self.__tcp_server_configuration,
+                                          tcp_server_config=self.__build_config.tcp_interface_config,
                                           timestamp_created=datetime.datetime.now())
         target_scr_lib_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
@@ -333,7 +332,7 @@ class OpEnOptimizerBuilder:
 
     def __generate_yaml_data_file(self):
         logging.info("Generating YAML configuration file")
-        tcp_config = self.__tcp_server_configuration
+        tcp_config = self.__build_config.tcp_interface_config
         metadata = self.__meta
         build_config = self.__build_config
         solver_config = self.__solver_config
@@ -368,13 +367,17 @@ class OpEnOptimizerBuilder:
 
     def enable_tcp_interface(self,
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
-        self.__tcp_server_configuration = tcp_server_configuration
+        warnings.warn("deprecated (use BuildConfiguration.with_tcp_interface_config instead)",
+                      DeprecationWarning)
+        self.__build_config.with_tcp_interface_config(tcp_server_configuration)
 
     def enable_c_bindings_generation(self):
         """Generate C/C++ bindings together with statically and dynamically linkable libraries
 
         """
-        self.__generate_c_bindings = True
+        warnings.warn("deprecated (use BuildConfiguration.with_build_c_bindings([True]/False) instead)",
+                      DeprecationWarning)
+        self.__build_config.with_build_c_bindings(True)
 
     def build(self):
         """Generate code and build project
@@ -398,7 +401,7 @@ class OpEnOptimizerBuilder:
         if not self.__generate_not_build:
             logging.info("Building optimizer")
             self.__build_optimizer()             # build overall project
-        if self.__tcp_server_configuration is not None:
+        if self.__build_config.tcp_interface_config is not None:
             logging.info("Generating TCP/IP server")
             self.__generate_code_tcp_interface()
             if not self.__generate_not_build:

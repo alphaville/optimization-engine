@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 <!-- ---------------------
+      Unreleased
+     --------------------- -->
+
+## [Unreleased]
+
+### Fixed
+
+### Added
+
+### Removed
+
+* Deprecated: `enable_tcp_interface` and `enable_c_bindings_generation`
+
+
+<!-- ---------------------
       v0.4.0
      --------------------- -->
 ## [v0.4.0] - 2019-06-03
@@ -68,6 +83,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...master
 [v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/alphaville/optimization-engine/compare/v0.2.2...v0.3.0

@@ -1,3 +1,5 @@
+from opengen.config.tcp_server_config import TcpServerConfiguration
+
 class BuildConfiguration:
     """Build configuration
 
@@ -25,7 +27,7 @@ class BuildConfiguration:
         self.__build_dir = build_dir
         self.__open_version = None
         self.__build_c_bindings = False
-        self.__build_tcp_interface = False
+        self.__tcp_interface_config = None
 
     # ---------- GETTERS ---------------------------------------------
 
@@ -71,8 +73,8 @@ class BuildConfiguration:
         return self.__build_c_bindings
 
     @property
-    def build_tcp_interface(self):
-        return self.__build_tcp_interface
+    def tcp_interface_config(self):
+        return self.__tcp_interface_config
 
     # ---------- SETTERS ---------------------------------------------
 
@@ -118,10 +120,10 @@ class BuildConfiguration:
         self.__open_version = open_version
         return self
 
-    def with_build_c_bindings(self, build_c_bindings):
+    def with_build_c_bindings(self, build_c_bindings=True):
         self.__build_c_bindings = build_c_bindings
         return self
 
-    def with_build_tcp_interface(self, build_tcp_interface):
-        self.__build_tcp_interface = build_tcp_interface
+    def with_tcp_interface_config(self, tcp_interface_config=TcpServerConfiguration()):
+        self.__tcp_interface_config = tcp_interface_config
         return self
