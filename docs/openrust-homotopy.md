@@ -115,11 +115,111 @@ In OpEn, we need to specify now three functions:
 - the gradient of the cost function, $\nabla F$ and 
 - the termination function, $c$ (here, the constraints)
 
-<!-- \begin{bmatrix}
-2 (u_1-a) - 4bu_1(u_2 - u_1^2)
-\\
-2b(u_2 - u_1^2)
-\end{bmatrix} -->
+The cost function and its gradient must be closures which follow the following signature:
+
+```rust
+/* cost function, f(u; q) */
+let F_funct = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+    *cost = (q[0] - u[0]).powi(2)
+        + q[1] * (u[1] - u[0].powi(2)).powi(2)
+        + q[2] * (1.5 * u[1] - u[0]).powi(2);
+    Ok(())
+};
+
+    /* parametric gradient, df(u, q) */
+let dF_funct = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    let t = 1.5 * u[0] - u[1];
+    let s = u[1] - u[0].powi(2);
+    grad[0] = 2.0 * (u[0] - q[0]) - 4.0 * q[1] * s + 3.0 * q[2] * t;
+    grad[1] = 2.0 * q[1] * s - 2.0 * q[2] * t;
+    Ok(())
+};
+```
+
+and, similarly, the termination function must be a closure with signature
+
+```rust
+/* penalty-type constraints: c(u; p) */
+let c_funct =
+    |u: &[f64], _q: &[f64], constr: &mut [f64]| -> Result<(), SolverError> {
+        constr[0] = 1.5 * u[0] - u[1];
+        Ok(())
+    };
+```        
+
+Next, we need to specify the constraints $u \in U$. This is 
+
+```rust
+// Constraints...
+let xmin = &[-1.0, -1.0];
+let xmax = &[1.0, 1.0];
+let bounds = Rectangle::new(Some(xmin), Some(xmax));
+```
+
+We may now construct an instance of [`HomotopyProblem`] and provide the problem data
+
+```rust
+let num_constraints = 1;
+let homotopy_problem = continuation::HomotopyProblem::new(
+    bounds,
+    gradient_function,
+    cost_function,
+    penalty_constr_function,
+    num_constraints,
+);
+```
+
+The last piece of information we need to provide before we can solve the problem is the 
+continuation type. Recall that we have constructed a parametric problem with parameter
+vector $p = (a, b, \lambda)$ and we need to drive $p_3 = \lambda$  from an initial value 
+$p_3^0$ to $+\infty$. The following code snippet is self-explanatory:
+
+```rust
+homotopy_cache.add_continuation(
+    2,                           // drive q[2] (this is q_3)
+    100.,                        // from the initial value: 100.0
+    std::f64::INFINITY,          // to infinity
+    Geometric(10.0),             // by multiplying by 10.0
+);
+```
+
+The solver will produce a sequence of parameters $q^\nu$, $\nu=0,1,\ldots$, with 
+$q_3^{\nu + 1} = 10 q^\nu_3$ and $q^0_3 = 100$ (that is, the sequence is $10^2, 10^3, 10^4, \ldots$).
+
+We may now solve the problem...
+
+```rust
+let mut homotopy_optimizer =
+    continuation::HomotopyOptimizer::new(homotopy_problem, &mut homotopy_cache)
+    .with_constraint_tolerance(1e-4);
+let mut u: [f64; 2] = [0.5, 0.8];
+let p: [f64; 3] = [1., 1., 1.];
+let status = homotopy_optimizer.solve(&mut u, &p);
+```
+
+The status (`status`) and the optimizer (`u`) of this problem are 
+
+```text
+status = Ok(
+    HomotopySolverStatus {
+        exit_status: Converged,
+        num_outer_iterations: 5,
+        num_inner_iterations: 641,
+        last_problem_norm_fpr: 0.000000022720347668995174,
+        max_constraint_violation: 0.0000001096374043774162,
+        solve_time: 579.792µs
+    }
+)
+
+u* = [0.6666109704346171, 0.9999163460145214]
+```
+
+The above example is available in the examples folder (see [`examples/homotopy.rs`]). You can run it
+with 
+
+```shell
+$ cargo run --example homotopy
+```
 
 <!-- links -->
 
@@ -127,3 +227,5 @@ In OpEn, we need to specify now three functions:
 [Convex update]: https://docs.rs/optimization_engine/*/optimization_engine/continuation/enum.ContinuationMode.html
 [Geometric update]: https://docs.rs/optimization_engine/*/optimization_engine/continuation/enum.ContinuationMode.html
 [previous section]: /optimization-engine/docs/openrust-basic
+[`HomotopyProblem`]: https://docs.rs/optimization_engine/*/optimization_engine/continuation/struct.HomotopyProblem.html
+[`examples/homotopy.rs`]: https://github.com/alphaville/optimization-engine/blob/master/examples/homotopy.rs
