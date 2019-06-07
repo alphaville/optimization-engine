@@ -28,13 +28,21 @@ fn main() {
 
     // define the cost function and its gradient
     let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        rosenbrock_grad(a, b, u, grad);
-        Ok(())
+        if a < 0.0 || b < 0.0 {
+            Err(SolverError::Cost)
+        } else {
+            rosenbrock_grad(a, b, u, grad);
+            Ok(())
+        }
     };
 
     let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
-        *c = rosenbrock_cost(a, b, u);
-        Ok(())
+        if a < 0.0 || b < 0.0 {
+            Err(SolverError::Cost)
+        } else {
+            *c = rosenbrock_cost(a, b, u);
+            Ok(())
+        }
     };
 
     // define the constraints

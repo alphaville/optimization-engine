@@ -302,6 +302,9 @@ class OpEnOptimizerBuilder:
 
     def __generate_code_tcp_interface(self):
         logging.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
+        logging.info("TCP serveri will bind at %s:%d",
+                     self.__tcp_server_configuration.bind_ip,
+                     self.__tcp_server_configuration.bind_port)
         target_dir = self.__target_dir()
         tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")

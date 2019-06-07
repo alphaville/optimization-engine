@@ -5,7 +5,7 @@
       "installation",
       "algorithm"
     ],
-    "Python" : [
+    "Python": [
       "python-interface",
       "python-advanced",
       "python-c",
@@ -14,10 +14,11 @@
     "MATLAB": [
       "matlab-interface"
     ],
-    "Rust" : [
-      "openrust"
+    "Rust": [
+      "openrust-basic",
+      "openrust-homotopy"
     ],
-    "Socket interface" : [
+    "Socket interface": [
       "udp-sockets"
     ],
     "Examples": [
