@@ -317,7 +317,7 @@ The solution of this problem generates an optimal estimate
 
 <div class="math">
 \[
-    \hat{\mathbf{x}}^\ast=(\hat{x}_0,\ldots,\hat{x}_{N-1}).
+    \hat{\mathbf{x}}^\ast=(\hat{x}_0^*,\ldots,\hat{x}_{N-1}^*).
 \]
 </div>
 
@@ -381,7 +381,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # ------------------------------------
 (rho, sigma, beta, ts) = (28.0, 10.0, 8.0/3.0, 0.02)
 nx = 3
-Tsim = 50
+Tsim = 100
 
 
 def lorenz_sys(x):
