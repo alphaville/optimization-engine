@@ -95,11 +95,11 @@ class RustBuildTestCase(unittest.TestCase):
         p = cs.SX.sym("p", 2)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
-        problem = og.builder.Problem(u, p, phi) \
-            .with_penalty_constraints(None) \
+        problem = og.builder.Problem(u, p, phi)   \
+            .with_penalty_constraints(None)       \
             .with_constraints(bounds)
-        build_config = og.config.BuildConfiguration() \
-            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+        build_config = og.config.BuildConfiguration()          \
+            .with_build_directory(RustBuildTestCase.TEST_DIR)  \
             .with_build_mode("debug")
         og.builder.OpEnOptimizerBuilder(problem, build_configuration=build_config) \
             .with_generate_not_build_flag(False).build()
@@ -110,18 +110,18 @@ class RustBuildTestCase(unittest.TestCase):
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
         problem = og.builder.Problem(u, p, phi) \
-            .with_penalty_constraints(None) \
+            .with_penalty_constraints(None)     \
             .with_constraints(bounds)
-        build_config = og.config.BuildConfiguration() \
+        build_config = og.config.BuildConfiguration()         \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug")
-        meta = og.config.OptimizerMeta() \
+            .with_build_mode("debug")                         \
+            .with_tcp_interface_config()
+        meta = og.config.OptimizerMeta()                      \
             .with_optimizer_name("tcp_enabled_optimizer")
         builder = og.builder.OpEnOptimizerBuilder(problem,
                                                   metadata=meta,
                                                   build_configuration=build_config) \
             .with_generate_not_build_flag(False).with_verbosity_level(1)
-        builder.enable_tcp_interface()
         builder.build()
 
     def test_fully_featured_release_mode(self):
@@ -140,10 +140,12 @@ class RustBuildTestCase(unittest.TestCase):
             .with_authors(["P. Sopasakis", "E. Fresk"]) \
             .with_licence("CC4.0-By")                   \
             .with_optimizer_name("the_optimizer")
-        build_config = og.config.BuildConfiguration()         \
-            .with_rebuild(False)                              \
-            .with_build_mode("debug")                         \
-            .with_build_directory(RustBuildTestCase.TEST_DIR)
+        build_config = og.config.BuildConfiguration()          \
+            .with_rebuild(False)                               \
+            .with_build_mode("debug")                          \
+            .with_build_directory(RustBuildTestCase.TEST_DIR)  \
+            .with_build_c_bindings()                           \
+            .with_tcp_interface_config()
         solver_config = og.config.SolverConfiguration()   \
             .with_lfbgs_memory(15)                        \
             .with_tolerance(1e-5)                         \
@@ -157,8 +159,6 @@ class RustBuildTestCase(unittest.TestCase):
                                                   build_configuration=build_config,
                                                   solver_configuration=solver_config) \
             .with_generate_not_build_flag(False).with_verbosity_level(0)
-        builder.enable_c_bindings_generation()
-        builder.enable_tcp_interface()
         builder.build()
 
     def test_tcp_server(self):

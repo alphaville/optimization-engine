@@ -25,7 +25,7 @@ or, show us your love:
 ## I just have a question!
 The easiest and quickest way to ask a question is to reach us on [**Discord**](https://discord.gg/mfYpn4V) or [**Gitter**](https://gitter.im/alphaville/optimization-engine).
 
-You may also consult the [**frequently asked questions**](http://localhost:3000/optimization-engine/docs/faq).
+You may also consult the [**frequently asked questions**](/optimization-engine/docs/faq).
 
 
 ## Submitting issues
@@ -69,9 +69,6 @@ Things to keep in mind:
 
 We follow [this style guide](https://www.python.org/dev/peps/pep-0008) and its [naming convention](https://www.python.org/dev/peps/pep-0008/#naming-conventions)
 
-### MATLAB
-
-
 
 ### Website
 This documentation is generated with Docusaurus - read a detailed guide [here](https://github.com/alphaville/optimization-engine/blob/master/website/README.md).
@@ -87,7 +84,10 @@ When using Git, keep in mind the following guidelines:
 - Create simple, atomic, commits
 - Write comprehensive commit messages
 - Work on a forked repository
-- When you're done, submit a pull request to `alphaville/optimization-engine`; we'll review it asap
+- When you're done, submit a pull request to 
+[`alphaville/optimization-engine`](https://github.com/alphaville/optimization-engine/); 
+it will be promptly delegated to a reviewer and we will contact you 
+as soon as possible.
 
 ## Versioning
 This project consists of independent modules: (i) the core Rust library, (ii) the MATLAB interface, (iii) the Python interface. Each module has a different version number (`vX.Y.Z`). There's only one rule that connects them: the first and second version numbers of all modules must be equal at all times. 
@@ -104,16 +104,30 @@ Additional labels for pre-release and build metadata are available as extensions
 
 We also keep a [log of changes](https://github.com/alphaville/optimization-engine/blob/master/CHANGELOG.md) where we summarize the main changes since last version.
 
-## Crates.io
+## Releasing
 
 Each time the major or minor number of the Rust library is updated, a new crate should be published on [crates.io](https://crates.io/crates/optimization_engine).
 
-In order to publish a new version on `crates.io` make sure that:
+In order to release a new version make sure that 
+you have done the following:
 
-- You have updated CHANGELOG
-- You have updated the version (SemVer)
-- You have resolved all associated issues on github (and you have created tests for these)
-- You have merged into master (your pull request has been approved)
-- You have updated the documentation
-- All tests pass
-- You have set `publish=true` in `Cargo.toml` (set it back to `false` for safety)
+- Updated [CHANGELOG]
+- Updated the version in (SemVer):
+    - [CHANGELOG]
+    - [Cargo.toml]
+    - [setup.py]
+- Resolved all associated issues on github (and you have created tests for these)
+- Updated the documentation (Rust/Python API docs + website)
+- Merged into master (your pull request has been approved)
+- All tests pass on Travis CI and Appveyor
+- Set `publish=true` in `Cargo.toml` (set it back to `false` for safety)
+- Publish `opengen` on PyPI (if necessary)
+    - before doing so, make sure that the cargo.toml template 
+      points to the correct version of OpEn
+- Changed "Unreleased" into the right version in [CHANGELOG] and created
+  a release on github (example [release v0.4.0]) 
+    
+[CHANGELOG]: https://github.com/alphaville/optimization-engine/blob/master/CHANGELOG.md
+[Cargo.toml]: https://github.com/alphaville/optimization-engine/blob/master/Cargo.toml    
+[setup.py]: https://github.com/alphaville/optimization-engine/blob/master/open-codegen/setup.py
+[release v0.4.0]: https://github.com/alphaville/optimization-engine/releases/tag/v0.4.0
