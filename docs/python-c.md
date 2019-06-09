@@ -1,16 +1,26 @@
 ---
 id: python-c
-title: C Bindings
+title: C/C++ Bindings
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver into any project which has C ABI support.
 
-## C/C++ Bindings
+## Generating bindings
 
-This is under development and will be released soon.
-Users will be able to generate C bindings to call the
-auto-generated parametric optimizer from their C or C++
-project. 
-Check the progress [here](https://github.com/alphaville/optimization-engine/issues/8).
+### Python
+
+### MATLAB
+
+## Bindings API
+
+## Using the bindings in an app
+
+
+
+### Linking Static library
+
+### Linking Shared library
+
