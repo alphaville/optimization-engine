@@ -6,23 +6,23 @@ title: C/C++ Bindings
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver into any language which has C ABI support.
+When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver into any language which has C ABI support. This is a powerful feature when packaging a solver for distribution, or including it into a larger project.
 
 ## Generating bindings
 
-To generate the bindings, it is as simple as to enable the generation of bindings.
-
-### Generate bindings in Python
+To generate the bindings, it is as simple as to enable the generation of bindings as:
 
 ```python
+# Python generation
+
 build_config = og.config.BuildConfiguration()   \
     # ...
     .with_build_c_bindings()
 ```
 
-### Generate bindings in MATLAB
+The generated bindings are in the auto-generated solver library as `{optimizer-name}/open_bindings.{h,hpp}` together with the libraries in the `{optimizer-name}/target/{debug,release}` folders depending on if it was a debug or release build.
 
-Matlab support is on the way, but not available yet.
+Matlab generation will come soon.
 
 ## Bindings API
 
