@@ -26,7 +26,7 @@ Matlab support is on the way, but not available yet.
 
 ## Bindings API
 
-The generated API has the following functions available:
+The generated API has the following functions available (for complete definitions see the generated file):
 
 ```c
 // More definitions ...
@@ -46,13 +46,60 @@ CHomotopySolverStatus solver_solve(HomotopyCache *instance, double *u, const dou
 
 Which is designed to follow a create, use, free pattern. The `solver_new` will allocate memory and setup a new solver instance, and can be used to create as many solvers as necessary, where each instance can be used with `solver_solve` to solve the specific problem as many times as needed. The parameter `u` is the starting guess and also the return of the decision variables, and `params` are static parameters. The size of `u` and `params` are `NUM_DECISION_VARIABLES` and `NUM_PARAMETERS` respectively. Finally, when done with the solver, use `solver_free` to release the memory allocated by `solver_new`.
 
-
-
 ## Using the bindings in an app
 
+Bellow is an example of using the bindings in a simple C program.
 
+```c
+// optimizer.c
 
-### Linking Static library
+#include <stdio.h>
+#include "open_bindings.h"
 
-### Linking Shared library
+int main() {
+	double p[NUM_PARAMETERS] = {1.0, 10.0};
+	double u[NUM_DECISION_VARIABLES] = {0};
+
+	HomotopyCache *cache = solver_new();
+	CHomotopySolverStatus status = solver_solve(cache, u, p);
+	solver_free(cache);
+
+	for (int i = 0; i < NUM_DECISION_VARIABLES; ++i) {
+		printf("u[%d] = %g\n", i, u[i]);
+	}
+
+	printf("exit status = %d\n", status.exit_status);
+	printf("iterations = %lu\n", status.num_inner_iterations);
+	printf("outer iterations = %lu\n", status.num_outer_iterations);
+
+	return 0;
+}
+```
+
+Which will output the following when run:
+
+```console
+u[0] = 0.895032
+u[1] = 0.818222
+u[2] = 0.691895
+u[3] = 0.495584
+u[4] = 0.234752
+exit status = 0
+iterations = 22
+outer iterations = 1
+```
+
+When building and running the libraries GCC is a bit tempremental when linking libraries, so when linking the static library the following can be used as reference:
+
+```console
+gcc optimizer.c -lthe_optimizer -L./target/debug -pthread -lm -ldl -o optimizer
+./optimizer
+```
+
+While the following can be used when using the shared library:
+
+```console
+gcc optimizer.c -lthe_optimizer -L./target/debug -pthread -lm -ldl -o optimizer
+env LD_LIBRARY_PATH=./target/debug ./optimizer
+```
 
