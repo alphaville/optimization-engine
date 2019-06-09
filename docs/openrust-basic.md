@@ -1,6 +1,6 @@
 ---
 id: openrust-basic
-title: Simple problems
+title: Basic usage
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
