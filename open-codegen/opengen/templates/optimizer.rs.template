@@ -78,6 +78,7 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 
 {% if activate_clib_generation -%}
 /// Solver cache
+#[allow(non_camel_case_types)]
 pub struct {{meta.optimizer_name}}Cache {
     cache: HomotopyCache,
 }
