@@ -244,6 +244,7 @@ class OpEnOptimizerBuilder:
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self.__solver_config,
+                                          meta=self.__meta,
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
                                           activate_clib_generation=self.__build_config.build_c_bindings)
@@ -259,7 +260,8 @@ class OpEnOptimizerBuilder:
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('optimizer_build.rs.template')
-        output_template = template.render(activate_clib_generation=self.__build_config.build_c_bindings)
+        output_template = template.render(meta=self.__meta,
+                                          activate_clib_generation=self.__build_config.build_c_bindings)
         target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)

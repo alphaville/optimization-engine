@@ -116,7 +116,7 @@ fn execution_handler(
             info!("no initial guess provided");
         },
         Some(u0) => {
-            if u0.len() != NUM_DECISION_VARIABLES {
+            if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
                 warn!("initial guess has incompatible dimensions");
                 write_error(stream, 1600);
                 return;
@@ -129,7 +129,7 @@ fn execution_handler(
     // Run solver
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
-    if parameter.len() != NUM_PARAMETERS {
+    if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
         write_error(stream, 3003);
         return;
     }
@@ -147,11 +147,11 @@ fn execution_handler(
 
 fn run_server() {
     info!("Initializing cache...");
-    let mut p = [0.0; NUM_PARAMETERS];
+    let mut p = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS];
     let mut cache = initialize_solver();
     info!("Done");
     let listener = TcpListener::bind(format!("{}:{}", BIND_IP, BIND_PORT)).unwrap();
-    let mut u = [0.0; NUM_DECISION_VARIABLES];
+    let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
     info!("listening started, ready to accept");
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
