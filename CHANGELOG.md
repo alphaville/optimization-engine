@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+* Fixed `with_max_duration` in `PANOC` not following the builder pattern
+* Fixed misplaced `.unwrap()` in the `HomotopyOptimizer`
+
 ### Added
 
 ### Removed
