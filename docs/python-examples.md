@@ -66,7 +66,14 @@ mng.kill()
 
 ## Unobstructed navigation
 
-Here we solve the following optimal control problem
+Consider the navigation problem for an autonomous ground vehicle which 
+carries a trailer as illustrated in the following figure.
+
+<img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400"/>
+
+This is non-holonomic vehicle.
+
+We want to solve the following optimal control problem
 
 <div class="math">
 \[
@@ -82,8 +89,9 @@ Here we solve the following optimal control problem
     \end{align}
 \]</div>
 
-where $z = (x,y,\theta)$ is the position and orientation of the vehicle, $f$
-describes the vehicle dynamics which is this example is
+where $z = (x,y,\theta)$ is the position and orientation of the vehicle,
+$z^{\mathrm{ref}}$ is the target position and orientation and $f$ describes 
+the vehicle dynamics, which in this example is
 
 <div class="math">
 \[
