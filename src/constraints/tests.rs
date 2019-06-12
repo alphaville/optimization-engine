@@ -114,3 +114,25 @@ fn t_no_constraints() {
 
     assert_eq!([1., 2., 3.], x);
 }
+
+#[test]
+#[should_panic]
+fn cartesian_product_constraints_failure() {
+    let ball1 = Ball2::new(None, 1.0);
+    let ball2 = Ball2::new(None, 0.5);
+    let mut cart_prod = CartesianProduct::new();
+    cart_prod.add_constraint(3, &ball1);
+    cart_prod.add_constraint(2, &ball2);
+}
+
+#[test]
+fn cartesian_product_constraints() {
+    let ball1 = Ball2::new(None, 1.0);
+    let ball2 = Ball2::new(None, 0.5);
+    let mut cart_prod = CartesianProduct::new();
+    cart_prod.add_constraint(3, &ball1);
+    cart_prod.add_constraint(5, &ball2);
+    let mut x = [3.0, 4.0, 5.0, 2.0, 1.0];
+    cart_prod.project(&mut x);
+    println!("x = {:?}", x);
+}
