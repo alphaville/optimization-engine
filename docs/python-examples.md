@@ -284,8 +284,8 @@ y_{t} = h(x_t) + v_t,
 
 where $v_t$ is the measurement error.
 
-Given a set of measurements $Y_N=(y_{0},\ldots,y_{N})$, our objective is to 
-determine estimates $\hat{x}_t$ for all $t=0,\ldots,N-1$.
+Given a set of measurements $Y_N=(y_{0},\ldots,y_{N-1})$, our objective is to 
+determine estimates $\hat{x}_t$ for all $t=0,\ldots,N$.
 
 The estimation problem consists in solving the following optimization 
 problem
@@ -294,7 +294,7 @@ problem
 \[
     \begin{align}
 \operatorname*{Minimize}_{\hat{x}_0, \hat{\mathbf{w}}, \hat{\mathbf{v}}} &
-    \sum_{t=0}^{N}\|\hat{w}_t\|^2_Q + \|\hat{v}_t\|^2_R
+    \sum_{t=0}^{N-1}\|\hat{w}_t\|^2_Q + \|\hat{v}_t\|^2_R
     \\
     \text{subject to: }& \hat{x}_{t+1} = f(\hat{x}_t) + \hat{w}_t
     \\
@@ -309,7 +309,7 @@ By eliminating all $\hat{w}_t$ and $\hat{v}_t$, the problem becomes
 \[
     \mathbb{P}(\mathbf{y}) {}:{}
     \operatorname*{Minimize}_{\hat{\mathbf{x}}}
-    \sum_{t=0}^{N}\|\hat{x}_{t+1} - f(\hat{x}_t)\|^2_Q + \|y_t - h(\hat{x}_t)\|^2_R
+    \sum_{t=0}^{N-1}\|\hat{x}_{t+1} - f(\hat{x}_t)\|^2_Q + \|y_t - h(\hat{x}_t)\|^2_R
 \]
 </div>
 
@@ -317,7 +317,7 @@ The solution of this problem generates an optimal estimate
 
 <div class="math">
 \[
-    \hat{\mathbf{x}}^\ast=(\hat{x}_0^*,\ldots,\hat{x}_{N-1}^*).
+    \hat{\mathbf{x}}^\ast=(\hat{x}_0^*,\ldots,\hat{x}_{N}^*).
 \]
 </div>
 
