@@ -14,7 +14,10 @@ impl<'a> Rectangle<'a> {
     /// Construct a new rectangle with given `xmin` and `xmax`
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
         assert!(xmin != None || xmax != None); // xmin or xmax must be Some
-
+        assert!(
+            xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
+            "incompatible dimensions of xmin and xmax"
+        );
         Rectangle { xmin, xmax }
     }
 }
