@@ -89,9 +89,9 @@ impl {{meta.optimizer_name}}Cache {
     }
 }
 
-/// C version of ExitStatus
+/// {{meta.optimizer_name}} version of ExitStatus
 #[repr(C)]
-pub enum CExitStatus {
+pub enum {{meta.optimizer_name}}ExitStatus {
     /// The algorithm has converged
     ///
     /// All termination criteria are satisfied and the algorithm
@@ -107,11 +107,11 @@ pub enum CExitStatus {
     NotConvergedNotFiniteComputation,
 }
 
-/// C version of HomotopySolverStatus
+/// {{meta.optimizer_name}} version of HomotopySolverStatus
 #[repr(C)]
-pub struct CHomotopySolverStatus {
+pub struct {{meta.optimizer_name}}SolverStatus {
     /// Exit status
-    exit_status: CExitStatus,
+    exit_status: {{meta.optimizer_name}}ExitStatus,
     /// Number of outer iterations
     num_outer_iterations: c_ulong,
     /// Total number of inner iterations
@@ -139,7 +139,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     instance: *mut {{meta.optimizer_name}}Cache,
     u: *mut c_double,
     params: *const c_double,
-) -> CHomotopySolverStatus {
+) -> {{meta.optimizer_name}}SolverStatus {
     // Convert all pointers into the required data structures
     let instance: &mut {{meta.optimizer_name}}Cache = unsafe {
         assert!(!instance.is_null());
@@ -159,11 +159,11 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     let status = solve(params,&mut instance.cache, u);
 
     match status {
-        Ok(status) => CHomotopySolverStatus {
+        Ok(status) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match status.exit_status() {
-                core::ExitStatus::Converged => CExitStatus::Converged,
-                core::ExitStatus::NotConvergedIterations => CExitStatus::NotConvergedIterations,
-                core::ExitStatus::NotConvergedOutOfTime => CExitStatus::NotConvergedOutOfTime,
+                core::ExitStatus::Converged => {{meta.optimizer_name}}ExitStatus::Converged,
+                core::ExitStatus::NotConvergedIterations => {{meta.optimizer_name}}ExitStatus::NotConvergedIterations,
+                core::ExitStatus::NotConvergedOutOfTime => {{meta.optimizer_name}}ExitStatus::NotConvergedOutOfTime,
             },
             num_outer_iterations: status.num_outer_iterations() as c_ulong,
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
@@ -171,10 +171,10 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             max_constraint_violation: status.max_constraint_violation(),
             solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
         },
-        Err(e) => CHomotopySolverStatus {
+        Err(e) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
-                SolverError::Cost => CExitStatus::NotConvergedCost,
-                SolverError::NotFiniteComputation => CExitStatus::NotConvergedNotFiniteComputation,
+                SolverError::Cost => {{meta.optimizer_name}}ExitStatus::NotConvergedCost,
+                SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::NotConvergedNotFiniteComputation,
             },
             num_outer_iterations: std::u64::MAX as c_ulong,
             num_inner_iterations: std::u64::MAX as c_ulong,
