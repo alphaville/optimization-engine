@@ -1,6 +1,6 @@
 ---
 id: python-interface
-title: Opengen
+title: Opengen basics
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -149,8 +149,21 @@ Next, let us create a basic build configuration:
 ```python
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("python_build")      \
-    .with_build_mode("debug") 
+    .with_build_mode("debug")                  \
+    .with_tcp_interface_config()
 ```
+
+Method `.with_tcp_interface_config()` will activate the generation of a 
+TCP/IP interface with which we will be able to call the solver from 
+Python and other languages. You do not need to activate it if you 
+plan to use the optimizer on an embedded device. 
+
+*Note.* You may configure the TCP parameters of the server by providing 
+to `.with_tcp_interface_config()` a `TcpServerConfiguration` object. 
+By default, the server will bind on `127.0.0.1` and will listen for 
+requests at port `4598`. See the [advanced options] for details.
+
+[advanced options]: /optimization-engine/docs/python-advanced#tcp-ip-options
 
 This will instruct opegen to store the generated optimizer in
 `python_build/the_optimizer`. The build mode can be either 
@@ -184,24 +197,13 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           metadata=meta,
                                           build_configuration=build_config,
                                           solver_configuration=solver_config)
-builder.enable_tcp_interface()
 builder.build()
 ```
-
-Method `.enable_tcp_interface()` will activate the generation of a 
-TCP/IP interface with which we will be able to call the solver from 
-Python and other languages. You do not need to activate it if you 
-plan to use the optimizer on an embedded device. 
-
-*Note.* You may configure the TCP parameters of the server using 
-`og.config.TcpServerConfiguration`. By default, the server will 
-bind on `127.0.0.1` and will listen for requests at port `4598`.
-
 
 
 ### Calling the optimizer
 
-Provided you have generated code using `.enable_tcp_interface()`,
+Provided you have generated code using `.with_tcp_interface_config()`,
 you will be able to call it from Python.
 
 All you need to do is create an instance of `OptimizerTcpManager`
@@ -353,81 +355,3 @@ The user may change the maximum constraint violation using
 ```python
 solver_config.with_constraints_tolerance(1e-6)
 ``` 
-
-
-
-## Advanced options
-
-### Solver options
-The user may wish to modify some additional solver parameters.
-
-When using the penalty method to account for general constraints,
-the most important parameters which determine the speed of 
-convergence are the **initial values** of the penalty weights and the 
-**update factor**. These are set using
-
-```python
-solver_config.with_penalty_weight_update_factor(8.0)       \
-             .with_initial_penalty_weights([20.0, 5.0])
-``` 
-
-The number of the initial penalty weights must be equal to 
-$n_c$; the number of constraints. If you need to set all 
-weights to the same value, use
-
-```python
-solver_config.with_initial_penalty_weights(100.0)
-```
-
-In embedded applications it is often important that the solver
-is forced to terminate within a given time period. The user may
-set the **maximum runtime** (in microseconds) using
-
-```python
-# Maximum duration: 50ms
-solver_config.with_max_duration_micros(50000)
-```
-
-Lastly, the maximum number of outer iterations can be set using
-
-```python
-solver_config.with_max_outer_iterations(num_out_iters)
-```
-
-The number of outer iterations should be kept reasonably small
-to avoid too high values of the penalty parameters (which increase
-exponentially).
-
-
-### Build options
-
-During the design phase, one needs to experiment with the problem
-formulation and solver parameters. This is way the default build
-mode is the "debug" mode, which compiles fast, but it suboptimal.
-Building in "release" mode takes slightly longer to compile, but
-can lead to a significant speed-up. To do so, use the option
-
-```python
-build_config.with_build_mode("debug")
-```
-
-*Note.* Coming soon: cross-compilation for different targets
-(e.g., a Raspberry Pi).
- 
-### TCP/IP options
-
-In order to change the IP and port at which the server listens
-for requests (e.g., for remote connections), you may crate an 
-`TcpServerConfiguration` object as follows
-
-```python
-tcp_config = og.config.TcpServerConfiguration('10.8.0.12', 9555)
-```
-
-and then provide it to the builder using 
-
-```python
-builder.enable_tcp_interface(tcp_config)
-```
-
-
