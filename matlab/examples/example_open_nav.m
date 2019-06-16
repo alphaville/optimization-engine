@@ -17,6 +17,7 @@ x = p(1); y = p(2); theta = p(3);
 xref = p(4); yref = p(5); thetaref=p(6);
 h_penalty = p(end);
 cost = 0;
+zref = [xref; yref];
 
 % Obstacle (disc centered at `zobs` with radius `c`)
 c = 0.4; zobs = [0.7; 0.5];
@@ -100,7 +101,7 @@ legend('x-position', 'y-position')
 %%
 plot(Z(1,:), Z(2,:), 'linewidth', 2);
 hold on;
-plot(xref, yref, 'r+', 'linewidth', 3)
+plot(z_ref(1), z_ref(2), 'r+', 'linewidth', 3)
 grid on;
 xlabel('x');
 ylabel('y');

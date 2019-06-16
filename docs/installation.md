@@ -39,22 +39,4 @@ optimization_engine = "*"
 ```
 
 You may replace the asterisk with some particular version (e.g., `optimization_engine = "0.2.0"`).
-
 **OpEn** is available on [crates.io](https://crates.io/crates/optimization_engine).
-
-Then, in order to use **OpEn** in your Rust project, include the following line:
-
-```rust
-extern crate optimization_engine;
-```
-
-That's all! You don't need to download or build the crate `optimization_engine` manually; `cargo` will take care of that automatically.
-
-In your Rust program, you will also have to include the following dependencies:
-
-
-```rust
-use optimization_engine::constraints::*;
-use optimization_engine::core::panoc::*;
-use optimization_engine::core::*;
-```

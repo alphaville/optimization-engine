@@ -1,6 +1,6 @@
 ---
 id: python-c
-title: C Bindings
+title: C/C++ Bindings
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
