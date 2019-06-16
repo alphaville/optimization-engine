@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Support in Rust for Cartesian product of constraints
+
 ### Removed
 
 * Deprecated: `enable_tcp_interface` and `enable_c_bindings_generation`
