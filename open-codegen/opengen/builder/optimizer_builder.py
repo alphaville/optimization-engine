@@ -14,7 +14,6 @@ import logging
 _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_constraints_type_penalty.c'
-_ICASADI_CFG_HEADER_FNAME = 'icasadi_config.h'
 
 
 def make_dir_if_not_exists(directory):
@@ -142,23 +141,22 @@ class OpEnOptimizerBuilder:
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
 
-    def __generate_icasadi_header(self):
-        """Generates the header of icasadi, with constant definitions
+    def __generate_icasadi_lib(self):
+        """Generates the Rust library file of icasadi
 
-        Generates icasadi_header.h
+        Generates src/lib.rs
         """
-        logging.info("Generating icasadi C header file")
+        logging.info("Generating icasadi Rust library file")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('icasadi_config.h.template')
-        output_template = template.render(problem=self.__problem,
+        template = env.get_template('icasadi_lib.rs.template')
+        output_template = template.render(meta=self.__meta,
+                                          problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
-        icasadi_config_h_path = os.path.abspath(
-            os.path.join(
-                self.__icasadi_target_dir(),
-                "extern", _ICASADI_CFG_HEADER_FNAME))
-        with open(icasadi_config_h_path, "w") as fh:
+        icasadi_lib_rs_path = os.path.abspath(
+            os.path.join(self.__icasadi_target_dir(), "src/lib.rs"))
+        with open(icasadi_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
     def __generate_cargo_toml(self):
@@ -395,7 +393,7 @@ class OpEnOptimizerBuilder:
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_cargo_toml()             # generate Cargo.toml using tempalte
-        self.__generate_icasadi_header()         # generate icasadi_config.h
+        self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file

@@ -232,13 +232,13 @@ pub fn solve(
 
 	// cost function, f(u; q)
     let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        icasadi::icasadi_cost(u, q, cost);
+        icasadi::cost(u, q, cost);
         Ok(())
     };
 
     // parametric gradient, df(u, q)
     let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        if icasadi::icasadi_grad(u, q, grad) == 0 {
+        if icasadi::grad(u, q, grad) == 0 {
             Ok(())
         } else {
             Err(SolverError::Cost)
@@ -249,7 +249,7 @@ pub fn solve(
 	/* penalty-type constraints: c(u; p) */
     let penalty_constr_function =
     |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
-        if icasadi::icasadi_constraints_as_penalty(u, q, constraints) == 0 {
+        if icasadi::constraints_as_penalty(u, q, constraints) == 0 {
             Ok(())
         } else {
             Err(SolverError::Cost)

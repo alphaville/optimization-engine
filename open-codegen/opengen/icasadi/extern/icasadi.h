@@ -1,3 +1,5 @@
+/* NOTE: This file is only used for testing. */
+
 #ifndef ICASADI_HEADER_SENTINEL
 #define ICASADI_HEADER_SENTINEL
 

@@ -1,3 +1,5 @@
+/* NOTE: This file is only used for testing. */
+
 #include "icasadi.h"
 
 int icasadi_cost_(

@@ -1,3 +1,5 @@
+/* NOTE: This file is only used for testing. */
+
 /* Auto-generated header file */
 #ifndef ICASADI_CONFIG_HEADER_SENTINEL
 #define ICASADI_CONFIG_HEADER_SENTINEL
