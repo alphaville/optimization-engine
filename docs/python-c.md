@@ -167,3 +167,24 @@ exit status = 0
 iterations = 22
 outer iterations = 1
 ```
+
+When building and running the libraries GCC is a bit tempremental when linking libraries, so when linking the static library the following can be used as reference:
+
+```console
+gcc optimizer.c -l:libthe_optimizer.a -L./target/debug -pthread -lm -ldl -o optimizer
+./optimizer
+```
+
+Or using direct linking (this is the only thing that works with clang):
+
+```console
+gcc optimizer.c -l./target/debug/libthe_optimizer.a -pthread -lm -ldl -o optimizer
+./optimizer
+```
+
+While the following can be used when using the shared library:
+
+```console
+gcc optimizer.c -lthe_optimizer -L./target/debug -pthread -lm -ldl -o optimizer
+env LD_LIBRARY_PATH=./target/debug ./optimizer
+```
