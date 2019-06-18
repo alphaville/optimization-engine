@@ -211,22 +211,27 @@ class RustBuildTestCase(unittest.TestCase):
             .with_generate_not_build_flag(False).with_verbosity_level(0)
         builder2.build()
 
-        # TODO: Add testing to link 2 files
-        subprocess.check_call(["gcc",
-            "test/test_2_solvers.c",
-            "-l:libthe_optimizer1.a",
-            "-l:libthe_optimizer2.a",
-            "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer1/target/debug",
-            "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer2/target/debug",
-            "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer1",
-            "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer2",
-            "-pthread", "-lm", "-ldl", "-o" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+        try:
+            subprocess.check_call(["gcc",
+                "test/test_2_solvers22.c",
+                "-l:libthe_optimizer1.a",
+                "-l:libthe_optimizer2.a",
+                "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer1/target/debug",
+                "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer2/target/debug",
+                "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer1",
+                "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer2",
+                "-pthread", "-lm", "-ldl", "-o" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
+                shell=True,
+                stderr=subprocess.STDOUT)
 
-        subprocess.check_call(["./" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            subprocess.check_call(["./" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
+                shell=True,
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print("Error:")
+            print(e)
+            exit(1)
+
 
     def test_tcp_server(self):
         tcp_manager = og.tcp.OptimizerTcpManager(
