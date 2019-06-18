@@ -10,23 +10,82 @@ When using any of the tools to auto-generate a solver it is directly supported t
 
 ## Generating bindings
 
-To generate the bindings, it is as simple as to enable the generation of bindings as:
+To generate the bindings, it is as simple as to enable the generation of bindings, and here is a full example configuration for creating a solver. We will create an optimizer for the Rosenbrock function with equality and bound constraints on the decision variables:
 
 ```python
-# Python generation
+#
+# Problem definition
+#
 
-build_config = og.config.BuildConfiguration()   \
-    # ...
-    .with_build_c_bindings()
+# Decision variabels
+u = cs.SX.sym("u", 5)
+
+# Parameters
+p = cs.SX.sym("p", 2)
+
+# Cost function
+phi = og.functions.rosenbrock(u, p)
+
+# Equality constraints (can also be inequality constratins)
+c = cs.vertcat(1.5*u[0] - u[1], u[2] - u[3])
+
+# Bounds constraints on u
+umin = [-2.0, -2.0, -2.0, -2.0, -2.0]
+umax = [ 2.0,  2.0,  2.0,  2.0,  2.0]
+
+#
+# Set up the solver
+#
+
+# Bounds on u
+bounds = og.constraints.Rectangle(umin, umax)
+
+# Define the problem
+problem = og.builder.Problem(u, p, phi)                 \
+    .with_penalty_constraints(c)                        \
+    .with_constraints(bounds)
+
+# Meta information for the solver
+meta = og.config.OptimizerMeta()                        \
+    .with_version("1.0.0")                              \
+    .with_authors(["P. Sopasakis", "E. Fresk"])         \
+    .with_licence("CC4.0-By")                           \
+    .with_optimizer_name("the_optimizer")
+
+# Lets build in release mode with C bindings
+build_config = og.config.BuildConfiguration()           \
+    .with_rebuild(False)                                \
+    .with_build_mode("release")                         \
+    .with_build_directory(RustBuildTestCase.TEST_DIR)   \
+    .with_build_c_bindings()            # <- The important setting
+
+# Solver settings
+solver_config = og.config.SolverConfiguration()         \
+    .with_lfbgs_memory(15)                              \
+    .with_tolerance(1e-5)                               \
+    .with_max_inner_iterations(155)                     \
+    .with_constraints_tolerance(1e-4)                   \
+    .with_max_outer_iterations(15)                      \
+    .with_penalty_weight_update_factor(8.0)             \
+    .with_initial_penalty_weights([20.0, 5.0])
+
+# Create the solver!
+builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          metadata=meta,
+                                          build_configuration=build_config,
+                                          solver_configuration=solver_config) \
+    .with_generate_not_build_flag(False).with_verbosity_level(0)
+
+builder.build()
 ```
 
-The generated bindings are in the auto-generated solver library as `{optimizer-name}/{optimizer-name}_bindings.{h,hpp}` together with the libraries in the `{optimizer-name}/target/{debug,release}` folders depending on if it was a debug or release build. Note that `{optimizer-name}` is the name given to the optimizer in the Python codegen.
+The generated bindings are in the auto-generated solver library as `the_optimizer/the_optimizer_bindings.{h,hpp}` together with the libraries in the `the_optimizer/target/{debug,release}` folders depending on if it was a debug or release build. Note that `the_optimizer` is the name given to the optimizer in the Python codegen above.
 
-Matlab generation will come soon.
+**Matlab generation will come soon.**
 
 ## Bindings API
 
-The generated API has the following functions available (for complete definitions see the generated file):
+The generated API has the following functions available (for complete definitions see the generated files):
 
 ```c
 // More definitions ...
@@ -46,11 +105,11 @@ void {optimizer-name}_free({optimizer-name}Cache *instance);
                                               const double *params);
 ```
 
-Which is designed to follow a create, use, free pattern. The `{optimizer-name}_new` will allocate memory and setup a new solver instance, and can be used to create as many solvers as necessary, where each instance can be used with `{optimizer-name}_solve` to solve the specific problem as many times as needed. The parameter `u` is the starting guess and also the return of the decision variables, and `params` are static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. Finally, when done with the solver, use `{optimizer-name}_free` to release the memory allocated by `{optimizer-name}_new`.
+Which is designed to follow a new, use, free pattern. The `{optimizer-name}_new` will allocate memory and setup a new solver instance, and can be used to create as many solvers as necessary, where each instance can be used with `{optimizer-name}_solve` to solve the specific problem as many times as needed. The parameter `u` is the starting guess and also the return of the decision variables, and `params` are static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. Finally, when done with the solver, use `{optimizer-name}_free` to release the memory allocated by `{optimizer-name}_new`.
 
 ## Using the bindings in an app
 
-Bellow is an example of using the bindings in a simple C program, lets assume the solver was named `the_optimizer`, i.e. `{optimizer-name}_optimizer` = `the_optimizer`
+To try the generated solver from earlier, the following C code can directly be used to interface to the generated solver:
 
 ```c
 // optimizer.c
@@ -78,6 +137,24 @@ int main() {
 }
 ```
 
+### Compiling and linking
+
+When building and running the libraries GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
+
+```console
+gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o optimizer
+./optimizer
+```
+
+While the following can be used when using the shared library:
+
+```console
+gcc optimizer.c -lthe_optimizer -L./target/release -pthread -lm -ldl -o optimizer
+LD_LIBRARY_PATH=./target/release ./optimizer
+```
+
+### Running
+
 Which will output the following when run:
 
 ```console
@@ -90,18 +167,3 @@ exit status = 0
 iterations = 22
 outer iterations = 1
 ```
-
-When building and running the libraries GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
-
-```console
-gcc optimizer.c -l:libthe_optimizer.a -L./target/debug -pthread -lm -ldl -o optimizer
-./optimizer
-```
-
-While the following can be used when using the shared library:
-
-```console
-gcc optimizer.c -lthe_optimizer -L./target/debug -pthread -lm -ldl -o optimizer
-env LD_LIBRARY_PATH=./target/debug ./optimizer
-```
-
