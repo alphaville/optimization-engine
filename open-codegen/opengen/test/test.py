@@ -213,7 +213,7 @@ class RustBuildTestCase(unittest.TestCase):
 
         try:
             subprocess.check_call(["gcc",
-                "test/test_2_solvers22.c",
+                "test/test_2_solvers.c",
                 "-l:libthe_optimizer1.a",
                 "-l:libthe_optimizer2.a",
                 "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer1/target/debug",
