@@ -211,7 +211,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_generate_not_build_flag(False).with_verbosity_level(0)
         builder2.build()
 
-        p = subprocess.Popen(["clang",
+        p = subprocess.Popen(["gcc",
             "test/test_2_solvers.c",
             "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer1",
             "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer2",
