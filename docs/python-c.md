@@ -143,21 +143,31 @@ When building and running the libraries GCC is a bit temperamental when linking 
 
 ```console
 gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o optimizer
-./optimizer
+```
+
+Or using direct linking (this is the only thing that works with clang):
+
+```console
+gcc optimizer.c -l./target/release/libthe_optimizer.a -pthread -lm -ldl -o optimizer
 ```
 
 While the following can be used when using the shared library:
 
 ```console
 gcc optimizer.c -lthe_optimizer -L./target/release -pthread -lm -ldl -o optimizer
-LD_LIBRARY_PATH=./target/release ./optimizer
 ```
 
 ### Running
 
-Which will output the following when run:
+Which will solve the problem and output the following when run:
 
 ```console
+# When linking with static lib
+./optimizer
+
+# When linking with dynamic lib
+LD_LIBRARY_PATH=./target/release ./optimizer
+
 u[0] = 0.895032
 u[1] = 0.818222
 u[2] = 0.691895
@@ -166,25 +176,4 @@ u[4] = 0.234752
 exit status = 0
 iterations = 22
 outer iterations = 1
-```
-
-When building and running the libraries GCC is a bit tempremental when linking libraries, so when linking the static library the following can be used as reference:
-
-```console
-gcc optimizer.c -l:libthe_optimizer.a -L./target/debug -pthread -lm -ldl -o optimizer
-./optimizer
-```
-
-Or using direct linking (this is the only thing that works with clang):
-
-```console
-gcc optimizer.c -l./target/debug/libthe_optimizer.a -pthread -lm -ldl -o optimizer
-./optimizer
-```
-
-While the following can be used when using the shared library:
-
-```console
-gcc optimizer.c -lthe_optimizer -L./target/debug -pthread -lm -ldl -o optimizer
-env LD_LIBRARY_PATH=./target/debug ./optimizer
 ```
