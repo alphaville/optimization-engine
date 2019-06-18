@@ -90,21 +90,22 @@ impl {{meta.optimizer_name}}Cache {
 }
 
 /// {{meta.optimizer_name}} version of ExitStatus
+#[allow(non_camel_case_types)]
 #[repr(C)]
 pub enum {{meta.optimizer_name}}ExitStatus {
     /// The algorithm has converged
     ///
     /// All termination criteria are satisfied and the algorithm
     /// converged within the available time and number of iterations
-    Converged,
+    {{meta.optimizer_name}}Converged,
     /// Failed to converge because the maximum number of iterations was reached
-    NotConvergedIterations,
+    {{meta.optimizer_name}}NotConvergedIterations,
     /// Failed to converge because the maximum execution time was reached
-    NotConvergedOutOfTime,
+    {{meta.optimizer_name}}NotConvergedOutOfTime,
     /// If the gradient or cost function cannot be evaluated internally
-    NotConvergedCost,
+    {{meta.optimizer_name}}NotConvergedCost,
     /// Computation failed and NaN/Infinite value was obtained
-    NotConvergedNotFiniteComputation,
+    {{meta.optimizer_name}}NotConvergedNotFiniteComputation,
 }
 
 /// {{meta.optimizer_name}} version of HomotopySolverStatus
@@ -161,9 +162,9 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     match status {
         Ok(status) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match status.exit_status() {
-                core::ExitStatus::Converged => {{meta.optimizer_name}}ExitStatus::Converged,
-                core::ExitStatus::NotConvergedIterations => {{meta.optimizer_name}}ExitStatus::NotConvergedIterations,
-                core::ExitStatus::NotConvergedOutOfTime => {{meta.optimizer_name}}ExitStatus::NotConvergedOutOfTime,
+                core::ExitStatus::Converged => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}Converged,
+                core::ExitStatus::NotConvergedIterations => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedIterations,
+                core::ExitStatus::NotConvergedOutOfTime => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedOutOfTime,
             },
             num_outer_iterations: status.num_outer_iterations() as c_ulong,
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
@@ -173,8 +174,8 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
-                SolverError::Cost => {{meta.optimizer_name}}ExitStatus::NotConvergedCost,
-                SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::NotConvergedNotFiniteComputation,
+                SolverError::Cost => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
+                SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
             },
             num_outer_iterations: std::u64::MAX as c_ulong,
             num_inner_iterations: std::u64::MAX as c_ulong,
