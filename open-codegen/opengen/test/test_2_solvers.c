@@ -51,7 +51,6 @@ int main() {
     assert(THE_OPTIMIZER1_NUM_DECISION_VARIABLES == THE_OPTIMIZER2_NUM_DECISION_VARIABLES);
     assert(THE_OPTIMIZER1_NUM_DECISION_VARIABLES == THE_OPTIMIZER2_NUM_DECISION_VARIABLES);
     assert(THE_OPTIMIZER1_NUM_DECISION_VARIABLES == THE_OPTIMIZER2_NUM_DECISION_VARIABLES);
-	assert(status1.exit_status == status2.exit_status);
 	assert(status1.num_inner_iterations == status2.num_inner_iterations);
 	assert(status1.num_outer_iterations == status2.num_outer_iterations);
 
