@@ -219,7 +219,11 @@ class RustBuildTestCase(unittest.TestCase):
             "-L" + RustBuildTestCase.TEST_DIR + "/the_optimizer2/target/debug",
             "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer1",
             "-I" + RustBuildTestCase.TEST_DIR + "/the_optimizer2",
-            "-pthread", "-lm", "-ldl", "-o" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
+            "-pthread",
+            "-lm",
+            "-ldl",
+            "-std=c99",
+            "-o" + RustBuildTestCase.TEST_DIR + "/test_2_solvers"],
             #stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
