@@ -12,23 +12,23 @@ use optimization_engine::continuation::HomotopyCache;
 {% endif %}
 use optimization_engine::{constraints::*, panoc::*, *};
 
-// Tolerance of inner solver
+/// Tolerance of inner solver
 const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
 
-// LBFGS memory
+/// LBFGS memory
 const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory or 10}};
 
-// Maximum number of iterations of the inner solver
+/// Maximum number of iterations of the inner solver
 const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations or 2000}};
 
-// Number of decision variables
+/// Number of decision variables
 pub const {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES: usize = {{problem.dim_decision_variables()}};
 
-// Number of parameters
+/// Number of parameters
 pub const {{meta.optimizer_name|upper}}_NUM_PARAMETERS: usize = {{problem.dim_parameters()}};
 
-// Number of additional penalty-type constraint-related parameters (y)
-const NCP: usize = {{problem.dim_constraints_penalty()}};
+/// Number of penalty constraints
+pub const {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY: usize = {{problem.dim_constraints_penalty() or 0}};
 
 {% if problem.dim_constraints_aug_lagrangian() > 0 %}
 // Number of parameters associated with augmented Lagrangian
@@ -47,7 +47,7 @@ const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_
 
 // Initial values of the weights
 {% if solver_config.initial_penalty_weights | length == 1 -%}
-const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights[0]}}; NCP];
+const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights[0]}}; {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY];
 {% else -%}
 const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights|join(', ')}}];
 {% endif %}
@@ -204,12 +204,14 @@ pub fn initialize_solver() -> continuation::HomotopyCache {
 
 {% if problem.dim_constraints_penalty() > 0 %}
     // Define the initial weights, the update rule and the update factor
-    let idx_y: Vec<usize> = ({{meta.optimizer_name|upper}}_NUM_PARAMETERS..{{meta.optimizer_name|upper}}_NUM_PARAMETERS + NCP).collect();
+    let idx_y: Vec<usize> = ({{meta.optimizer_name|upper}}_NUM_PARAMETERS..{{meta.optimizer_name|upper}}_NUM_PARAMETERS +
+                             {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY).collect();
     homotopy_cache.add_continuations(
         &idx_y[..],
         INITIAL_PENALTY_WEIGHTS,
-        &[0.; NCP],
-        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR); NCP],
+        &[0.; {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY],
+        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR);
+          {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY],
     );
 {% endif %}
 
@@ -226,7 +228,7 @@ pub fn solve(
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
-    let mut q_augmented_params = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS + NCP];
+    let mut q_augmented_params = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS + {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY];
     q_augmented_params[0..{{meta.optimizer_name|upper}}_NUM_PARAMETERS].copy_from_slice(p);
 
 
@@ -276,7 +278,7 @@ pub fn solve(
         gradient_function,
         cost_function,
         penalty_constr_function,
-        NCP
+        {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY
     );
 
     // construct a homotopy optimizer
