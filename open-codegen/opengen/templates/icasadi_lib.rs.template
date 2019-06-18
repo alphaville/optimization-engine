@@ -16,8 +16,8 @@
 
 #![no_std]
 
-/// Number of static parameters
-pub const NUM_STATIC_PARAMETERS: usize = {{problem.dim_parameters()}};
+/// Number of static parameters (this also includes penalty constraints)
+pub const NUM_STATIC_PARAMETERS: usize = {{problem.dim_parameters()}} + {{problem.dim_constraints_penalty() or 0}};
 
 /// Number of decision variables
 pub const NUM_DECISION_VARIABLES: usize = {{problem.dim_decision_variables()}};

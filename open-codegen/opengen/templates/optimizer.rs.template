@@ -28,7 +28,7 @@ pub const {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES: usize = {{proble
 pub const {{meta.optimizer_name|upper}}_NUM_PARAMETERS: usize = {{problem.dim_parameters()}};
 
 /// Number of penalty constraints
-pub const {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY: usize = {{problem.dim_constraints_penalty() or 0}};
+const {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY: usize = {{problem.dim_constraints_penalty() or 0}};
 
 {% if problem.dim_constraints_aug_lagrangian() > 0 %}
 // Number of parameters associated with augmented Lagrangian
