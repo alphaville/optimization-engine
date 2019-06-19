@@ -15,10 +15,6 @@ fn main() {
         Path::new("extern/auto_casadi_grad.c").exists(),
         "extern/auto_casadi_grad.c is missing"
     );
-    assert!(
-        Path::new("extern/icasadi_config.h").exists(),
-        "extern/icasadi_config.h is missing"
-    );
 
     cc::Build::new()
         .flag_if_supported("-Wall")
