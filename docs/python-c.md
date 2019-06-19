@@ -58,6 +58,8 @@ meta = og.config.OptimizerMeta()                        \
 
 # Lets build in release mode with C bindings
 build_config = og.config.BuildConfiguration()           \
+    .with_rebuild(True)                                 \
+    .with_build_directory("python_build")               \
     .with_build_mode("release")                         \
     .with_build_c_bindings()            # <- The important setting
 
@@ -75,8 +77,7 @@ solver_config = og.config.SolverConfiguration()         \
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           metadata=meta,
                                           build_configuration=build_config,
-                                          solver_configuration=solver_config) \
-    .with_generate_not_build_flag(False).with_verbosity_level(0)
+                                          solver_configuration=solver_config)
 
 builder.build()
 ```
@@ -114,7 +115,7 @@ Which is designed to follow a new, use, free pattern. The `{optimizer-name}_new`
 To try the generated solver from earlier, the following C code can directly be used to interface to the generated solver:
 
 ```c
-// optimizer.c
+// placed in python_build/the_optimizer/optimizer.c
 
 #include <stdio.h>
 #include "the_optimizer_bindings.h"
@@ -134,6 +135,7 @@ int main() {
 	printf("exit status = %d\n", status.exit_status);
 	printf("iterations = %lu\n", status.num_inner_iterations);
 	printf("outer iterations = %lu\n", status.num_outer_iterations);
+	printf("solve time = %f ms\n", (double)status.solve_time_ns / 1000000.0);
 
 	return 0;
 }
@@ -150,7 +152,7 @@ gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o op
 Or using direct linking (this is the only thing that works with clang):
 
 ```console
-gcc optimizer.c -l./target/release/libthe_optimizer.a -pthread -lm -ldl -o optimizer
+gcc optimizer.c ./target/release/libthe_optimizer.a -pthread -lm -ldl -o optimizer
 ```
 
 While the following can be used when using the shared library:
@@ -178,4 +180,5 @@ u[4] = 0.969986
 exit status = 0
 iterations = 69
 outer iterations = 5
+solve time = 0.140401 ms
 ```
