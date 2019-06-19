@@ -13,6 +13,9 @@ When using any of the tools to auto-generate a solver it is directly supported t
 To generate the bindings, it is as simple as to enable the generation of bindings, and here is a full example configuration for creating a solver. We will create an optimizer for the Rosenbrock function with equality and bound constraints on the decision variables:
 
 ```python
+import casadi.casadi as cs
+import opengen as og
+
 #
 # Problem definition
 #
