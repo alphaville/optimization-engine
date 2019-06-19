@@ -7,12 +7,12 @@ class BuildConfiguration:
 
     """
 
-    def __init__(self, build_dir=None):
+    def __init__(self, build_dir="."):
         """
         Construct an instance of BuildConfiguration
 
         Args:
-            build_dir: Target directory
+            build_dir: Target directory, defaults to the current directory
 
         Returns:
             A new instance of BuildConfiguration
