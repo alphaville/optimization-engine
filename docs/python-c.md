@@ -26,7 +26,8 @@ p = cs.SX.sym("p", 2)
 # Cost function
 phi = og.functions.rosenbrock(u, p)
 
-# Equality constraints (can also be inequality constratins)
+# Equality constraints: 1.5 * u[0] = u[1] and u[2] = u[3]
+# Can also be inequality constratins using max{c(u, p), 0}, where c(u, p) < 0.
 c = cs.vertcat(1.5*u[0] - u[1], u[2] - u[3])
 
 # Bounds constraints on u
@@ -166,12 +167,12 @@ Which will solve the problem and output the following when run:
 # When linking with dynamic lib
 LD_LIBRARY_PATH=./target/release ./optimizer
 
-u[0] = 0.895032
-u[1] = 0.818222
-u[2] = 0.691895
-u[3] = 0.495584
-u[4] = 0.234752
+u[0] = 0.654738
+u[1] = 0.982045
+u[2] = 0.98416
+u[3] = 0.984188
+u[4] = 0.969986
 exit status = 0
-iterations = 22
-outer iterations = 1
+iterations = 69
+outer iterations = 5
 ```
