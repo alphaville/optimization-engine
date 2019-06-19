@@ -54,9 +54,7 @@ meta = og.config.OptimizerMeta()                        \
 
 # Lets build in release mode with C bindings
 build_config = og.config.BuildConfiguration()           \
-    .with_rebuild(False)                                \
     .with_build_mode("release")                         \
-    .with_build_directory(RustBuildTestCase.TEST_DIR)   \
     .with_build_c_bindings()            # <- The important setting
 
 # Solver settings
