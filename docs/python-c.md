@@ -141,7 +141,7 @@ int main() {
 
 ### Compiling and linking
 
-When building and running the libraries GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
+When building and running an application based on the generated libraries it is good to know that GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
 
 ```console
 gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o optimizer
