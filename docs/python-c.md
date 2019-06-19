@@ -59,7 +59,6 @@ meta = og.config.OptimizerMeta()                        \
 # Lets build in release mode with C bindings
 build_config = og.config.BuildConfiguration()           \
     .with_rebuild(True)                                 \
-    .with_build_directory("python_build")               \
     .with_build_mode("release")                         \
     .with_build_c_bindings()            # <- The important setting
 
@@ -115,7 +114,7 @@ Which is designed to follow a new, use, free pattern. The `{optimizer-name}_new`
 To try the generated solver from earlier, the following C code can directly be used to interface to the generated solver:
 
 ```c
-// placed in python_build/the_optimizer/optimizer.c
+// placed in the_optimizer/optimizer.c
 
 #include <stdio.h>
 #include "the_optimizer_bindings.h"
