@@ -6,11 +6,13 @@ title: C/C++ Bindings
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver into any language which has C ABI support. This is a powerful feature when packaging a solver for distribution, or including it into a larger project.
+When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver from any language which supports a C or C++ application binding interface (ABI). This is a powerful feature when packaging a solver for distribution, or including it into a larger project.
 
 ## Generating bindings
 
-To generate the bindings, it is as simple as to enable the generation of bindings, and here is a full example configuration for creating a solver. We will create an optimizer for the Rosenbrock function with equality and bound constraints on the decision variables:
+Generating bindings is as adding `with_build_c_bindings()` to your build configuration. 
+Here is a full example configuration for creating a solver. We will create an optimizer 
+for the Rosenbrock function with equality and bound constraints on the decision variables:
 
 ```python
 import casadi.casadi as cs
@@ -41,7 +43,7 @@ umax = [ 2.0,  2.0,  2.0,  2.0,  2.0]
 # Set up the solver
 #
 
-# Bounds on u
+# Bounds on u: (umin <= u <= umax)
 bounds = og.constraints.Rectangle(umin, umax)
 
 # Define the problem
@@ -64,9 +66,7 @@ build_config = og.config.BuildConfiguration()           \
 
 # Solver settings
 solver_config = og.config.SolverConfiguration()         \
-    .with_lfbgs_memory(15)                              \
     .with_tolerance(1e-5)                               \
-    .with_max_inner_iterations(155)                     \
     .with_constraints_tolerance(1e-4)                   \
     .with_max_outer_iterations(15)                      \
     .with_penalty_weight_update_factor(8.0)             \
@@ -81,13 +81,19 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
 builder.build()
 ```
 
-The generated bindings are in the auto-generated solver library as `the_optimizer/the_optimizer_bindings.{h,hpp}` together with the libraries in the `the_optimizer/target/{debug,release}` folders depending on if it was a debug or release build. Note that `the_optimizer` is the name given to the optimizer in the Python codegen above.
+The generated C/C++ bindings are in the auto-generated solver library.
+In particular
+
+* The header files are at `the_optimizer/the_optimizer_bindings.{h,hpp}` 
+* The static and dynamical library files are located in `the_optimizer/target/{debug,release}` (depending on whether it was a *debug* or *release* build) 
+
+Note that `the_optimizer` is the name given to the optimizer in the Python codegen above.
 
 **Matlab generation will come soon.**
 
 ## Bindings API
 
-The generated API has the following functions available (for complete definitions see the generated files):
+The generated API has the following functions available (for complete definitions see the generated header files):
 
 ```c
 // More definitions ...
@@ -107,21 +113,28 @@ void {optimizer-name}_free({optimizer-name}Cache *instance);
                                               const double *params);
 ```
 
-Which is designed to follow a new, use, free pattern. The `{optimizer-name}_new` will allocate memory and setup a new solver instance, and can be used to create as many solvers as necessary, where each instance can be used with `{optimizer-name}_solve` to solve the specific problem as many times as needed. The parameter `u` is the starting guess and also the return of the decision variables, and `params` are static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. Finally, when done with the solver, use `{optimizer-name}_free` to release the memory allocated by `{optimizer-name}_new`.
+This is designed to follow a new-use-free pattern. 
+
+Function `{optimizer-name}_new` will allocate memory and setup a new solver instance and can be used to create as many solvers as necessary. Each solver instance can be used with `{optimizer-name}_solve` to solve the corresponding problem as many times as needed. 
+
+Parameter `u` is the starting guess and also the return of the decision variables and `params` is the array of static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. 
+
+Finally, when done with the solver, use `{optimizer-name}_free` to release the memory allocated by `{optimizer-name}_new`.
+
 
 ## Using the bindings in an app
 
-To try the generated solver from earlier, the following C code can directly be used to interface to the generated solver:
+To use the generated solver in C, the following C code can directly be used to interface to the generated solver:
 
 ```c
-// placed in the_optimizer/optimizer.c
+// File: the_optimizer/optimizer.c
 
 #include <stdio.h>
 #include "the_optimizer_bindings.h"
 
 int main() {
-	double p[THE_OPTIMIZER_NUM_PARAMETERS] = {1.0, 10.0};
-	double u[THE_OPTIMIZER_NUM_DECISION_VARIABLES] = {0};
+	double p[THE_OPTIMIZER_NUM_PARAMETERS] = {1.0, 10.0};  // parameter
+	double u[THE_OPTIMIZER_NUM_DECISION_VARIABLES] = {0};  // initial guess
 
 	the_optimizerCache *cache = the_optimizer_new();
 	the_optimizerSolverStatus status = the_optimizer_solve(cache, u, p);
