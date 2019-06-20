@@ -6,7 +6,9 @@ title: C/C++ Bindings
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver from any language which supports a C or C++ application binding interface (ABI). This is a powerful feature when packaging a solver for distribution, or including it into a larger project.
+When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver from any language which supports a C or C++ application binary interface ([ABI]). This is a powerful feature when packaging a solver for distribution, or including it into a larger project.
+
+[ABI]: https://en.wikipedia.org/wiki/Application_binary_interface
 
 ## Generating bindings
 
@@ -85,9 +87,12 @@ The generated C/C++ bindings are in the auto-generated solver library.
 In particular
 
 * The header files are at `the_optimizer/the_optimizer_bindings.{h,hpp}` 
-* The static and dynamical library files are located in `the_optimizer/target/{debug,release}` (depending on whether it was a *debug* or *release* build) 
+* The static and dynamical library files are located in `the_optimizer/target/{debug,release}` (depending on whether it was a [*debug*] or [*release*] build) 
 
 Note that `the_optimizer` is the name given to the optimizer in the Python codegen above.
+
+[*debug*]: /optimization-engine/docs/python-advanced#build-options
+[*release*]: /optimization-engine/docs/python-advanced#build-options
 
 **Matlab generation will come soon.**
 
