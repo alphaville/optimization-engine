@@ -1,4 +1,6 @@
 from opengen.config.tcp_server_config import TcpServerConfiguration
+import random
+import string
 
 class BuildConfiguration:
     """Build configuration
@@ -18,11 +20,13 @@ class BuildConfiguration:
             A new instance of BuildConfiguration
 
         """
+        random_string = ''.join(random.choice(string.ascii_letters) for i in range(20))
+
         self.__target_system = 'default'
         self.__build_mode = 'release'
-        self.__cost_function_name = 'phi'
-        self.__grad_cost_function_name = 'grad_phi'
-        self.__constraint_penalty_function = 'constraints_penalty'
+        self.__cost_function_name = 'phi_' + random_string
+        self.__grad_cost_function_name = 'grad_phi_' + random_string
+        self.__constraint_penalty_function = 'constraints_penalty_' + random_string
         self.__rebuild = False
         self.__build_dir = build_dir
         self.__open_version = None

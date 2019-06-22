@@ -1,3 +1,5 @@
+import re
+
 class OptimizerMeta:
     """Metadata of auto-generated parametric optimizer
 
@@ -69,13 +71,18 @@ class OptimizerMeta:
         """Specify the name of the optimizer
 
         Args:
-            optimizer_name: name of build
+            optimizer_name: name of build, may only contain letters,
+            numbers and underscores, and may not start with a number
 
         Returns:
             The current instance of OptimizerMeta
         """
-        self.__optimizer_name = optimizer_name
-        return self
+
+        if re.match("^[a-zA-Z_]+[\w]*$", optimizer_name):
+            self.__optimizer_name = optimizer_name
+            return self
+        else:
+            raise ValueError("invalid optimizer name")
 
     def with_licence(self, optimizer_licence):
         """Specify licence of auto-generated code
