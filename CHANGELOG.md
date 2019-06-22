@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Generation of C/C++ bindings added in the Python interface and included in the test suite
+
 ### Removed
 
 * Deprecated: `enable_tcp_interface` and `enable_c_bindings_generation`
