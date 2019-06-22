@@ -14,8 +14,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+### Added
+
+### Removed
+
+
+<!-- ---------------------
+      v0.5.0
+     --------------------- -->
+## [v0.5.0] - 2019-06-22
+
+### Fixed
+
 * Fixed `with_max_duration` in `PANOC` not following the builder pattern
 * Fixed misplaced `.unwrap()` in the `HomotopyOptimizer`
+* Fixed so the Python builder uses the current directory as default
 
 ### Added
 
@@ -89,7 +102,8 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...master
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...master
+[v0.5.0]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/alphaville/optimization-engine/compare/v0.2.2...v0.3.0
