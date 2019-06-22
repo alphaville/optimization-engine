@@ -9,21 +9,17 @@
       "python-interface",
       "python-advanced",
       "python-c",
+      "python-tcp-ip",
       "python-examples"
     ],
     "MATLAB": [
-      "matlab-interface"
+      "matlab-interface",
+      "udp-sockets",
+      "matlab-examples"
     ],
     "Rust": [
       "openrust-basic",
       "openrust-homotopy"
-    ],
-    "Socket interface": [
-      "udp-sockets"
-    ],
-    "Examples": [
-      "example-nmpc",
-      "example-nav"
     ],
     "Extras": [
       "faq",

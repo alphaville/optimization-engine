@@ -1,6 +1,6 @@
 ---
 id: openrust-basic
-title: Simple problems
+title: Basic usage
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -130,14 +130,26 @@ The minimization of the [Rosenbrock function](https://en.wikipedia.org/wiki/Rose
 is a challenging problem in optimization. 
 The Rosenbrock function in two dimensions with parameters $a$ and $b$ is defined as follows:
 
+<div class="math">\[f(u; a, b) = (a - u_1)^2 + b(u_2 - u_1^2)^2,\]</div>
+
+with gradient
+
+<div class="math">\[\nabla f(u; a, b) = \begin{bmatrix}
+2 (u_1-a) - 4bu_1(u_2 - u_1^2)
+\\
+2b(u_2 - u_1^2)
+\end{bmatrix},\]</div>
+
+that is,
+
 ```rust
 pub fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
     (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
 }
 
 pub fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
-    grad[0] = 2.0 * u[0] - 2.0 * a - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
-    grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
+    grad[0] = 2.0 * (u[0] - a) - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
+    grad[1] = 2.0 * b * (u[1] - u[0].powi(2));
 }
 ```
 

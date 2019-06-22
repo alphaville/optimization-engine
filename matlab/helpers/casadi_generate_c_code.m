@@ -51,6 +51,8 @@ if ~isempty(cstr_penalty)
     cstr_penalty_fun = casadi.Function(cstr_penalty_name, {u, p}, {cstr_penalty});
     cstr_penalty_fun.generate(constr_penalty_c_file);
     try movefile(constr_penalty_c_file, constr_penalty_c_file_path); catch, end
+else
+    ncp = 0;
 end
 
 % -------------------------------------------------------------------------

@@ -66,8 +66,6 @@ build_config.with_build_mode("debug")
 
  
 ## TCP/IP interface 
- 
-### TCP/IP options
 
 In order to change the IP and port at which the server listens
 for requests (e.g., for remote connections), you may crate an 
@@ -77,13 +75,8 @@ for requests (e.g., for remote connections), you may crate an
 tcp_config = og.config.TcpServerConfiguration('10.8.0.12', 9555)
 ```
 
-and then provide it to the builder using 
+and then provide it to the builder configuration using 
 
 ```python
-builder.enable_tcp_interface(tcp_config)
+builder_config.with_tcp_interface_config(tcp_config)
 ```
-
-### Accessing the TCP/IP interface directly
-
-This part of the documentation is under development. Please, check
-again in a few days.

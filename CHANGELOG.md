@@ -14,9 +14,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+* Fixed `with_max_duration` in `PANOC` not following the builder pattern
+* Fixed misplaced `.unwrap()` in the `HomotopyOptimizer`
+
 ### Added
 
 * Generation of C/C++ bindings added in the Python interface and included in the test suite
+* Support in Rust for Cartesian product of constraints
 
 ### Removed
 

@@ -307,16 +307,18 @@ where
                 (homotopy_problem.parametric_gradient)(u, &q_augmented_param_vec, grad)
             };
             let inner_problem = Problem::new(&self.homotopy_problem.constraints, df_, f_);
-            let mut inner_panoc =
-                panoc::PANOCOptimizer::new(inner_problem, &mut self.homotopy_cache.panoc_cache)
-                    .with_max_iter(self.max_inner_iterations);
 
-            if available_time_left != None {
-                inner_panoc.with_max_duration(available_time_left.unwrap());
-            }
+            let mut inner_panoc = if available_time_left != None {
+                panoc::PANOCOptimizer::new(inner_problem, &mut self.homotopy_cache.panoc_cache)
+                    .with_max_iter(self.max_inner_iterations)
+                    .with_max_duration(available_time_left.unwrap())
+            } else {
+                panoc::PANOCOptimizer::new(inner_problem, &mut self.homotopy_cache.panoc_cache)
+                    .with_max_iter(self.max_inner_iterations)
+            };
 
             //TODO: If inner problem does not converge, check whether it is salvageable
-            let status = inner_panoc.solve(u).unwrap();
+            let status = inner_panoc.solve(u)?;
             num_inner_iterations += status.iterations();
             last_norm_fpr = status.norm_fpr();
             exit_status = status.exit_status();
