@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Examples · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Examples · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C Bindings</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">MATLAB</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Rust</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust">OpEn Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Socket interface</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/udp-sockets">UDP sockets</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nmpc">Population dynamics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example-nav">Navigation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Examples · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Examples · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP/IP Socket Interface</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">MATLAB</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/udp-sockets">UDP sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Rust</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-homotopy">Homotopy method</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
             var coll = document.getElementsByClassName('collapsible');
             var checkActiveCategory = true;
             for (var i = 0; i < coll.length; i++) {
@@ -52,7 +52,18 @@
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <h2><a class="anchor" aria-hidden="true" id="rosenbrock-function"></a><a href="#rosenbrock-function" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rosenbrock function</h2>
 <p>This is the example we presented in the previous section. You can copy
-it and experiment with it.</p>
+it and experiment. The problem we need to solve is:</p>
+<div class="math">
+\[
+    \begin{align}
+    \operatorname*{Minimize}_{\|u\|\leq r}& \sum_{i=1}^{n_u - 1} b (u_{i+1} - u_{i}^2)^2 + (a-u_i)^2
+    \\
+    \text{subject to: }& 1.5 u_1 - u_2 = 0
+    \\
+    &u_3 - u_4 + 0.1 \leq 0
+    \end{align}
+\]</div>
+<p>The parameter vector is $p=(a, b)$.</p>
 <pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
 <span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
 
@@ -65,18 +76,19 @@ c = cs.vertcat(<span class="hljs-number">1.5</span> * u[<span class="hljs-number
                cs.fmax(<span class="hljs-number">0.0</span>, u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>] + <span class="hljs-number">0.1</span>))
 bounds = og.constraints.Ball2(<span class="hljs-literal">None</span>, <span class="hljs-number">1.5</span>)
 problem = og.builder.Problem(u, p, phi) \
-    .with_penalty_constraints(c) \
+    .with_penalty_constraints(c)        \
     .with_constraints(bounds)
-build_config = og.config.BuildConfiguration() \
+build_config = og.config.BuildConfiguration()  \
     .with_build_directory(<span class="hljs-string">"python_test_build"</span>) \
-    .with_build_mode(<span class="hljs-string">"debug"</span>)
-meta = og.config.OptimizerMeta() \
+    .with_build_mode(<span class="hljs-string">"debug"</span>)                  \
+    .with_tcp_interface_config()
+meta = og.config.OptimizerMeta()                   \
     .with_optimizer_name(<span class="hljs-string">"tcp_enabled_optimizer"</span>)
-solver_config = og.config.SolverConfiguration().with_tolerance(<span class="hljs-number">1e-5</span>)
+solver_config = og.config.SolverConfiguration()    \
+    .with_tolerance(<span class="hljs-number">1e-5</span>)                          \
+    .with_constraints_tolerance(<span class="hljs-number">1e-4</span>)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-                                          build_config, solver_config) \
-    .with_verbosity_level(<span class="hljs-number">1</span>)
-builder.enable_tcp_interface()
+                                          build_config, solver_config)
 builder.build()
 
 <span class="hljs-comment"># Use TCP server</span>
@@ -91,6 +103,37 @@ print(solution)
 mng.kill()
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="unobstructed-navigation"></a><a href="#unobstructed-navigation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Unobstructed navigation</h2>
+<p>Consider the navigation problem for an autonomous ground vehicle which
+carries a trailer as illustrated in the following figure.</p>
+<p><img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400"/></p>
+<p>This is non-holonomic vehicle.</p>
+<p>We want to solve the following optimal control problem</p>
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& \sum_{i=1}^{N - 1} 
+        \|z_t-z^{\mathrm{ref}}\|_Q^2 + r \|u_t\|^2 + \|z_N-z^{\mathrm{ref}}\|_{Q_N}^2
+    \\
+    \text{subject to: }& z_{t+1} = f(z_t, u_t), t=0,\ldots, N-1
+    \\
+    &u_{\min} \leq u_t \leq u_{\max}, t=0,\ldots, N-1
+    \\
+    &z_0=p
+    \end{align}
+\]</div>
+<p>where $z = (x,y,\theta)$ is the position and orientation of the vehicle,
+$z^{\mathrm{ref}}$ is the target position and orientation and $f$ describes
+the vehicle dynamics, which in this example is</p>
+<div class="math">
+\[
+    f(z, u) = \begin{bmatrix}
+    x + t_s [x +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
+    \\
+    y + t_s [y +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
+    \\
+    \theta + t_s L^{-1} (u_y \cos\theta - u_x \sin\theta)
+    \end{bmatrix}
+\]</div>
 <pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
 <span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
 <span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt
@@ -140,7 +183,6 @@ builder.enable_tcp_interface()
 builder.build()
 
 
-
 <span class="hljs-comment"># Use TCP server</span>
 <span class="hljs-comment"># ------------------------------------</span>
 mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_test_build/navigation'</span>)
@@ -184,9 +226,9 @@ x_states[<span class="hljs-number">0</span>:nx+<span class="hljs-number">1</span
 
     theta_dot = (<span class="hljs-number">1</span>/L) * (u_t[<span class="hljs-number">1</span>] * np.cos(theta) - u_t[<span class="hljs-number">0</span>] * np.sin(theta))
 
-    x_states[(t + <span class="hljs-number">1</span>) * nx] = x + ts * (u_t[<span class="hljs-number">0</span>] + L * np.sin(theta) * theta_dot)
-    x_states[(t + <span class="hljs-number">1</span>) * nx + <span class="hljs-number">1</span>] = y + ts * (u_t[<span class="hljs-number">1</span>] - L * np.cos(theta) * theta_dot)
-    x_states[(t + <span class="hljs-number">1</span>) * nx + <span class="hljs-number">2</span>] = theta + ts * theta_dot
+    x_states[(t+<span class="hljs-number">1</span>)*nx] = x + ts * (u_t[<span class="hljs-number">0</span>] + L*np.sin(theta)*theta_dot)
+    x_states[(t+<span class="hljs-number">1</span>)*nx+<span class="hljs-number">1</span>] = y + ts * (u_t[<span class="hljs-number">1</span>] - L*np.cos(theta)*theta_dot)
+    x_states[(t+<span class="hljs-number">1</span>)*nx+<span class="hljs-number">2</span>] = theta + ts*theta_dot
 
 xx = x_states[<span class="hljs-number">0</span>:nx*N:nx]
 xy = x_states[<span class="hljs-number">1</span>:nx*N:nx]
@@ -234,4 +276,176 @@ and the initial weights (<code>with_initial_penalty_weights</code>):</p>
 </code></pre>
 <p>Here is a trajectory of the system with $N=60$.</p>
 <p><img src="/optimization-engine/img/obstructed_navigation_trajectories_python.png" alt="Matplotlib obstructed navigation" /></p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-c"><span class="arrow-prev">← </span><span>C Bindings</span></a><a class="docs-next button" href="/optimization-engine/docs/matlab-interface"><span>MATLAB</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#rosenbrock-function">Rosenbrock function</a></li><li><a href="#unobstructed-navigation">Unobstructed navigation</a></li><li><a href="#obstructed-navigation">Obstructed navigation</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+<h2><a class="anchor" aria-hidden="true" id="nonlinear-estimation"></a><a href="#nonlinear-estimation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nonlinear Estimation</h2>
+<h3><a class="anchor" aria-hidden="true" id="problem-statement"></a><a href="#problem-statement" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem statement</h3>
+<p>Consider a dynamical system, for simplicity, but without loss of generality
+without an actuation, with dynamics</p>
+<div class="math">
+\[
+x_{t+1} = f(x_t) + w_t,
+\]
+</div>
+<p>where $w_t$ is an unknown disturbance signal. We are able to measure the system's
+output through</p>
+<div class="math">
+\[
+y_{t} = h(x_t) + v_t,
+\]
+</div>
+<p>where $v_t$ is the measurement error.</p>
+<p>Given a set of measurements $Y_N=(y_{0},\ldots,y_{N-1})$, our objective is to
+determine estimates $\hat{x}_t$ for all $t=0,\ldots,N$.</p>
+<p>The estimation problem consists in solving the following optimization
+problem</p>
+<div class="math">
+\[
+    \begin{align}
+\operatorname*{Minimize}_{\hat{x}_0, \hat{\mathbf{w}}, \hat{\mathbf{v}}} &
+    \sum_{t=0}^{N-1}\|\hat{w}_t\|^2_Q + \|\hat{v}_t\|^2_R
+    \\
+    \text{subject to: }& \hat{x}_{t+1} = f(\hat{x}_t) + \hat{w}_t
+    \\
+    & y_t = h(\hat{x}_t) + \hat{v}_t, t=0,\ldots, N-1.
+    \end{align}
+\]
+</div>
+<p>By eliminating all $\hat{w}_t$ and $\hat{v}_t$, the problem becomes</p>
+<div class="math">
+\[
+    \mathbb{P}(\mathbf{y}) {}:{}
+    \operatorname*{Minimize}_{\hat{\mathbf{x}}}
+    \sum_{t=0}^{N-1}\|\hat{x}_{t+1} - f(\hat{x}_t)\|^2_Q + \|y_t - h(\hat{x}_t)\|^2_R
+\]
+</div>
+<p>The solution of this problem generates an optimal estimate</p>
+<div class="math">
+\[
+    \hat{\mathbf{x}}^\ast=(\hat{x}_0^*,\ldots,\hat{x}_{N}^*).
+\]
+</div>
+<p>Such problems are used in <strong>moving horizon estimation</strong> with zero prior
+weighting.</p>
+<h3><a class="anchor" aria-hidden="true" id="data-generation"></a><a href="#data-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data Generation</h3>
+<p>Consider the Euler-discretization of the Lorenz system given by</p>
+<div class="math">
+\[
+x_{t+1} = x_{t} + t_s 
+\begin{bmatrix}
+\sigma (x_{2, t} - x_{1,t})
+\\
+x_{1, t} (\rho - x_{3, t}) - x_{2, t}
+\\
+x_{1, t} x_{2, t} - \beta x_{3, t}
+\end{bmatrix} + w_t,
+\]
+</div>
+<p>where $t_s$ is the sampling time, $\sigma$, $\rho$ and $\beta$ are constant
+parameters, $x_t = (x_{1, t}, x_{2, t}, x_{3, t})$ is the system state and $w_t$
+is an unknown disturbance.</p>
+<p>The measurements are obtained via the system output $y_t \in \mathbb{R}^3$
+given by</p>
+<div class="math">
+\[
+y_{t} = 
+\begin{bmatrix}
+2x_{1, t}
+\\
+x_{2, t} + x_{3, t}
+\\
+\tfrac{1}{10}x_{3, t}^2 - x_{1, t}
+\end{bmatrix} + v_t,
+\]
+</div>
+<p>where $v_t\in\mathbb{R}^3$ in a measurement noise term.</p>
+<p>Let us first generate output data from this system.</p>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Some necessary imports</span>
+<span class="hljs-comment"># ------------------------------------</span>
+<span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
+<span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
+<span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+<span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt
+<span class="hljs-keyword">from</span> mpl_toolkits.mplot3d <span class="hljs-keyword">import</span> Axes3D
+</code></pre>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Generate data</span>
+<span class="hljs-comment"># ------------------------------------</span>
+(rho, sigma, beta, ts) = (<span class="hljs-number">28.0</span>, <span class="hljs-number">10.0</span>, <span class="hljs-number">8.0</span>/<span class="hljs-number">3.0</span>, <span class="hljs-number">0.02</span>)
+nx = <span class="hljs-number">3</span>
+Tsim = <span class="hljs-number">100</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">lorenz_sys</span><span class="hljs-params">(x)</span>:</span>
+    y = [sigma * (x[<span class="hljs-number">1</span>] - x[<span class="hljs-number">0</span>]),
+         x[<span class="hljs-number">0</span>] * (rho - x[<span class="hljs-number">2</span>]) - x[<span class="hljs-number">1</span>],
+         x[<span class="hljs-number">0</span>] * x[<span class="hljs-number">1</span>] - beta * x[<span class="hljs-number">2</span>]]
+    <span class="hljs-keyword">return</span> y
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dynamics</span><span class="hljs-params">(x)</span>:</span>
+    dx = lorenz_sys(x)
+    <span class="hljs-keyword">return</span> [x[idx] + ts*dx[idx] <span class="hljs-keyword">for</span> idx <span class="hljs-keyword">in</span> range(nx)]
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">output</span><span class="hljs-params">(x)</span>:</span>
+    <span class="hljs-keyword">return</span> [<span class="hljs-number">2.0</span>*x[<span class="hljs-number">0</span>], x[<span class="hljs-number">1</span>]+x[<span class="hljs-number">2</span>], x[<span class="hljs-number">2</span>]**<span class="hljs-number">2</span>/<span class="hljs-number">10.0</span>-x[<span class="hljs-number">0</span>]]
+
+<span class="hljs-comment"># Produce data</span>
+<span class="hljs-comment"># ------------------------------------</span>
+x_data = [<span class="hljs-number">0.0</span>] * (nx * Tsim)
+y_data = [<span class="hljs-number">0.0</span>] * (nx * Tsim)
+x_data[<span class="hljs-number">0</span>:nx] = [<span class="hljs-number">-10.0</span>, <span class="hljs-number">-12.0</span>, <span class="hljs-number">27.0</span>]
+y_data[<span class="hljs-number">0</span>:nx] = output(x_data[<span class="hljs-number">0</span>:nx])
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(Tsim<span class="hljs-number">-1</span>):
+    w = np.random.normal(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>)
+    v = np.random.normal(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>)
+    x_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx] = dynamics(x_data[i*nx:(i+<span class="hljs-number">1</span>)*nx]) + <span class="hljs-number">0.02</span>*w
+    y_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx] = output(x_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx]) + <span class="hljs-number">0.1</span>*v
+</code></pre>
+<p>The output data are plotted below:</p>
+<p><img src="/optimization-engine/img/python_estimation_data.png" alt="System output data"></p>
+<h3><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation</h3>
+<pre><code class="hljs css language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">lorenz_sys_casadi</span><span class="hljs-params">(x)</span>:</span>
+    y = cs.vertcat(sigma * (x[<span class="hljs-number">1</span>] - x[<span class="hljs-number">0</span>]),
+         x[<span class="hljs-number">0</span>] * (rho - x[<span class="hljs-number">2</span>]) - x[<span class="hljs-number">1</span>],
+         x[<span class="hljs-number">0</span>] * x[<span class="hljs-number">1</span>] - beta * x[<span class="hljs-number">2</span>])
+    <span class="hljs-keyword">return</span> y
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dynamics_casadi</span><span class="hljs-params">(x)</span>:</span>
+    dx = lorenz_sys_casadi(x)
+    <span class="hljs-keyword">return</span> x + ts*dx
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">output_casadi</span><span class="hljs-params">(x)</span>:</span>
+    <span class="hljs-keyword">return</span> cs.vertcat(<span class="hljs-number">2.0</span>*x[<span class="hljs-number">0</span>], x[<span class="hljs-number">1</span>]+x[<span class="hljs-number">2</span>], x[<span class="hljs-number">2</span>]**<span class="hljs-number">2</span>/<span class="hljs-number">10.0</span>-x[<span class="hljs-number">0</span>])
+
+<span class="hljs-comment"># Problem definition</span>
+<span class="hljs-comment"># ----------------------------------</span>
+X_hat = cs.SX.sym(<span class="hljs-string">'Xhat'</span>, nx*(Tsim))
+Y = cs.SX.sym(<span class="hljs-string">'Y'</span>, nx*Tsim)
+V = <span class="hljs-number">0.0</span>
+print(X_hat)
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(Tsim<span class="hljs-number">-1</span>):
+    w = X_hat[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx] - dynamics_casadi(X_hat[i*nx:(i+<span class="hljs-number">1</span>)*nx])
+    v = Y[i*nx:(i+<span class="hljs-number">1</span>)*nx] - output_casadi(X_hat[i*nx:(i+<span class="hljs-number">1</span>)*nx])
+    V += <span class="hljs-number">20.0</span> * cs.dot(w, w) + <span class="hljs-number">1.0</span> * cs.dot(v, v)
+
+<span class="hljs-comment"># Code generation</span>
+<span class="hljs-comment"># ------------------------------------</span>
+problem = og.builder.Problem(X_hat, Y, V)
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory(<span class="hljs-string">"python_test_build"</span>) \
+    .with_build_mode(<span class="hljs-string">"release"</span>)
+meta = og.config.OptimizerMeta()               \
+    .with_optimizer_name(<span class="hljs-string">"estimator"</span>)
+builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
+builder.enable_tcp_interface()
+builder.build()
+</code></pre>
+<p>This will generate a parametric optimizer for problem $\mathbb{P}(\mathbf{y})$
+shown above that takes the system output, $\mathbf{y}$, and returns an estimate
+of the system state.</p>
+<p>Such an estimation for the above randomly-generated data is shown below. The
+optimization problem was solved in 2.73 milliseconds (in 65 iterations).</p>
+<p><img src="/optimization-engine/img/python_estimation.png" alt="State estimates"></p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-tcp-ip"><span class="arrow-prev">← </span><span>TCP/IP Socket Interface</span></a><a class="docs-next button" href="/optimization-engine/docs/matlab-interface"><span>MATLAB</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#rosenbrock-function">Rosenbrock function</a></li><li><a href="#unobstructed-navigation">Unobstructed navigation</a></li><li><a href="#obstructed-navigation">Obstructed navigation</a></li><li><a href="#nonlinear-estimation">Nonlinear Estimation</a><ul class="toc-headings"><li><a href="#problem-statement">Problem statement</a></li><li><a href="#data-generation">Data Generation</a></li><li><a href="#code-generation">Code generation</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Examples · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Examples · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>MATLAB</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP/IP Socket Interface</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">MATLAB</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/udp-sockets">UDP sockets</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Rust</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-homotopy">Homotopy method</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Examples</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<h2><a class="anchor" aria-hidden="true" id="navigation"></a><a href="#navigation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Navigation</h2>
+<h3><a class="anchor" aria-hidden="true" id="problem-statement"></a><a href="#problem-statement" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem statement</h3>
+<h4><a class="anchor" aria-hidden="true" id="system-dynamics"></a><a href="#system-dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>System dynamics</h4>
+<p>Assuming zero slip of the trailer wheels, the nonlinear kinematics of a ground vehicle, shown in the following figure</p>
+<p><img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400"/></p>
+<p>is given by the following equations</p>
+<div class="math">
+\[\begin{split}
+\dot{x}(t) {}={}&amp; u_x(t) + L \sin \theta(t) \dot{\theta}(t)\\
+\dot{y}(t) {}={}&amp; u_y(t) - L \cos \theta(t) \dot{\theta}(t)\\
+\dot{\theta}(t) {}={}&amp; \tfrac{1}{L}(u_y(t) \cos \theta(t) - u_x(t) \sin \theta(t))
+\end{split}\]</div>
+<p>where the state vector $z=(x, y, \theta)$ comprises the coordinates $x$ and $y$ of the trailer and the heading angle $\theta$.</p>
+<p>The input $u=(u_x, u_y)$ is a velocity reference which is tracked by a low-level controller.</p>
+<p>The distance between the center of mass of the trailer and the fulcrum connecting to the towing vehicle is $L = 0.5\mathrm{m}$.</p>
+<p>The system dynamics can be written concisely as</p>
+<div class="math">\[\dot{z}(t) = f(z(t), u(t)).\]</div>
+<p>We shall discretise this system using the Euler discretization with sampling time $t_s$, that is</p>
+<div class="math">\[z_{t+1} = z_t + t_sf(z_{t}, u_{t}).\]</div>
+<h4><a class="anchor" aria-hidden="true" id="cost-functions"></a><a href="#cost-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cost functions</h4>
+<p>Our aim is to determine a sequence of control actions,</p>
+<div class="math">\[u = (u_0, u_1, \ldots, u_{N-1}),\]</div>
+so as to create a sequence of states $z_0,\ldots, z_N$, which reach as close as possible to a given target point $(x^{\mathrm{ref}}, y^{\mathrm{ref}})$ and a reference heading $\theta^{\mathrm{ref}}$.
+<p>To this end, we define the following stage cost function</p>
+<div class="math">\[\ell(z, u) = q [(x-x^{\mathrm{ref}})^2 + (y-y^{\mathrm{ref}})^2] + q_{\theta}(\theta-\theta^{\mathrm{ref}})^2 + r\|u\|^2,\]</div>
+where $q$, $q_\theta$ and $r$ are nonnegative weight coefficients. 
+<p>Likewise, we define the terminal cost function</p>
+<div class="math">\[\ell_N(z) = q_N [(x-x^{\mathrm{ref}})^2 + (y-y^{\mathrm{ref}})^2] + q_{\theta,N}(\theta-\theta^{\mathrm{ref}})^2,\]</div>
+<p>We now introduce the <em>total cost function</em></p>
+<div class="math">\[V(u; z_0) = \sum_{t=0}^{N-1}\ell(z_t, u_t) + \ell_N(z_N),\]</div>
+<p>where the sequence of states, $z_0,\ldots, z_N$ is governed by the discrete-time dynamics stated above.</p>
+<h4><a class="anchor" aria-hidden="true" id="optimal-control-problem"></a><a href="#optimal-control-problem" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optimal control problem</h4>
+<p>We formulate the following optimal control problem</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{2N}}&amp;\ \ V(u; z_0)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(z_0)\end{split}\tag{4}\]</div>
+<p>We assume there are no active constraints on the input variables, that is
+$U(z_0) = \mathbb{R}^{2N}$.</p>
+<p>Note that the sequence of states, $z_0, z_1, \ldots, z_N$, does not partipate in the problem definition in <em>(4)</em>. This is because $z_t = z_t(z_0, u_0, \ldots, u_{t-1})$ for all $t=1,\ldots, N$. In order words, all $z_t$ are functions of $u$ and $z_0$.</p>
+<h3><a class="anchor" aria-hidden="true" id="code-generation-in-matlab"></a><a href="#code-generation-in-matlab" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation in MATLAB</h3>
+<p>Firstly, we define the total cost function</p>
+<pre><code class="hljs css language-matlab"><span class="hljs-comment">% parameters</span>
+L = <span class="hljs-number">0.5</span>; ts = <span class="hljs-number">0.1</span>;
+
+<span class="hljs-comment">% Prediction horizon</span>
+N = <span class="hljs-number">50</span>; 
+
+<span class="hljs-comment">% target point and bearing</span>
+xref=<span class="hljs-number">1</span>; yref=<span class="hljs-number">1</span>; thetaref = <span class="hljs-number">0</span>;
+
+<span class="hljs-comment">% weights</span>
+q = <span class="hljs-number">10</span>; qtheta = <span class="hljs-number">.1</span>; r = <span class="hljs-number">1</span>;
+qN = <span class="hljs-number">10</span>*q; qthetaN = <span class="hljs-number">10</span>*qtheta;
+
+nu = <span class="hljs-number">2</span>; nx = <span class="hljs-number">3</span>;
+u = casadi.SX.sym(<span class="hljs-string">'u'</span>, nu*N); 
+z0 = casadi.SX.sym(<span class="hljs-string">'z0'</span>, nx);
+
+x = z0(<span class="hljs-number">1</span>); y = z0(<span class="hljs-number">2</span>); theta = z0(<span class="hljs-number">3</span>);
+cost = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">for</span> t = <span class="hljs-number">1</span>:nu:nu*N
+    cost = cost + q*((x-xref)^<span class="hljs-number">2</span> + (y-yref)^<span class="hljs-number">2</span>) + qtheta*(theta-thetaref)^<span class="hljs-number">2</span>;  
+    u_t = u(t:t+<span class="hljs-number">1</span>);
+    theta_dot = (<span class="hljs-number">1</span>/L)*(u_t(<span class="hljs-number">2</span>)*<span class="hljs-built_in">cos</span>(theta) - u_t(<span class="hljs-number">1</span>)*<span class="hljs-built_in">sin</span>(theta));
+    cost = cost + r*(u_t'*u_t);
+    x = x + ts * (u_t(<span class="hljs-number">1</span>) + L * <span class="hljs-built_in">sin</span>(theta) * theta_dot);
+    y = y + ts * (u_t(<span class="hljs-number">2</span>) - L * <span class="hljs-built_in">cos</span>(theta) * theta_dot);
+    theta = theta + ts * theta_dot;
+<span class="hljs-keyword">end</span>
+cost = cost + qN*((x-xref)^<span class="hljs-number">2</span> + (y-yref)^<span class="hljs-number">2</span>) + qthetaN*(theta-thetaref)^<span class="hljs-number">2</span>;
+
+constraints = OpEnConstraints.make_no_constraints();
+</code></pre>
+<p>We then build the parametric optimizer:</p>
+<pre><code class="hljs css language-matlab">builder = OpEnOptimizerBuilder()...
+    .with_problem(u, z0, cost, constraints)...
+    .with_build_name(<span class="hljs-string">'navigation'</span>)...
+    .with_build_mode(<span class="hljs-string">'release'</span>)...
+    .with_fpr_tolerance(<span class="hljs-number">1e-4</span>)...
+    .with_max_iterations(<span class="hljs-number">500</span>);
+optimizer = builder.build();
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="solution"></a><a href="#solution" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solution</h3>
+<p>The solution is presented below (the algorithm converges in 25 iterations after 3.2ms):</p>
+<p><img src="/optimization-engine/img/nav-oc-sol-xyt.jpg" 
+    alt="Navigation (x,y) vs time" 
+    width="500"/></p>
+<p><img src="/optimization-engine/img/nav-oc-sol-xy.jpg" 
+    alt="Navigation (x,y) profile" 
+    width="500"/></p>
+<p><img src="/optimization-engine/img/nav-oc-sol-theta.jpg" 
+    alt="Navigation (x,y) profile" 
+    width="500"/></p>
+<h3><a class="anchor" aria-hidden="true" id="free-references"></a><a href="#free-references" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Free references</h3>
+<p>Let's get a little creative!</p>
+<p>
+    We may define the parameter of the optimization problem to be 
+    <div class="math">
+    \[p = (z_0, z^{\mathrm{ref}})\]
+    </div>
+    where $z^{\mathrm{ref}} = (x^{\mathrm{ref}},y^{\mathrm{ref}},\theta^{\mathrm{ref}})$.
+    This way, we will have an optimal control module that will allow us to plan 
+    trajectories from any initial position and pose to any final position and pose.
+    This can then be used as a model predictive controller, where the references
+    can be provided either by the user, manually, or by a higher-level system.
+</p>
+<p>
+    We will define the parameter $p$, instead of $z_0$, as follows:
+</p>
+<pre><code class="hljs css language-matlab">p = casadi.SX.sym(<span class="hljs-string">'p'</span>, <span class="hljs-number">2</span>*nx);
+x = p(<span class="hljs-number">1</span>); y = p(<span class="hljs-number">2</span>); theta = p(<span class="hljs-number">3</span>);
+xref = p(<span class="hljs-number">4</span>); yref = p(<span class="hljs-number">5</span>); thetaref = p(<span class="hljs-number">6</span>);
+</code></pre>
+<p>
+    the rest of the problem definition remains the same.
+</p>
+<p>
+    The optimizer should now be called as follows:
+</p>
+<pre><code class="hljs css language-matlab">z_init = [<span class="hljs-number">1.0</span>; <span class="hljs-number">-0.3</span>; deg2rad(<span class="hljs-number">30</span>)];
+z_ref  = [<span class="hljs-number">1.5</span>;  <span class="hljs-number">0.7</span>; deg2rad(<span class="hljs-number">50</span>)];
+out = optimizer.consume([z_init; z_ref]);
+</code></pre>
+<p><img src="/optimization-engine/img/nav-oc-sol-refs.jpg" 
+    alt="Multiple references" 
+    title="Different refernece positions and poses" 
+    width="500"/></p>
+<h3><a class="anchor" aria-hidden="true" id="obstacle-avoidance"></a><a href="#obstacle-avoidance" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Obstacle avoidance</h3>
+<p>Consider the problem of determining a minimum-cost trajectory which
+avoids an obstacle, $O$, which is described by</p>
+<div class="math">
+    \[O = \{z = (x,y) {}\mid{}  h(z) > 0\},\]
+</div>
+where $h:\mathbb{R}^2\to\mathbb{R}$ is a $C^{1,1}$-function. The obstacle avoidance constraint
+$z\notin O$ is satisfied if and only if 
+<div class="math">
+    \[[{}h(z){}]_+^2 {}={} 0,\]
+</div>
+<p>
+    where $[x]_+ = \max\{0, x\}$ is the plus operator.
+</p>
+<p>
+    We now define the modified stage cost function
+</p>
+<div class="math">
+    \[\tilde{\ell}(z,u) {}={} \ell(z,u) + \eta [{}h(z){}]_+^2,\]
+</div>
+<p>
+    and the modified terminal cost function
+</p>
+<div class="math">
+    \[\tilde{\ell}_N(z) {}={} \ell_N(z) + \eta_N [{}h(z){}]_+^2,\]
+</div>
+where $\eta$ and $\eta_N$ are positive weights.
+In the following plot we show trajectories for different values of 
+$\eta$ and $\eta_N$...
+<p><img src="/optimization-engine/img/nav-oc-sol-xy-obst.jpg" 
+    alt="Obstacle avoidance" 
+    title="Obstacle avoidance" 
+    width="500"/></p>
+<p>For completeness, here is the modified code:</p>
+<pre><code class="hljs css language-matlab">nu = <span class="hljs-number">2</span>; nx = <span class="hljs-number">3</span>;
+u = casadi.SX.sym(<span class="hljs-string">'u'</span>, nu*N); 
+p = casadi.SX.sym(<span class="hljs-string">'p'</span>, <span class="hljs-number">2</span>*nx+<span class="hljs-number">1</span>);
+x = p(<span class="hljs-number">1</span>); y = p(<span class="hljs-number">2</span>); theta = p(<span class="hljs-number">3</span>);
+xref = p(<span class="hljs-number">4</span>); yref = p(<span class="hljs-number">5</span>); thetaref=p(<span class="hljs-number">6</span>);
+h_penalty = p(<span class="hljs-keyword">end</span>);
+cost = <span class="hljs-number">0</span>;
+
+<span class="hljs-comment">% Obstacle (disc centered at `zobs` with radius `c`)</span>
+c = <span class="hljs-number">0.4</span>; zobs = [<span class="hljs-number">0.7</span>; <span class="hljs-number">0.5</span>];
+
+<span class="hljs-keyword">for</span> t = <span class="hljs-number">1</span>:nu:nu*N    
+    z = [x; y];
+    cost = cost + q*norm(z-zref) + qtheta*(theta-thetaref)^<span class="hljs-number">2</span>;        
+    cost = cost + h_penalty * <span class="hljs-built_in">max</span>(c^<span class="hljs-number">2</span> - norm(z-zobs)^<span class="hljs-number">2</span>, <span class="hljs-number">0</span>)^<span class="hljs-number">2</span>;
+    u_t = u(t:t+<span class="hljs-number">1</span>);
+    theta_dot = (<span class="hljs-number">1</span>/L)*(u_t(<span class="hljs-number">2</span>)*<span class="hljs-built_in">cos</span>(theta) - u_t(<span class="hljs-number">1</span>)*<span class="hljs-built_in">sin</span>(theta));
+    cost = cost + r*(u_t'*u_t);
+    x = x + ts * (u_t(<span class="hljs-number">1</span>) + L * <span class="hljs-built_in">sin</span>(theta) * theta_dot);
+    y = y + ts * (u_t(<span class="hljs-number">2</span>) - L * <span class="hljs-built_in">cos</span>(theta) * theta_dot);
+    theta = theta + ts * theta_dot;
+<span class="hljs-keyword">end</span>
+cost = cost + qN*((x-xref)^<span class="hljs-number">2</span> + (y-yref)^<span class="hljs-number">2</span>) + qthetaN*(theta-thetaref)^<span class="hljs-number">2</span>;
+cost = cost + h_penalty * <span class="hljs-built_in">max</span>(c^<span class="hljs-number">2</span> - norm(z-zobs)^<span class="hljs-number">2</span>, <span class="hljs-number">0</span>)^<span class="hljs-number">2</span>;
+</code></pre>
+<p>##$ Experimental validation</p>
+<p>A somewhat more involved nonlinear model predictive control (NMPC) formulation, enhanced with obstacle avoidance capabilities, was presented in <a href="https://core.ac.uk/download/pdf/153430972.pdf">ECC '18</a>.</p>
+<p>A short footage of our experiment is shown below:</p>
+<p><img src="/optimization-engine/img/6f6ea4f8d194.gif" alt=""></p>
+<h2><a class="anchor" aria-hidden="true" id="population-dynamics"></a><a href="#population-dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Population dynamics</h2>
+<p>Here, we will give a complete example of designing a nonlinear model predictive controller (NMPC) using <strong>OpEn</strong>.</p>
+<p>Let us first give the problem statement.</p>
+<h3><a class="anchor" aria-hidden="true" id="control-of-population-dynamics"></a><a href="#control-of-population-dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Control of population dynamics</h3>
+<p>Consider a <strong>Lotka-Volterra-type model</strong>, aka <strong>predator-prey-type model</strong>, with actuation $u_t$, which is described by the following system of equations</p>
+<div class="math">
+\[\begin{split}
+x_{t+1} {}={}&amp; \frac{\alpha x_{t} - \beta x_{t}y_{t}}{1 + \gamma x_{t}} + u_{t}\\
+y_{t+1} {}={}&amp; \frac{\delta y_{t} - \eta x_{t}y_{t}}{1+\lambda y_{t}}
+\end{split}\tag{1}\]</div>
+This is a two-dimensional system with state 
+<div class="math">\[z_{t} = (x_{t}, y_{t})\]</div>, where $x$ is the number of prey (e.g., rabbits) and $y$ is the number of a predator (e.g., foxes); $u$ corresponds to an external inflow or outflow of prey.
+<p>We are looking for a sequence of inputs</p>
+<div class="math">\[u = (u_{0}, \ldots, u_{N-1})\]</div>
+which minimizes the total cost function 
+<div class="math">\[V(u, z_0) {}={} \sum_{t=0}^{N-1}\ell(z_{t}, u_{t}) + \ell_N(z_N),\tag{2}\]</div>
+where the stage cost function is defined as 
+<div class="math">\[\ell(z,u)=q\|x-x^{\mathrm{ref}}\|^2 + \mu \max\{0, y^{\mathrm{lim}}-y\} + ru^2,\tag{3a}\]</div>
+and the terminal cost function is 
+<div class="math">\[\ell_N(z) = q\|x-x^{\mathrm{ref}}\|^2 + \mu \max\{0, y^{\mathrm{lim}}-y\}.\tag{3b}\]</div>
+<p>We chose these non-quadratic functions to demonstrate that <strong>OpEn</strong> can easily accommodate any ($C^{1,1}$-smooth) nonlinear cost function.</p>
+<p>We therefore need to solve the following parametric optimization problem, with parameter
+$z_0 = (x_0, y_0)$:</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{N}}&amp;\ \ V(u; z_0)\\
+\mathrm{subject\ to} &amp;\ \ u \in U(z_0)\end{split}\tag{4}\]</div>
+<p>We assume there are no active constraints on the input variables, that is
+$U(z_0) = \mathbb{R}^N$.</p>
+<p>The following parameters are given:
+$\alpha = 0.6$, $\beta = 0.05$,  $\gamma = 0.1$,
+$\eta =  0.1$, $\delta = 0.95$ and $\lambda = 0.1$.</p>
+<p>Note that the sequence of states, $z_0, z_1, \ldots, z_N$, does not partipate in the problem definition in <em>(4)</em>. This is because $z_t = z_t(z_0, u_0, \ldots, u_{t-1})$ for all $t=1,\ldots, N$. In order words, all $z_t$ are functions of $u$ and $z_0$.</p>
+<h3><a class="anchor" aria-hidden="true" id="code-generation-in-matlab-1"></a><a href="#code-generation-in-matlab-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation in MATLAB</h3>
+<p>We may generate a parametric optimizer for the above optimal control problem as follows:</p>
+<pre><code class="hljs css language-matlab"><span class="hljs-comment">% Specify the parameters of the system:</span>
+alpha = <span class="hljs-number">0.6</span>; bet = <span class="hljs-number">0.05</span>; gam = <span class="hljs-number">0.1</span>; 
+eta =  <span class="hljs-number">0.1</span>; delta = <span class="hljs-number">0.95</span>;  lam = <span class="hljs-number">0.1</span>; 
+
+<span class="hljs-comment">% Prediction horizon:</span>
+N = <span class="hljs-number">20</span>;
+
+<span class="hljs-comment">% Parameters of the cost functions:</span>
+q = <span class="hljs-number">1.5</span>; r = <span class="hljs-number">0.1</span>; qN = <span class="hljs-number">2</span>; mu = <span class="hljs-number">3000</span>;
+xref=<span class="hljs-number">0.2</span>; ylim=<span class="hljs-number">0.05</span>;
+
+u = casadi.SX.sym(<span class="hljs-string">'u'</span>, N);
+z0 = casadi.SX.sym(<span class="hljs-string">'u'</span>, <span class="hljs-number">2</span>);
+
+<span class="hljs-comment">% Construct the cost function</span>
+x = z0(<span class="hljs-number">1</span>); y = z0(<span class="hljs-number">2</span>); cost = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">for</span> t = <span class="hljs-number">1</span>:N
+    cost = cost + q*(x-xref)^<span class="hljs-number">2</span> + mu*<span class="hljs-built_in">max</span>(ylim-y,<span class="hljs-number">0</span>)^<span class="hljs-number">2</span>+ r*u(t)^<span class="hljs-number">2</span>;    
+    x = (alpha*x - bet*x*y)/(<span class="hljs-number">1</span> + gam*x) + u(t);
+    y = ( delta*y - eta*x*y)/(<span class="hljs-number">1</span> + lam*y);
+<span class="hljs-keyword">end</span>
+cost = cost + qN*(x-xref)^<span class="hljs-number">2</span> + mu*<span class="hljs-built_in">max</span>(ylim-y,<span class="hljs-number">0</span>)^<span class="hljs-number">2</span>;
+
+<span class="hljs-comment">% Constraints</span>
+constraints = OpEnConstraints.make_no_constraints();
+
+<span class="hljs-comment">% Use OpEnOptimizerBuilder to build an optimizer</span>
+builder = OpEnOptimizerBuilder()...
+    .with_problem(u, z0, cost, constraints)...
+    .with_build_name(<span class="hljs-string">'lotka_volterra'</span>)...
+    .with_fpr_tolerance(<span class="hljs-number">1e-8</span>);
+optimizer = builder.build();
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="solution-1"></a><a href="#solution-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solution</h3>
+<p>We first need to start the parametric optimization module and connect to it (read the <a href="/optimization-engine/docs/matlab-interface">documentation</a> of the MATLAB interface for details)</p>
+<pre><code class="hljs css language-matlab">optimizer.run();
+optimizer.connect();
+</code></pre>
+<p>We may then use the optimizer as follows:</p>
+<pre><code class="hljs css language-matlab">z0 = [<span class="hljs-number">0.75</span>;<span class="hljs-number">0.5</span>];
+out = optimizer.consume(z0);
+</code></pre>
+<p>Here <code>z0</code> is the initial condition, $z_0 = (x_0, y_0)$.</p>
+<p>The optimizer returns the following structure:</p>
+<pre><code class="hljs css language-text">     p: [2×1 double]
+     u: [20×1 double]
+     n: 46
+     f: -8.0539
+    dt: '4.615292ms'
+</code></pre>
+<p>The problem in solved in 4.6ms (46 iterations).</p>
+<p>The optimal solution is stored in <code>out.u</code>.</p>
+<p>The solution is presented in the following plot:</p>
+<p><img src="/optimization-engine/img/lv-oc-sol.jpg" alt="Lotka-Volterra Optimal Solution" width="500"/></p>
+<p>The optimizer object can be reused to solve a problem of the form (4) with a different parameter, $z_0$. For example:</p>
+<pre><code class="hljs css language-matlab">z0 = [<span class="hljs-number">-1</span>;<span class="hljs-number">1</span>];
+out = optimizer.consume(z0);
+</code></pre>
+<p>produces the following solution:</p>
+<p><img src="/optimization-engine/img/lv-oc-sol-2.jpg" alt="Lotka-Volterra Optimal Solution" width="500"/></p>
+<p>Once the optimizer is no longer needed, we should disconnect from it and kill it:</p>
+<pre><code class="hljs css language-matlab">optimizer.run();
+optimizer.stop();
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/udp-sockets"><span class="arrow-prev">← </span><span>UDP sockets</span></a><a class="docs-next button" href="/optimization-engine/docs/openrust-basic"><span>Basic usage</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#navigation">Navigation</a><ul class="toc-headings"><li><a href="#problem-statement">Problem statement</a></li><li><a href="#code-generation-in-matlab">Code generation in MATLAB</a></li><li><a href="#solution">Solution</a></li><li><a href="#free-references">Free references</a></li><li><a href="#obstacle-avoidance">Obstacle avoidance</a></li></ul></li><li><a href="#population-dynamics">Population dynamics</a><ul class="toc-headings"><li><a href="#control-of-population-dynamics">Control of population dynamics</a></li><li><a href="#code-generation-in-matlab-1">Code generation in MATLAB</a></li><li><a href="#solution-1">Solution</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
