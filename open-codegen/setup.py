@@ -5,7 +5,7 @@ import io
 import os
 
 NAME = 'opengen'
-VERSION = '0.0.7'
+VERSION = '0.1.0'
 DESCRIPTION = 'Optimization Engine Code Generator'
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -33,7 +33,7 @@ setup(name=NAME,
           'jinja2', 'casadi', 'numpy', 'pyyaml', 'retry'
       ],
       classifiers=[
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 3 - Alpha',
             'License :: OSI Approved :: MIT License',
             'License :: OSI Approved :: Apache Software License',
             'Programming Language :: Python',
