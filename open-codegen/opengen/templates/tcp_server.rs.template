@@ -68,7 +68,7 @@ fn pong(stream: &mut std::net::TcpStream, code: i32) {
 /// Writes an error to the communication stream
 fn write_error(stream: &mut std::net::TcpStream, code: i32) {
     let error_message = format!(
-        {% raw %}"{{\n\t\"Error\" : \"Invalid Request\"\n\t\"Code\" : {}\n}}\n"{% endraw %},
+        {% raw %}"{{\n\t\"Error\" : \"Invalid Request\", \n\t\"Code\" : {}\n}}\n"{% endraw %},
         code
     );
     warn!("Invalid request {:?}", code);

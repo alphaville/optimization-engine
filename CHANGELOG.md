@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+* TCP server: Malformed error JSON is now fixed
+
 ### Added
 
 ### Removed
