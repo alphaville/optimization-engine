@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
+* Support for Python <3.6 (deprecated)
+
 
 <!-- ---------------------
       v0.5.0
