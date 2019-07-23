@@ -269,7 +269,16 @@ class RustBuildTestCase(unittest.TestCase):
             result = tcp_manager.call(p=[1.0, 10.0+i],
                                       initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0])
             _exit_status = result['exit_status']
+            self.assertEqual("Converged", _exit_status, "Problem not converged")
 
+        result = tcp_manager.call([1.0, 10.0, 100.0])
+        if not 'type' in result:
+            self.fail("No 'type' in result")
+        if not 'code' in result:
+            self.fail("No 'code' in result")
+
+        self.assertEqual(result['type'], "Error", "Error not detected")
+        self.assertEqual(result['code'], 3003, "Wrong error code")
         tcp_manager.kill()
 
 
