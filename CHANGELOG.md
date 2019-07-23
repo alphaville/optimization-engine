@@ -14,9 +14,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+* TCP server: Malformed error JSON is now fixed
+
 ### Added
 
 ### Removed
+
+* Support for Python <3.6 (deprecated)
 
 
 <!-- ---------------------
