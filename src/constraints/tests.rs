@@ -1,6 +1,24 @@
 use super::*;
 
 #[test]
+#[should_panic]
+fn t_finite_set_inconsistent_dimensions() {
+    let x1 = vec![1.0; 2];
+    let x2 = vec![0.0; 3];
+    let mut data: Vec<Vec<f64>> = Vec::with_capacity(2);
+    data.push(x1);
+    data.push(x2);
+    let _f = FiniteSet::new(data);
+}
+
+#[test]
+#[should_panic]
+fn t_finite_set_empty_data() {
+    let mut _data: Vec<Vec<f64>> = Vec::with_capacity(2);
+    let _f = FiniteSet::new(_data);
+}
+
+#[test]
 fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
