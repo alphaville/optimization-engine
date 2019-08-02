@@ -4,11 +4,13 @@ mod ball2;
 mod cartesian_product;
 mod no_constraints;
 mod rectangle;
+mod soc;
 
 pub use ball2::Ball2;
 pub use cartesian_product::CartesianProduct;
 pub use no_constraints::NoConstraints;
 pub use rectangle::Rectangle;
+pub use soc::SecondOrderCone;
 
 /// A set which can be used as a constraint
 ///
