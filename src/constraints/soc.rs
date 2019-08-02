@@ -22,6 +22,7 @@ impl Constraint for SecondOrderCone {
     fn project(&self, x: &mut [f64]) {
         // x = (z, r)
         let n = x.len();
+        assert!(n >= 2, "x must be of dimension at least 2");
         let z = &x[..n - 1];
         let r = x[n - 1];
         let norm_z = matrix_operations::norm2(z);
@@ -29,7 +30,9 @@ impl Constraint for SecondOrderCone {
             x.iter_mut().for_each(|v| *v = 0.0);
         } else if norm_z > self.alpha * r {
             let beta = (self.alpha * norm_z + r) / (self.alpha.powi(2) + 1.0);
-            x[..n - 1].iter_mut().for_each(|v| *v *= self.alpha * beta);
+            x[..n - 1]
+                .iter_mut()
+                .for_each(|v| *v *= self.alpha * beta / norm_z);
             x[n - 1] = beta;
         }
     }

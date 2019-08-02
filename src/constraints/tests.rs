@@ -125,7 +125,7 @@ fn t_no_constraints() {
 
 #[test]
 #[should_panic]
-fn cartesian_product_constraints_incoherent_indices() {
+fn t_cartesian_product_constraints_incoherent_indices() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
     let mut cart_prod = CartesianProduct::new();
@@ -135,7 +135,7 @@ fn cartesian_product_constraints_incoherent_indices() {
 
 #[test]
 #[should_panic]
-fn cartesian_product_constraints_wrong_vector_dim() {
+fn t_cartesian_product_constraints_wrong_vector_dim() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
     let mut cart_prod = CartesianProduct::new();
@@ -146,7 +146,7 @@ fn cartesian_product_constraints_wrong_vector_dim() {
 }
 
 #[test]
-fn cartesian_product_constraints() {
+fn t_cartesian_product_constraints() {
     let radius1 = 1.0;
     let radius2 = 0.5;
     let idx1 = 3;
@@ -165,7 +165,7 @@ fn cartesian_product_constraints() {
 }
 
 #[test]
-fn cartesian_product_ball_and_rectangle() {
+fn t_cartesian_product_ball_and_rectangle() {
     /* Rectangle 1 */
     let xmin1 = vec![-1.0; 3];
     let xmax1 = vec![1.0; 3];
@@ -208,4 +208,65 @@ fn cartesian_product_ball_and_rectangle() {
         1e-10,
         "wrong projection on rectangle 2",
     );
+}
+
+#[test]
+fn t_second_order_cone_case_i() {
+    let soc = SecondOrderCone::new(1.0);
+    let mut x = vec![1.0, 1.0, 1.42];
+    let x_copy = x.clone();
+    soc.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x, &x_copy, 1e-10, 1e-12, "x has been modified");
+}
+
+#[test]
+fn t_second_order_cone_case_ii() {
+    let alpha = 0.5;
+    let soc = SecondOrderCone::new(alpha);
+    let mut x = vec![1.0, 1.0, -0.71];
+    soc.project(&mut x);
+    let expected = vec![0.0; 3];
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &expected,
+        1e-10,
+        1e-12,
+        "wrong result (should be zero)",
+    );
+}
+
+#[test]
+fn t_second_order_cone_case_iii() {
+    let alpha = 1.5;
+    let soc = SecondOrderCone::new(alpha);
+    let mut x = vec![1.0, 1.0, 0.1];
+    soc.project(&mut x);
+    // make sure the new `x` is in the cone
+    let norm_z = crate::matrix_operations::norm2(&x[..=1]);
+    assert!(norm_z <= alpha * x[2]);
+    // in fact the projection should be on the boundary of the cone
+    assert!((norm_z - alpha * x[2]).abs() <= 1e-7);
+}
+
+#[test]
+#[should_panic]
+fn t_second_order_cone_illegal_alpha_i() {
+    let alpha = 0.0;
+    let _soc = SecondOrderCone::new(alpha);
+}
+
+#[test]
+#[should_panic]
+fn t_second_order_cone_illegal_alpha_ii() {
+    let alpha = -1.0;
+    let _soc = SecondOrderCone::new(alpha);
+}
+
+#[test]
+#[should_panic]
+fn t_second_order_cone_short_vector() {
+    let alpha = 1.0;
+    let soc = SecondOrderCone::new(alpha);
+    let mut _x = vec![1.0];
+    soc.project(&mut _x);
 }
