@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::matrix_operations;
 
 ///
 /// A second-order cone (SOC)
@@ -18,5 +19,18 @@ impl SecondOrderCone {
 }
 
 impl Constraint for SecondOrderCone {
-    fn project(&self, _x: &mut [f64]) {}
+    fn project(&self, x: &mut [f64]) {
+        // x = (z, r)
+        let n = x.len();
+        let z = &x[..n - 1];
+        let r = x[n - 1];
+        let norm_z = matrix_operations::norm2(z);
+        if self.alpha * norm_z <= -r {
+            x.iter_mut().for_each(|v| *v = 0.0);
+        } else if norm_z > self.alpha * r {
+            let beta = (self.alpha * norm_z + r) / (self.alpha.powi(2) + 1.0);
+            x[..n - 1].iter_mut().for_each(|v| *v *= self.alpha * beta);
+            x[n - 1] = beta;
+        }
+    }
 }
