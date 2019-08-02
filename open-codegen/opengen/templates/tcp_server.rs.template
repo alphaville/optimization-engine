@@ -66,10 +66,11 @@ fn pong(stream: &mut std::net::TcpStream, code: i32) {
 }
 
 /// Writes an error to the communication stream
-fn write_error(stream: &mut std::net::TcpStream, code: i32) {
+fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &str) {
     let error_message = format!(
-        {% raw %}"{{\n\t\"Error\" : \"Invalid Request\"\n\t\"Code\" : {}\n}}\n"{% endraw %},
-        code
+        {% raw %}"{{\n\t\"type\" : \"Error\", \n\t\"code\" : {}, \n\t\"message\" : \"{}\"\n}}\n"{% endraw %},
+        code,
+        error_msg
     );
     warn!("Invalid request {:?}", code);
     stream
@@ -118,7 +119,7 @@ fn execution_handler(
         Some(u0) => {
             if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
                 warn!("initial guess has incompatible dimensions");
-                write_error(stream, 1600);
+                write_error_message(stream, 1600, "Initial guess has incompatible dimensions");
                 return;
             }
             u.copy_from_slice(&u0);
@@ -130,7 +131,7 @@ fn execution_handler(
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
     if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
-        write_error(stream, 3003);
+        write_error_message(stream, 3003, "wrong number of parameters");
         return;
     }
     p.copy_from_slice(&parameter);
@@ -140,7 +141,7 @@ fn execution_handler(
             return_solution_to_client(ok_status, u, stream);
         }
         Err(_) => {
-            write_error(stream, 2000);
+            write_error_message(stream, 2000, "Problem solution failed (solver error)");
         }
     }
 }
@@ -187,7 +188,7 @@ fn run_server() {
                 }
             },
             Err(_) => {
-                write_error(&mut stream, 1000);
+                write_error_message(&mut stream, 1000, "Invalid request");
             }
         }
     }

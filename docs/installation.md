@@ -12,12 +12,33 @@ Install Rust following the official [installation guide](https://www.rust-lang.o
 ## Python Interface
 As simple as
 
-```
+```console
 pip install opengen
 ```
 
-You might need to prepend `sudo` on some Linux 
-systems.
+You might need to prepend `sudo` on some Linux systems.
+
+Note that OpEn requires Python **version 3.5 or newer**. You might, therefore,
+need to install it using 
+
+```console
+pip3 install opengen
+```
+
+OpEn may run on earlier versions of Python (as old as 2.7), but we cannot promise 
+you that (the main difficulty being the installation of dependencies).
+
+### Python installation with virtualenv
+
+To install OpEn in a virtual environment, using `virtualenv`, you first
+need to create such an environment, then activate it, and lastly, install
+`opengen` as above using `pip`. That is, you need to run:
+
+```console
+virtualenv -p python3.6 venv36
+source venv36/bin/activate
+pip install opengen
+```
 
 ## MATLAB Interface
 You first need to download [Optimization Engine](https://github.com/alphaville/optimization-engine/archive/master.zip), `cd` to `./matlab/` and run 
