@@ -19,6 +19,53 @@ fn t_finite_set_empty_data() {
 }
 
 #[test]
+fn t_finite_set() {
+    let data: Vec<Vec<f64>> = vec![
+        vec![0.0, 0.0],
+        vec![1.0, 1.0],
+        vec![0.0, 1.0],
+        vec![1.0, 0.0],
+    ];
+    let finite_set = FiniteSet::new(data);
+    let mut x = [0.7, 0.6];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1.0, 1.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [1,1])",
+    );
+    x = [-0.1, 0.2];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.0, 0.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [0,0])",
+    );
+    x = [0.48, 0.501];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.0, 1.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [0,1])",
+    );
+    x = [0.7, 0.2];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1.0, 0.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [1,0])",
+    );
+}
+
+#[test]
 fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
