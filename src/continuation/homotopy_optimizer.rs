@@ -195,6 +195,19 @@ where
         self
     }
 
+    /// Specify the inner tolerance update factor
+    ///
+    pub fn with_inner_tolerance_update_factor(
+        mut self,
+        inner_tolerance_update_factor: f64,
+    ) -> Self {
+        assert!(
+            inner_tolerance_update_factor < 1.0 && inner_tolerance_update_factor > 0.0,
+            "inner tol update factor must be a number in (0,1)"
+        );
+        self.inner_tolerance_update_factor = inner_tolerance_update_factor;
+        self
+    }
     /// Specify tolerance on constraint violation
     ///
     /// ## Arguments
