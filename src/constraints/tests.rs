@@ -14,7 +14,7 @@ fn t_finite_set_inconsistent_dimensions() {
 #[test]
 #[should_panic]
 fn t_finite_set_empty_data() {
-    let mut _data: Vec<Vec<f64>> = Vec::with_capacity(2);
+    let mut _data: Vec<Vec<f64>> = Vec::new();
     let _f = FiniteSet::new(_data);
 }
 
@@ -272,5 +272,43 @@ fn cartesian_product_ball_and_rectangle() {
         1e-8,
         1e-10,
         "wrong projection on rectangle 2",
+    );
+}
+
+#[test]
+fn t_cartesian_product_dimension() {
+    let data: Vec<Vec<f64>> = vec![vec![0.0, 0.0], vec![1.0, 1.0]];
+    let finite_set = FiniteSet::new(data);
+    let ball = Ball2::new(None, 1.0);
+    let no_constraints = NoConstraints::new();
+    let mut cartesian = CartesianProduct::new();
+    cartesian.add_constraint(2, &finite_set);
+    cartesian.add_constraint(4, &finite_set); // (again)
+    cartesian.add_constraint(7, &no_constraints);
+    cartesian.add_constraint(10, &ball);
+    assert!(10 == cartesian.dimension());
+
+    // let's do a projection to make sure this works
+    // Note: we've used the same set (finite_set), twice
+    let mut x = [-0.5, 1.1, 0.45, 0.55, 10.0, 10.0, -500.0, 1.0, 1.0, 1.0];
+    cartesian.project(&mut x);
+    println!("X = {:#?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &[
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            10.0,
+            10.0,
+            -500.0,
+            0.5773502691896258,
+            0.5773502691896258,
+            0.5773502691896258,
+        ],
+        1e-10,
+        1e-12,
+        "wrong projection on cartesian product",
     );
 }
