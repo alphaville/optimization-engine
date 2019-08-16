@@ -4,7 +4,7 @@ use crate::matrix_operations;
 ///
 /// A second-order cone (SOC)
 ///
-/// A set of the form `{ (x, t) : ||x|| <= a*t}`, where `a` is a positive
+/// A set of the form `{ x=(y, t) : ||t|| <= a*t}`, where `a` is a positive
 /// scalar.
 ///
 /// Projections on the second-order cone are computed as in H.H. Bauschke's
@@ -16,6 +16,13 @@ pub struct SecondOrderCone {
 
 impl SecondOrderCone {
     /// Construct a new instance of SecondOrderCone with parameter `alpha`
+    ///
+    /// A second-order cone with parameter alpha is the set `C = {x=(y, t): ||y|| <= alpha*t}`,
+    /// where `alpha` is a positive parameter,
+    /// and projections are computed according to Theorem 3.3.6 in H.H. Bauschke's 1996 doctoral
+    /// dissertation:
+    /// [Projection Algorithms and Monotone Operators](http://summit.sfu.ca/system/files/iritems1/7015/b18025766.pdf)
+    /// (page 40).
     ///
     /// ### Panics
     ///
@@ -29,9 +36,15 @@ impl SecondOrderCone {
 impl Constraint for SecondOrderCone {
     /// Project on the second-order cone (updates the given vector/slice)
     ///
+    /// ### Arguments
+    ///
+    /// - `x`: (in) vector to be projected on the current instance of a second-order
+    ///   cone, (out) projection on the second-order cone
+    ///
     /// ### Panics
     ///
     /// The methods panics is the length of `x` is less than 2.
+    ///
     fn project(&self, x: &mut [f64]) {
         // x = (z, r)
         let n = x.len();
