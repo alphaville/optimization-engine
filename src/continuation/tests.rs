@@ -289,9 +289,9 @@ fn t_homotopy_rosenbrock_relaxed_inner_tolerance() {
     let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
     let p = [1.0, 100.0];
     let inner_tolerance = 1e-6;
-    let initial_tolerance = 1e-1;
+    let initial_tolerance = 1.0;
     let tolerance_factor = 1e-1;
-    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let mut cache = initialize_solver(inner_tolerance, 5.0);
     let status = solve(
         &p,
         &mut cache,
@@ -303,5 +303,28 @@ fn t_homotopy_rosenbrock_relaxed_inner_tolerance() {
         initial_tolerance,
         tolerance_factor,
     );
+    println!("status = {:#?}", &status);
     assert_eq!(status.unwrap().exit_status(), ExitStatus::Converged);
+}
+
+#[test]
+#[should_panic]
+fn t_relaxed_inner_tolerance_failure() {
+    let mut u = [0.0; 5];
+    let p = [0.0; 2];
+    let inner_tolerance = 1e-6;
+    let initial_tolerance = 1e-1;
+    let tolerance_factor = 1.5; // <- should be in (0, 1)
+    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let _ = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10000000,
+        1e-3,
+        30,
+        500,
+        initial_tolerance,
+        tolerance_factor,
+    );
 }
