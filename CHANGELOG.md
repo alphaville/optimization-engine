@@ -19,11 +19,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 * Tolerance relaxation in penalty method
+* Finite sets supported in Rust
 
 ### Removed
 
 * Support for Python <3.6 (deprecated)
-
 
 <!-- ---------------------
       v0.5.0
