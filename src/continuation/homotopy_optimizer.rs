@@ -182,6 +182,17 @@ where
     }
 
     /// Specify the initial inner tolerance
+    ///
+    /// ## Arguments
+    ///
+    /// - init_inner_tolerance: initial value of the inner tolerance
+    ///   (must be positive)
+    ///
+    /// ## Panics
+    ///
+    /// If `init_inner_tolerance` is nonpositive or if it is lower than the target
+    /// tolerance
+    ///
     pub fn with_initial_inner_tolerance(mut self, init_inner_tolerance: f64) -> Self {
         assert!(
             init_inner_tolerance > 0.0,
@@ -197,6 +208,20 @@ where
 
     /// Specify the inner tolerance update factor
     ///
+    /// The tolerance of the inner solver is initialised using
+    /// `with_initial_inner_tolerance` and at every outer iteration
+    /// it is updated by multiplying with this factor.
+    ///
+    /// ## Arguments
+    ///
+    /// -  inner_tolerance_update_factor: update factor of inner tolerance
+    ///    (must be in (0,1))
+    ///
+    /// ## Panics
+    ///
+    /// If `inner_tolerance_update_factor` is nonpositive of larger than
+    /// or equal to 1.0.
+    ///
     pub fn with_inner_tolerance_update_factor(
         mut self,
         inner_tolerance_update_factor: f64,
@@ -208,6 +233,7 @@ where
         self.inner_tolerance_update_factor = inner_tolerance_update_factor;
         self
     }
+
     /// Specify tolerance on constraint violation
     ///
     /// ## Arguments

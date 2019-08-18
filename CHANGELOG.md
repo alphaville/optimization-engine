@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Tolerance relaxation in penalty method
+
 ### Removed
 
 * Support for Python <3.6 (deprecated)
