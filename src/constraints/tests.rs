@@ -336,7 +336,7 @@ fn t_second_order_cone_short_vector() {
     soc.project(&mut _x);
 }
 
-
+#[test]
 fn t_cartesian_product_dimension() {
     let data: Vec<Vec<f64>> = vec![vec![0.0, 0.0], vec![1.0, 1.0]];
     let finite_set = FiniteSet::new(data);
