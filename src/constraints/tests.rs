@@ -1,6 +1,71 @@
 use super::*;
 
 #[test]
+#[should_panic]
+fn t_finite_set_inconsistent_dimensions() {
+    let x1 = vec![1.0; 2];
+    let x2 = vec![0.0; 3];
+    let mut data: Vec<Vec<f64>> = Vec::with_capacity(2);
+    data.push(x1);
+    data.push(x2);
+    let _f = FiniteSet::new(data);
+}
+
+#[test]
+#[should_panic]
+fn t_finite_set_empty_data() {
+    let mut _data: Vec<Vec<f64>> = Vec::new();
+    let _f = FiniteSet::new(_data);
+}
+
+#[test]
+fn t_finite_set() {
+    let data: Vec<Vec<f64>> = vec![
+        vec![0.0, 0.0],
+        vec![1.0, 1.0],
+        vec![0.0, 1.0],
+        vec![1.0, 0.0],
+    ];
+    let finite_set = FiniteSet::new(data);
+    let mut x = [0.7, 0.6];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1.0, 1.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [1,1])",
+    );
+    x = [-0.1, 0.2];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.0, 0.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [0,0])",
+    );
+    x = [0.48, 0.501];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[0.0, 1.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [0,1])",
+    );
+    x = [0.7, 0.2];
+    finite_set.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &[1.0, 0.0],
+        &x,
+        1e-10,
+        1e-10,
+        "projection is wrong (should be [1,0])",
+    );
+}
+
+#[test]
 fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
@@ -207,5 +272,43 @@ fn cartesian_product_ball_and_rectangle() {
         1e-8,
         1e-10,
         "wrong projection on rectangle 2",
+    );
+}
+
+#[test]
+fn t_cartesian_product_dimension() {
+    let data: Vec<Vec<f64>> = vec![vec![0.0, 0.0], vec![1.0, 1.0]];
+    let finite_set = FiniteSet::new(data);
+    let ball = Ball2::new(None, 1.0);
+    let no_constraints = NoConstraints::new();
+    let mut cartesian = CartesianProduct::new();
+    cartesian.add_constraint(2, &finite_set);
+    cartesian.add_constraint(4, &finite_set); // (again)
+    cartesian.add_constraint(7, &no_constraints);
+    cartesian.add_constraint(10, &ball);
+    assert!(10 == cartesian.dimension());
+
+    // let's do a projection to make sure this works
+    // Note: we've used the same set (finite_set), twice
+    let mut x = [-0.5, 1.1, 0.45, 0.55, 10.0, 10.0, -500.0, 1.0, 1.0, 1.0];
+    cartesian.project(&mut x);
+    println!("X = {:#?}", x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &[
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            10.0,
+            10.0,
+            -500.0,
+            0.5773502691896258,
+            0.5773502691896258,
+            0.5773502691896258,
+        ],
+        1e-10,
+        1e-12,
+        "wrong projection on cartesian product",
     );
 }
