@@ -50,9 +50,115 @@
             });
         </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Algorithm</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<p>Problem:</p>
+<p>Optimization Engine (OpEn) solves problems of the following form:</p>
 <div class="math">
 \[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to} &amp;\ \ u \in U\\
+&amp;\ \ c(u; p) = 0\end{split}\]</div>
+<p>Our blanket assumptions are:</p>
+<p><strong>A1.</strong> Function $f({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}$ is continuously differentiable in $u$ with $L$-Lipschitz
+gradient</p>
+<p><strong>A2.</strong> $U\subseteq \mathbb{R}^n$ is a nonempty set on which we can compute projections (e.g., boxes, balls, discrete sets, etc)</p>
+<p><strong>A3.</strong> Functions $c_i({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}$, for $i=1,\ldots, s$, are continuous</p>
+<p>We shall first assume that $s=0$, i.e., there are no constraints of the form $c(u; p) {}={} 0$.</p>
+<h2><a class="anchor" aria-hidden="true" id="simple-constraints"></a><a href="#simple-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple constraints</h2>
+<p>Let us first focus on problems of the following simpler form (we have dropped the dependence
+on $p$ for the sake of brevity)</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u)\\
 \mathrm{subject\ to} &amp;\ \ u \in U\end{split}\]</div>
-<p>This part of the documentation is under development.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/installation"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/optimization-engine/docs/python-interface"><span>Opengen basics</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+<h3><a class="anchor" aria-hidden="true" id="projected-gradient-method"></a><a href="#projected-gradient-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Projected gradient method</h3>
+<p>Recall that the projected gradient method applied on this problem yields the iterations</p>
+<div class="math">
+\[u^{\nu+1} = \Pi_{U}(u^\nu - \gamma \nabla f(u^\nu))\]</div>
+<p>starting from an initial guess $u^0$.</p>
+<p>Let us define $T_\gamma(u) = \Pi_U (u - \gamma \nabla f(u))$, so the projected gradient method
+can be written as $u^{\nu+1} = T_\gamma(u^\nu)$, that is, they satisfy</p>
+<div class="math">\[u^{\star} = T_\gamma(u^\star)\]</div>
+<p>We call such points $u^\star$, $\gamma$-<strong>critical points</strong> of the problem.</p>
+<p>If $\gamma &lt; 2/L$, then the projected gradient method is guaranteed to converge in the sense
+that all accumulation points of the projected gradient method are fixed points of $T_\gamma$.</p>
+<p>The projected gradient method involves only simple steps which makes it easy to
+program and suitable for embedded applications, but convergence is at most Q-linear,
+often slow and sensitive to ill conditioning.</p>
+<h3><a class="anchor" aria-hidden="true" id="speeding-things-up"></a><a href="#speeding-things-up" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Speeding things up</h3>
+<p>In order to achieve superior congerence rates we proceed as follows:
+a $\gamma$-crtical point of the above problem is a <em>zero</em> of the residual operator</p>
+<div class="math">\[R(u) = \tfrac{1}{\gamma}(u - T_{\gamma}(u))\]</div>
+<p>We may, therefore, use a Newton-type method of the form</p>
+<div class="math">\[u^{\nu+1} = u^\nu + d^\nu,\]</div>
+<p>where $d^\nu$ is computed as</p>
+<div class="math">\[d^\nu = -H_\nu R_\gamma(u^\nu),\]</div>
+<p>where $H_\nu$ are invertible linear operators that satisfy the secant condition
+$s^\nu = H_\nu y^\nu$ with $s^\nu = u^{\nu+1}-u^\nu$ and
+$y^\nu = R_\gamma(u^{\nu+1})-R_\gamma(u^{\nu})$.</p>
+<p>We could then use fast L-BFGS quasi-Newtonian directions, which do not require
+matrix operations (only vector products) and have low memory requirements.
+However, convergence is only local, in a neighbourhood of a critical point $u^\star$.</p>
+<p>Our objective is to employ a globalisation technique using an appropriate exact
+merit function.</p>
+<h3><a class="anchor" aria-hidden="true" id="forward-backward-envelope"></a><a href="#forward-backward-envelope" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Forward-Backward Envelope</h3>
+<p>The forward-backward envelope (FBE) is a function $\varphi_\gamma:\mathbb{R}^n\to\mathbb{R}$
+is a function with the following properties</p>
+<ol>
+<li>It is real-valued</li>
+<li>It is continuous</li>
+<li>For $0 &lt; \gamma &lt; \tfrac{1}{L}$ it shares the same local/strong minima with the original problem</li>
+</ol>
+<p>Therefore, the original constrained optimisation problem is equivalent to the unconstrained
+minimisation problem of function $\varphi_\gamma$.</p>
+<p>Additionally, if $f\in C^2$, then FBE is $C^1$ with gradient $\nabla \varphi_\gamma(u) = (I-\gamma \nabla^2 f(u))R_\gamma(u)$.</p>
+<p>The FBE is constructed as follows: Function $f$ can be approximated at a point $u \in U$ by the (local) quadratic
+upper bound:</p>
+<div class="math">\[Q^f_\gamma(v; u) = f(u) + \nabla f(u)^\top (v-u) + \frac{1}{2\gamma}\|v-u\|_2^2.\]</div>
+<p>Then, the FBE is defined as</p>
+<div class="math">\[\varphi_\gamma(u) {}={} \inf_{v \in U}Q^f_\gamma(v; u).\]</div>
+<p>This construction is illustrated in the figure below</p>
+<p><img src="/optimization-engine/img/fbe.png" alt="FBE construction" width="500"/></p>
+<p>Provided that it is easy to compute the distance to $U$, the FBE can be easily computed by</p>
+<div class="math">\[\varphi_\gamma(u) {}={} f(u) - \tfrac{\gamma}{2}\|\nabla f(u)\|^2 + \mathrm{dist}^2(u - \gamma \nabla f(u)).\]</div>
+<h3><a class="anchor" aria-hidden="true" id="panoc"></a><a href="#panoc" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PANOC</h3>
+<p>The proximal averaged Newton-type method (PANOC) takes averaged iterated that combine
+<em>safe</em> projected gradient updates and <em>fast</em> quasi-Newtonian directions, that is</p>
+<div class="math">\[u^{\nu+1} = u^\nu + \tau_\nu\, \color{green}{d^\nu} + (1-\tau_\nu)\color{blue}{\gamma R_\gamma(u^\nu)}\]</div>
+<p>and $\tau_\nu$ is chosen so that</p>
+<div class="math">\[\varphi_\gamma(u^{\nu+1}) \leq \varphi_\gamma(u^\nu) - \sigma \|R_\gamma(u^\nu)\|^2,\]</div>
+<p>for an appropriately chosen positive constant $\sigma$. You mean find more information about the algorithm
+in <a href="https://arxiv.org/abs/1904.10546">this paper</a>.</p>
+<p>Some facts about PANOC:</p>
+<ol>
+<li>It uses the same oracle as the projected gradient method</li>
+<li>Eventually only fast updates are activated: $u^{\nu+1} = u^\nu + d^\nu$</li>
+<li>The sequence $r^\nu$ goes to 0 sq. summably</li>
+<li>The cluster points of $u^\nu$ and $\bar{u}^\nu$ are $\gamma$-critical points</li>
+<li>No need to solve any linear systems</li>
+<li>Converges globally</li>
+<li>and it is very fast in practice</li>
+</ol>
+<h2><a class="anchor" aria-hidden="true" id="general-constraints"></a><a href="#general-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General constraints</h2>
+<p>Let us now move on to problems with more general constraints of the general form</p>
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u)\\
+\mathrm{subject\ to} &amp;\ \ u \in U\\
+&amp;\ \ c(u) = 0\end{split}\]</div>
+<p>Equality constraints of the form $c(u) = 0$ can be used to accommodate inequality ones
+of the form</p>
+<div class="math">\[\psi(u) \leq 0,\]</div>
+<p>by taking $c(u) = \max\{0, \psi(u)\}$.</p>
+<p>Although PANOC cannot solve the above problem directly, it can solve the following relaxed problem</p>
+<div class="math">
+\[\begin{split}\mathbb{P}(\lambda) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u) + \lambda g(c(u))\\
+\mathrm{subject\ to} &amp;\ \ u \in U\end{split}\]</div>
+<p>where $g$ is a <strong>penalty function</strong>, which needs to be chosen so that $g(c(u))$ is a continuously
+differentiable function with Lipschitz gradient. A typical (but not the only) choice for $g$
+is $g(v) = v^2$ (the user is free to choose any penalty function).</p>
+<p>Essentially, starting from an initial $\lambda_0&gt;1$, we solve $\mathbb{P}(\lambda_\nu)$,
+we update $\lambda_{\nu+1} = \beta \lambda_nu$, for some $\beta &gt; 1$, and we then solve
+$\mathbb{P}(\lambda_{\nu+1})$ using the previous optimal solution, $u_\nu^\star$, as an
+initial guess.</p>
+<p>This procedure stops once $\|c(u_\nu^\star)\|_\infty {}&lt;{} \epsilon_p$ for some
+tolerance $\epsilon_p &gt; 0$. Tolerance $\epsilon_p$ controls the infeasibility of the
+solution.</p>
+<p>Typically, few such outer iterations are required to achive a reasonable satisfaction of
+the constraints, which inner problems are solved very fast using PANOC.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/installation"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/optimization-engine/docs/python-interface"><span>Opengen basics</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#simple-constraints">Simple constraints</a><ul class="toc-headings"><li><a href="#projected-gradient-method">Projected gradient method</a></li><li><a href="#speeding-things-up">Speeding things up</a></li><li><a href="#forward-backward-envelope">Forward-Backward Envelope</a></li><li><a href="#panoc">PANOC</a></li></ul></li><li><a href="#general-constraints">General constraints</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
