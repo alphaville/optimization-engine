@@ -6,7 +6,7 @@ use super::Constraint;
 /// `C = C(0) x C(1) x ... x C(n-1)`, for some integer `n>1`. Sets `C(i)` are structures which
 /// implement the trait `Constraint`.
 ///
-/// In an n-dimensional space, a vector `x` is split in parts `x = (x(0), x(1), ..., x(n-1)`,
+/// In an n-dimensional space, a vector `x` is split in parts `x = (x(0), x(1), ..., x(n-1))`,
 /// where `x(i)` has dimension `n(i)`. The constraint `x in C` is interpreted as `x(i) in C(i)`
 /// for all `i=0,...,n-1`.
 ///
@@ -47,7 +47,7 @@ impl<'a> CartesianProduct<'a> {
     /// use optimization_engine::constraints::*;
     ///
     /// /*
-    ///  * Cartesian product of two balls or dimensions 3 and 2,
+    ///  * Cartesian product of two balls of dimensions 3 and 2,
     ///  * that is, x = (x0, x1), with x0 being 3-dimensional and
     ///  * x1 being 2-dimensional, that is, x0 = (x[0], x[1], x[2])
     ///  * and x2 = (x[3], x[4]).
@@ -73,6 +73,7 @@ impl<'a> CartesianProduct<'a> {
     /// cart_prod.add_constraint(10, &ball1);        // OK, since 10 > 7
     /// cart_prod.add_constraint(2, &ball3);         // 2 <= 10, so it will fail
     /// ```
+    /// The method will panic if any of the associated projections panics.
     ///
     pub fn add_constraint(&mut self, ni: usize, constraint: &'a dyn Constraint) {
         assert!(
