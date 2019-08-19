@@ -415,10 +415,8 @@ where
             }
 
             // Update the current inner tolerance (until the target inner tolerance in reached)
-            inner_tolerance = f64::max(
-                target_inner_tolerance,
-                self.inner_tolerance_update_factor * inner_tolerance,
-            );
+            inner_tolerance =
+                target_inner_tolerance.max(self.inner_tolerance_update_factor * inner_tolerance);
         }
 
         // TODO: return correct status code
