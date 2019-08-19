@@ -1,4 +1,4 @@
-//! FBS Algorithm
+//! PANOC optimizer
 //!
 use crate::{
     constraints,
@@ -138,6 +138,10 @@ where
         } else {
             ExitStatus::Converged
         };
+
+        // copy u_half_step into u (the algorithm should return u_bar,
+        // because it's always feasible, while u may violate the constraints)
+        u.copy_from_slice(&self.panoc_engine.cache.u_half_step);
 
         // export solution status (exit status, num iterations and more)
         Ok(SolverStatus::new(
