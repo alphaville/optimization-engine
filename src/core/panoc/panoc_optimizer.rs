@@ -160,6 +160,7 @@ where
 #[cfg(test)]
 mod tests {
 
+    use crate::core::constraints::*;
     use crate::core::panoc::*;
     use crate::core::*;
     use crate::{mocks, SolverError};
@@ -200,12 +201,24 @@ mod tests {
         assert!(status.has_converged());
         assert!(status.iterations() < max_iters);
         assert!(status.norm_fpr() < tolerance);
+
+        /* CHECK FEASIBILITY */
+        let mut u_project = [0.0; 2];
+        u_project.copy_from_slice(&u);
+        bounds.project(&mut u_project);
+        unit_test_utils::assert_nearly_equal_array(
+            &u,
+            &u_project,
+            1e-12,
+            1e-16,
+            "infeasibility detected",
+        );
     }
 
     #[test]
     fn t_panoc_in_loop() {
         /* USER PARAMETERS */
-        let tolerance = 1e-6;
+        let tolerance = 1e-5;
         let mut a = 1.0;
         let mut b = 100.0;
         let n = 2;
@@ -213,11 +226,12 @@ mod tests {
         let max_iters = 100;
         let mut u = [-1.5, 0.9];
         let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
-        let mut radius = 1.0;
-        for _ in 1..100 {
+        for i in 1..=100 {
             b *= 1.01;
             a -= 1e-3;
-            radius += 0.001;
+            // Note: updating `radius` like this because `radius += 0.01` builds up small
+            // numerical errors and is less reliable
+            let radius = 1.0 + 0.01 * (i as f64);
             let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
                 mocks::rosenbrock_grad(a, b, u, grad);
                 Ok(())
@@ -232,6 +246,7 @@ mod tests {
 
             let status = panoc.solve(&mut u).unwrap();
 
+            println!("status = {:#?}", status);
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
                 a,
@@ -239,14 +254,16 @@ mod tests {
                 radius,
                 status.iterations()
             );
-            println!("u = {:#.6?}", u);
+
+            /* CHECK FEASIBILITY */
+            // The norm of u must be <= radius
+            let ru = crate::matrix_operations::norm2(&u);
+            assert!(ru <= radius + 1e-15, "infeasibility in problem solution");
 
             assert_eq!(max_iters, panoc.max_iter);
             assert!(status.has_converged());
             assert!(status.iterations() < max_iters);
             assert!(status.norm_fpr() < tolerance);
         }
-
-        /* PROBLEM STATEMENT */
     }
 }
