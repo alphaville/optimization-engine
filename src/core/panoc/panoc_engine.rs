@@ -313,17 +313,19 @@ where
     ///
     ///
     fn step(&mut self, u_current: &mut [f64]) -> Result<bool, SolverError> {
+        // swap cached gradients
+        self.cache.swap_cached_gradients();
+
         // compute the fixed point residual
         self.compute_fpr(u_current);
 
-        // exit if the norm of the fpr is adequetely small
-        if self.cache.norm_gamma_fpr < self.cache.tolerance {
-            //TODO: u <- self.cache.u_half_step
+        // exit if the exit conditions are satisfied (||gamma*fpr|| < eps and,
+        // if activated, ||gamma*r + df - df_prev|| < eps_akkt)
+        if self.cache.exit_condition() {
             return Ok(false);
         }
         self.update_lipschitz_constant(u_current)?; // update lipschitz constant
         self.lbfgs_direction(u_current); // compute LBFGS direction (update LBFGS buffer)
-
         if self.cache.iteration == 0 {
             // first iteration, no line search is performed
             self.update_no_linesearch(u_current)?;

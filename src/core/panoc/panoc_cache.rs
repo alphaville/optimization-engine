@@ -11,6 +11,7 @@
 pub struct PANOCCache {
     pub(crate) lbfgs: lbfgs::Lbfgs,
     pub(crate) gradient_u: Vec<f64>,
+    pub(crate) gradient_u_previous: Option<Vec<f64>>,
     pub(crate) u_half_step: Vec<f64>,
     pub(crate) gradient_step: Vec<f64>,
     pub(crate) direction_lbfgs: Vec<f64>,
@@ -26,6 +27,7 @@ pub struct PANOCCache {
     pub(crate) sigma: f64,
     pub(crate) cost_value: f64,
     pub(crate) iteration: usize,
+    pub(crate) akkt_tolerance: Option<f64>,
 }
 
 impl PANOCCache {
@@ -55,6 +57,7 @@ impl PANOCCache {
 
         PANOCCache {
             gradient_u: vec![0.0; problem_size],
+            gradient_u_previous: None,
             u_half_step: vec![0.0; problem_size],
             gamma_fpr: vec![0.0; problem_size],
             direction_lbfgs: vec![0.0; problem_size],
@@ -63,7 +66,7 @@ impl PANOCCache {
             gamma: 0.0,
             tolerance,
             norm_gamma_fpr: std::f64::INFINITY,
-            // TODO: change the following lines...
+            // TODO: change the following lines (issue #5)...
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
                 .with_cbfgs_alpha(1.0)
                 .with_cbfgs_epsilon(1e-8)
@@ -75,7 +78,56 @@ impl PANOCCache {
             sigma: 0.0,
             cost_value: 0.0,
             iteration: 0,
+            akkt_tolerance: None,
         }
+    }
+
+    ///
+    pub fn set_akkt_tolerance(&mut self, akkt_tolerance: f64) {
+        self.akkt_tolerance = Some(akkt_tolerance);
+        self.gradient_u_previous = Some(vec![0.0; self.gradient_step.len()]);
+    }
+
+    pub fn swap_cached_gradients(&mut self) {
+        if self.iteration >= 1 {
+            if let Some(df_previous) = &mut self.gradient_u_previous {
+                df_previous.copy_from_slice(&self.gradient_u);
+            }
+        }
+    }
+
+    pub fn akkt_residual(&self) -> f64 {
+        let mut r = 0.0;
+        if let Some(df_previous) = &self.gradient_u_previous {
+            r = self
+                .gamma_fpr
+                .iter()
+                .zip(self.gradient_u.iter())
+                .zip(df_previous.iter())
+                .fold(0.0, |mut sum, ((&fpr, &df), &dfp)| {
+                    sum += (fpr + df - dfp).powi(2);
+                    sum
+                })
+                .sqrt();
+        }
+        r
+    }
+
+    fn fpr_exit_condition(&self) -> bool {
+        self.norm_gamma_fpr < self.tolerance
+    }
+
+    fn akkt_exit_condition(&self) -> bool {
+        let mut exit_condition = true;
+        if let Some(akkt_tol) = self.akkt_tolerance {
+            let res = self.akkt_residual();
+            exit_condition = res < akkt_tol;
+        }
+        exit_condition
+    }
+
+    pub fn exit_condition(&self) -> bool {
+        self.fpr_exit_condition() && self.akkt_exit_condition()
     }
 
     pub fn reset(&mut self) {
