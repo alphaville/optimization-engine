@@ -258,7 +258,7 @@ mod tests {
             /* CHECK FEASIBILITY */
             // The norm of u must be <= radius
             let ru = crate::matrix_operations::norm2(&u);
-            assert!(ru <= radius + 1e-15, "infeasibility in problem solution");
+            assert!(ru <= radius + 5e-16, "infeasibility in problem solution");
 
             assert_eq!(max_iters, panoc.max_iter);
             assert!(status.has_converged());
