@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* New AKKT-compliant termination criterion
 * Finite sets supported in Rust
 
 ### Removed

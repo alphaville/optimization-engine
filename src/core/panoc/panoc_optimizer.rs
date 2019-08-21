@@ -12,6 +12,9 @@ use std::time;
 
 const MAX_ITER: usize = 100_usize;
 
+/// Optimizer using the PANOC algorithm
+///
+///
 pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
 where
     GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,

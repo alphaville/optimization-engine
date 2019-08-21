@@ -3,7 +3,7 @@
 /// This struct carries all the information needed at every step of the algorithm.
 ///
 /// An instance of `PANOCCache` needs to be allocated once and a (mutable) reference to it should
-/// be passed to instances of [PANOCEngine](struct.PANOCEngine.html)
+/// be passed to instances of [PANOCOPtimizer](struct.PANOCOptimizer.html)
 ///
 /// Subsequently, a `PANOCEngine` is used to construct an instance of `PANOCAlgorithm`
 ///
@@ -11,6 +11,9 @@
 pub struct PANOCCache {
     pub(crate) lbfgs: lbfgs::Lbfgs,
     pub(crate) gradient_u: Vec<f64>,
+    /// Stores the gradient of the cost at the previous iteration. This is
+    /// an optional field because it is used (and needs to be allocated)
+    /// only if we need to check the AKKT-specific termination conditions
     pub(crate) gradient_u_previous: Option<Vec<f64>>,
     pub(crate) u_half_step: Vec<f64>,
     pub(crate) gradient_step: Vec<f64>,
@@ -82,13 +85,27 @@ impl PANOCCache {
         }
     }
 
+    /// Sets the AKKT-specific tolerance and activates the corresponding
+    /// termination criterion
+    ///
+    /// ## Arguments
+    ///
+    /// - `akkt_tolerance`: Tolerance for the AKKT-specific termination condition
+    ///
+    /// ## Panics
+    ///
+    /// The method panics is `akkt_tolerance` is nonpositive
     ///
     pub fn set_akkt_tolerance(&mut self, akkt_tolerance: f64) {
+        assert!(akkt_tolerance > 0.0, "akkt_tolerance must be positive");
         self.akkt_tolerance = Some(akkt_tolerance);
         self.gradient_u_previous = Some(vec![0.0; self.gradient_step.len()]);
     }
 
-    pub fn swap_cached_gradients(&mut self) {
+    /// Copies the value of the current cost gradient to `gradient_u_previous`,
+    /// which stores the previous gradient vector
+    ///
+    pub fn cache_previous_gradient(&mut self) {
         if self.iteration >= 1 {
             if let Some(df_previous) = &mut self.gradient_u_previous {
                 df_previous.copy_from_slice(&self.gradient_u);
@@ -96,7 +113,8 @@ impl PANOCCache {
         }
     }
 
-    pub fn akkt_residual(&self) -> f64 {
+    /// Computes the AKKT residual which is defined as `||gamma*(fpr + df - df_previous)||`
+    fn akkt_residual(&self) -> f64 {
         let mut r = 0.0;
         if let Some(df_previous) = &self.gradient_u_previous {
             r = self
@@ -105,7 +123,7 @@ impl PANOCCache {
                 .zip(self.gradient_u.iter())
                 .zip(df_previous.iter())
                 .fold(0.0, |mut sum, ((&fpr, &df), &dfp)| {
-                    sum += (fpr + df - dfp).powi(2);
+                    sum += (fpr + self.gamma * (df - dfp)).powi(2);
                     sum
                 })
                 .sqrt();
@@ -113,10 +131,12 @@ impl PANOCCache {
         r
     }
 
+    /// Returns true iff the norm of gamma*FPR is below the desired tolerance
     fn fpr_exit_condition(&self) -> bool {
         self.norm_gamma_fpr < self.tolerance
     }
 
+    /// Checks whether the AKKT-specific termination condition is satisfied
     fn akkt_exit_condition(&self) -> bool {
         let mut exit_condition = true;
         if let Some(akkt_tol) = self.akkt_tolerance {
@@ -126,10 +146,26 @@ impl PANOCCache {
         exit_condition
     }
 
+    /// Returns `true` iff all termination conditions are satisfied
+    ///
+    /// It checks whether:
+    ///  - the FPR condition, `gamma*||fpr|| < epsilon` ,
+    ///  - (if activated) the AKKT condition `||gamma*fpr + (df - df_prev)|| < eps_akkt`
+    /// are satisfied.
     pub fn exit_condition(&self) -> bool {
         self.fpr_exit_condition() && self.akkt_exit_condition()
     }
 
+    /// Resets the cache to its initial virgin state.
+    ///
+    /// In particular,
+    ///
+    /// - Resets/empties the LBFGS buffer
+    /// - Sets tau = 1.0
+    /// - Sets the iteration count to 0
+    /// - Sets the internal variables `lhs_ls`, `rhs_ls`,
+    ///   `lipschitz_constant`, `sigma`, `cost_value`
+    ///   and `gamma` to 0.0
     pub fn reset(&mut self) {
         self.lbfgs.reset();
         self.lhs_ls = 0.0;

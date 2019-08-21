@@ -313,8 +313,8 @@ where
     ///
     ///
     fn step(&mut self, u_current: &mut [f64]) -> Result<bool, SolverError> {
-        // swap cached gradients
-        self.cache.swap_cached_gradients();
+        // caches the previous gradient vector (copies df to df_previous)
+        self.cache.cache_previous_gradient();
 
         // compute the fixed point residual
         self.compute_fpr(u_current);
