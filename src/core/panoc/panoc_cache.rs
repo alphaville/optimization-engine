@@ -89,4 +89,27 @@ impl PANOCCache {
         self.iteration = 0;
         self.gamma = 0.0;
     }
+
+    /// Sets the CBFGS parameters `alpha` and `epsilon`
+    ///
+    /// Read more in: D.-H. Li and M. Fukushima, “On the global convergence of the BFGS
+    /// method for nonconvex unconstrained optimization problems,” vol. 11,
+    /// no. 4, pp. 1054–1064, jan 2001.
+    ///
+    /// ## Arguments
+    ///
+    /// - alpha
+    /// - epsilon
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if alpha or epsilon are nonpositive
+    ///
+    pub fn with_cbfgs_parameters(mut self, alpha: f64, epsilon: f64) -> Self {
+        self.lbfgs = self
+            .lbfgs
+            .with_cbfgs_alpha(alpha)
+            .with_cbfgs_epsilon(epsilon);
+        self
+    }
 }
