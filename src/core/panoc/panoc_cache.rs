@@ -1,3 +1,7 @@
+const DEFAULT_SY_EPSILON: f64 = 1e-10;
+const DEFAULT_CBFGS_EPSILON: f64 = 1e-8;
+const DEFAULT_CBFGS_ALPHA: f64 = 1.0;
+
 /// Cache for PANOC
 ///
 /// This struct carries all the information needed at every step of the algorithm.
@@ -63,11 +67,10 @@ impl PANOCCache {
             gamma: 0.0,
             tolerance,
             norm_gamma_fpr: std::f64::INFINITY,
-            // TODO: change the following lines...
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
-                .with_cbfgs_alpha(1.0)
-                .with_cbfgs_epsilon(1e-8)
-                .with_sy_epsilon(1e-10),
+                .with_cbfgs_alpha(DEFAULT_CBFGS_ALPHA)
+                .with_cbfgs_epsilon(DEFAULT_CBFGS_EPSILON)
+                .with_sy_epsilon(DEFAULT_SY_EPSILON),
             lhs_ls: 0.0,
             rhs_ls: 0.0,
             tau: 1.0,
@@ -100,16 +103,19 @@ impl PANOCCache {
     ///
     /// - alpha
     /// - epsilon
+    /// - sy_epsilon
     ///
     /// ## Panics
     ///
-    /// The method panics if alpha or epsilon are nonpositive
+    /// The method panics if alpha or epsilon are nonpositive and if sy_epsilon
+    /// is negative.
     ///
-    pub fn with_cbfgs_parameters(mut self, alpha: f64, epsilon: f64) -> Self {
+    pub fn with_cbfgs_parameters(mut self, alpha: f64, epsilon: f64, sy_epsilon: f64) -> Self {
         self.lbfgs = self
             .lbfgs
             .with_cbfgs_alpha(alpha)
-            .with_cbfgs_epsilon(epsilon);
+            .with_cbfgs_epsilon(epsilon)
+            .with_sy_epsilon(sy_epsilon);
         self
     }
 }
