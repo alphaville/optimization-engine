@@ -23,6 +23,7 @@ pub enum SolverError {
     NotFiniteComputation,
 }
 
+pub mod alm;
 pub mod constraints;
 pub mod continuation;
 pub mod core;
