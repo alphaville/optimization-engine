@@ -31,22 +31,87 @@ fn t_create_alm_cache() {
 
 #[test]
 fn t_create_alm_problem() {
-    let a = 1.0;
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
 
-    /* parametric cost */
-    //       Fn(&[f64],    &[f64],       &mut f64) -> Result<(), SolverError>,
-    let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        *cost = mocks::rosenbrock_cost(a, p[1], u);
-        Ok(())
-    };
+    {
+        // Construct an instance of AlmProblem without any AL-type data
+        let n1 = 0;
+        let n2 = 0;
+        let bounds = constraints::Ball2::new(None, 10.0);
+        let _alm_problem = AlmProblem::new(
+            bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+        );
+    }
 
-    /* parametric gradient */
-    //        Fn(&[f64],    &[f64],       &mut [f64]) -> Result<(), SolverError>
-    let df = |u: &[f64], p: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        mocks::rosenbrock_grad(p[0], p[1], u, grad);
-        Ok(())
-    };
+    {
+        // Construct an AlmProblem with AL-type constraints, but no PM-type ones
+        let f1 = |_u: &[f64], _p: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let soc = constraints::SecondOrderCone::new(1.5);
+        let bounds = constraints::Ball2::new(None, 10.0);
+        let _alm_problem =
+            AlmProblem::new(bounds, Some(soc), NO_SET, f, df, Some(f1), NO_MAPPING, 1, 0);
+    }
 
+    {
+        // Construct an AlmProblem with both AL-type and PM-type constraints
+        let f1 = |_u: &[f64], _p: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f2 = |_u: &[f64], _p: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let soc = constraints::SecondOrderCone::new(1.5);
+        let bounds = constraints::Ball2::new(None, 10.0);
+        let _alm_problem =
+            AlmProblem::new(bounds, Some(soc), NO_SET, f, df, Some(f1), Some(f2), 1, 1);
+    }
+}
+
+#[should_panic]
+#[test]
+fn t_create_alm_problem_fail_alm() {
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let n1 = 1; // n1 = 1, but there is no set C
+    let n2 = 0;
     let bounds = constraints::Ball2::new(None, 10.0);
-    let _alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, 1, 1);
+    let _alm_problem = AlmProblem::new(
+        bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+    );
+}
+
+#[should_panic]
+#[test]
+fn t_create_alm_problem_fail_pm() {
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f1 = |_u: &[f64], _p: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f2 = |_u: &[f64], _p: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let soc = constraints::SecondOrderCone::new(1.5);
+    let bounds = constraints::Ball2::new(None, 10.0);
+    let n1 = 1;
+    let n2 = 0; // there is an f2, but n2 = 0
+    let _alm_problem =
+        AlmProblem::new(bounds, Some(soc), NO_SET, f, df, Some(f1), Some(f2), n1, n2);
+}
+
+#[test]
+fn t_create_alm_optimizer() {
+    let tolerance = 1e-8;
+    let nx = 10;
+    let n1 = 5;
+    let n2 = 0;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+
+    // Construct an instance of AlmProblem without any AL-type data
+    let n1 = 0;
+    let n2 = 0;
+    let bounds = constraints::Ball2::new(None, 10.0);
+    let alm_problem = AlmProblem::new(
+        bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+    );
+
+    let _alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
 }

@@ -1,14 +1,16 @@
 use crate::{constraints, SolverError};
 
 pub struct AlmProblem<
-    ParametricMappingType,
+    ParametricMappingAlm,
+    ParametricMappingPm,
     ParametricGradientType,
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
     ParametricCostType,
 > where
-    ParametricMappingType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricMappingAlm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricMappingPm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintsType: constraints::Constraint,
@@ -32,9 +34,9 @@ pub struct AlmProblem<
     /// gradient of parametric cost function, psi'(u; p)
     pub(crate) parametric_gradient: ParametricGradientType,
     /// Mapping F1(u; p)
-    pub(crate) mapping_f1: Option<ParametricMappingType>,
+    pub(crate) mapping_f1: Option<ParametricMappingAlm>,
     /// Mapping F2(u; p)
-    pub(crate) mapping_f2: Option<ParametricMappingType>,
+    pub(crate) mapping_f2: Option<ParametricMappingPm>,
     /// number of ALM-type parameters (range dim of F1 and C)
     pub(crate) n1: usize,
     /// number of PM-type parameters (range dim of F2)
@@ -42,7 +44,8 @@ pub struct AlmProblem<
 }
 
 impl<
-        ParametricMappingType,
+        ParametricMappingAlm,
+        ParametricMappingPm,
         ParametricGradientType,
         ConstraintsType,
         AlmSetC,
@@ -50,7 +53,8 @@ impl<
         ParametricCostType,
     >
     AlmProblem<
-        ParametricMappingType,
+        ParametricMappingAlm,
+        ParametricMappingPm,
         ParametricGradientType,
         ConstraintsType,
         AlmSetC,
@@ -58,7 +62,8 @@ impl<
         ParametricCostType,
     >
 where
-    ParametricMappingType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricMappingAlm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    ParametricMappingPm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintsType: constraints::Constraint,
@@ -71,8 +76,8 @@ where
         alm_set_y: Option<LagrangeSetY>,
         parametric_cost: ParametricCostType,
         parametric_gradient: ParametricGradientType,
-        mapping_f1: Option<ParametricMappingType>,
-        mapping_f2: Option<ParametricMappingType>,
+        mapping_f1: Option<ParametricMappingAlm>,
+        mapping_f2: Option<ParametricMappingPm>,
         n1: usize,
         n2: usize,
     ) -> Self {
@@ -82,6 +87,9 @@ where
             !(mapping_f1.is_none() ^ alm_set_c.is_none()),
             "either F1 or C has not been provided"
         );
+        assert!(!(alm_set_c.is_none() ^ (n1 == 0)), "C is Some iff n1 > 0");
+        assert!(!(mapping_f2.is_none() ^ (n2 == 0)), "F2 is Some iff n2 > 0");
+
         AlmProblem {
             constraints,
             alm_set_c,
