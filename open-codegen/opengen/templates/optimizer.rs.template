@@ -200,6 +200,10 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optim
 /// Initialisation of the solver
 pub fn initialize_solver() -> continuation::HomotopyCache {
     let panoc_cache = PANOCCache::new({{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
+    {% if solver_config.cbfgs_alpha is not none and solver_config.cbfgs_epsilon is not none -%}
+        let panoc_cache = panoc_cache.with_cbfgs_parameters({{solver_config.cbfgs_alpha}}, {{solver_config.cbfgs_epsilon}}, {{solver_config.cbfgs_sy_epsilon}});
+    {% endif %}
+
 
     let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
 
