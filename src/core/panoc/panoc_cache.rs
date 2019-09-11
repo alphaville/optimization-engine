@@ -117,13 +117,17 @@ impl PANOCCache {
     fn akkt_residual(&self) -> f64 {
         let mut r = 0.0;
         if let Some(df_previous) = &self.gradient_u_previous {
+            // Notation: gamma_fpr_i is the i-th element of gamma_fpr = gamma * fpr,
+            // df_i is the i-th element of the gradient of the cost function at the
+            // updated iterate (x+) and dfp_i is the i-th element of the gradient at the
+            // current iterate (x)
             r = self
                 .gamma_fpr
                 .iter()
                 .zip(self.gradient_u.iter())
                 .zip(df_previous.iter())
-                .fold(0.0, |mut sum, ((&fpr, &df), &dfp)| {
-                    sum += (fpr + self.gamma * (df - dfp)).powi(2);
+                .fold(0.0, |mut sum, ((&gamma_fpr_i, &df_i), &dfp_i)| {
+                    sum += (gamma_fpr_i + self.gamma * (df_i - dfp_i)).powi(2);
                     sum
                 })
                 .sqrt();
