@@ -1,5 +1,7 @@
 use crate::alm::*;
+use crate::core::constraints;
 use crate::core::panoc::*;
+use crate::{mocks, SolverError};
 
 #[test]
 fn t_create_alm_cache() {
@@ -25,4 +27,26 @@ fn t_create_alm_cache() {
         alm_cache.w_pm.is_none(),
         "Memory for w_pm should not have been allocated"
     );
+}
+
+#[test]
+fn t_create_alm_problem() {
+    let a = 1.0;
+
+    /* parametric cost */
+    //       Fn(&[f64],    &[f64],       &mut f64) -> Result<(), SolverError>,
+    let f = |u: &[f64], p: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+        *cost = mocks::rosenbrock_cost(a, p[1], u);
+        Ok(())
+    };
+
+    /* parametric gradient */
+    //        Fn(&[f64],    &[f64],       &mut [f64]) -> Result<(), SolverError>
+    let df = |u: &[f64], p: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        mocks::rosenbrock_grad(p[0], p[1], u, grad);
+        Ok(())
+    };
+
+    let bounds = constraints::Ball2::new(None, 10.0);
+    let _alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, 1, 1);
 }
