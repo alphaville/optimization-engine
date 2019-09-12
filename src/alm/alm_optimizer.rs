@@ -4,7 +4,10 @@ const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 5000;
 const DEFAULT_EPSILON_TOLERANCE: f64 = 1e-6;
 const DEFAULT_DELTA_TOLERANCE: f64 = 1e-4;
-const DEFAULT_PENALTY_UPDATE_FACTOR
+const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
+const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
+const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
+const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
 
 use crate::{alm::*, constraints, SolverError};
 
@@ -109,10 +112,10 @@ where
             max_duration: None,
             epsilon_tolerance: DEFAULT_EPSILON_TOLERANCE,
             delta_tolerance: DEFAULT_DELTA_TOLERANCE,
-            penalty_update_factor: 10.0,
-            epsilon_update_factor: 0.1,
-            sufficient_decrease_coeff: 10.0,
-            epsilon_inner_initial: 0.1,
+            penalty_update_factor: DEFAULT_PENALTY_UPDATE_FACTOR,
+            epsilon_update_factor: DEFAULT_EPSILON_UPDATE_FACTOR,
+            sufficient_decrease_coeff: DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR,
+            epsilon_inner_initial: DEFAULT_INITIAL_TOLERANCE,
         }
     }
 
