@@ -13,16 +13,16 @@ use crate::{alm::*, constraints, SolverError};
 
 pub struct AlmOptimizer<
     'life,
-    ParametricMappingAlm,
-    ParametricMappingPm,
+    MappingAlm,
+    MappingPm,
     ParametricGradientType,
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
     ParametricCostType,
 > where
-    ParametricMappingAlm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricMappingPm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintsType: constraints::Constraint,
@@ -33,8 +33,8 @@ pub struct AlmOptimizer<
     alm_cache: &'life mut AlmCache,
     /// ALM problem definition (oracle)
     alm_problem: AlmProblem<
-        ParametricMappingAlm,
-        ParametricMappingPm,
+        MappingAlm,
+        MappingPm,
         ParametricGradientType,
         ConstraintsType,
         AlmSetC,
@@ -65,8 +65,8 @@ pub struct AlmOptimizer<
 
 impl<
         'life,
-        ParametricMappingAlm,
-        ParametricMappingPm,
+        MappingAlm,
+        MappingPm,
         ParametricGradientType,
         ConstraintsType,
         AlmSetC,
@@ -75,8 +75,8 @@ impl<
     >
     AlmOptimizer<
         'life,
-        ParametricMappingAlm,
-        ParametricMappingPm,
+        MappingAlm,
+        MappingPm,
         ParametricGradientType,
         ConstraintsType,
         AlmSetC,
@@ -84,8 +84,8 @@ impl<
         ParametricCostType,
     >
 where
-    ParametricMappingAlm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricMappingPm: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
     ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintsType: constraints::Constraint,
@@ -95,8 +95,8 @@ where
     pub fn new(
         alm_cache: &'life mut AlmCache,
         alm_problem: AlmProblem<
-            ParametricMappingAlm,
-            ParametricMappingPm,
+            MappingAlm,
+            MappingPm,
             ParametricGradientType,
             ConstraintsType,
             AlmSetC,
@@ -146,9 +146,18 @@ where
         }
     }
 
-    fn project_on_set_y(&'life mut self) {
-        let cache = &mut self.alm_cache;
-        let problem = &self.alm_problem;
+    fn project_on_set_y(
+        cache: &mut AlmCache,
+        problem: &mut AlmProblem<
+            MappingAlm,
+            MappingPm,
+            ParametricGradientType,
+            ConstraintsType,
+            AlmSetC,
+            LagrangeSetY,
+            ParametricCostType,
+        >,
+    ) {
         if let Some(y_set) = &problem.alm_set_y {
             // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
             // * cache.y is                Option<Vec<f64>>
@@ -161,23 +170,29 @@ where
         }
     }
 
-    fn compute_pm_infeasibility(
-        &'life mut self,
-        u: &[f64],
-        params: &[f64],
-    ) -> Result<(), SolverError> {
+    fn compute_pm_infeasibility(&'life mut self, u: &[f64]) -> Result<(), SolverError> {
         let problem = &self.alm_problem;
         let cache = &mut self.alm_cache;
-        // If there is an F2 mapping, apply it to (u, params)
+        // If there is an F2 mapping: cache.w_pm <-- F2
         if let Some(f2) = &problem.mapping_f2 {
             if let Some(w_pm_vec) = cache.w_pm.as_mut() {
-                f2(u, params, w_pm_vec)?
+                f2(u, w_pm_vec)?
             }
         }
         Ok(())
     }
 
     pub fn solve(&'life mut self, _u: &mut [f64], _q: &[f64]) {
-        self.project_on_set_y();
+        // This is still work in progress
+
+        let alm_cache = &mut self.alm_cache;
+        let alm_problem = &mut self.alm_problem;
+
+        AlmOptimizer::project_on_set_y(alm_cache, alm_problem);
+
+        let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+
+        let inner_problem = crate::core::Problem::new(&alm_problem.constraints, psi_grad, psi);
     }
 }
