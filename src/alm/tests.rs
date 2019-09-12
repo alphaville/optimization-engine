@@ -104,14 +104,28 @@ fn t_create_alm_optimizer() {
 
     let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
     let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f1 = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let set_c = constraints::Ball2::new(None, 1.50);
 
     // Construct an instance of AlmProblem without any AL-type data
-    let n1 = 0;
-    let n2 = 0;
     let bounds = constraints::Ball2::new(None, 10.0);
+    let set_y = constraints::Ball2::new(None, 1.0);
     let alm_problem = AlmProblem::new(
-        bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+        bounds,
+        Some(set_c),
+        Some(set_y),
+        f,
+        df,
+        Some(f1),
+        NO_MAPPING,
+        n1,
+        n2,
     );
 
-    let _alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-4)
+        .with_max_outer_iterations(10);
+    alm_optimizer.set_lagrange_multipliers_init(&vec![5.0; n1]);
+
+    alm_optimizer.solve(&mut vec![0.0; 2], &vec![0.0; 2]);
 }
