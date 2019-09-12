@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use crate::{alm::*, constraints, core::Problem, SolverError};
+
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 5000;
 const DEFAULT_EPSILON_TOLERANCE: f64 = 1e-6;
@@ -8,8 +10,6 @@ const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
 const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
 const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
-
-use crate::{alm::*, constraints, SolverError};
 
 pub struct AlmOptimizer<
     'life,
@@ -146,34 +146,11 @@ where
         }
     }
 
-    fn project_on_set_y(
-        cache: &mut AlmCache,
-        problem: &mut AlmProblem<
-            MappingAlm,
-            MappingPm,
-            ParametricGradientType,
-            ConstraintsType,
-            AlmSetC,
-            LagrangeSetY,
-            ParametricCostType,
-        >,
-    ) {
-        if let Some(y_set) = &problem.alm_set_y {
-            // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
-            // * cache.y is                Option<Vec<f64>>
-            // * cache.y.as_mut is         Option<&mut Vec<f64>>
-            // *  which can be treated as  Option<&mut [f64]>
-            // * y_vec is                  &mut [f64]
-            if let Some(y_vec) = cache.y.as_mut() {
-                y_set.project(y_vec);
-            }
-        }
-    }
-
-    fn compute_pm_infeasibility(&'life mut self, u: &[f64]) -> Result<(), SolverError> {
+    fn compute_pm_infeasibility(&mut self, u: &[f64]) -> Result<(), SolverError> {
         let problem = &self.alm_problem;
         let cache = &mut self.alm_cache;
         // If there is an F2 mapping: cache.w_pm <-- F2
+        // TODO: we are interested in the norm of F2(u)
         if let Some(f2) = &problem.mapping_f2 {
             if let Some(w_pm_vec) = cache.w_pm.as_mut() {
                 f2(u, w_pm_vec)?
@@ -182,17 +159,36 @@ where
         Ok(())
     }
 
-    pub fn solve(&'life mut self, _u: &mut [f64], _q: &[f64]) {
-        // This is still work in progress
+    fn project_on_set_y(&mut self) {
+        let problem = &self.alm_problem;
+        if let Some(y_set) = &problem.alm_set_y {
+            // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
+            // * cache.y is                Option<Vec<f64>>
+            // * cache.y.as_mut is         Option<&mut Vec<f64>>
+            // *  which can be treated as  Option<&mut [f64]>
+            // * y_vec is                  &mut [f64]
+            if let Some(y_vec) = self.alm_cache.y.as_mut() {
+                y_set.project(y_vec);
+            }
+        }
+    }
 
-        let alm_cache = &mut self.alm_cache;
-        let alm_problem = &mut self.alm_problem;
-
-        AlmOptimizer::project_on_set_y(alm_cache, alm_problem);
-
-        let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    fn solve_inner_problem(&mut self, u: &mut [f64], q: &[f64]) {
+        // work in progress... (nothing to see yet)
+        let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> {
+            let mut a: f64 = 0.0;
+            (self.alm_problem.parametric_cost)(u, q, &mut a);
+            Ok(())
+        };
         let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let inner_problem = Problem::new(&self.alm_problem.constraints, psi_grad, psi);
+    }
 
-        let inner_problem = crate::core::Problem::new(&alm_problem.constraints, psi_grad, psi);
+    pub fn solve(&mut self, u: &mut [f64], q: &[f64]) -> Result<(), SolverError> {
+        // wee note: the plan is to have
+        self.project_on_set_y();
+        self.solve_inner_problem(u, q);
+        self.compute_pm_infeasibility(u)?;
+        Ok(())
     }
 }
