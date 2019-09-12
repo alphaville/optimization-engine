@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 * TCP server: Malformed error JSON is now fixed
+* Algorithm now returns `u_bar`, which is feasible (not `u`)
 
 ### Added
 
 * Finite sets supported in Rust
+* Second-order cones supported in Rust
 
 ### Removed
 
