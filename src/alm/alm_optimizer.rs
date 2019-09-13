@@ -1,6 +1,11 @@
 #![allow(dead_code)]
 
-use crate::{alm::*, constraints, core::Problem, SolverError};
+use crate::{
+    alm::*,
+    constraints,
+    core::{panoc::PANOCOptimizer, Optimizer, Problem, SolverStatus},
+    SolverError,
+};
 
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 5000;
@@ -141,8 +146,14 @@ where
 
     pub fn set_lagrange_multipliers_init(&mut self, y: &[f64]) {
         let cache = &mut self.alm_cache;
-        if let Some(y_in_cache) = &mut cache.y {
-            y_in_cache.copy_from_slice(y);
+        if let Some(xi_in_cache) = &mut cache.xi {
+            xi_in_cache[1..].copy_from_slice(y);
+        }
+    }
+
+    pub fn set_penalty_init(&mut self, c0: f64) {
+        if let Some(xi_in_cache) = &mut self.alm_cache.xi {
+            xi_in_cache[0] = c0;
         }
     }
 
@@ -159,6 +170,9 @@ where
         Ok(())
     }
 
+    fn update_lagrange_multipliers() {}
+
+    /// Project y on set Y
     fn project_on_set_y(&mut self) {
         let problem = &self.alm_problem;
         if let Some(y_set) = &problem.alm_set_y {
@@ -167,28 +181,63 @@ where
             // * cache.y.as_mut is         Option<&mut Vec<f64>>
             // *  which can be treated as  Option<&mut [f64]>
             // * y_vec is                  &mut [f64]
-            if let Some(y_vec) = self.alm_cache.y.as_mut() {
-                y_set.project(y_vec);
+            if let Some(xi_vec) = self.alm_cache.xi.as_mut() {
+                y_set.project(&mut xi_vec[1..]);
             }
         }
     }
 
-    fn solve_inner_problem(&mut self, u: &mut [f64], q: &[f64]) {
-        // work in progress... (nothing to see yet)
+    /// Solve inner problem
+    ///
+    /// ## Arguments
+    ///
+    /// - `u`: (on entry) current iterate, `u^nu`, (on exit) next iterate,
+    ///   `u^{nu+1}` which is an epsilon-approximate solution of the inner problem
+    /// - `xi`: vector `xi = (c, y)`
+    ///
+    /// ## Returns
+    ///
+    /// Returns an instance of `Result<SolverStatus, SolverError>`, where `SolverStatus`
+    /// is the solver status of the inner problem and `SolverError` is a potential
+    /// error in solving the inner problem.
+    ///
+    ///
+    fn solve_inner_problem(
+        &mut self,
+        u: &mut [f64],
+        xi: &[f64],
+    ) -> Result<SolverStatus, SolverError> {
+        let alm_problem = &self.alm_problem;
+        let alm_cache = &mut self.alm_cache;
         let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> {
-            let mut a: f64 = 0.0;
-            (self.alm_problem.parametric_cost)(u, q, &mut a);
-            Ok(())
+            (alm_problem.parametric_cost)(u, xi, psi_val)
         };
-        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> {
+            (alm_problem.parametric_gradient)(u, xi, psi_grad)
+        };
         let inner_problem = Problem::new(&self.alm_problem.constraints, psi_grad, psi);
+        let mut inner_solver = PANOCOptimizer::new(inner_problem, &mut alm_cache.panoc_cache);
+        inner_solver.solve(u)
+    }
+    fn step(&mut self, u: &mut [f64], q: &[f64]) -> Result<(), SolverError> {
+        // Project y on Y
+        self.project_on_set_y();
+        // If the inner problem fails miserably, the failure should be propagated
+        // upstream (using `?`). If the inner problem has not converged, that is fine,
+        // we should keep solving.
+        self.solve_inner_problem(u, q)
+            .map(|_status: SolverStatus| {})?;
+        // Update Lagrange multipliers:
+        // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
+        self.compute_pm_infeasibility(u)?;
+        Ok(())
     }
 
-    pub fn solve(&mut self, u: &mut [f64], q: &[f64]) -> Result<(), SolverError> {
-        // wee note: the plan is to have
-        self.project_on_set_y();
-        self.solve_inner_problem(u, q);
-        self.compute_pm_infeasibility(u)?;
+    /// Solve the specified ALM problem
+    ///
+    ///
+    pub fn solve(&mut self, u: &mut [f64], xi: &[f64]) -> Result<(), SolverError> {
+        self.step(u, xi)?;
         Ok(())
     }
 }

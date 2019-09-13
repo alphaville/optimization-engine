@@ -4,12 +4,10 @@ use crate::panoc::PANOCCache;
 pub struct AlmCache {
     /// PANOC cache for inner problems
     pub(crate) panoc_cache: PANOCCache,
-    /// Penalty parameter (scalar)
-    pub(crate) c_alm: f64,
     /// Lagrange multipliers (next)
     pub(crate) y_plus: Option<Vec<f64>>,
-    /// Lagrange multipliers (currect)
-    pub(crate) y: Option<Vec<f64>>,
+    /// Vector xi^nu = (c^nu, y^nu)
+    pub(crate) xi: Option<Vec<f64>>,
     /// Infeasibility related to ALM-type constraints
     ///
     /// w_pm = (y_plus - y) / c
@@ -26,9 +24,8 @@ impl AlmCache {
     pub fn new(panoc_cache: PANOCCache, n1: usize, n2: usize) -> Self {
         AlmCache {
             panoc_cache,
-            c_alm: 1.0,
             y_plus: if n1 > 0 { Some(vec![0.0; n1]) } else { None },
-            y: if n1 > 0 { Some(vec![0.0; n1]) } else { None },
+            xi: if n1 > 0 { Some(vec![0.0; n1 + 1]) } else { None },
             w_alm: if n1 > 0 { Some(vec![0.0; n1]) } else { None },
             w_pm: if n2 > 0 { Some(vec![0.0; n2]) } else { None },
             iteration: 0,

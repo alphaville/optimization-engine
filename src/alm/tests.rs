@@ -14,7 +14,7 @@ fn t_create_alm_cache() {
     let alm_cache = AlmCache::new(panoc_cache, n1, n2);
     assert!(alm_cache.iteration == 0, "iter != 0");
     assert!(
-        alm_cache.y.expect("No y allocated").len() == n1,
+        alm_cache.xi.expect("No xi allocated").len() == n1 + 1,
         "Wrong length (n1)"
     );
     assert!(
@@ -153,6 +153,6 @@ fn t_create_alm_optimizer() {
 
     println!(
         "result = {:?}",
-        alm_optimizer.solve(&mut vec![0.0; 2], &vec![0.0; 2])
+        alm_optimizer.solve(&mut vec![0.0; nx], &vec![0.0; 2])
     );
 }
