@@ -131,7 +131,7 @@ fn t_create_alm_optimizer() {
     let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     let set_c = constraints::Ball2::new(None, 1.50);
 
-    // Construct an instance of AlmProblem without any AL-type data
+    // Construct an instance of AlmProblem without any PM-type data
     let bounds = constraints::Ball2::new(None, 10.0);
     let set_y = constraints::Ball2::new(None, 1.0);
     let alm_problem = AlmProblem::new(

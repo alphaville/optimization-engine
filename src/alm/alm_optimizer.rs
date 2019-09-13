@@ -97,6 +97,48 @@ where
     AlmSetC: constraints::Constraint,
     LagrangeSetY: constraints::Constraint,
 {
+    /// Create new instance of `AlmOptimizer`
+    ///
+    /// ## Arguments
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use optimization_engine::{alm::*, SolverError, core::{panoc::*, constraints}};
+    ///
+    /// let tolerance = 1e-8;
+    /// let nx = 10;
+    /// let n1 = 5;
+    /// let n2 = 0;
+    /// let lbfgs_mem = 3;
+    /// let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    /// let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+    ///
+    /// let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    /// let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let set_c = constraints::Ball2::new(None, 1.50);
+    ///
+    /// // Construct an instance of AlmProblem without any PM-type data
+    /// let bounds = constraints::Ball2::new(None, 10.0);
+    /// let set_y = constraints::Ball2::new(None, 1.0);
+    /// let alm_problem = AlmProblem::new(
+    ///     bounds,
+    ///     Some(set_c),
+    ///     Some(set_y),
+    ///     f,
+    ///     df,
+    ///     Some(f1),
+    ///     NO_MAPPING,
+    ///     n1,
+    ///     n2,
+    /// );
+    ///
+    /// let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+    ///     .with_delta_tolerance(1e-4)
+    ///     .with_max_outer_iterations(10);
+    ///```     
+    ///
     pub fn new(
         alm_cache: &'life mut AlmCache,
         alm_problem: AlmProblem<
@@ -109,6 +151,9 @@ where
             ParametricCostType,
         >,
     ) -> Self {
+        alm_cache
+            .panoc_cache
+            .set_akkt_tolerance(DEFAULT_INITIAL_TOLERANCE);
         AlmOptimizer {
             alm_cache,
             alm_problem,
@@ -201,40 +246,40 @@ where
 
         // Before we start: this should not be executed if n1 = 0
         if problem.n1 == 0 {
-            return Ok(());
+            return Ok(()); // nothing to do (no ALM), return
         }
 
-        // Step #1
-        if let (Some(f1), Some(w_alm_aux)) = (&problem.mapping_f1, &mut cache.w_alm_aux) {
-            (f1)(u, w_alm_aux)?; // w_alm_aux := F1(u)
+        if let (Some(f1), Some(w_alm_aux), Some(y_plus), Some(xi), Some(alm_set_c)) = (
+            &problem.mapping_f1,
+            &mut cache.w_alm_aux,
+            &mut cache.y_plus,
+            &mut cache.xi,
+            &problem.alm_set_c,
+        ) {
+            // Step #1: w_alm_aux := F1(u)
+            (f1)(u, w_alm_aux)?;
 
-            // Step #2
-            if let (Some(y_plus), Some(xi)) = (&mut cache.y_plus, &mut cache.xi) {
-                let y = &xi[1..];
-                let c = xi[0];
-                // y_plus := w_alm_aux + y/c
-                y_plus
-                    .iter_mut()
-                    .zip(y.iter())
-                    .zip(w_alm_aux.iter())
-                    .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = w_alm_aux_i + y_i / c);
+            // Step #2: y_plus := w_alm_aux + y/c
+            let y = &xi[1..];
+            let c = xi[0];
+            y_plus
+                .iter_mut()
+                .zip(y.iter())
+                .zip(w_alm_aux.iter())
+                .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = w_alm_aux_i + y_i / c);
 
-                // Step #3
-                if let Some(alm_set_c) = &problem.alm_set_c {
-                    // y_plus := Proj_C(y_plus)
-                    alm_set_c.project(y_plus);
-                }
+            // Step #3: y_plus := Proj_C(y_plus)
+            alm_set_c.project(y_plus);
 
-                // Step #4
-                y_plus
-                    .iter_mut()
-                    .zip(y.iter())
-                    .zip(w_alm_aux.iter())
-                    .for_each(|((y_plus_i, y_i), w_alm_aux_i)| {
-                        // y_plus := y + c(w_alm_aux - y_plus)
-                        *y_plus_i = y_i + c * (w_alm_aux_i - *y_plus_i)
-                    });
-            }
+            // Step #4
+            y_plus
+                .iter_mut()
+                .zip(y.iter())
+                .zip(w_alm_aux.iter())
+                .for_each(|((y_plus_i, y_i), w_alm_aux_i)| {
+                    // y_plus := y  + c * (w_alm_aux   - y_plus)
+                    *y_plus_i = y_i + c * (w_alm_aux_i - *y_plus_i)
+                });
         }
 
         Ok(())
@@ -302,6 +347,35 @@ where
         inner_solver.solve(u)
     }
 
+    fn is_exit_criterion_satisfied(&self) -> bool {
+        let cache = &self.alm_cache;
+        // Criterion 1: ||Delta y|| <= c * delta
+        let criterion_1 = if let Some(xi) = &cache.xi {
+            let c = xi[0];
+            cache.delta_y_norm <= c * self.delta_tolerance
+        } else {
+            true
+        };
+        // Criterion 2: ||F2(u+)|| <= delta
+        let criterion_2 = cache.f2_norm <= 1.0;
+        criterion_1 && criterion_2
+    }
+
+    fn is_penalty_stall_criterion(&self) -> bool {
+        false
+    }
+
+    fn update_penalty(&mut self) {}
+
+    fn update_inner_akkt_tolerance(&mut self) {
+        let cache = &mut self.alm_cache;
+        // epsilon_{nu+1} := max(epsilon, beta*epsilon_nu)
+        cache.panoc_cache.set_akkt_tolerance(f64::max(
+            cache.panoc_cache.akkt_tolerance.unwrap() * self.epsilon_update_factor,
+            self.epsilon_tolerance,
+        ));
+    }
+
     /// Step of ALM algorithm
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
@@ -318,8 +392,14 @@ where
         self.compute_pm_infeasibility(u)?;
         self.compute_alm_infeasibility()?;
         // Check exit criterion
-
-        Ok(true)
+        if self.is_exit_criterion_satisfied() {
+            return Ok(false);
+        } else if !self.is_penalty_stall_criterion() {
+            self.update_penalty();
+        }
+        // Update inner problem tolerance
+        self.update_inner_akkt_tolerance();
+        return Ok(true);
     }
 
     /// Solve the specified ALM problem

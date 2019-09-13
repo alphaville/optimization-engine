@@ -94,7 +94,7 @@ impl PANOCCache {
     ///
     /// ## Panics
     ///
-    /// The method panics is `akkt_tolerance` is nonpositive
+    /// The method panics if `akkt_tolerance` is nonpositive
     ///
     pub fn set_akkt_tolerance(&mut self, akkt_tolerance: f64) {
         assert!(akkt_tolerance > 0.0, "akkt_tolerance must be positive");
