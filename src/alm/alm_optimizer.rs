@@ -4,7 +4,7 @@ use crate::{
     alm::*,
     constraints,
     core::{panoc::PANOCOptimizer, Optimizer, Problem, SolverStatus},
-    SolverError,
+    matrix_operations, SolverError,
 };
 
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
@@ -157,9 +157,22 @@ where
         }
     }
 
+    //TODO: We're lacking a few setter methods
+
+    fn compute_alm_infeasibility(&mut self) -> Result<(), SolverError> {
+        let alm_cache = &mut self.alm_cache; // ALM cache
+        if let (Some(y_plus), Some(xi)) = (&alm_cache.y_plus, &alm_cache.xi) {
+            let norm_diff_squared: f64 = matrix_operations::norm2_squared_diff(&y_plus, &xi[1..]);
+            alm_cache.delta_y_norm = norm_diff_squared.sqrt();
+        }
+        Ok(())
+    }
+
+    /// Computes PM infeasibility, that is, ||F2(u)||
     fn compute_pm_infeasibility(&mut self, u: &[f64]) -> Result<(), SolverError> {
-        let problem = &self.alm_problem;
-        let cache = &mut self.alm_cache;
+        let problem = &self.alm_problem; // ALM problem
+        let cache = &mut self.alm_cache; // ALM cache
+
         // If there is an F2 mapping: cache.w_pm <-- F2
         // TODO: we are interested in the norm of F2(u)
         if let Some(f2) = &problem.mapping_f2 {
@@ -170,7 +183,62 @@ where
         Ok(())
     }
 
-    fn update_lagrange_multipliers() {}
+    /// Updates the Lagrange multipliers using
+    ///
+    /// `y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]`
+    ///
+    fn update_lagrange_multipliers(&mut self, u: &[f64]) -> Result<(), SolverError> {
+        let problem = &self.alm_problem; // ALM problem
+        let cache = &mut self.alm_cache; // ALM cache
+
+        // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
+        // This is implemented as follows:
+        //
+        // #1. w_alm_aux := F1(u), where u = solution of inner problem
+        // #2. y_plus := w_alm_aux + y/c
+        // #3. y_plus := Proj_C(y_plus)
+        // #4. y_plus := y + c(w_alm_aux - y_plus)
+
+        // Before we start: this should not be executed if n1 = 0
+        if problem.n1 == 0 {
+            return Ok(());
+        }
+
+        // Step #1
+        if let (Some(f1), Some(w_alm_aux)) = (&problem.mapping_f1, &mut cache.w_alm_aux) {
+            (f1)(u, w_alm_aux)?; // w_alm_aux := F1(u)
+
+            // Step #2
+            if let (Some(y_plus), Some(xi)) = (&mut cache.y_plus, &mut cache.xi) {
+                let y = &xi[1..];
+                let c = xi[0];
+                // y_plus := w_alm_aux + y/c
+                y_plus
+                    .iter_mut()
+                    .zip(y.iter())
+                    .zip(w_alm_aux.iter())
+                    .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = w_alm_aux_i + y_i / c);
+
+                // Step #3
+                if let Some(alm_set_c) = &problem.alm_set_c {
+                    // y_plus := Proj_C(y_plus)
+                    alm_set_c.project(y_plus);
+                }
+
+                // Step #4
+                y_plus
+                    .iter_mut()
+                    .zip(y.iter())
+                    .zip(w_alm_aux.iter())
+                    .for_each(|((y_plus_i, y_i), w_alm_aux_i)| {
+                        // y_plus := y + c(w_alm_aux - y_plus)
+                        *y_plus_i = y_i + c * (w_alm_aux_i - *y_plus_i)
+                    });
+            }
+        }
+
+        Ok(())
+    }
 
     /// Project y on set Y
     fn project_on_set_y(&mut self) {
@@ -202,42 +270,64 @@ where
     /// error in solving the inner problem.
     ///
     ///
-    fn solve_inner_problem(
-        &mut self,
-        u: &mut [f64],
-        xi: &[f64],
-    ) -> Result<SolverStatus, SolverError> {
-        let alm_problem = &self.alm_problem;
-        let alm_cache = &mut self.alm_cache;
+    fn solve_inner_problem(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+        let alm_problem = &self.alm_problem; // Problem
+        let alm_cache = &mut self.alm_cache; // ALM cache
+
+        // `xi` is either the cached `xi` if one exists, or an reference to an
+        // empty vector, otherwise. We do that becaues the user has the option
+        // to not use any ALM/PM constraints; in that case, `alm_cache.xi` is
+        // `None`
+        let xi_empty = Vec::new();
+        let xi = if let Some(xi_cached) = &alm_cache.xi {
+            &xi_cached
+        } else {
+            &xi_empty
+        };
+        // Construct psi and psi_grad (as functions of `u` alone); it is
+        // psi(u) = psi(u; xi) and psi_grad(u) = phi_grad(u; xi)
+        // psi: R^nu --> R
         let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> {
-            (alm_problem.parametric_cost)(u, xi, psi_val)
+            (alm_problem.parametric_cost)(u, &xi, psi_val)
         };
+        // psi_grad: R^nu --> R^nu
         let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> {
-            (alm_problem.parametric_gradient)(u, xi, psi_grad)
+            (alm_problem.parametric_gradient)(u, &xi, psi_grad)
         };
+        // define the inner problem
         let inner_problem = Problem::new(&self.alm_problem.constraints, psi_grad, psi);
+        // TODO: tolerance decrease until target tolerance is reached
         let mut inner_solver = PANOCOptimizer::new(inner_problem, &mut alm_cache.panoc_cache);
+        // this method returns the result of .solve:
         inner_solver.solve(u)
     }
-    fn step(&mut self, u: &mut [f64], q: &[f64]) -> Result<(), SolverError> {
+
+    /// Step of ALM algorithm
+    fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
         self.project_on_set_y();
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
         // we should keep solving.
-        self.solve_inner_problem(u, q)
+        self.solve_inner_problem(u)
             .map(|_status: SolverStatus| {})?;
         // Update Lagrange multipliers:
         // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
+        self.update_lagrange_multipliers(u)?;
+        // Compute infeasibilities
         self.compute_pm_infeasibility(u)?;
-        Ok(())
+        self.compute_alm_infeasibility()?;
+        // Check exit criterion
+
+        Ok(true)
     }
 
     /// Solve the specified ALM problem
     ///
     ///
-    pub fn solve(&mut self, u: &mut [f64], xi: &[f64]) -> Result<(), SolverError> {
-        self.step(u, xi)?;
+    pub fn solve(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
+        // TODO: implement loop - check output of .step()
+        let _step_result = self.step(u);
         Ok(())
     }
 }

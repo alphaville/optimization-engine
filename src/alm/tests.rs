@@ -151,8 +151,6 @@ fn t_create_alm_optimizer() {
         .with_max_outer_iterations(10);
     alm_optimizer.set_lagrange_multipliers_init(&vec![5.0; n1]);
 
-    println!(
-        "result = {:?}",
-        alm_optimizer.solve(&mut vec![0.0; nx], &vec![0.0; 2])
-    );
+    let mut u = vec![0.0; nx];
+    println!("result = {:?}", alm_optimizer.solve(&mut u));
 }
