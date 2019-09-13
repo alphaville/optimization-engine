@@ -43,6 +43,18 @@ pub struct HomotopyOptimizer<
     max_inner_iterations: usize,
     /// Maximum duration
     max_duration: Option<std::time::Duration>,
+    /// Initial tolerance
+    ///
+    /// We start with a certain inner tolerance for the inner prolems
+    /// and we decrease it until we reach the target tolerance, which
+    /// is provided within `homotopy_cache`; must be positive
+    initial_tolerance: f64,
+    /// Update factor for inner tolerance
+    ///
+    /// We multiply the inner tolerance by this scalar until we reach
+    /// the target inner tolerance, which is provided within `homotopy_cache`.
+    /// This must be a scalar in (0,1)
+    inner_tolerance_update_factor: f64,
 }
 
 impl<
@@ -146,6 +158,8 @@ where
         ConstraintType,
         ParametricCostType,
     > {
+        let hom_cache = &homotopy_cache;
+        let target_tolerance = hom_cache.panoc_cache.tolerance;
         HomotopyOptimizer {
             homotopy_problem,
             homotopy_cache,
@@ -153,6 +167,8 @@ where
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
             max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
             max_duration: None,
+            initial_tolerance: target_tolerance,
+            inner_tolerance_update_factor: 0.1,
         }
     }
 
@@ -165,6 +181,59 @@ where
         }
     }
 
+    /// Specify the initial inner tolerance
+    ///
+    /// ## Arguments
+    ///
+    /// - init_inner_tolerance: initial value of the inner tolerance
+    ///   (must be positive)
+    ///
+    /// ## Panics
+    ///
+    /// If `init_inner_tolerance` is nonpositive or if it is lower than the target
+    /// tolerance
+    ///
+    pub fn with_initial_inner_tolerance(mut self, init_inner_tolerance: f64) -> Self {
+        assert!(
+            init_inner_tolerance > 0.0,
+            "init_inner_tolerance must be positive"
+        );
+        assert!(
+            init_inner_tolerance >= self.homotopy_cache.panoc_cache.tolerance,
+            "init_inner_tolerance must be at least equal to the target tolerance"
+        );
+        self.initial_tolerance = init_inner_tolerance;
+        self
+    }
+
+    /// Specify the inner tolerance update factor
+    ///
+    /// The tolerance of the inner solver is initialised using
+    /// `with_initial_inner_tolerance` and at every outer iteration
+    /// it is updated by multiplying with this factor.
+    ///
+    /// ## Arguments
+    ///
+    /// -  inner_tolerance_update_factor: update factor of inner tolerance
+    ///    (must be in (0,1))
+    ///
+    /// ## Panics
+    ///
+    /// If `inner_tolerance_update_factor` is nonpositive of larger than
+    /// or equal to 1.0.
+    ///
+    pub fn with_inner_tolerance_update_factor(
+        mut self,
+        inner_tolerance_update_factor: f64,
+    ) -> Self {
+        assert!(
+            inner_tolerance_update_factor < 1.0 && inner_tolerance_update_factor > 0.0,
+            "inner tol update factor must be a number in (0,1)"
+        );
+        self.inner_tolerance_update_factor = inner_tolerance_update_factor;
+        self
+    }
+
     /// Specify tolerance on constraint violation
     ///
     /// ## Arguments
@@ -175,7 +244,15 @@ where
     ///
     /// The current mutable instance of `HomotopyOptimizer`
     ///
+    /// ## Panics
+    ///
+    /// Panics if the provided constraint tolerance is nonpositive
+    ///
     pub fn with_constraint_tolerance(mut self, constraint_tolerance: f64) -> Self {
+        assert!(
+            constraint_tolerance > 0.0,
+            "constraint_tolerance must be positive"
+        );
         self.constraint_tolerance = constraint_tolerance;
         self
     }
@@ -285,6 +362,8 @@ where
         let mut constraint_values: Vec<f64> = vec![0.0; std::cmp::max(1, num_penalty_constraints)];
         let mut available_time_left = self.max_duration;
         let mut exit_status = ExitStatus::Converged;
+        let mut inner_tolerance = self.initial_tolerance;
+        let target_inner_tolerance = self.homotopy_cache.panoc_cache.tolerance;
 
         // OUTER ITERATIONS
         for _iter_outer in 1..=self.max_outer_iterations {
@@ -297,6 +376,8 @@ where
                     break;
                 }
             }
+
+            self.homotopy_cache.panoc_cache.tolerance = inner_tolerance;
 
             num_outer_iterations += 1;
             let homotopy_problem = &self.homotopy_problem;
@@ -332,6 +413,10 @@ where
                 self.update_continuation_parameters(&mut q_augmented_param_vec);
                 exit_status = ExitStatus::NotConvergedIterations;
             }
+
+            // Update the current inner tolerance (until the target inner tolerance in reached)
+            inner_tolerance =
+                target_inner_tolerance.max(self.inner_tolerance_update_factor * inner_tolerance);
         }
 
         // TODO: return correct status code

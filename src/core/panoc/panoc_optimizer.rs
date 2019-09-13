@@ -1,4 +1,4 @@
-//! FBS Algorithm
+//! PANOC optimizer
 //!
 use crate::{
     constraints,
@@ -12,6 +12,9 @@ use std::time;
 
 const MAX_ITER: usize = 100_usize;
 
+/// Optimizer using the PANOC algorithm
+///
+///
 pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
 where
     GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
@@ -43,7 +46,7 @@ where
     pub fn new(
         problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut PANOCCache,
-    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> Self {
         PANOCOptimizer {
             panoc_engine: PANOCEngine::new(problem, cache),
             max_iter: MAX_ITER,
@@ -51,30 +54,32 @@ where
         }
     }
 
-    /// Sets the tolerance
+    /// Sets the tolerance on the norm of the fixed-point residual
+    ///
+    /// The algorithm will exit if the form of gamma*FPR drops below
+    /// this tolerance
     ///
     /// ## Panics
     ///
     /// The method panics if the specified tolerance is not positive
-    pub fn with_tolerance(
-        mut self,
-        tolerance: f64,
-    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    pub fn with_tolerance(mut self, tolerance: f64) -> Self {
         assert!(tolerance > 0.0, "tolerance must be larger than 0");
 
         self.panoc_engine.cache.tolerance = tolerance;
         self
     }
 
+    pub fn with_akkt_tolerance(self, akkt_tolerance: f64) -> Self {
+        self.panoc_engine.cache.set_akkt_tolerance(akkt_tolerance);
+        self
+    }
+
     /// Sets the maximum number of iterations
     ///
-    /// ## Panic
+    /// ## Panics
     ///
     /// Panics if the provided number of iterations is equal to zero
-    pub fn with_max_iter(
-        mut self,
-        max_iter: usize,
-    ) -> PANOCOptimizer<'a, GradientType, ConstraintType, CostType> {
+    pub fn with_max_iter(mut self, max_iter: usize) -> Self {
         assert!(max_iter > 0, "max_iter must be larger than 0");
 
         self.max_iter = max_iter;
@@ -139,6 +144,10 @@ where
             ExitStatus::Converged
         };
 
+        // copy u_half_step into u (the algorithm should return u_bar,
+        // because it's always feasible, while u may violate the constraints)
+        u.copy_from_slice(&self.panoc_engine.cache.u_half_step);
+
         // export solution status (exit status, num iterations and more)
         Ok(SolverStatus::new(
             exit_status,
@@ -156,6 +165,7 @@ where
 #[cfg(test)]
 mod tests {
 
+    use crate::core::constraints::*;
     use crate::core::panoc::*;
     use crate::core::*;
     use crate::{mocks, SolverError};
@@ -196,12 +206,24 @@ mod tests {
         assert!(status.has_converged());
         assert!(status.iterations() < max_iters);
         assert!(status.norm_fpr() < tolerance);
+
+        /* CHECK FEASIBILITY */
+        let mut u_project = [0.0; 2];
+        u_project.copy_from_slice(&u);
+        bounds.project(&mut u_project);
+        unit_test_utils::assert_nearly_equal_array(
+            &u,
+            &u_project,
+            1e-12,
+            1e-16,
+            "infeasibility detected",
+        );
     }
 
     #[test]
     fn t_panoc_in_loop() {
         /* USER PARAMETERS */
-        let tolerance = 1e-6;
+        let tolerance = 1e-5;
         let mut a = 1.0;
         let mut b = 100.0;
         let n = 2;
@@ -209,11 +231,12 @@ mod tests {
         let max_iters = 100;
         let mut u = [-1.5, 0.9];
         let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
-        let mut radius = 1.0;
-        for _ in 1..100 {
+        for i in 1..=100 {
             b *= 1.01;
             a -= 1e-3;
-            radius += 0.001;
+            // Note: updating `radius` like this because `radius += 0.01` builds up small
+            // numerical errors and is less reliable
+            let radius = 1.0 + 0.01 * (i as f64);
             let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
                 mocks::rosenbrock_grad(a, b, u, grad);
                 Ok(())
@@ -228,6 +251,7 @@ mod tests {
 
             let status = panoc.solve(&mut u).unwrap();
 
+            println!("status = {:#?}", status);
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
                 a,
@@ -235,14 +259,55 @@ mod tests {
                 radius,
                 status.iterations()
             );
-            println!("u = {:#.6?}", u);
+
+            /* CHECK FEASIBILITY */
+            // The norm of u must be <= radius
+            let ru = crate::matrix_operations::norm2(&u);
+            assert!(ru <= radius + 5e-16, "infeasibility in problem solution");
 
             assert_eq!(max_iters, panoc.max_iter);
             assert!(status.has_converged());
             assert!(status.iterations() < max_iters);
             assert!(status.norm_fpr() < tolerance);
         }
+    }
 
-        /* PROBLEM STATEMENT */
+    #[test]
+    fn t_panoc_optimizer_akkt_tolerance() {
+        /* USER PARAMETERS */
+        let tolerance = 1e-6;
+        let akkt_tolerance = 1e-6;
+        let a = 1.0;
+        let b = 200.0;
+        let n = 2;
+        let lbfgs_memory = 8;
+        let max_iters = 580;
+        let mut u = [-1.5, 0.9];
+
+        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            mocks::rosenbrock_grad(a, b, u, grad);
+            Ok(())
+        };
+        let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+            *c = mocks::rosenbrock_cost(a, b, u);
+            Ok(())
+        };
+
+        let radius = 1.2;
+        let bounds = constraints::Ball2::new(None, radius);
+
+        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
+        let problem = Problem::new(&bounds, df, f);
+
+        let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache)
+            .with_max_iter(max_iters)
+            .with_akkt_tolerance(akkt_tolerance);
+
+        let status = panoc.solve(&mut u).unwrap();
+
+        assert_eq!(max_iters, panoc.max_iter);
+        assert!(status.has_converged());
+        assert!(status.iterations() < max_iters);
+        assert!(status.norm_fpr() < tolerance);
     }
 }

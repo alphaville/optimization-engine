@@ -12,7 +12,7 @@ use super::Constraint;
 ///
 pub struct CartesianProduct<'a> {
     idx: Vec<usize>,
-    constraints: Vec<&'a Constraint>,
+    constraints: Vec<&'a dyn Constraint>,
 }
 
 impl<'a> CartesianProduct<'a> {
@@ -73,10 +73,9 @@ impl<'a> CartesianProduct<'a> {
     /// cart_prod.add_constraint(10, &ball1);        // OK, since 10 > 7
     /// cart_prod.add_constraint(2, &ball3);         // 2 <= 10, so it will fail
     /// ```
-    ///
     /// The method will panic if any of the associated projections panics.
     ///
-    pub fn add_constraint(&mut self, ni: usize, constraint: &'a Constraint) {
+    pub fn add_constraint(&mut self, ni: usize, constraint: &'a dyn Constraint) {
         assert!(
             self.dimension() < ni,
             "provided index is smaller than or equal to previous index, or zero"

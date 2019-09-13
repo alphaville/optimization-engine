@@ -42,6 +42,8 @@ pub fn solve(
     constraints_tolerance: f64,
     max_outer_iterations: usize,
     max_inner_iterations: usize,
+    initial_inner_tolerance: f64,
+    inner_tolerance_update_factor: f64,
 ) -> Result<continuation::HomotopySolverStatus, SolverError> {
     let mut q_augmented_params = [0.0; self::NP + self::NCP];
     q_augmented_params[0..self::NP].copy_from_slice(p);
@@ -82,7 +84,9 @@ pub fn solve(
         .with_constraint_tolerance(constraints_tolerance)
         .with_max_outer_iterations(max_outer_iterations)
         .with_max_inner_iterations(max_inner_iterations)
-        .with_max_duration(std::time::Duration::from_micros(max_duration_micros));
+        .with_max_duration(std::time::Duration::from_micros(max_duration_micros))
+        .with_initial_inner_tolerance(initial_inner_tolerance)
+        .with_inner_tolerance_update_factor(inner_tolerance_update_factor);
 
     // solve the problem and return its status
     // parameter `u` is updated with the solution
@@ -143,7 +147,8 @@ fn t_homotopy_rosenbrock_convergent() {
     let max_outer_iterations = 30;
     let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
     let p = [1.0, 100.0];
-    let mut cache = initialize_solver(1e-5, 2.0);
+    let tolerance = 1e-5;
+    let mut cache = initialize_solver(tolerance, 2.0);
     let out = solve(
         &p,
         &mut cache,
@@ -152,6 +157,8 @@ fn t_homotopy_rosenbrock_convergent() {
         constraint_tolerance,
         max_outer_iterations,
         500,
+        tolerance,
+        0.1,
     );
     let status = out.unwrap();
     assert_eq!(status.exit_status(), ExitStatus::Converged);
@@ -163,8 +170,19 @@ fn t_homotopy_rosenbrock_convergent() {
 fn t_homotopy_rosenbrock_convergent2() {
     let mut u = [1.0, 5.0, 10.0, 100.0, 1000.0];
     let p = [1.0, 1000.0];
+    let inner_tolerance = 1e-6;
     let mut cache = initialize_solver(1e-6, 10.0);
-    let status = solve(&p, &mut cache, &mut u, 500000, 1e-5, 30, 500);
+    let status = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        500000,
+        1e-5,
+        30,
+        500,
+        inner_tolerance,
+        0.1,
+    );
     println!("status : {:#?}", &status);
     assert_eq!(status.unwrap().exit_status(), ExitStatus::Converged);
 }
@@ -186,6 +204,8 @@ fn t_homotopy_rosenbrock_convergent_in_loop() {
             constraint_violation_tolerance,
             30,
             500,
+            inner_tolerance,
+            0.1,
         );
         let status = out.unwrap();
         assert_eq!(status.exit_status(), ExitStatus::Converged);
@@ -198,8 +218,19 @@ fn t_homotopy_rosenbrock_convergent_in_loop() {
 fn t_homotopy_rosenbrock_outta_time() {
     let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
     let p = [1.0, 100.0];
-    let mut cache = initialize_solver(1e-5, 2.0);
-    let status = solve(&p, &mut cache, &mut u, 10, 1e-3, 30, 500);
+    let inner_tolerance = 1e-5;
+    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let status = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10,
+        1e-3,
+        30,
+        500,
+        inner_tolerance,
+        0.1,
+    );
     assert_eq!(
         status.unwrap().exit_status(),
         ExitStatus::NotConvergedOutOfTime
@@ -210,8 +241,19 @@ fn t_homotopy_rosenbrock_outta_time() {
 fn t_homotopy_rosenbrock_outta_iterations() {
     let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
     let p = [1.0, 100.0];
-    let mut cache = initialize_solver(1e-5, 2.0);
-    let status = solve(&p, &mut cache, &mut u, 10000000, 1e-12, 30, 500);
+    let inner_tolerance = 1e-5;
+    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let status = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10000000,
+        1e-12,
+        30,
+        500,
+        inner_tolerance,
+        0.1,
+    );
     assert_eq!(
         status.unwrap().exit_status(),
         ExitStatus::NotConvergedIterations
@@ -222,10 +264,67 @@ fn t_homotopy_rosenbrock_outta_iterations() {
 fn t_homotopy_rosenbrock_outta_iterations_2() {
     let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
     let p = [1.0, 100.0];
-    let mut cache = initialize_solver(1e-12, 2.0);
-    let status = solve(&p, &mut cache, &mut u, 10000000, 1e-3, 30, 500);
+    let inner_tolerance = 1e-12;
+    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let status = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10000000,
+        1e-3,
+        30,
+        500,
+        inner_tolerance,
+        0.1,
+    );
     assert_eq!(
         status.unwrap().exit_status(),
         ExitStatus::NotConvergedIterations
+    );
+}
+
+#[test]
+fn t_homotopy_rosenbrock_relaxed_inner_tolerance() {
+    // NOTE: This way, the penalty method converges much faster!
+    let mut u = [-1.0, -1.0, -1.0, -1.0, 0.0];
+    let p = [1.0, 100.0];
+    let inner_tolerance = 1e-6;
+    let initial_tolerance = 1.0;
+    let tolerance_factor = 1e-1;
+    let mut cache = initialize_solver(inner_tolerance, 5.0);
+    let status = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10000000,
+        1e-3,
+        30,
+        500,
+        initial_tolerance,
+        tolerance_factor,
+    );
+    println!("status = {:#?}", &status);
+    assert_eq!(status.unwrap().exit_status(), ExitStatus::Converged);
+}
+
+#[test]
+#[should_panic]
+fn t_relaxed_inner_tolerance_failure() {
+    let mut u = [0.0; 5];
+    let p = [0.0; 2];
+    let inner_tolerance = 1e-6;
+    let initial_tolerance = 1e-1;
+    let tolerance_factor = 1.5; // <- should be in (0, 1)
+    let mut cache = initialize_solver(inner_tolerance, 2.0);
+    let _ = solve(
+        &p,
+        &mut cache,
+        &mut u,
+        10000000,
+        1e-3,
+        30,
+        500,
+        initial_tolerance,
+        tolerance_factor,
     );
 }
