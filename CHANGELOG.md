@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 * Finite sets supported in Rust
+* Rust/Python: setting CBFGS parameters
 
 ### Removed
 

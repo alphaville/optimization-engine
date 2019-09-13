@@ -20,9 +20,7 @@ publish=false
 [dependencies]
 #TODO: In production, change the following line
 #optimization_engine = { git = "https://github.com/alphaville/optimization-engine" }
-#optimization_engine = "{{open_version or '0.5.0'}}"
-# !!!FOR DEV ONLY!!!
-optimization_engine = { path = "../../../../" }
+optimization_engine = "{{open_version or '0.5.1-beta'}}"
 icasadi = {path = "./icasadi/"}
 {% if activate_clib_generation -%}
 libc = "0.2.0"
