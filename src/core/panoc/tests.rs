@@ -129,7 +129,7 @@ fn t_test_panoc_rosenbrock() {
     };
     let bounds = constraints::Ball2::new(None, 1.0);
     let problem = Problem::new(&bounds, df, f);
-    let mut panoc_cache = PANOCCache::new(2, tolerance, 2);
+    let mut panoc_cache = PANOCCache::new(2, tolerance, 2).with_cbfgs_parameters(2.0, 1e-6, 1e-12);
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
     let mut u = [-1.5, 0.9];
     panoc_engine.init(&mut u).unwrap();

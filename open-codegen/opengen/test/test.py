@@ -154,7 +154,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints_tolerance(1e-4)             \
             .with_max_outer_iterations(15)                \
             .with_penalty_weight_update_factor(8.0)       \
-            .with_initial_penalty_weights([20.0, 5.0])
+            .with_initial_penalty_weights([20.0, 5.0]).with_cbfgs_parameters(1.0, 1e-8, 1e-9)
         builder = og.builder.OpEnOptimizerBuilder(problem,
                                                   metadata=meta,
                                                   build_configuration=build_config,
