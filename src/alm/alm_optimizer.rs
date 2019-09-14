@@ -15,6 +15,7 @@ const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
 const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
 const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
+const SMALL_EPSILON: f64 = 2.0 * std::f64::EPSILON;
 
 pub struct AlmOptimizer<
     'life,
@@ -267,7 +268,8 @@ where
     fn compute_alm_infeasibility(&mut self) -> Result<(), SolverError> {
         let alm_cache = &mut self.alm_cache; // ALM cache
         if let (Some(y_plus), Some(xi)) = (&alm_cache.y_plus, &alm_cache.xi) {
-            let norm_diff_squared: f64 = matrix_operations::norm2_squared_diff(&y_plus, &xi[1..]);
+            // compute ||y_plus - y||
+            let norm_diff_squared = matrix_operations::norm2_squared_diff(&y_plus, &xi[1..]);
             alm_cache.delta_y_norm_plus = norm_diff_squared.sqrt();
         }
         Ok(())
@@ -411,16 +413,29 @@ where
 
     fn is_exit_criterion_satisfied(&self) -> bool {
         let cache = &self.alm_cache;
+        let problem = &self.alm_problem;
         // Criterion 1: ||Delta y|| <= c * delta
-        let criterion_1 = if let Some(xi) = &cache.xi {
-            let c = xi[0];
-            cache.delta_y_norm_plus <= c * self.delta_tolerance
-        } else {
-            true
-        };
+        //              If n1 = 0 (if there are not ALM-type constraints)
+        //              then this criterion is automatically satisfied
+        let criterion_1 = problem.n1 == 0
+            || if let Some(xi) = &cache.xi {
+                let c = xi[0];
+                cache.delta_y_norm_plus <= c * self.delta_tolerance + SMALL_EPSILON
+            } else {
+                true
+            };
         // Criterion 2: ||F2(u+)|| <= delta
-        let criterion_2 = cache.f2_norm_plus <= 1.0;
-        criterion_1 && criterion_2
+        //              If n2 = 0, there are no PM-type constraints, so this
+        //              criterion is automatically satisfied
+        let criterion_2 =
+            problem.n2 == 0 || cache.f2_norm_plus <= self.delta_tolerance + SMALL_EPSILON;
+        // Criterion 3: epsilon_nu <= epsilon
+        //              This function will panic is there is no akkt_tolerance
+        //              This should never happen because we set the AKKT tolerance
+        //              in the constructor and can never become `None` again
+        let criterion_3 =
+            cache.panoc_cache.akkt_tolerance.unwrap() <= self.epsilon_tolerance + SMALL_EPSILON;
+        criterion_1 && criterion_2 && criterion_3
     }
 
     fn is_penalty_stall_criterion(&self) -> bool {
@@ -457,7 +472,7 @@ where
         let cache = &mut self.alm_cache;
         cache.iteration += 1;
         cache.delta_y_norm = cache.delta_y_norm_plus;
-        cache.f2_norm_plus = cache.f2_norm;
+        cache.f2_norm = cache.f2_norm_plus;
         cache.panoc_cache.reset();
     }
 
@@ -633,5 +648,55 @@ mod tests {
         } else {
             panic!("no xi found after projection!");
         }
+    }
+
+    #[test]
+    fn t_compute_infeasibilities() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 2, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+            res[0] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui;
+                sum
+            });
+            res[1] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui.powi(2);
+                sum
+            });
+            Ok(())
+        });
+        let set_c = Some(Ball2::new(None, 1.0));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_penalty(10.0)
+            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+
+        let u_plus = vec![1.0, 5.0, -2.0, 9.0, -6.0];
+        assert!(alm_optimizer.compute_pm_infeasibility(&u_plus).is_ok());
+        let alm_cache = &alm_optimizer.alm_cache;
+        let f2_u_plus = &alm_cache.w_pm.as_ref().unwrap();
+        println!("F2(u_plus) = {:#?}", f2_u_plus);
+        unit_test_utils::assert_nearly_equal_array(
+            &[7., 147.],
+            &f2_u_plus,
+            1e-10,
+            1e-12,
+            "F2(u) is wrong",
+        );
+        // ||F2(u_plus)|| = 147.166572291400
+        println!("||F2(u_plus)|| = {}", alm_cache.f2_norm_plus);
+        unit_test_utils::assert_nearly_equal(
+            alm_cache.f2_norm_plus,
+            147.166572291400,
+            1e-12,
+            1e-12,
+            "||F2(u_plus)|| is wrong",
+        );
     }
 }
