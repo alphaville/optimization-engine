@@ -528,6 +528,7 @@ where
     pub fn solve(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
         // TODO: implement loop - check output of .step()
         let cache = &mut self.alm_cache;
+        cache.reset(); // first, reset the cache
         cache
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
@@ -878,5 +879,57 @@ mod tests {
                 "wrong updated penalty",
             );
         }
+    }
+
+    #[test]
+    fn t_final_cache_update() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let set_c = Some(Ball2::new(None, 1.5));
+        let set_y = Some(Ball2::new(None, 2.0));
+        let bounds = Ball2::new(None, 10.0);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
+        alm_optimizer.alm_cache.reset();
+        alm_optimizer.alm_cache.delta_y_norm_plus = 1.2345;
+        alm_optimizer.alm_cache.f2_norm_plus = 3.45678;
+        if let Some(xi) = &mut alm_optimizer.alm_cache.xi {
+            xi[1..].copy_from_slice(&vec![5.6, 7.8]);
+        }
+        assert_eq!(
+            0, alm_optimizer.alm_cache.iteration,
+            "initial iteration count should be 0"
+        );
+
+        alm_optimizer.final_cache_update();
+
+        assert_eq!(
+            1, alm_optimizer.alm_cache.iteration,
+            "iteration count not updated"
+        );
+        unit_test_utils::assert_nearly_equal(
+            3.45678,
+            alm_optimizer.alm_cache.f2_norm,
+            1e-16,
+            1e-12,
+            "f2_norm was not updated after final_cache_update()",
+        );
+        unit_test_utils::assert_nearly_equal(
+            1.2345,
+            alm_optimizer.alm_cache.delta_y_norm,
+            1e-16,
+            1e-12,
+            "delta_y_norm was not updated after final_cache_update()",
+        );
+        assert_eq!(
+            0, alm_optimizer.alm_cache.panoc_cache.iteration,
+            "panoc_cache iteration count not updated"
+        );
+        println!("cache now = {:#?}", &alm_optimizer.alm_cache);
     }
 }
