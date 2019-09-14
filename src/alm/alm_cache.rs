@@ -1,5 +1,7 @@
 use crate::panoc::PANOCCache;
 
+const DEFAULT_INITIAL_PENALTY: f64 = 10.0;
+
 #[derive(Debug)]
 pub struct AlmCache {
     /// PANOC cache for inner problems
@@ -30,7 +32,9 @@ impl AlmCache {
             y_plus: if n1 > 0 { Some(vec![0.0; n1]) } else { None },
             // Allocate memory for xi = (c, y) if either n1 or n2 is nonzero
             xi: if n1 + n2 > 0 {
-                Some(vec![0.0; n1 + 1])
+                let mut xi_init = vec![DEFAULT_INITIAL_PENALTY; 1];
+                xi_init.append(&mut vec![0.0; n1]);
+                Some(xi_init)
             } else {
                 None
             },
