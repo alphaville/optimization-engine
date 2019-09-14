@@ -1,7 +1,8 @@
-use crate::alm::*;
-use crate::core::constraints;
-use crate::core::panoc::*;
-use crate::SolverError;
+use crate::{
+    alm::*,
+    core::{constraints, panoc::*},
+    SolverError,
+};
 
 #[test]
 fn t_create_alm_cache() {
@@ -148,8 +149,8 @@ fn t_create_alm_optimizer() {
 
     let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
         .with_delta_tolerance(1e-4)
-        .with_max_outer_iterations(10);
-    alm_optimizer.set_lagrange_multipliers_init(&vec![5.0; n1]);
+        .with_max_outer_iterations(10)
+        .with_initial_lagrange_multipliers(&vec![5.0; n1]);
 
     let mut u = vec![0.0; nx];
     println!("result = {:?}", alm_optimizer.solve(&mut u));

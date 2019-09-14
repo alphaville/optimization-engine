@@ -11,7 +11,9 @@ pub struct AlmCache {
     /// Infeasibility related to ALM-type constraints
     ///
     pub(crate) delta_y_norm: f64,
+    pub(crate) delta_y_norm_plus: f64,
     pub(crate) f2_norm: f64,
+    pub(crate) f2_norm_plus: f64,
     pub(crate) w_alm_aux: Option<Vec<f64>>,
     /// Infeasibility related to PM-type constraints
     ///
@@ -36,7 +38,18 @@ impl AlmCache {
             w_pm: if n2 > 0 { Some(vec![0.0; n2]) } else { None },
             iteration: 0,
             delta_y_norm: 0.0,
+            delta_y_norm_plus: 0.0,
             f2_norm: 0.0,
+            f2_norm_plus: 0.0,
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.panoc_cache.reset();
+        self.iteration = 0;
+        self.f2_norm = 0.0;
+        self.f2_norm_plus = 0.0;
+        self.delta_y_norm = 0.0;
+        self.delta_y_norm_plus = 0.0;
     }
 }

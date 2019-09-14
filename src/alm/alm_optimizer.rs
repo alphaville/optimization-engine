@@ -151,6 +151,7 @@ where
             ParametricCostType,
         >,
     ) -> Self {
+        // set the initial value of the inner tolerance
         alm_cache
             .panoc_cache
             .set_akkt_tolerance(DEFAULT_INITIAL_TOLERANCE);
@@ -189,26 +190,65 @@ where
         self
     }
 
-    pub fn set_lagrange_multipliers_init(&mut self, y: &[f64]) {
-        let cache = &mut self.alm_cache;
-        if let Some(xi_in_cache) = &mut cache.xi {
-            xi_in_cache[1..].copy_from_slice(y);
-        }
+    pub fn with_epsilon_tolerance(mut self, epsilon_tolerance: f64) -> Self {
+        self.epsilon_tolerance = epsilon_tolerance;
+        self
     }
 
-    pub fn set_penalty_init(&mut self, c0: f64) {
+    pub fn with_penalty_update_factor(mut self, penalty_update_factor: f64) -> Self {
+        self.penalty_update_factor = penalty_update_factor;
+        self
+    }
+
+    pub fn with_inner_tolerance_update_factor(
+        mut self,
+        inner_tolerance_update_factor: f64,
+    ) -> Self {
+        self.epsilon_update_factor = inner_tolerance_update_factor;
+        self
+    }
+
+    pub fn with_sufficient_decrease_coefficient(
+        mut self,
+        sufficient_decrease_coefficient: f64,
+    ) -> Self {
+        self.sufficient_decrease_coeff = sufficient_decrease_coefficient;
+        self
+    }
+
+    pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: f64) -> Self {
+        self.epsilon_inner_initial = initial_inner_tolerance;
+        self
+    }
+
+    pub fn with_initial_lagrange_multipliers(mut self, y_init: &[f64]) -> Self {
+        let cache = &mut self.alm_cache;
+        assert!(
+            y_init.len() == self.alm_problem.n1,
+            "y_init has wrong length"
+        );
+        if let Some(xi_in_cache) = &mut cache.xi {
+            xi_in_cache[1..].copy_from_slice(y_init);
+        }
+        self
+    }
+
+    pub fn with_initial_penalty(self, c0: f64) -> Self {
         if let Some(xi_in_cache) = &mut self.alm_cache.xi {
             xi_in_cache[0] = c0;
         }
+        self
     }
 
-    //TODO: We're lacking a few setter methods
+    /* ---------------------------------------------------------------------------- */
+    /*          PRIVATE METHODS                                                     */
+    /* ---------------------------------------------------------------------------- */
 
     fn compute_alm_infeasibility(&mut self) -> Result<(), SolverError> {
         let alm_cache = &mut self.alm_cache; // ALM cache
         if let (Some(y_plus), Some(xi)) = (&alm_cache.y_plus, &alm_cache.xi) {
             let norm_diff_squared: f64 = matrix_operations::norm2_squared_diff(&y_plus, &xi[1..]);
-            alm_cache.delta_y_norm = norm_diff_squared.sqrt();
+            alm_cache.delta_y_norm_plus = norm_diff_squared.sqrt();
         }
         Ok(())
     }
@@ -219,11 +259,10 @@ where
         let cache = &mut self.alm_cache; // ALM cache
 
         // If there is an F2 mapping: cache.w_pm <-- F2
-        // TODO: we are interested in the norm of F2(u)
-        if let Some(f2) = &problem.mapping_f2 {
-            if let Some(w_pm_vec) = cache.w_pm.as_mut() {
-                f2(u, w_pm_vec)?
-            }
+        // Then compute the norm of w_pm and store it in cache.f2_norm_plus
+        if let (Some(f2), Some(w_pm_vec)) = (&problem.mapping_f2, &mut cache.w_pm.as_mut()) {
+            f2(u, w_pm_vec)?;
+            cache.f2_norm_plus = matrix_operations::norm2(w_pm_vec);
         }
         Ok(())
     }
@@ -352,20 +391,35 @@ where
         // Criterion 1: ||Delta y|| <= c * delta
         let criterion_1 = if let Some(xi) = &cache.xi {
             let c = xi[0];
-            cache.delta_y_norm <= c * self.delta_tolerance
+            cache.delta_y_norm_plus <= c * self.delta_tolerance
         } else {
             true
         };
         // Criterion 2: ||F2(u+)|| <= delta
-        let criterion_2 = cache.f2_norm <= 1.0;
+        let criterion_2 = cache.f2_norm_plus <= 1.0;
         criterion_1 && criterion_2
     }
 
     fn is_penalty_stall_criterion(&self) -> bool {
+        let cache = &self.alm_cache;
+        // Check whether the penalty parameter should not be updated
+        // This is if iteration = 0, or there has been a sufficient
+        // decrease in infeasibility
+        if cache.iteration == 0
+            || cache.delta_y_norm_plus < self.sufficient_decrease_coeff * cache.delta_y_norm
+            || cache.f2_norm_plus < self.sufficient_decrease_coeff * cache.f2_norm
+        {
+            return true;
+        }
         false
     }
 
-    fn update_penalty(&mut self) {}
+    fn update_penalty(&mut self) {
+        let cache = &mut self.alm_cache;
+        if let Some(xi) = &mut cache.xi {
+            xi[0] *= self.penalty_update_factor;
+        }
+    }
 
     fn update_inner_akkt_tolerance(&mut self) {
         let cache = &mut self.alm_cache;
@@ -376,6 +430,13 @@ where
         ));
     }
 
+    fn final_cache_update(&mut self) {
+        let cache = &mut self.alm_cache;
+        cache.iteration += 1;
+        cache.delta_y_norm = cache.delta_y_norm_plus;
+        cache.f2_norm_plus = cache.f2_norm;
+        cache.panoc_cache.reset();
+    }
     /// Step of ALM algorithm
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
@@ -399,8 +460,15 @@ where
         }
         // Update inner problem tolerance
         self.update_inner_akkt_tolerance();
+        // conclusive step: updated iteration count, resets PANOC cache,
+        // sets f2_norm = f2_norm_plus etc
+        self.final_cache_update();
         return Ok(true);
     }
+
+    /* ---------------------------------------------------------------------------- */
+    /*          MAIN API                                                            */
+    /* ---------------------------------------------------------------------------- */
 
     /// Solve the specified ALM problem
     ///
@@ -409,5 +477,73 @@ where
         // TODO: implement loop - check output of .step()
         let _step_result = self.step(u);
         Ok(())
+    }
+}
+
+/* ---------------------------------------------------------------------------- */
+/*          TESTS                                                               */
+/* ---------------------------------------------------------------------------- */
+#[cfg(test)]
+mod tests {
+
+    use crate::alm::*;
+    use crate::core::constraints;
+    use crate::core::panoc::*;
+    use crate::SolverError;
+
+    #[test]
+    fn t_with_initial_penalty() {
+        let tolerance = 1e-8;
+        let nx = 10;
+        let n1 = 5;
+        let n2 = 0;
+        let lbfgs_mem = 3;
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let set_c = constraints::Ball2::new(None, 1.50);
+
+        let bounds = constraints::Ball2::new(None, 10.0);
+        let set_y = constraints::Ball2::new(None, 1.0);
+        let alm_problem = AlmProblem::new(
+            bounds,
+            Some(set_c),
+            Some(set_y),
+            f,
+            df,
+            Some(f1),
+            NO_MAPPING,
+            n1,
+            n2,
+        );
+
+        let alm_optimizer =
+            AlmOptimizer::new(&mut alm_cache, alm_problem).with_initial_penalty(7.0);
+        assert!(!alm_optimizer.alm_cache.xi.is_none());
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            unit_test_utils::assert_nearly_equal(
+                7.0,
+                xi[0],
+                1e-10,
+                1e-12,
+                "initial penalty parameter not set properly",
+            );
+        }
+
+        let y_init = vec![2.0, 3.0, 4.0, 5.0, 6.0];
+        let alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(&y_init);
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            unit_test_utils::assert_nearly_equal_array(
+                &y_init,
+                &xi[1..],
+                1e-10,
+                1e-12,
+                "initial Langrange multipliers not set properly",
+            );
+        }
+        // println!("cache = {:#?}", alm_optimizer.alm_cache);
     }
 }

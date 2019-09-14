@@ -11,21 +11,24 @@ main() {
     # Run Python tests
     # ------------------------------------
 
+    # NOTE: Temporarily deactivated
+    #       TODO: Re-enable later
+
     # Create virtual environment
-    cd open-codegen
-    export PYTHONPATH=.
-    virtualenv -p python$PYTHON_VERSION venv
+    # cd open-codegen
+    # export PYTHONPATH=.
+    # virtualenv -p python$PYTHON_VERSION venv
     
     # activate venv
-    source venv/bin/activate
+    # source venv/bin/activate
     
     # install opengen
-    python setup.py install
+    # python setup.py install
     
     # run opengen main.py
-    cd opengen
-    export PYTHONPATH=.
-    python -W ignore test/test.py -v
+    # cd opengen
+    # export PYTHONPATH=.
+    # python -W ignore test/test.py -v
 }
 
 main
