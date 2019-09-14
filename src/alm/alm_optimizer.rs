@@ -651,7 +651,9 @@ mod tests {
     }
 
     #[test]
-    fn t_compute_infeasibilities() {
+    fn t_compute_pm_infeasibility() {
+        // Tests whether compute_pm_infeasibility() works properly: it need to compute
+        // F2(u_plus) and ||F2(u_plus)||. It stores F2(u_plus) in alm_cache.w_pm
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
@@ -697,6 +699,50 @@ mod tests {
             1e-12,
             1e-12,
             "||F2(u_plus)|| is wrong",
+        );
+    }
+
+    #[test]
+    fn t_compute_alm_infeasibility() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 2, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+            res[0] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui;
+                sum
+            });
+            res[1] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui.powi(2);
+                sum
+            });
+            Ok(())
+        });
+        let set_c = Some(Ball2::new(None, 1.0));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        // Set y0 = [2, 3, 4, 10]
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_penalty(10.0)
+            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+        {
+            let cache = &mut alm_optimizer.alm_cache;
+            // Set y1 = [10, 20, 11, 100]
+            if let Some(y_plus) = &mut cache.y_plus {
+                y_plus.copy_from_slice(&vec![10., 20., 11., 100.]);
+            }
+        }
+        assert!(alm_optimizer.compute_alm_infeasibility().is_ok());
+        unit_test_utils::assert_nearly_equal(
+            92.2062904578641,
+            alm_optimizer.alm_cache.delta_y_norm_plus,
+            1e-10,
+            1e-12,
+            "delta_y_plus is wrong",
         );
     }
 }
