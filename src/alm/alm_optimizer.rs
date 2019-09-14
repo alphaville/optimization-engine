@@ -790,16 +790,15 @@ mod tests {
 
     #[test]
     fn t_update_inner_akkt_tolerance() {
-        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
         let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
-        let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
-        let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let alm_problem = AlmProblem::new(
+            bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+        );
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_epsilon_tolerance(2e-5)
             .with_initial_inner_tolerance(1e-1)
@@ -827,7 +826,7 @@ mod tests {
             "panoc_cache tolerance is not properly updated",
         );
 
-        for _i in 1..10 {
+        for _i in 1..=5 {
             alm_optimizer.update_inner_akkt_tolerance();
         }
         unit_test_utils::assert_nearly_equal(
@@ -841,13 +840,43 @@ mod tests {
             1e-12,
             "panoc_cache tolerance is not properly updated",
         );
+    }
 
-        // unit_test_utils::assert_nearly_equal(
-        //     0.02,
-        //     alm_optimizer,
-        //     rel_tol: T,
-        //     abs_tol: T,
-        //     msg: &'static str,
-        // )
+    #[test]
+    fn t_update_penalty_parameter() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let bounds = Ball2::new(None, 10.0);
+        let alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, f2, n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_penalty(5.0)
+            .with_penalty_update_factor(15.0);
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            unit_test_utils::assert_nearly_equal(xi[0], 5.0, 1e-16, 1e-12, "wrong initial penalty");
+        }
+        alm_optimizer.update_penalty_parameter();
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            unit_test_utils::assert_nearly_equal(
+                xi[0],
+                75.0,
+                1e-16,
+                1e-12,
+                "wrong updated penalty",
+            );
+        }
+        alm_optimizer.update_penalty_parameter();
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            unit_test_utils::assert_nearly_equal(
+                xi[0],
+                1125.0,
+                1e-16,
+                1e-12,
+                "wrong updated penalty",
+            );
+        }
     }
 }
