@@ -115,9 +115,9 @@ where
     /// let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
     /// let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
     ///
-    /// let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    /// let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let f = |_u: &[f64], _param: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    /// let df = |_u: &[f64], _param: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     /// let set_c = constraints::Ball2::new(None, 1.50);
     ///
     /// // Construct an instance of AlmProblem without any PM-type data
@@ -294,6 +294,7 @@ where
     /// `y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]`
     ///
     fn update_lagrange_multipliers(&mut self, u: &[f64]) -> Result<(), SolverError> {
+        println!("u received = {:?}", u);
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -473,6 +474,9 @@ where
         cache.iteration += 1;
         cache.delta_y_norm = cache.delta_y_norm_plus;
         cache.f2_norm = cache.f2_norm_plus;
+        if let (Some(xi), Some(y_plus)) = (&mut cache.xi, &cache.y_plus) {
+            &xi[1..].copy_from_slice(&y_plus);
+        }
         cache.panoc_cache.reset();
     }
 
@@ -480,29 +484,38 @@ where
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
         self.project_on_set_y();
+
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
         // we should keep solving.
         self.solve_inner_problem(u)
             .map(|_status: SolverStatus| {})?;
+
         // Update Lagrange multipliers:
         // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
         self.update_lagrange_multipliers(u)?;
+
         // Compute infeasibilities
-        self.compute_pm_infeasibility(u)?;
-        self.compute_alm_infeasibility()?;
+        self.compute_pm_infeasibility(u)?; // penalty method: F2(u_plus) and its norm
+        self.compute_alm_infeasibility()?; // ALM: ||y_plus - y||
+
         // Check exit criterion
         if self.is_exit_criterion_satisfied() {
+            // Do not continue the outer iteration
+            // An (epsilon, delta)-AKKT point has been found
             return Ok(false);
         } else if !self.is_penalty_stall_criterion() {
             self.update_penalty_parameter();
         }
+
         // Update inner problem tolerance
         self.update_inner_akkt_tolerance();
+
         // conclusive step: updated iteration count, resets PANOC cache,
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
-        return Ok(true);
+
+        return Ok(true); // `true` means do continue the outer iterations
     }
 
     /* ---------------------------------------------------------------------------- */
@@ -654,12 +667,11 @@ mod tests {
     fn t_compute_pm_infeasibility() {
         // Tests whether compute_pm_infeasibility() works properly: it need to compute
         // F2(u_plus) and ||F2(u_plus)||. It stores F2(u_plus) in alm_cache.w_pm
-        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 2, 3);
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
         let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
             res[0] = u.iter().fold(0.0, |mut sum, ui| {
                 sum += ui;
@@ -671,13 +683,10 @@ mod tests {
             });
             Ok(())
         });
-        let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
-        let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
-        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
-            .with_initial_penalty(10.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+        let alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, f2, n1, n2);
+        let mut alm_optimizer =
+            AlmOptimizer::new(&mut alm_cache, alm_problem).with_initial_penalty(10.0);
 
         let u_plus = vec![1.0, 5.0, -2.0, 9.0, -6.0];
         assert!(alm_optimizer.compute_pm_infeasibility(&u_plus).is_ok());
@@ -704,27 +713,16 @@ mod tests {
 
     #[test]
     fn t_compute_alm_infeasibility() {
-        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 2, 3);
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
         let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
-        let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-            res[0] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui;
-                sum
-            });
-            res[1] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui.powi(2);
-                sum
-            });
-            Ok(())
-        });
         let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
@@ -744,5 +742,112 @@ mod tests {
             1e-12,
             "delta_y_plus is wrong",
         );
+    }
+
+    #[test]
+    fn t_update_lagrange_multipliers() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+            res[0] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui;
+                sum
+            });
+            res[1] = u.iter().fold(0.0, |mut sum, ui| {
+                sum += ui.powi(2);
+                sum
+            });
+            Ok(())
+        });
+        let set_c = Some(Ball2::new(None, 1.5));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+
+        // Set y0 = [2, 3, 4, 10]
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_penalty(10.0)
+            .with_initial_lagrange_multipliers(&vec![2., 3.]);
+        let u = [3.0, 5.0, 7.0, 9.0, 11.];
+        assert!(alm_optimizer.update_lagrange_multipliers(&u).is_ok());
+
+        println!("xi = {:#?}", alm_optimizer.alm_cache.w_alm_aux);
+        unit_test_utils::assert_nearly_equal_array(
+            &[350.163243585489, 2838.112880538070],
+            &alm_optimizer
+                .alm_cache
+                .y_plus
+                .as_ref()
+                .expect("no y_plus found (it is None)"),
+            1e-12,
+            1e-12,
+            "y_plus is wrong",
+        );
+    }
+
+    #[test]
+    fn t_update_inner_akkt_tolerance() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let set_c = Some(Ball2::new(None, 1.0));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_epsilon_tolerance(2e-5)
+            .with_initial_inner_tolerance(1e-1)
+            .with_inner_tolerance_update_factor(0.2);
+
+        alm_optimizer.update_inner_akkt_tolerance();
+
+        unit_test_utils::assert_nearly_equal(
+            0.1,
+            alm_optimizer.epsilon_inner_initial,
+            1e-16,
+            1e-12,
+            "target tolerance altered by update_inner_akkt_tolerance",
+        );
+
+        unit_test_utils::assert_nearly_equal(
+            0.02,
+            alm_optimizer
+                .alm_cache
+                .panoc_cache
+                .akkt_tolerance
+                .expect("there should be a set AKKT tolerance"),
+            1e-12,
+            1e-12,
+            "panoc_cache tolerance is not properly updated",
+        );
+
+        for _i in 1..10 {
+            alm_optimizer.update_inner_akkt_tolerance();
+        }
+        unit_test_utils::assert_nearly_equal(
+            2e-5,
+            alm_optimizer
+                .alm_cache
+                .panoc_cache
+                .akkt_tolerance
+                .expect("there should be a set AKKT tolerance"),
+            1e-12,
+            1e-12,
+            "panoc_cache tolerance is not properly updated",
+        );
+
+        // unit_test_utils::assert_nearly_equal(
+        //     0.02,
+        //     alm_optimizer,
+        //     rel_tol: T,
+        //     abs_tol: T,
+        //     msg: &'static str,
+        // )
     }
 }

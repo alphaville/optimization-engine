@@ -129,7 +129,7 @@ fn t_create_alm_optimizer() {
 
     let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
     let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     let set_c = constraints::Ball2::new(None, 1.50);
 
     // Construct an instance of AlmProblem without any PM-type data
