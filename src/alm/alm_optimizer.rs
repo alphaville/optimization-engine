@@ -151,7 +151,9 @@ where
             ParametricCostType,
         >,
     ) -> Self {
-        // set the initial value of the inner tolerance
+        // set the initial value of the inner tolerance; this step is
+        // not necessary, however, because we set the initial tolerance
+        // in #solve (see below)
         alm_cache
             .panoc_cache
             .set_akkt_tolerance(DEFAULT_INITIAL_TOLERANCE);
@@ -218,15 +220,33 @@ where
 
     pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: f64) -> Self {
         self.epsilon_inner_initial = initial_inner_tolerance;
+        // for safety, we update the value of the tolerance in panoc_cache
+        self.alm_cache
+            .panoc_cache
+            .set_akkt_tolerance(initial_inner_tolerance);
         self
     }
 
+    /// Initialises the vector of Lagrange multipliers
+    ///
+    /// ## Arguments
+    ///
+    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]) of
+    ///             length equal to `n1`
+    ///
+    /// ## Panics
+    ///
+    /// The method will panic if the length of `y_init` is not equal to `n1`
+    ///
     pub fn with_initial_lagrange_multipliers(mut self, y_init: &[f64]) -> Self {
         let cache = &mut self.alm_cache;
         assert!(
             y_init.len() == self.alm_problem.n1,
-            "y_init has wrong length"
+            "y_init has wrong length (not equal to n1)"
         );
+        // Function `copy_from_slice` would panic if given two arrays (slices)
+        // of different lengths; however we catch this earlier in order to provide
+        // a meaningful error message
         if let Some(xi_in_cache) = &mut cache.xi {
             xi_in_cache[1..].copy_from_slice(y_init);
         }
@@ -380,7 +400,10 @@ where
         };
         // define the inner problem
         let inner_problem = Problem::new(&self.alm_problem.constraints, psi_grad, psi);
-        // TODO: tolerance decrease until target tolerance is reached
+        // The AKKT-tolerance decreases until it reaches the target tolerance
+        // We don't need to update the tolerance here; this is done in
+        // `update_inner_akkt_tolerance` which updates the AKKT-tolerance (epsilon)
+        // in the PANOCCache instance held by AlmCache directly.
         let mut inner_solver = PANOCOptimizer::new(inner_problem, &mut alm_cache.panoc_cache);
         // this method returns the result of .solve:
         inner_solver.solve(u)
@@ -414,7 +437,7 @@ where
         false
     }
 
-    fn update_penalty(&mut self) {
+    fn update_penalty_parameter(&mut self) {
         let cache = &mut self.alm_cache;
         if let Some(xi) = &mut cache.xi {
             xi[0] *= self.penalty_update_factor;
@@ -437,6 +460,7 @@ where
         cache.f2_norm_plus = cache.f2_norm;
         cache.panoc_cache.reset();
     }
+
     /// Step of ALM algorithm
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
@@ -456,7 +480,7 @@ where
         if self.is_exit_criterion_satisfied() {
             return Ok(false);
         } else if !self.is_penalty_stall_criterion() {
-            self.update_penalty();
+            self.update_penalty_parameter();
         }
         // Update inner problem tolerance
         self.update_inner_akkt_tolerance();
@@ -475,6 +499,10 @@ where
     ///
     pub fn solve(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
         // TODO: implement loop - check output of .step()
+        let cache = &mut self.alm_cache;
+        cache
+            .panoc_cache
+            .set_akkt_tolerance(self.epsilon_inner_initial);
         let _step_result = self.step(u);
         Ok(())
     }
@@ -487,41 +515,27 @@ where
 mod tests {
 
     use crate::alm::*;
-    use crate::core::constraints;
+    use crate::core::constraints::*;
     use crate::core::panoc::*;
     use crate::SolverError;
 
     #[test]
-    fn t_with_initial_penalty() {
-        let tolerance = 1e-8;
-        let nx = 10;
-        let n1 = 5;
-        let n2 = 0;
-        let lbfgs_mem = 3;
+    fn t_setter_methods() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 5, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-
         let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
         let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = |_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let set_c = constraints::Ball2::new(None, 1.50);
-
-        let bounds = constraints::Ball2::new(None, 10.0);
-        let set_y = constraints::Ball2::new(None, 1.0);
-        let alm_problem = AlmProblem::new(
-            bounds,
-            Some(set_c),
-            Some(set_y),
-            f,
-            df,
-            Some(f1),
-            NO_MAPPING,
-            n1,
-            n2,
-        );
+        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let set_c = Some(Ball2::new(None, 1.50));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 1.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
 
         let alm_optimizer =
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_initial_penalty(7.0);
+
+        // Test: with_initial_penalty
         assert!(!alm_optimizer.alm_cache.xi.is_none());
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
             unit_test_utils::assert_nearly_equal(
@@ -533,6 +547,7 @@ mod tests {
             );
         }
 
+        // Test: with_initial_lagrange_multipliers
         let y_init = vec![2.0, 3.0, 4.0, 5.0, 6.0];
         let alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(&y_init);
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
@@ -544,6 +559,79 @@ mod tests {
                 "initial Langrange multipliers not set properly",
             );
         }
-        // println!("cache = {:#?}", alm_optimizer.alm_cache);
+
+        // Test: with_initial_inner_tolerance
+        let alm_optimizer = alm_optimizer.with_initial_inner_tolerance(5e-3);
+        unit_test_utils::assert_nearly_equal(
+            5e-3,
+            alm_optimizer.epsilon_inner_initial,
+            1e-10,
+            1e-12,
+            "initial tolerance not properly set",
+        );
+        if let Some(akkt_tolerance) = alm_optimizer.alm_cache.panoc_cache.akkt_tolerance {
+            unit_test_utils::assert_nearly_equal(
+                5e-3,
+                akkt_tolerance,
+                1e-10,
+                1e-12,
+                "initial tolerance not properly set",
+            );
+        } else {
+            panic!("PANOCCache has no (initial) AKKT-tolerance set");
+        }
+    }
+
+    #[test]
+    fn t_project_on_set_y() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let set_c = Some(Ball2::new(None, 1.0));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+
+        // y0 = [2, 3, 4, 10]
+        // ||y0|| = 11.3578166916005
+        // The projection of y0 on Y = Ball(0; 2) is 2*y0/||y0|| (since y0 not in C)
+        // > P_C(y0) = [0.352180362530250
+        //              0.528270543795374
+        //              0.704360725060499
+        //              1.760901812651248]
+        //
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_penalty(25.0)
+            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+
+        alm_optimizer.project_on_set_y();
+        if let Some(xi_after_proj) = &alm_optimizer.alm_cache.xi {
+            println!("xi = {:#?}", xi_after_proj);
+            let y_projected_correct = [
+                0.352180362530250,
+                0.528270543795374,
+                0.704360725060499,
+                1.760901812651248,
+            ];
+            unit_test_utils::assert_nearly_equal_array(
+                &xi_after_proj[1..],
+                &y_projected_correct,
+                1e-10,
+                1e-15,
+                "wrong projection on Y",
+            );
+            unit_test_utils::assert_nearly_equal(
+                25.0,
+                xi_after_proj[0],
+                1e-10,
+                1e-16,
+                "penalty parameter affected by projection step (on Y)",
+            );
+        } else {
+            panic!("no xi found after projection!");
+        }
     }
 }
