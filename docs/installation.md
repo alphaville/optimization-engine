@@ -4,9 +4,18 @@ title: OpEn Installation
 sidebar_label: Installation
 ---
 
-## Install Rust
+## OpEn Requirements: Rust and clang
 
-Install Rust following the official [installation guide](https://www.rust-lang.org/tools/install).
+Before you start, you need to install
+
+* **Rust**, following the official [installation guide](https://www.rust-lang.org/tools/install),
+  - Why? The Rust compiler is an essential component of OpEn; you will most likely
+    not need to write (or compile yourself) any Rust code, but OpEn's Python/MATLAB
+    interface will need the compiler to build your optimizer
+* **clang**, following this [guide](https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md)
+  - Why? OpEn uses CasADi to build certain functions in C, which then need to be 
+    called from OpEn's core solver in Rust. For that purpose we need **bindgen**,
+    which requires **clang**
 
 
 ## Python Interface
