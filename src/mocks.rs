@@ -97,20 +97,26 @@ pub fn psi_cost(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError
             sum_of_squares += ui.powi(2);
             sum_of_squares
         }) + xi[0] * sum_u;
-
+    // psi_cost += xi[1..m]'*u[0..m-1]
     let m = std::cmp::min(u_len, xi_len - 1);
-    *cost += matrix_operations::inner_product(&u[..m], &xi[..m]);
+    *cost += matrix_operations::inner_product(&u[..m], &xi[1..=m]);
     Ok(())
 }
 
 pub fn psi_gradient(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
     let u_len = u.len();
     let xi_len = xi.len();
-    assert!(u_len > xi_len);
-    assert!(u_len == grad.len());
+    assert!(
+        u_len > xi_len,
+        "the length of u must be larger than that of xi"
+    );
+    assert!(u_len == grad.len(), "u and grad must have equal lengths");
     grad.copy_from_slice(u);
     grad.iter_mut().for_each(|grad_i| *grad_i += xi[0]);
-    xi.iter().zip(grad.iter_mut()).for_each(|(xi_i, grad_i)| *grad_i += xi_i);
+    &xi[1..]
+        .iter()
+        .zip(grad.iter_mut())
+        .for_each(|(xi_i, grad_i)| *grad_i += xi_i);
     Ok(())
 }
 
@@ -135,6 +141,31 @@ mod tests {
             1e-6,
             1e-6,
             "grad",
+        );
+    }
+
+    #[test]
+    fn t_psi_cost() {
+        let u = [-1.0, 2.0, -3.0, 4.0, 5.0];
+        let xi = [15., 20., 11., 17.];
+        let mut cost = 0.0;
+        assert!(psi_cost(&u, &xi, &mut cost).is_ok());
+        unit_test_utils::assert_nearly_equal(83.5, cost, 1e-16, 1e-12, "psi_cost is wrong");
+    }
+
+    #[test]
+    fn t_psi_gradient() {
+        let u = [-1.0, 2.0, -3.0, 4.0, 5.0];
+        let xi = [15., 20., 11., 17.];
+        let mut grad = vec![0.0; 5];
+        assert!(psi_gradient(&u, &xi, &mut grad).is_ok());
+        println!("grad = {:?}", grad);
+        unit_test_utils::assert_nearly_equal_array(
+            &grad,
+            &[34.0, 28.0, 29.0, 19.0, 20.0],
+            1e-12,
+            1e-12,
+            "psi_grad is wrong",
         );
     }
 }
