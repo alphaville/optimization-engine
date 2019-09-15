@@ -486,6 +486,20 @@ where
     }
 
     /// Step of ALM algorithm
+    ///
+    /// ## Description
+    ///
+    /// It involves the following actions:
+    ///
+    /// - Projects `y` on `Y`
+    /// - Solves the inner problem for the current `xi` up to tol. `epsilon`
+    /// - Updates the Lagrange multipliers
+    /// - Computes infeasibilities
+    /// - Exits if the temination criteria are satisfied OR
+    /// - Updates the penalty parameter
+    /// - Shrinks the inner tolerance and
+    /// - Updates the ALM cache
+    ///
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
         // Project y on Y
         self.project_on_set_y();
@@ -531,13 +545,17 @@ where
     ///
     ///
     pub fn solve(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
-        // TODO: implement loop - check output of .step()
         let cache = &mut self.alm_cache;
         cache.reset(); // first, reset the cache
         cache
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
-        let _step_result = self.step(u);
+
+        for _iter in 1..=self.max_outer_iterations {
+            if !self.step(u)? {
+                break;
+            }
+        }
         Ok(())
     }
 }
@@ -1022,7 +1040,12 @@ mod tests {
         // f = @(x) psi_cost(x, [1.0; 5.0; 6.0])
         // x_sol = fmincon(f,[0;0;0;0;0],[],[],[],[],-5*ones(5,1),zeros(5,1))
         //
-        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
+
+        // NOTE: Variable `tolerance` is the tolerance on FPR; this is important
+        //       so as to have an accurate solution of the inner problem, but we
+        //       are actually using a different inner termination criterion with
+        //       tolerance specified by AlmOptimizer.with_initial_inner_tolerance
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (0.1, 5, 2, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let psi = psi_cost;
@@ -1035,11 +1058,12 @@ mod tests {
         let set_y = Some(Ball2::new(None, 2.0));
         let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
 
-        // Set y0 = [2, 3, 4, 10]
+        // Set y0 = [5.0, 6.0] and initial penalty = 1.0 (so, xi = [1.0, 5.0, 6.0])
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_lagrange_multipliers(&vec![5.0, 6.0])
             .with_initial_penalty(1.0)
-            .with_initial_inner_tolerance(1e-4);
+            .with_epsilon_tolerance(1e-12)
+            .with_initial_inner_tolerance(1e-12);
         let mut u = vec![0.0; nx];
         let result = alm_optimizer.solve_inner_problem(&mut u);
         println!("result = {:#?}", &result);
