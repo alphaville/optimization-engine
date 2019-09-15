@@ -449,8 +449,9 @@ where
         // This is if iteration = 0, or there has been a sufficient
         // decrease in infeasibility
         if cache.iteration == 0
-            || cache.delta_y_norm_plus < self.sufficient_decrease_coeff * cache.delta_y_norm
-            || cache.f2_norm_plus < self.sufficient_decrease_coeff * cache.f2_norm
+            || cache.delta_y_norm_plus
+                <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON
+            || cache.f2_norm_plus <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON
         {
             return true;
         }
@@ -971,6 +972,35 @@ mod tests {
 
         alm_optimizer.alm_cache.f2_norm_plus = 1e-3;
         assert!(alm_optimizer.is_exit_criterion_satisfied());
+    }
+
+    #[test]
+    fn t_is_penalty_stall_criterion() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let bounds = Ball2::new(None, 10.0);
+        let alm_problem = AlmProblem::new(
+            bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+        );
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_sufficient_decrease_coefficient(0.1);
+
+        // should stall because iteration = 0
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.iteration = 4;
+        assert!(!alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.delta_y_norm = 100.0;
+        alm_optimizer.alm_cache.delta_y_norm_plus = 10.0;
+        alm_optimizer.alm_cache.f2_norm = 200000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+        println!("cache = {:#?}", alm_optimizer.alm_cache);
     }
 
 }
