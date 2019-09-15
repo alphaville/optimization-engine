@@ -548,20 +548,21 @@ where
 #[cfg(test)]
 mod tests {
 
-    use crate::alm::*;
-    use crate::core::constraints::*;
-    use crate::core::panoc::*;
-    use crate::SolverError;
+    use crate::{
+        alm::*,
+        core::{constraints::*, panoc::*, ExitStatus},
+        mocks::*,
+        SolverError,
+    };
 
     #[test]
     fn t_setter_methods() {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 5, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f1 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.50));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 1.0));
@@ -627,10 +628,9 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f1 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
@@ -683,9 +683,8 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
         let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
             res[0] = u.iter().fold(0.0, |mut sum, ui| {
                 sum += ui;
@@ -731,10 +730,9 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f1 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
@@ -765,9 +763,8 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
         let f1 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
             res[0] = u.iter().fold(0.0, |mut sum, ui| {
                 sum += ui;
@@ -810,9 +807,8 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         let alm_problem = AlmProblem::new(
             bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
@@ -865,10 +861,9 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f2 = Some(void_mapping);
         let bounds = Ball2::new(None, 10.0);
         let alm_problem =
             AlmProblem::new(bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, f2, n1, n2);
@@ -905,11 +900,10 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
-        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f1 = Some(void_mapping);
+        let f2 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.5));
         let set_y = Some(Ball2::new(None, 2.0));
         let bounds = Ball2::new(None, 10.0);
@@ -958,11 +952,10 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
-        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let f1 = Some(void_mapping);
+        let f2 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.5));
         let set_y = Some(Ball2::new(None, 2.0));
         let bounds = Ball2::new(None, 10.0);
@@ -990,9 +983,8 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let d_psi =
-            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         let alm_problem = AlmProblem::new(
             bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
@@ -1013,6 +1005,33 @@ mod tests {
 
         assert!(alm_optimizer.is_penalty_stall_criterion());
         println!("cache = {:#?}", alm_optimizer.alm_cache);
+    }
+
+    #[test]
+    fn t_solve_inner_problem() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let psi = psi_cost;
+        let d_psi = psi_gradient;
+        let f1 = Some(void_mapping);
+        let set_c = Some(Ball2::new(None, 1.5));
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Some(Ball2::new(None, 2.0));
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
+
+        // Set y0 = [2, 3, 4, 10]
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_initial_lagrange_multipliers(&vec![60.; n1])
+            .with_initial_penalty(10.0)
+            .with_initial_inner_tolerance(1e-4);
+        let mut u = vec![0.0; nx];
+        let result = alm_optimizer.solve_inner_problem(&mut u);
+        println!("result = {:#?}", &result);
+        assert!(result.is_ok());
+        let solver_status = result.unwrap();
+        assert!(solver_status.has_converged());
+        assert_eq!(ExitStatus::Converged, solver_status.exit_status());
     }
 
 }
