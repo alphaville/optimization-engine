@@ -115,8 +115,8 @@ where
     /// let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
     /// let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
     ///
-    /// let f = |_u: &[f64], _param: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let df = |_u: &[f64], _param: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let psi =  |_u: &[f64], _param: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    /// let d_psi =|_u: &[f64], _param: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     /// let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     /// let set_c = constraints::Ball2::new(None, 1.50);
     ///
@@ -127,8 +127,8 @@ where
     ///     bounds,
     ///     Some(set_c),
     ///     Some(set_y),
-    ///     f,
-    ///     df,
+    ///     psi,
+    ///     d_psi,
     ///     Some(f1),
     ///     NO_MAPPING,
     ///     n1,
@@ -558,13 +558,14 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 5, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let set_c = Some(Ball2::new(None, 1.50));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 1.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
 
         let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
 
@@ -626,13 +627,14 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f1 = Some(|_u: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
 
         // y0 = [2, 3, 4, 10]
         // ||y0|| = 11.3578166916005
@@ -681,8 +683,9 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
             res[0] = u.iter().fold(0.0, |mut sum, ui| {
                 sum += ui;
@@ -695,7 +698,8 @@ mod tests {
             Ok(())
         });
         let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, f2, n1, n2);
+        let alm_problem =
+            AlmProblem::new(bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, f2, n1, n2);
         let mut alm_optimizer =
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_initial_penalty(10.0);
 
@@ -727,13 +731,14 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let set_c = Some(Ball2::new(None, 1.0));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
@@ -760,8 +765,9 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f1 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
             res[0] = u.iter().fold(0.0, |mut sum, ui| {
                 sum += ui;
@@ -776,7 +782,7 @@ mod tests {
         let set_c = Some(Ball2::new(None, 1.5));
         let bounds = Ball2::new(None, 10.0);
         let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
 
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
@@ -804,11 +810,12 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let bounds = Ball2::new(None, 10.0);
         let alm_problem = AlmProblem::new(
-            bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+            bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
         );
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_epsilon_tolerance(2e-5)
@@ -858,11 +865,13 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, f2, n1, n2);
+        let alm_problem =
+            AlmProblem::new(bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, f2, n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(5.0)
             .with_penalty_update_factor(15.0);
@@ -896,14 +905,15 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let set_c = Some(Ball2::new(None, 1.5));
         let set_y = Some(Ball2::new(None, 2.0));
         let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, f2, n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
         alm_optimizer.alm_cache.reset();
         alm_optimizer.alm_cache.delta_y_norm_plus = 1.2345;
@@ -948,14 +958,15 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
         let set_c = Some(Ball2::new(None, 1.5));
         let set_y = Some(Ball2::new(None, 2.0));
         let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, f2, n1, n2);
         let alm_optimizer =
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_delta_tolerance(1e-3);
 
@@ -979,11 +990,12 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let d_psi =
+            |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let bounds = Ball2::new(None, 10.0);
         let alm_problem = AlmProblem::new(
-            bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+            bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
         );
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_sufficient_decrease_coefficient(0.1);
