@@ -18,8 +18,23 @@ class SolverConfiguration:
         self.__penalty_weight_update_factor = 5.0
         self.__initial_weights = 10.0
         self.__max_duration_micros = 5000000
+        self.__cbfgs_alpha = None
+        self.__cbfgs_epsilon = None
+        self.__cbfgs_sy_epsilon = None
 
     # --------- GETTERS -----------------------------
+    @property
+    def cbfgs_alpha(self):
+        return self.__cbfgs_alpha
+
+    @property
+    def cbfgs_epsilon(self):
+        return self.__cbfgs_epsilon
+
+    @property
+    def cbfgs_sy_epsilon(self):
+        return self.__cbfgs_sy_epsilon
+
     @property
     def tolerance(self):
         """Tolerance of inner solver"""
@@ -174,4 +189,26 @@ class SolverConfiguration:
         if max_duration_micros < 1:
             raise Exception("The maximum duration (in microseconds) must be >= 1")
         self.__max_duration_micros = int(max_duration_micros)
+        return self
+
+    def with_cbfgs_parameters(self, alpha, epsilon, sy_epsilon):
+        """Specify the CBFGS parameters alpha and epsilon
+
+        Args:
+            alpha: CBFGS parameter alpha
+            epsilon: CBFGS parameter epsilon
+            sy_epsilon: Tolerance on the s-y inner product
+
+        Returns:
+            The current object
+        """
+        if epsilon < 0.0:
+            raise Exception("CBFGS parameter epsilon must be positive")
+
+        if alpha < 0.0:
+            raise Exception("CBFGS parameter alpha must be positive")
+
+        self.__cbfgs_epsilon = epsilon
+        self.__cbfgs_alpha = alpha
+        self.__cbfgs_sy_epsilon = sy_epsilon
         return self

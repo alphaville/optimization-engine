@@ -1,6 +1,6 @@
+use optimization_engine::continuation::ContinuationMode::*;
 use optimization_engine::core::constraints::Rectangle;
 use optimization_engine::{panoc::*, *};
-use optimization_engine::continuation::ContinuationMode::*;
 
 fn main() {
     /* cost function, f(u; q) */
@@ -44,12 +44,7 @@ fn main() {
     let panoc_cache = PANOCCache::new(2, 1e-5, 5);
     let mut homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
 
-    homotopy_cache.add_continuation(
-        2,
-        100.,
-        std::f64::INFINITY,
-        Geometric(50.0),
-    );
+    homotopy_cache.add_continuation(2, 100., std::f64::INFINITY, Geometric(50.0));
 
     let mut homotopy_optimizer =
         continuation::HomotopyOptimizer::new(homotopy_problem, &mut homotopy_cache)

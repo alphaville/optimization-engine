@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * New AKKT-compliant termination criterion
 * Tolerance relaxation in penalty method
 * Finite sets supported in Rust
+* Rust/Python: setting CBFGS parameters
 * Second-order cones supported in Rust
 
 ### Removed
