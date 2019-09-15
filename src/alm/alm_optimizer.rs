@@ -22,10 +22,10 @@ pub struct AlmOptimizer<
     MappingAlm,
     MappingPm,
     ParametricGradientType,
+    ParametricCostType,
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
-    ParametricCostType,
 > where
     MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
     MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
@@ -42,10 +42,10 @@ pub struct AlmOptimizer<
         MappingAlm,
         MappingPm,
         ParametricGradientType,
+        ParametricCostType,
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
-        ParametricCostType,
     >,
     /// Maximum number of outer iterations
     max_outer_iterations: usize,
@@ -74,20 +74,20 @@ impl<
         MappingAlm,
         MappingPm,
         ParametricGradientType,
+        ParametricCostType,
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
-        ParametricCostType,
     >
     AlmOptimizer<
         'life,
         MappingAlm,
         MappingPm,
         ParametricGradientType,
+        ParametricCostType,
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
-        ParametricCostType,
     >
 where
     MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
@@ -146,10 +146,10 @@ where
             MappingAlm,
             MappingPm,
             ParametricGradientType,
+            ParametricCostType,
             ConstraintsType,
             AlmSetC,
             LagrangeSetY,
-            ParametricCostType,
         >,
     ) -> Self {
         // set the initial value of the inner tolerance; this step is
@@ -555,18 +555,54 @@ mod tests {
         SolverError,
     };
 
+    fn make_dummy_alm_problem(
+        n1: usize,
+        n2: usize,
+    ) -> AlmProblem<
+        impl Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+        impl Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+        impl Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
+        impl Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+        impl Constraint,
+        impl Constraint,
+        impl Constraint,
+    > {
+        // Main problem data
+        let psi = void_parameteric_cost;
+        let d_psi = void_parameteric_gradient;
+        let bounds = Ball2::new(None, 10.0);
+        // ALM-type data
+        let f1: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n1 == 0 {
+            NO_MAPPING
+        } else {
+            Some(void_mapping)
+        };
+        let set_c = if n1 > 0 {
+            Some(Ball2::new(None, 1.50))
+        } else {
+            None::<Ball2>
+        };
+        let set_y: Option<Ball2> = if n1 > 0 {
+            Some(Ball2::new(None, 2.0))
+        } else {
+            None::<Ball2>
+        };
+        // Penalty-type data
+        let f2: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n2 == 0 {
+            NO_MAPPING
+        } else {
+            Some(void_mapping)
+        };
+        // problem
+        AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, f2, n1, n2)
+    }
+
     #[test]
     fn t_setter_methods() {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 5, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let f1 = Some(void_mapping);
-        let set_c = Some(Ball2::new(None, 1.50));
-        let bounds = Ball2::new(None, 10.0);
-        let set_y = Some(Ball2::new(None, 1.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
 
         let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
 
@@ -628,13 +664,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 4, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let f1 = Some(void_mapping);
-        let set_c = Some(Ball2::new(None, 1.0));
-        let bounds = Ball2::new(None, 10.0);
-        let set_y = Some(Ball2::new(None, 2.0));
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
 
         // y0 = [2, 3, 4, 10]
         // ||y0|| = 11.3578166916005
@@ -807,12 +837,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(
-            bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
-        );
+        let alm_problem = make_dummy_alm_problem(n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_epsilon_tolerance(2e-5)
             .with_initial_inner_tolerance(1e-1)
@@ -861,12 +886,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 0, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let f2 = Some(void_mapping);
-        let bounds = Ball2::new(None, 10.0);
-        let alm_problem =
-            AlmProblem::new(bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, f2, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(5.0)
             .with_penalty_update_factor(15.0);
@@ -900,14 +920,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let f1 = Some(void_mapping);
-        let f2 = Some(void_mapping);
-        let set_c = Some(Ball2::new(None, 1.5));
-        let set_y = Some(Ball2::new(None, 2.0));
-        let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, f2, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
         alm_optimizer.alm_cache.reset();
         alm_optimizer.alm_cache.delta_y_norm_plus = 1.2345;
@@ -952,14 +965,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let f1 = Some(void_mapping);
-        let f2 = Some(void_mapping);
-        let set_c = Some(Ball2::new(None, 1.5));
-        let set_y = Some(Ball2::new(None, 2.0));
-        let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, f2, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
         let alm_optimizer =
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_delta_tolerance(1e-3);
 
@@ -983,12 +989,7 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
-        let bounds = Ball2::new(None, 10.0);
-        let alm_problem = AlmProblem::new(
-            bounds, NO_SET, NO_SET, psi, d_psi, NO_MAPPING, NO_MAPPING, n1, n2,
-        );
+        let alm_problem = make_dummy_alm_problem(n1, n2);
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_sufficient_decrease_coefficient(0.1);
 
@@ -1022,12 +1023,13 @@ mod tests {
 
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
-            .with_initial_lagrange_multipliers(&vec![60.; n1])
-            .with_initial_penalty(10.0)
+            .with_initial_lagrange_multipliers(&vec![5.0, 6.0])
+            .with_initial_penalty(1.0)
             .with_initial_inner_tolerance(1e-4);
         let mut u = vec![0.0; nx];
         let result = alm_optimizer.solve_inner_problem(&mut u);
         println!("result = {:#?}", &result);
+        println!("u = {:#?}", &u);
         assert!(result.is_ok());
         let solver_status = result.unwrap();
         assert!(solver_status.has_converged());

@@ -5,10 +5,10 @@ pub struct AlmProblem<
     MappingAlm,
     MappingPm,
     ParametricGradientType,
+    ParametricCostType,
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
-    ParametricCostType,
 > where
     // This is function F1: R^xn --> R^n1 (ALM)
     MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
@@ -50,19 +50,19 @@ impl<
         MappingAlm,
         MappingPm,
         ParametricGradientType,
+        ParametricCostType,
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
-        ParametricCostType,
     >
     AlmProblem<
         MappingAlm,
         MappingPm,
         ParametricGradientType,
+        ParametricCostType,
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
-        ParametricCostType,
     >
 where
     MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
