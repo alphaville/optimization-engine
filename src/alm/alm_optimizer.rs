@@ -1010,6 +1010,18 @@ mod tests {
 
     #[test]
     fn t_solve_inner_problem() {
+        // MATLAB code to find the solution of this problem:
+        //
+        // % file: psi_cost.m
+        // function y = psi_cost(x, xi)
+        // y = 0.5*x'*x + xi(1)*sum(x);
+        // m = min([length(x), length(xi) - 1]);
+        // y = y + xi(2:m+1)'*x(1:m);
+        //
+        // % Then, run the following:
+        // f = @(x) psi_cost(x, [1.0; 5.0; 6.0])
+        // x_sol = fmincon(f,[0;0;0;0;0],[],[],[],[],-5*ones(5,1),zeros(5,1))
+        //
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
@@ -1017,7 +1029,9 @@ mod tests {
         let d_psi = psi_gradient;
         let f1 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.5));
-        let bounds = Ball2::new(None, 10.0);
+        let xmin = vec![-5.0; nx];
+        let xmax = vec![0.0; nx];
+        let bounds = Rectangle::new(Some(&xmin), Some(&xmax));
         let set_y = Some(Ball2::new(None, 2.0));
         let alm_problem = AlmProblem::new(bounds, set_c, set_y, psi, d_psi, f1, NO_MAPPING, n1, n2);
 
@@ -1034,6 +1048,13 @@ mod tests {
         let solver_status = result.unwrap();
         assert!(solver_status.has_converged());
         assert_eq!(ExitStatus::Converged, solver_status.exit_status());
+        unit_test_utils::assert_nearly_equal_array(
+            &u,
+            &[-5.0, -5.0, -1.0, -1.0, -1.0],
+            1e-10,
+            1e-10,
+            "inner problem solution is wrong",
+        );
     }
 
 }
