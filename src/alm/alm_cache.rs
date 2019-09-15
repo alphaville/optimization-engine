@@ -42,9 +42,9 @@ impl AlmCache {
             w_pm: if n2 > 0 { Some(vec![0.0; n2]) } else { None },
             iteration: 0,
             delta_y_norm: 0.0,
-            delta_y_norm_plus: 0.0,
+            delta_y_norm_plus: std::f64::INFINITY,
             f2_norm: 0.0,
-            f2_norm_plus: 0.0,
+            f2_norm_plus: std::f64::INFINITY,
         }
     }
 

@@ -220,6 +220,10 @@ where
     }
 
     pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: f64) -> Self {
+        assert!(
+            initial_inner_tolerance >= self.epsilon_tolerance,
+            "the initial tolerance should be no less than the target tolerance"
+        );
         self.epsilon_inner_initial = initial_inner_tolerance;
         // for safety, we update the value of the tolerance in panoc_cache
         self.alm_cache
@@ -561,10 +565,15 @@ mod tests {
         let set_y = Some(Ball2::new(None, 1.0));
         let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, NO_MAPPING, n1, n2);
 
-        let alm_optimizer =
-            AlmOptimizer::new(&mut alm_cache, alm_problem).with_initial_penalty(7.0);
+        let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem);
+
+        // Test: the initial value of the penalty parameter is positive
+        if let Some(xi) = &alm_optimizer.alm_cache.xi {
+            assert!(xi[0] > std::f64::EPSILON);
+        }
 
         // Test: with_initial_penalty
+        let alm_optimizer = alm_optimizer.with_initial_penalty(7.0);
         assert!(!alm_optimizer.alm_cache.xi.is_none());
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
             unit_test_utils::assert_nearly_equal(
@@ -932,4 +941,36 @@ mod tests {
         );
         println!("cache now = {:#?}", &alm_optimizer.alm_cache);
     }
+
+    #[test]
+    fn t_is_exit_criterion_satisfied() {
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+        let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f2 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let f1 = Some(|_u: &[f64], _res: &mut [f64]| -> Result<(), SolverError> { Ok(()) });
+        let set_c = Some(Ball2::new(None, 1.5));
+        let set_y = Some(Ball2::new(None, 2.0));
+        let bounds = Ball2::new(None, 10.0);
+        let alm_problem = AlmProblem::new(bounds, set_c, set_y, f, df, f1, f2, n1, n2);
+        let alm_optimizer =
+            AlmOptimizer::new(&mut alm_cache, alm_problem).with_delta_tolerance(1e-3);
+
+        // should not exit yet...
+        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+
+        let mut alm_optimizer = alm_optimizer
+            .with_initial_inner_tolerance(1e-3)
+            .with_epsilon_tolerance(1e-3);
+        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+
+        alm_optimizer.alm_cache.delta_y_norm_plus = 1e-3;
+        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+
+        alm_optimizer.alm_cache.f2_norm_plus = 1e-3;
+        assert!(alm_optimizer.is_exit_criterion_satisfied());
+    }
+
 }
