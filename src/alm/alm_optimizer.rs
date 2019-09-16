@@ -569,6 +569,7 @@ mod tests {
     use crate::{
         alm::*,
         core::{constraints::*, panoc::*, ExitStatus},
+        matrix_operations,
         mocks::*,
         SolverError,
     };
@@ -734,14 +735,8 @@ mod tests {
         let psi = void_parameteric_cost;
         let d_psi = void_parameteric_gradient;
         let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-            res[0] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui;
-                sum
-            });
-            res[1] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui.powi(2);
-                sum
-            });
+            res[0] = matrix_operations::sum(u);
+            res[1] = matrix_operations::norm2_squared(u);
             Ok(())
         });
         let bounds = Ball2::new(None, 10.0);
@@ -814,14 +809,8 @@ mod tests {
         let psi = void_parameteric_cost;
         let d_psi = void_parameteric_gradient;
         let f1 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-            res[0] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui;
-                sum
-            });
-            res[1] = u.iter().fold(0.0, |mut sum, ui| {
-                sum += ui.powi(2);
-                sum
-            });
+            res[0] = matrix_operations::sum(u);
+            res[1] = matrix_operations::norm2_squared(&u);
             Ok(())
         });
         let set_c = Some(Ball2::new(None, 1.5));
@@ -1048,8 +1037,8 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (0.1, 5, 2, 0, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
-        let psi = psi_cost;
-        let d_psi = psi_gradient;
+        let psi = psi_cost_dummy;
+        let d_psi = psi_gradient_dummy;
         let f1 = Some(void_mapping);
         let set_c = Some(Ball2::new(None, 1.5));
         let xmin = vec![-5.0; nx];

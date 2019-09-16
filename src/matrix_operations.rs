@@ -72,6 +72,16 @@ where
     norm
 }
 
+/// Calculate the 2-norm of a vector
+#[inline(always)]
+pub fn sum<T>(a: &[T]) -> T
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
+    let norm: T = a.iter().map(|x| *x).sum();
+    norm
+}
+
 /// Calculate the infinity-norm of a vector
 #[inline(always)]
 pub fn norm_inf<T>(a: &[T]) -> T

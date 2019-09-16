@@ -1,4 +1,4 @@
-use crate::{matrix_operations, SolverError};
+use crate::{constraints::*, matrix_operations, SolverError};
 
 pub const SOLUTION_A: [f64; 2] = [-0.14895971825577, 0.13345786727339];
 pub const SOLUTION_HARD: [f64; 3] = [-0.041123164672281, -0.028440417469206, 0.000167276757790];
@@ -83,7 +83,7 @@ pub fn hard_quadratic_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), Solver
 ///
 /// where `m` is the length of `xi`. It is assumed that the length of
 /// `u` is larger than the length of `xi`
-pub fn psi_cost(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+pub fn psi_cost_dummy(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
     let u_len = u.len();
     let xi_len = xi.len();
     assert!(u_len > xi_len);
@@ -103,7 +103,8 @@ pub fn psi_cost(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError
     Ok(())
 }
 
-pub fn psi_gradient(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+/// Gradient of `psi_cost`
+pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
     let u_len = u.len();
     let xi_len = xi.len();
     assert!(
@@ -117,6 +118,75 @@ pub fn psi_gradient(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), Solve
         .iter()
         .zip(grad.iter_mut())
         .for_each(|(xi_i, grad_i)| *grad_i += xi_i);
+    Ok(())
+}
+
+/// A mock affine mapping given by
+///
+/// ```
+///  F1(u1, u2, u3) = [2*u1 + u3 - 1
+///                      u1 + 3*u2  ]
+/// ```
+///
+/// It is `F1: R^3 --> R^2`
+///
+pub fn mapping_f1_affine(u: &[f64], f1u: &mut [f64]) -> Result<(), SolverError> {
+    assert!(u.len() == 3, "the length of u must be equal to 3");
+    assert!(f1u.len() == 2, "the length of F1(u) must be equal to 2");
+    f1u[0] = 2.0 * u[0] + u[2] - 1.0;
+    f1u[1] = u[0] + 3.0 * u[1];
+    Ok(())
+}
+
+/// Compute the product `JF1(u)'*d`, for a given 2-vector `d`, where
+/// `F1` is the affine mapping given by `mapping_f1_affine`
+///
+/// This is
+///
+/// ```
+/// JF1(x)'*d = [2*d1 + d3
+///                d1 + 3*d2]
+/// ```
+///  
+pub fn mapping_f1_affine_jacobian_product(d: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+    assert!(d.len() == 3, "the length of d must be equal to 3");
+    res[0] = 2.0 * d[0] + d[2];
+    res[1] = d[0] + 3.0 * d[1];
+    Ok(())
+}
+
+/// Simple quadratic cost function
+///
+/// ```
+/// f0(u) = 0.5*u'*u + 1'*u
+/// ```
+fn f0(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+    *cost = 0.5 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+    Ok(())
+}
+
+fn d_f0(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+    grad.iter_mut()
+        .zip(u.iter())
+        .for_each(|(grad_i, u_i)| *grad_i = u_i + 1.0);
+    Ok(())
+}
+
+pub fn psi(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+    let set_c = Ball2::new(None, 1.0);
+    f0(u, cost)?;
+    let ny = xi.len() - 1;
+    let mut t = vec![0.0; ny];
+    let mut s = vec![0.0; ny];
+    mapping_f1_affine(u, &mut t)?;
+    let y = &xi[1..];
+    let c = xi[0];
+    t.iter_mut()
+        .zip(y.iter())
+        .for_each(|(ti, yi)| *ti -= yi / c);
+    s.copy_from_slice(&t);
+    set_c.project(&mut s);
+    *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
     Ok(())
 }
 
@@ -149,7 +219,7 @@ mod tests {
         let u = [-1.0, 2.0, -3.0, 4.0, 5.0];
         let xi = [15., 20., 11., 17.];
         let mut cost = 0.0;
-        assert!(psi_cost(&u, &xi, &mut cost).is_ok());
+        assert!(psi_cost_dummy(&u, &xi, &mut cost).is_ok());
         unit_test_utils::assert_nearly_equal(83.5, cost, 1e-16, 1e-12, "psi_cost is wrong");
     }
 
@@ -158,7 +228,7 @@ mod tests {
         let u = [-1.0, 2.0, -3.0, 4.0, 5.0];
         let xi = [15., 20., 11., 17.];
         let mut grad = vec![0.0; 5];
-        assert!(psi_gradient(&u, &xi, &mut grad).is_ok());
+        assert!(psi_gradient_dummy(&u, &xi, &mut grad).is_ok());
         println!("grad = {:?}", grad);
         unit_test_utils::assert_nearly_equal_array(
             &grad,
@@ -167,5 +237,44 @@ mod tests {
             1e-12,
             "psi_grad is wrong",
         );
+    }
+
+    #[test]
+    fn t_mapping_f1_affine() {
+        let u = [5.0, 2.0, 3.0];
+        let mut f1u = [0.0; 2];
+        assert!(mapping_f1_affine(&u, &mut f1u).is_ok());
+        unit_test_utils::assert_nearly_equal_array(&f1u, &[12., 11.], 1e-12, 1e-12, "f1 is wrong");
+    }
+
+    #[test]
+    fn t_mapping_f1_affine_jacobian_product() {
+        let d = [5.0, 10.0, -6.0];
+        let mut jac_f1_trans_times_d = [0.0; 2];
+        assert!(mapping_f1_affine_jacobian_product(&d, &mut jac_f1_trans_times_d).is_ok());
+        unit_test_utils::assert_nearly_equal_array(
+            &jac_f1_trans_times_d,
+            &[4., 35.],
+            1e-12,
+            1e-12,
+            "result is wrong",
+        );
+    }
+
+    #[test]
+    fn t_f0() {
+        let u = [3.0, 5.0, 7.0];
+        let mut cost = 0.0;
+        assert!(f0(&u, &mut cost).is_ok());
+        unit_test_utils::assert_nearly_equal(56.5, cost, 1e-16, 1e-12, "f0(u) is wrong");
+    }
+
+    #[test]
+    fn t_psi() {
+        let u = [3.0, 5.0, 7.0];
+        let xi = [2.0, 10.0, 20.0];
+        let mut cost = 0.0;
+        assert!(psi(&u, &xi, &mut cost).is_ok());
+        unit_test_utils::assert_nearly_equal(149.239708374531, cost, 1e-14, 1e-12, "psi is wrong");
     }
 }
