@@ -178,15 +178,25 @@ pub fn psi(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
     let ny = xi.len() - 1;
     let mut t = vec![0.0; ny];
     let mut s = vec![0.0; ny];
-    mapping_f1_affine(u, &mut t)?;
+    mapping_f1_affine(u, &mut t)?; // t = F1(u)
     let y = &xi[1..];
     let c = xi[0];
     t.iter_mut()
         .zip(y.iter())
-        .for_each(|(ti, yi)| *ti -= yi / c);
+        .for_each(|(ti, yi)| *ti += yi / c);
     s.copy_from_slice(&t);
     set_c.project(&mut s);
     *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
+    Ok(())
+}
+
+pub fn d_psi(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+    let mut t = vec![0.0; 2];
+    d_f0(u, grad)?; // grad := d_f0(u)
+    mapping_f1_affine(u, &mut t)?;
+    let y = &xi[1..];
+    let c = xi[0];
+
     Ok(())
 }
 
@@ -275,6 +285,29 @@ mod tests {
         let xi = [2.0, 10.0, 20.0];
         let mut cost = 0.0;
         assert!(psi(&u, &xi, &mut cost).is_ok());
-        unit_test_utils::assert_nearly_equal(149.239708374531, cost, 1e-14, 1e-12, "psi is wrong");
+        println!("cost = {}", cost);
+        unit_test_utils::assert_nearly_equal(1064.98664258336, cost, 1e-14, 1e-10, "psi is wrong");
+    }
+
+    #[test]
+    fn t_d_f0() {
+        let u = [3.0, -5.0, 7.0];
+        let mut grad = [0.0; 3];
+        assert!(d_f0(&u, &mut grad).is_ok());
+        unit_test_utils::assert_nearly_equal_array(
+            &[4., -4., 8.],
+            &grad,
+            1e-16,
+            1e-12,
+            "d_f0 is wrong",
+        );
+    }
+
+    #[test]
+    fn t_d_psi() {
+        let u = [3.0, -5.0, 7.0];
+        let xi = [2.0, 10.0, 20.0];
+        let mut grad = [0.0; 3];
+        assert!(d_psi(&u, &xi, &mut grad).is_ok());
     }
 }
