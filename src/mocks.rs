@@ -144,14 +144,17 @@ pub fn mapping_f1_affine(u: &[f64], f1u: &mut [f64]) -> Result<(), SolverError> 
 /// This is
 ///
 /// ```
-/// JF1(x)'*d = [2*d1 + d3
-///                d1 + 3*d2]
+/// JF1(x)'*d = [2*d1 + d2
+///              3*d2
+///              d1        ]
 /// ```
 ///  
 pub fn mapping_f1_affine_jacobian_product(d: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
-    assert!(d.len() == 3, "the length of d must be equal to 3");
-    res[0] = 2.0 * d[0] + d[2];
-    res[1] = d[0] + 3.0 * d[1];
+    assert!(d.len() == 2, "the length of d must be equal to 3");
+    assert!(res.len() == 3, "the length of res must be equal to 3");
+    res[0] = 2.0 * d[0] + d[1];
+    res[1] = 3.0 * d[1];
+    res[2] = d[0];
     Ok(())
 }
 
@@ -190,13 +193,40 @@ pub fn psi(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
     Ok(())
 }
 
+/// Computes the gradient of `psi`
+///
+/// The gradient of `psi` is given by
+///
+/// ```
+/// d_psi(u)  d_f(u) + c JF1(u)' * (t(u) - Proj_C(t(u))),
+/// ```
+///
+/// where `t(u) = F1(u) - y/c`
+///
 pub fn d_psi(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
     let mut t = vec![0.0; 2];
-    d_f0(u, grad)?; // grad := d_f0(u)
-    mapping_f1_affine(u, &mut t)?;
+    let mut s = vec![0.0; 2];
+    let mut jac_prod = vec![0.0; 3];
     let y = &xi[1..];
     let c = xi[0];
+    let set_c = Ball2::new(None, 1.0);
+    d_f0(u, grad)?; // grad := d_f0(u)
+    mapping_f1_affine(&u, &mut t)?; // t = F1(u)
+    t.iter_mut()
+        .zip(y.iter())
+        .for_each(|(ti, yi)| *ti += yi / c); // t = F1(u) + y/c
+    s.copy_from_slice(&t); // s = t
+    set_c.project(&mut s); // s = Proj_C(F1(u) + y/c)
 
+    // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
+    t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
+
+    mapping_f1_affine_jacobian_product(&t, &mut jac_prod)?;
+
+    // grad += c*t
+    grad.iter_mut()
+        .zip(jac_prod.iter())
+        .for_each(|(gradi, jac_prodi)| *gradi += c * jac_prodi);
     Ok(())
 }
 
@@ -259,15 +289,16 @@ mod tests {
 
     #[test]
     fn t_mapping_f1_affine_jacobian_product() {
-        let d = [5.0, 10.0, -6.0];
-        let mut jac_f1_trans_times_d = [0.0; 2];
+        let d = [5.0, -10.0];
+        let mut jac_f1_trans_times_d = [0.0; 3];
         assert!(mapping_f1_affine_jacobian_product(&d, &mut jac_f1_trans_times_d).is_ok());
+        println!("jac = {:?}", &jac_f1_trans_times_d);
         unit_test_utils::assert_nearly_equal_array(
             &jac_f1_trans_times_d,
-            &[4., 35.],
-            1e-12,
-            1e-12,
-            "result is wrong",
+            &[0., -30., 5.],
+            1e-10,
+            1e-10,
+            "jacobian result is wrong",
         );
     }
 
@@ -306,8 +337,16 @@ mod tests {
     #[test]
     fn t_d_psi() {
         let u = [3.0, -5.0, 7.0];
-        let xi = [2.0, 10.0, 20.0];
-        let mut grad = [0.0; 3];
-        assert!(d_psi(&u, &xi, &mut grad).is_ok());
+        let xi = [2.5, 11.0, 20.0];
+        let mut grad_psi = [0.0; 3];
+        assert!(d_psi(&u, &xi, &mut grad_psi).is_ok());
+        println!("grad = {:?}", &grad_psi);
+        unit_test_utils::assert_nearly_equal_array(
+            &[71.7347887565619, -32.2228286485675, 46.5711991530422],
+            &grad_psi,
+            1e-12,
+            1e-12,
+            "d_psi is wrong",
+        );
     }
 }
