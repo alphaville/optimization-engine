@@ -14,8 +14,10 @@ pub struct AlmCache {
     ///
     pub(crate) delta_y_norm: f64,
     pub(crate) delta_y_norm_plus: f64,
+    /// Value ||F2(u)||
     pub(crate) f2_norm: f64,
     pub(crate) f2_norm_plus: f64,
+    /// Auxiliary variable
     pub(crate) w_alm_aux: Option<Vec<f64>>,
     /// Infeasibility related to PM-type constraints
     ///
@@ -23,6 +25,8 @@ pub struct AlmCache {
     pub(crate) w_pm: Option<Vec<f64>>,
     /// (Outer) iteration
     pub(crate) iteration: usize,
+    /// Counter for inner iterations
+    pub(crate) inner_iteration_count: usize,
 }
 
 impl AlmCache {
@@ -45,6 +49,7 @@ impl AlmCache {
             delta_y_norm_plus: std::f64::INFINITY,
             f2_norm: 0.0,
             f2_norm_plus: std::f64::INFINITY,
+            inner_iteration_count: 0,
         }
     }
 
@@ -55,5 +60,6 @@ impl AlmCache {
         self.f2_norm_plus = 0.0;
         self.delta_y_norm = 0.0;
         self.delta_y_norm_plus = 0.0;
+        self.inner_iteration_count = 0;
     }
 }

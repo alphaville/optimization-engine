@@ -15,6 +15,7 @@ pub struct AlmOptimizerStatus {
     lagrange_multipliers: Option<Vec<f64>>,
     /// Total solve time
     solve_time: std::time::Duration,
+    penalty: f64,
 }
 
 impl AlmOptimizerStatus {
@@ -25,7 +26,8 @@ impl AlmOptimizerStatus {
             num_inner_iterations: 0,
             last_problem_norm_fpr: -1.0,
             lagrange_multipliers: None,
-            solve_time: std::time::Duration::from_nanos(1),
+            solve_time: std::time::Duration::from_nanos(0),
+            penalty: 0.0,
         }
     }
 
@@ -50,5 +52,19 @@ impl AlmOptimizerStatus {
             y.copy_from_slice(&lagrange_multipliers);
         }
         self
+    }
+
+    pub fn with_penalty(mut self, penalty: f64) -> Self {
+        self.penalty = penalty;
+        self
+    }
+
+    /// exit status of solver
+    pub fn exit_status(&self) -> ExitStatus {
+        self.exit_status
+    }
+
+    pub fn num_outer_iterations(&self) -> usize {
+        self.num_outer_iterations
     }
 }

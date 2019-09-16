@@ -446,15 +446,20 @@ where
         criterion_1 && criterion_2 && criterion_3
     }
 
+    /// Whether the penalty parameter should not be updated
     fn is_penalty_stall_criterion(&self) -> bool {
         let cache = &self.alm_cache;
+        let problem = &self.alm_problem;
         // Check whether the penalty parameter should not be updated
         // This is if iteration = 0, or there has been a sufficient
         // decrease in infeasibility
         if cache.iteration == 0
-            || cache.delta_y_norm_plus
-                <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON
-            || cache.f2_norm_plus <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON
+            || (problem.n1 > 0
+                && cache.delta_y_norm_plus
+                    <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON)
+            || (problem.n2 > 0
+                && cache.f2_norm_plus
+                    <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON)
         {
             return true;
         }
@@ -564,12 +569,19 @@ where
                 break;
             }
         }
-        let status = AlmOptimizerStatus::new(ExitStatus::Converged)
+
+        let c = if let Some(xi) = &self.alm_cache.xi {
+            xi[0]
+        } else {
+            0.0
+        };
+
+        Ok(AlmOptimizerStatus::new(ExitStatus::Converged)
             .with_solve_time(tic.elapsed())
             .with_inner_iterations(self.alm_cache.inner_iteration_count)
             .with_outer_iterations(num_outer_iterations)
-            .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()));
-        Ok(status)
+            .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()))
+            .with_penalty(c))
     }
 }
 
@@ -1006,7 +1018,7 @@ mod tests {
 
     #[test]
     fn t_is_penalty_stall_criterion() {
-        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 0, 3);
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 1, 1, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let alm_problem = make_dummy_alm_problem(n1, n2);
