@@ -3,7 +3,7 @@
 use crate::{
     alm::*,
     constraints,
-    core::{panoc::PANOCOptimizer, Optimizer, Problem, SolverStatus},
+    core::{panoc::PANOCOptimizer, ExitStatus, Optimizer, Problem, SolverStatus},
     matrix_operations, SolverError,
 };
 
@@ -207,6 +207,10 @@ where
         mut self,
         inner_tolerance_update_factor: f64,
     ) -> Self {
+        assert!(
+            inner_tolerance_update_factor > SMALL_EPSILON && inner_tolerance_update_factor < 1.0,
+            "the tolerance updated factor needs to be in (0.1)"
+        );
         self.epsilon_update_factor = inner_tolerance_update_factor;
         self
     }
@@ -298,7 +302,6 @@ where
     /// `y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]`
     ///
     fn update_lagrange_multipliers(&mut self, u: &[f64]) -> Result<(), SolverError> {
-        println!("u received = {:?}", u);
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -507,8 +510,10 @@ where
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
         // we should keep solving.
-        self.solve_inner_problem(u)
-            .map(|_status: SolverStatus| {})?;
+        self.solve_inner_problem(u).map(|status: SolverStatus| {
+            let inner_iters = status.iterations();
+            self.alm_cache.inner_iteration_count += inner_iters;
+        })?;
 
         // Update Lagrange multipliers:
         // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
@@ -544,19 +549,27 @@ where
     /// Solve the specified ALM problem
     ///
     ///
-    pub fn solve(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
+    pub fn solve(&mut self, u: &mut [f64]) -> Result<AlmOptimizerStatus, SolverError> {
+        let mut num_outer_iterations = 0;
+        let tic = std::time::Instant::now();
         let cache = &mut self.alm_cache;
         cache.reset(); // first, reset the cache
         cache
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
 
-        for _iter in 1..=self.max_outer_iterations {
+        for _outer_iters in 1..=self.max_outer_iterations {
+            num_outer_iterations += 1;
             if !self.step(u)? {
                 break;
             }
         }
-        Ok(())
+        let status = AlmOptimizerStatus::new(ExitStatus::Converged)
+            .with_solve_time(tic.elapsed())
+            .with_inner_iterations(self.alm_cache.inner_iteration_count)
+            .with_outer_iterations(num_outer_iterations)
+            .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()));
+        Ok(status)
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::{
     alm::*,
-    core::{constraints, panoc::*},
-    SolverError,
+    core::{constraints::*, panoc::*},
+    matrix_operations, mocks, SolverError,
 };
 
 #[test]
@@ -37,7 +37,7 @@ fn t_create_alm_problem() {
         // Construct an instance of AlmProblem without any AL-type data
         let n1 = 0;
         let n2 = 0;
-        let bounds = constraints::Ball2::new(None, 10.0);
+        let bounds = Ball2::new(None, 10.0);
         let _alm_problem = AlmProblem::new(
             bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
         );
@@ -46,9 +46,9 @@ fn t_create_alm_problem() {
     {
         // Construct an AlmProblem with AL-type constraints, but no PM-type ones
         let f1 = |_u: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let soc = constraints::SecondOrderCone::new(1.5);
-        let bounds = constraints::Ball2::new(None, 10.0);
-        let y_set = constraints::NoConstraints::new();
+        let soc = SecondOrderCone::new(1.5);
+        let bounds = Ball2::new(None, 10.0);
+        let y_set = NoConstraints::new();
         let _alm_problem = AlmProblem::new(
             bounds,
             Some(soc),
@@ -66,9 +66,9 @@ fn t_create_alm_problem() {
         // Construct an AlmProblem with both AL-type and PM-type constraints
         let f1 = |_u: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
         let f2 = |_u: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let soc = constraints::SecondOrderCone::new(1.5);
-        let bounds = constraints::Ball2::new(None, 10.0);
-        let y_set = constraints::NoConstraints::new();
+        let soc = SecondOrderCone::new(1.5);
+        let bounds = Ball2::new(None, 10.0);
+        let y_set = NoConstraints::new();
         let _alm_problem = AlmProblem::new(
             bounds,
             Some(soc),
@@ -90,8 +90,8 @@ fn t_create_alm_problem_fail_alm() {
     let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     let n1 = 1; // n1 = 1, but there is no set C
     let n2 = 0; // no F2 (and n2 = 0)
-    let y_set = constraints::NoConstraints::new();
-    let bounds = constraints::Ball2::new(None, 10.0);
+    let y_set = NoConstraints::new();
+    let bounds = Ball2::new(None, 10.0);
     let _alm_problem = AlmProblem::new(
         bounds,
         NO_SET,
@@ -111,7 +111,7 @@ fn t_create_alm_problem_fail_pm() {
     let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
     let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     let f2 = |_u: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    let bounds = constraints::Ball2::new(None, 10.0);
+    let bounds = Ball2::new(None, 10.0);
     let n1 = 1;
     let n2 = 0; // there is an f2, but n2 = 0
     let _alm_problem = AlmProblem::new(bounds, NO_SET, NO_SET, f, df, NO_MAPPING, Some(f2), n1, n2);
@@ -130,11 +130,11 @@ fn t_create_alm_optimizer() {
     let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
     let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    let set_c = constraints::Ball2::new(None, 1.50);
+    let set_c = Ball2::new(None, 1.50);
 
     // Construct an instance of AlmProblem without any PM-type data
-    let bounds = constraints::Ball2::new(None, 10.0);
-    let set_y = constraints::Ball2::new(None, 1.0);
+    let bounds = Ball2::new(None, 10.0);
+    let set_y = Ball2::new(None, 1.0);
     let alm_problem = AlmProblem::new(
         bounds,
         Some(set_c),
@@ -154,4 +154,45 @@ fn t_create_alm_optimizer() {
 
     let mut u = vec![0.0; nx];
     println!("result = {:?}", alm_optimizer.solve(&mut u));
+}
+
+#[test]
+fn t_alm_numeric_test_1() {
+    let tolerance = 1e-8;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 0;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0);
+    let bounds = Ball2::new(None, 10.0);
+    let set_y = Ball2::new(None, 1.0);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c),
+        Some(set_y),
+        mocks::psi,
+        mocks::d_psi,
+        Some(mocks::mapping_f1_affine),
+        NO_MAPPING,
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-8)
+        .with_max_outer_iterations(20)
+        .with_epsilon_tolerance(1e-5)
+        .with_initial_inner_tolerance(1e-2)
+        .with_inner_tolerance_update_factor(0.1)
+        .with_initial_lagrange_multipliers(&vec![5.0; n1]);
+
+    let mut u = vec![0.0; nx];
+    println!("result = {:#?}", alm_optimizer.solve(&mut u));
+
+    let mut f1res = vec![0.0; 2];
+    assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
+    println!("||f1|| - 1 = {:?}", matrix_operations::norm2(&f1res) - 1.0);
 }
