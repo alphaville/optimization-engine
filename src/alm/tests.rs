@@ -168,13 +168,28 @@ fn t_alm_numeric_test_1() {
 
     let set_c = Ball2::new(None, 1.0);
     let bounds = Ball2::new(None, 10.0);
-    let set_y = Ball2::new(None, 1.0);
+    let set_y = Ball2::new(None, 10000.0);
+
+    let factory = mocks::MockAlmFactory::new(
+        mocks::f0,
+        mocks::d_f0,
+        Some(mocks::mapping_f1_affine),
+        Some(mocks::mapping_f1_affine_jacobian_product),
+        NO_MAPPING,
+        Some(set_c),
+    );
+
+    let set_c_b = Ball2::new(None, 1.0);
     let alm_problem = AlmProblem::new(
         bounds,
-        Some(set_c),
+        Some(set_c_b),
         Some(set_y),
-        mocks::psi,
-        mocks::d_psi,
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            mocks::d_psi(u, xi, grad)
+        },
         Some(mocks::mapping_f1_affine),
         NO_MAPPING,
         n1,

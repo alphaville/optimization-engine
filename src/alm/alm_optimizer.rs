@@ -209,7 +209,7 @@ where
     ) -> Self {
         assert!(
             inner_tolerance_update_factor > SMALL_EPSILON && inner_tolerance_update_factor < 1.0,
-            "the tolerance updated factor needs to be in (0.1)"
+            "the tolerance update factor needs to be in (0, 1)"
         );
         self.epsilon_update_factor = inner_tolerance_update_factor;
         self
