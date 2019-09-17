@@ -1,3 +1,5 @@
+//! Augmented Lagrangian and Penalty Methods
+//!
 mod alm_cache;
 mod alm_factory;
 mod alm_optimizer;

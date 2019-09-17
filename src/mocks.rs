@@ -1,5 +1,4 @@
-#![allow(dead_code)]
-use crate::{constraints::*, matrix_operations, SolverError};
+use crate::{matrix_operations, SolverError};
 
 pub const SOLUTION_A: [f64; 2] = [-0.14895971825577, 0.13345786727339];
 pub const SOLUTION_HARD: [f64; 3] = [-0.041123164672281, -0.028440417469206, 0.000167276757790];
@@ -46,12 +45,10 @@ pub fn my_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
     (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
 }
 
-#[allow(dead_code)]
 pub fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
     grad[0] = 2.0 * u[0] - 2.0 * a - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
     grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
@@ -177,61 +174,6 @@ pub fn d_f0(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
     grad.iter_mut()
         .zip(u.iter())
         .for_each(|(grad_i, u_i)| *grad_i = u_i + 1.0);
-    Ok(())
-}
-
-pub fn psi(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    let set_c = Ball2::new(None, 1.0);
-    f0(u, cost)?;
-    let ny = xi.len() - 1;
-    let mut t = vec![0.0; ny];
-    let mut s = vec![0.0; ny];
-    mapping_f1_affine(u, &mut t)?; // t = F1(u)
-    let y = &xi[1..];
-    let c = xi[0];
-    t.iter_mut()
-        .zip(y.iter())
-        .for_each(|(ti, yi)| *ti += yi / c);
-    s.copy_from_slice(&t);
-    set_c.project(&mut s);
-    *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
-    Ok(())
-}
-
-/// Computes the gradient of `psi`
-///
-/// The gradient of `psi` is given by
-///
-/// ```
-/// d_psi(u)  d_f(u) + c JF1(u)' * (t(u) - Proj_C(t(u))),
-/// ```
-///
-/// where `t(u) = F1(u) - y/c`
-///
-pub fn d_psi(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
-    let mut t = vec![0.0; 2];
-    let mut s = vec![0.0; 2];
-    let mut jac_prod = vec![0.0; 3];
-    let y = &xi[1..];
-    let c = xi[0];
-    let set_c = Ball2::new(None, 1.0);
-    d_f0(u, grad)?; // grad := d_f0(u)
-    mapping_f1_affine(&u, &mut t)?; // t = F1(u)
-    t.iter_mut()
-        .zip(y.iter())
-        .for_each(|(ti, yi)| *ti += yi / c); // t = F1(u) + y/c
-    s.copy_from_slice(&t); // s = t
-    set_c.project(&mut s); // s = Proj_C(F1(u) + y/c)
-
-    // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
-    t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
-
-    mapping_f1_affine_jacobian_product(&[], &t, &mut jac_prod)?;
-
-    // grad += c*t
-    grad.iter_mut()
-        .zip(jac_prod.iter())
-        .for_each(|(gradi, jac_prodi)| *gradi += c * jac_prodi);
     Ok(())
 }
 

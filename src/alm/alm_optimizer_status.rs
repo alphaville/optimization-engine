@@ -1,4 +1,5 @@
 use crate::core::ExitStatus;
+
 #[derive(Debug)]
 pub struct AlmOptimizerStatus {
     /// Exit status
@@ -59,6 +60,15 @@ impl AlmOptimizerStatus {
         self
     }
 
+    pub fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: f64) -> Self {
+        self.last_problem_norm_fpr = last_problem_norm_fpr;
+        self
+    }
+
+    // -------------------------------------------------
+    // Getter Methods
+    // -------------------------------------------------
+
     /// exit status of solver
     pub fn exit_status(&self) -> ExitStatus {
         self.exit_status
@@ -66,5 +76,25 @@ impl AlmOptimizerStatus {
 
     pub fn num_outer_iterations(&self) -> usize {
         self.num_outer_iterations
+    }
+
+    pub fn num_inner_iterations(&self) -> usize {
+        self.num_inner_iterations
+    }
+
+    pub fn lagrange_multipliers(&self) -> &Option<Vec<f64>> {
+        &self.lagrange_multipliers
+    }
+
+    pub fn last_problem_norm_fpr(&self) -> f64 {
+        self.last_problem_norm_fpr
+    }
+
+    pub fn solve_time(&self) -> std::time::Duration {
+        self.solve_time
+    }
+
+    pub fn penalty(&self) -> f64 {
+        self.penalty
     }
 }

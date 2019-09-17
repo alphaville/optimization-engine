@@ -30,9 +30,38 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 ///
 /// where on exit `grad` stores the
 ///
-/// - `MappingF1` and `MappingF2`
-/// - `JacobianMappingF1Trans` and `JacobianMappingF2Trans`
-/// - `SetC`
+/// - `MappingF1` and `MappingF2`: mappings $F_1:\mathbb{R}^n\to\mathbb{R}^{n_1}$
+///                                and $F_2:\mathbb{R}^n\to\mathbb{R}^{n_2}$ which
+///                                are computed by functions with signature
+///
+/// ```rust,ignore
+/// fn mapping(u: &[f64], fu: &mut [f64]) -> Result<(), SolverError>
+/// ```
+///
+/// - `JacobianMappingF1Trans` and `JacobianMappingF2Trans`: functions that compute
+///    product of the form $JF_i(u)^\top{}d$ for given $d\in\mathbb{R}^{n_i}$ and
+///    $u\in\mathbb{R}^{n_u}$
+///
+/// - `SetC`: A set $C\subseteq \mathbb{R}^{n_1}$, which is used in the definition
+///           of the constraints $F_1(u) \in C$
+///
+/// The above are used to compute $\psi:\mathbb{R}^{n_u}\to\mathbb{R}$ for given
+/// $u\in\mathbb{R}^{n_u}$ and $\xi=(c, y)\in\mathbb{R}^{n_1+1}$, where $c\in\mathbb{R}$
+/// and $y\in\mathbb{R}^{n_1}$ are the penalty parameter and vector of Lagrange
+/// multipliers respectively, according to
+///
+/// $$
+/// \psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) - c^{-1}y)
+///         + \Vert F_2(u) \Vert^2\right],
+/// $$
+///
+/// and
+///
+/// $$
+/// \nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
+///                              + c JF_2(u)^\top F_2(u).
+/// $$
+///
 pub struct AlmFactory<
     MappingF1,
     JacobianMappingF1Trans,
@@ -103,13 +132,13 @@ where
     /// let f = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
     /// let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     /// let f1 = |u: &[f64], f1u: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    /// let jac_f1_trans = |_u: &[f64], d: &[f64], res: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let jf1_tr = |_u: &[f64], d: &[f64], res: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     ///
     /// let factory = AlmFactory::new(
     ///     f,
     ///     df,
     ///     Some(f1),
-    ///     Some(jac_f1_trans),
+    ///     Some(jf1_tr),
     ///     NO_MAPPING,
     ///     NO_JACOBIAN_MAPPING,
     ///     Some(set_c),
@@ -204,7 +233,8 @@ where
     ///
     /// The gradient of `psi` is given by
     ///
-    /// $$\nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))] + c JF_2(u)^\top F_2(u),$$
+    /// $$\nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
+    ///                                + c JF_2(u)^\top F_2(u),$$
     ///
     /// where $t(u) = F_1(u) - c^{-1}y$.
     ///

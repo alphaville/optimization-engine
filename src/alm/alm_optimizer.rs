@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::{
     alm::*,
     constraints,
@@ -517,6 +515,7 @@ where
         // we should keep solving.
         self.solve_inner_problem(u).map(|status: SolverStatus| {
             let inner_iters = status.iterations();
+            self.alm_cache.last_inner_problem_norm_fpr = status.norm_fpr();
             self.alm_cache.inner_iteration_count += inner_iters;
         })?;
 
@@ -581,6 +580,7 @@ where
             .with_inner_iterations(self.alm_cache.inner_iteration_count)
             .with_outer_iterations(num_outer_iterations)
             .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()))
+            .with_last_problem_norm_fpr(self.alm_cache.last_inner_problem_norm_fpr)
             .with_penalty(c))
     }
 }

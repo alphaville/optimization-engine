@@ -215,10 +215,13 @@ fn t_alm_numeric_test_1() {
     let r = solver_result.unwrap();
     assert_eq!(ExitStatus::Converged, r.exit_status());
     assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 10);
+    assert!(r.last_problem_norm_fpr() < tolerance);
 
     let mut f1res = vec![0.0; 2];
     assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
     println!("r = {:#?}", r);
+    println!("y* = {:#?}", r.lagrange_multipliers());
+    println!("time = {:?}", r.solve_time());
 }
 
 fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
@@ -289,6 +292,7 @@ fn t_alm_numeric_test_2() {
     let r = solver_result.unwrap();
     assert_eq!(ExitStatus::Converged, r.exit_status());
     assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 10);
+    assert!(r.last_problem_norm_fpr() < tolerance);
 
     let mut f1res = vec![0.0; 2];
     assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());

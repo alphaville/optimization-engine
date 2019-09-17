@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use crate::{constraints::Constraint, SolverError};
 
 pub struct AlmProblem<
