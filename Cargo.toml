@@ -66,6 +66,12 @@ exclude = [
     "website/*",
 ]
 
+# --------------------------------------------------------------------------
+# D.O.C.S
+# --------------------------------------------------------------------------
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
+
 
 # --------------------------------------------------------------------------
 # D.E.P.E.N.D.E.N.C.I.E.S
@@ -105,3 +111,5 @@ travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
 
 # Actively maintained badge
 maintenance = { status = "actively-developed" }
+
+

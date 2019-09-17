@@ -170,13 +170,15 @@ fn t_alm_numeric_test_1() {
     let bounds = Ball2::new(None, 10.0);
     let set_y = Ball2::new(None, 10000.0);
 
-    let factory = mocks::MockAlmFactory::new(
+    let factory = AlmFactory::new(
         mocks::f0,
         mocks::d_f0,
         Some(mocks::mapping_f1_affine),
         Some(mocks::mapping_f1_affine_jacobian_product),
         NO_MAPPING,
+        NO_JACOBIAN_MAPPING,
         Some(set_c),
+        n2,
     );
 
     let set_c_b = Ball2::new(None, 1.0);

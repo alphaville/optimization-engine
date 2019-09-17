@@ -122,122 +122,6 @@ pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(),
     Ok(())
 }
 
-/* ---------------------------------------------------------------------------- */
-/* MOCKING FRAMEWORK FOR ALM OPTIMIZER                                          */
-/*                                                                              */
-/* About: The user provides f, df, F1, JF1'*d, F2 and C and MockAlmFactory      */
-/*        prepares psi and d_psi, which can be used to define an AlmOptimizer   */
-/* ---------------------------------------------------------------------------- */
-
-pub struct MockAlmFactory<MappingF1, JacobianMappingF1Trans, MappingF2, Cost, CostGradient, SetC>
-where
-    Cost: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
-    CostGradient: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingF1: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    JacobianMappingF1Trans: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingF2: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    SetC: Constraint,
-{
-    f: Cost,
-    df: CostGradient,
-    mapping_f1: Option<MappingF1>,
-    jacobian_mapping_f1_trans: Option<JacobianMappingF1Trans>,
-    mapping_f2: Option<MappingF2>,
-    set_c: Option<SetC>,
-}
-
-impl<'a, MappingF1, JacobianMappingF1Trans, MappingF2, Cost, CostGradient, SetC>
-    MockAlmFactory<MappingF1, JacobianMappingF1Trans, MappingF2, Cost, CostGradient, SetC>
-where
-    Cost: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
-    CostGradient: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingF1: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    JacobianMappingF1Trans: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingF2: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    SetC: Constraint,
-{
-    pub fn new(
-        f: Cost,
-        df: CostGradient,
-        mapping_f1: Option<MappingF1>,
-        jacobian_mapping_f1_trans: Option<JacobianMappingF1Trans>,
-        mapping_f2: Option<MappingF2>,
-        set_c: Option<SetC>,
-    ) -> Self {
-        MockAlmFactory {
-            f,
-            df,
-            mapping_f1,
-            jacobian_mapping_f1_trans,
-            mapping_f2,
-            set_c,
-        }
-    }
-
-    pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-        f0(u, cost)?;
-        let ny = xi.len() - 1;
-        let mut t = vec![0.0; ny];
-        let mut s = vec![0.0; ny];
-        if let (Some(set_c), Some(mapping_f1)) = (&self.set_c, &self.mapping_f1) {
-            mapping_f1(u, &mut t)?; // t = F1(u)
-            let y = &xi[1..];
-            let c = xi[0];
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / c);
-            s.copy_from_slice(&t);
-            set_c.project(&mut s);
-            *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
-        }
-        Ok(())
-    }
-
-    /// Computes the gradient of `psi`
-    ///
-    /// The gradient of `psi` is given by
-    ///
-    /// ```
-    /// d_psi(u)  d_f(u) + c JF1(u)' * (t(u) - Proj_C(t(u))),
-    /// ```
-    ///
-    /// where `t(u) = F1(u) - y/c`
-    ///
-    pub fn d_psi(&self, u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
-        let nu = u.len();
-        let ny = xi.len() - 1;
-        let mut t = vec![0.0; ny];
-        let mut s = vec![0.0; ny];
-        let mut jac_prod = vec![0.0; nu];
-        let y = &xi[1..];
-        let c = xi[0];
-        (self.df)(u, grad)?; // grad := d_f0(u)
-        if let (Some(set_c), Some(mapping_f1), Some(jf1t)) = (
-            &self.set_c,
-            &self.mapping_f1,
-            &self.jacobian_mapping_f1_trans,
-        ) {
-            mapping_f1(&u, &mut t)?; // t = F1(u)
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / c); // t = F1(u) + y/c
-            s.copy_from_slice(&t); // s = t
-            set_c.project(&mut s); // s = Proj_C(F1(u) + y/c)
-
-            // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
-            t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
-
-            jf1t(&t, &mut jac_prod)?;
-
-            // grad += c*t
-            grad.iter_mut()
-                .zip(jac_prod.iter())
-                .for_each(|(gradi, jac_prodi)| *gradi += c * jac_prodi);
-        }
-        Ok(())
-    }
-}
-
 /// A mock affine mapping given by
 ///
 /// ```
@@ -266,7 +150,11 @@ pub fn mapping_f1_affine(u: &[f64], f1u: &mut [f64]) -> Result<(), SolverError> 
 ///              d1        ]
 /// ```
 ///  
-pub fn mapping_f1_affine_jacobian_product(d: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+pub fn mapping_f1_affine_jacobian_product(
+    _u: &[f64],
+    d: &[f64],
+    res: &mut [f64],
+) -> Result<(), SolverError> {
     assert!(d.len() == 2, "the length of d must be equal to 3");
     assert!(res.len() == 3, "the length of res must be equal to 3");
     res[0] = 2.0 * d[0] + d[1];
@@ -338,7 +226,7 @@ pub fn d_psi(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError>
     // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
     t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
 
-    mapping_f1_affine_jacobian_product(&t, &mut jac_prod)?;
+    mapping_f1_affine_jacobian_product(&[], &t, &mut jac_prod)?;
 
     // grad += c*t
     grad.iter_mut()
@@ -354,7 +242,6 @@ pub fn d_psi(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError>
 mod tests {
 
     use super::*;
-    use crate::alm::*;
 
     #[test]
     fn t_mock_hard() {
@@ -412,7 +299,7 @@ mod tests {
     fn t_mapping_f1_affine_jacobian_product() {
         let d = [5.0, -10.0];
         let mut jac_f1_trans_times_d = [0.0; 3];
-        assert!(mapping_f1_affine_jacobian_product(&d, &mut jac_f1_trans_times_d).is_ok());
+        assert!(mapping_f1_affine_jacobian_product(&[], &d, &mut jac_f1_trans_times_d).is_ok());
         println!("jac = {:?}", &jac_f1_trans_times_d);
         unit_test_utils::assert_nearly_equal_array(
             &jac_f1_trans_times_d,
@@ -442,49 +329,6 @@ mod tests {
             1e-16,
             1e-12,
             "d_f0 is wrong",
-        );
-    }
-
-    #[test]
-    fn t_mocking_alm_factory_psi() {
-        let set_c = Ball2::new(None, 1.0);
-        let factory = MockAlmFactory::new(
-            f0,
-            d_f0,
-            Some(mapping_f1_affine),
-            Some(mapping_f1_affine_jacobian_product),
-            NO_MAPPING,
-            Some(set_c),
-        );
-        let u = [3.0, 5.0, 7.0];
-        let xi = [2.0, 10.0, 20.0];
-        let mut cost = 0.0;
-        assert!(factory.psi(&u, &xi, &mut cost).is_ok());
-        println!("cost = {}", cost);
-        unit_test_utils::assert_nearly_equal(1064.98664258336, cost, 1e-14, 1e-10, "psi is wrong");
-    }
-
-    #[test]
-    fn t_mocking_alm_factory_grad_psi() {
-        let set_c = Ball2::new(None, 1.0);
-        let factory = MockAlmFactory::new(
-            f0,
-            d_f0,
-            Some(mapping_f1_affine),
-            Some(mapping_f1_affine_jacobian_product),
-            NO_MAPPING,
-            Some(set_c),
-        );
-        let u = [3.0, -5.0, 7.0];
-        let xi = [2.5, 11.0, 20.0];
-        let mut grad_psi = [0.0; 3];
-        assert!(factory.d_psi(&u, &xi, &mut grad_psi).is_ok());
-        unit_test_utils::assert_nearly_equal_array(
-            &[71.7347887565619, -32.2228286485675, 46.5711991530422],
-            &grad_psi,
-            1e-12,
-            1e-12,
-            "d_psi is wrong",
         );
     }
 }
