@@ -2,70 +2,70 @@
 <rss version="2.0">
     <channel>
         <title>Optimization Engine Blog</title>
-        <link>https://alphaville.github.io/optimization-engine/blog</link>
+        <link>https://alphaville.github.io/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
         <lastBuildDate>Mon, 03 Jun 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
             <title>Optimization Engine Blog</title>
-            <url>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</url>
-            <link>https://alphaville.github.io/optimization-engine/blog</link>
+            <url>https://alphaville.github.io/img/docusaurus2.svg</url>
+            <link>https://alphaville.github.io/blog</link>
         </image>
         <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
         <item>
             <title><![CDATA[Python interface]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</guid>
+            <link>https://alphaville.github.io/blog/2019/06/03/python-interface-out.html</link>
+            <guid>https://alphaville.github.io/blog/2019/06/03/python-interface-out.html</guid>
             <pubDate>Mon, 03 Jun 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[  <p>The new Python interface is finally out and the solver now supports generic constraints of the form</p> <div class="math"> \[\begin{split} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\ \mathrm{subject\ to}\, &u \in U, \\ &c(u; p) = 0,\end{split}\]</div> <p>w...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[One shot two hares]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</guid>
+            <link>https://alphaville.github.io/blog/2019/05/23/python-interface.html</link>
+            <guid>https://alphaville.github.io/blog/2019/05/23/python-interface.html</guid>
             <pubDate>Thu, 23 May 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>Hi there! Soon OpEn will support the <a href="https://github.com/alphaville/optimization-engine/issues/6">penalty method</a> and will be able to accommodate general constraints of the form <code>c_i(x) = 0</code> and <code>c_i(x) &lt;= 0</code>.</p> <p>The penalty method is in fact implemented in the more general context of the homotopy method.</p> <p>At the sa...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[Faster UDP connection]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/21/fast-udp-connection.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/21/fast-udp-connection.html</guid>
             <pubDate>Thu, 21 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>After a recent update, the <a href="/optimization-engine/docs/udp-sockets">UDP interface</a> if <strong>OpEn</strong> is now significantly faster. Make sure you use version <code>0.2.2</code> or later.</p> <p><img src="/optimization-engine/img/udp_socket.png" alt="UDP socket interface"></p> <p>Coming up: TCP interface</p> ]]></description>
         </item>
         <item>
             <title><![CDATA[Rust for robots]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/19/rust-robotics.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/19/rust-robotics.html</guid>
             <pubDate>Tue, 19 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>Is the <strong>Rust</strong> programming language the future of robotics? <a href="https://medium.com/luosrobotics/why-rust-is-the-future-of-robotics-81d7fb68fe37">Some</a> claim that its memory and thread safety model and the fact that it can run on embedded and bare metal devices makes it the perfect candidate for robotics.</p> <p><img src="/optimization-engine/img/rustybot.jpeg" alt="rusty bot"></p> <p>Despite its young age, Rust has ...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[OpEn: a pure Rust optimizer]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/15/pure-rust-optimization.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/15/pure-rust-optimization.html</guid>
             <pubDate>Fri, 15 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>The majority of optimization packages in Rust, such as <a href="https://crates.io/crates/ipopt">IPOPT</a>, <a href="https://crates.io/crates/osqp">OSQP</a>, <a href="https://crates.io/crates/nlopt">NLOPT</a>, are essentially bindings (interfaces) to other software. There are a few pure-Rust packages, such as <a href="https://crates.io/crates/rustimization">rustimization</a>, <a href="https://crates.io/crates/argmin">argmin</a>, they implement algorithms which are not suitable fo...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[Let's talk]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/06/talk-to-us.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/06/talk-to-us.html</guid>
             <pubDate>Wed, 06 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p><img src="/optimization-engine/img/chat.jpeg" alt="Chat with us"></p> <p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p> <ul> <li>Join us on <a href="https://discord.gg/mfYpn4V">Discord</a></li> <li>or on <a href="https://gitter.im/alphaville/optimization-engine">Gitter</a></li> <li>or on good ol' <a href="https://alphaville.github.io/optimization-engine/docs/irc">IRC</a></li> </ul> ]]></description>
         </item>
         <item>
             <title><![CDATA[OpEn UDP socket interface]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/05/udp-sockets.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/05/udp-sockets.html</guid>
             <pubDate>Tue, 05 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="https://alphaville.github.io/optimization-engine/docs/matlab-interface">here</a>. This way, the parametric optimizer can be easily ...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[OpEn on Raspberry Pi]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/05/matlab-raspberry.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/05/matlab-raspberry.html</guid>
             <pubDate>Tue, 05 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>Here we give an example of building a parametric optimizer in MATLAB, which will run on a <strong>Raspberry Pi</strong>. The parametric optimizer will listen for requests on a <strong>UDP socket</strong>. We will then establish a connection to the optimizer, remotely, and consume the service.</p>
 <p><img src="/optimization-engine/img/rpi.jpeg" alt="Raspberry Pi"></p>
@@ -73,29 +73,29 @@
         </item>
         <item>
             <title><![CDATA[Risk-averse optimal control]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/03/risk-averse.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/03/risk-averse.html</guid>
             <pubDate>Sun, 03 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>Our paper titled &quot;Risk-averse risk-constrained optimal control,&quot; (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p> <p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse"><code>marie...</code></a></p>]]></description>
         </item>
         <item>
             <title><![CDATA[SuperSCS: OpEn's sister project]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/02/superscs.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/02/superscs.html</guid>
             <pubDate>Sat, 02 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p><a href="https://kul-forbes.github.io/scs/">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p> <p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p> <p>The paper titled &quot;SuperSCS: fast and accurate large-scale con...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[UAV navigation at ECC19]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</guid>
+            <link>https://alphaville.github.io/blog/2019/03/01/blog.html</link>
+            <guid>https://alphaville.github.io/blog/2019/03/01/blog.html</guid>
             <pubDate>Fri, 01 Mar 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p><img src="/optimization-engine/img/mav.png" alt="Micro aerial vehicle"></p> <p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European C...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[First Release of OpEn]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version.html</guid>
+            <link>https://alphaville.github.io/blog/2019/02/28/new-version.html</link>
+            <guid>https://alphaville.github.io/blog/2019/02/28/new-version.html</guid>
             <pubDate>Thu, 28 Feb 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> (OpEn) and we're very excited about it!</p>
 ]]></description>
