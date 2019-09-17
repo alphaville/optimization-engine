@@ -190,7 +190,7 @@ fn t_alm_numeric_test_1() {
             factory.psi(u, xi, cost)
         },
         |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-            mocks::d_psi(u, xi, grad)
+            factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
         NO_MAPPING,
@@ -202,7 +202,7 @@ fn t_alm_numeric_test_1() {
         .with_delta_tolerance(1e-4)
         .with_max_outer_iterations(10)
         .with_epsilon_tolerance(1e-5)
-        .with_initial_inner_tolerance(1e-4)
+        .with_initial_inner_tolerance(1e-2)
         .with_inner_tolerance_update_factor(0.5)
         .with_initial_penalty(1.0)
         .with_penalty_update_factor(5.0)
@@ -219,4 +219,82 @@ fn t_alm_numeric_test_1() {
     let mut f1res = vec![0.0; 2];
     assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
     println!("r = {:#?}", r);
+}
+
+fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+    res[0] = u[0];
+    res[1] = u[1];
+    res[2] = u[2] - u[0];
+    res[3] = u[2] - u[0] - u[1];
+    Ok(())
+}
+
+fn jac_mapping_f2_tr(_u: &[f64], d: &[f64], res: &mut [f64]) -> Result<(), crate::SolverError> {
+    res[0] = d[0] - d[2] - d[3];
+    res[1] = d[1] - d[3];
+    res[2] = d[2] + d[3];
+    Ok(())
+}
+
+#[test]
+fn t_alm_numeric_test_2() {
+    let tolerance = 1e-8;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 4;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0);
+    let bounds = Ball2::new(None, 10.0);
+    let set_y = Ball2::new(None, 10000.0);
+
+    let factory = AlmFactory::new(
+        mocks::f0,
+        mocks::d_f0,
+        Some(mocks::mapping_f1_affine),
+        Some(mocks::mapping_f1_affine_jacobian_product),
+        Some(mapping_f2),
+        Some(jac_mapping_f2_tr),
+        Some(set_c),
+        n2,
+    );
+
+    let set_c_b = Ball2::new(None, 1.0);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c_b),
+        Some(set_y),
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        Some(mocks::mapping_f1_affine),
+        Some(mapping_f2),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-4)
+        .with_epsilon_tolerance(1e-5)
+        .with_initial_inner_tolerance(1e-4);
+
+    let mut u = vec![0.0; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 10);
+
+    let mut f1res = vec![0.0; 2];
+    assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
+    println!("r = {:#?}", r);
+    let mut f2u = vec![0.0; n2];
+    assert!(mapping_f2(&u, &mut f2u).is_ok());
+    assert!(crate::matrix_operations::norm2(&f2u) < 1e-4);
+    println!("F2(u*) = {:#?}", &f2u);
 }
