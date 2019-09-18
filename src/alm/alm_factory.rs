@@ -210,11 +210,11 @@ where
     ///
     pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
         (self.f)(u, cost)?;
-        let ny = xi.len() - 1;
+        let ny = if xi.len() > 0 { xi.len() - 1 } else { 0 };
         let mut t = vec![0.0; ny];
         let mut s = vec![0.0; ny];
-        let c = xi[0];
         if let (Some(set_c), Some(mapping_f1)) = (&self.set_c, &self.mapping_f1) {
+            let c = xi[0];
             mapping_f1(u, &mut t)?; // t = F1(u)
             let y = &xi[1..];
             t.iter_mut()
@@ -225,6 +225,7 @@ where
             *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
         }
         if let Some(f2) = &self.mapping_f2 {
+            let c = xi[0];
             let mut z = vec![0.0; self.n2];
             f2(&u, &mut z)?;
             *cost += 0.5 * c * matrix_operations::norm2_squared(&z);

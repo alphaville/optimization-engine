@@ -354,5 +354,61 @@ fn t_alm_numeric_test_out_of_time() {
     let mut u = vec![0.0; nx];
     let solver_result = alm_optimizer.solve(&mut u);
     assert!(solver_result.is_ok());
-    assert_eq!(ExitStatus::NotConvergedOutOfTime, solver_result.unwrap().exit_status());
+    assert_eq!(
+        ExitStatus::NotConvergedOutOfTime,
+        solver_result.unwrap().exit_status()
+    );
+}
+
+#[test]
+fn t_alm_numeric_test_no_mappings() {
+    let tolerance = 1e-8;
+    let nx = 3;
+    let n1 = 0;
+    let n2 = 0;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let bounds = Ball2::new(None, 10.0);
+
+    let factory = AlmFactory::new(
+        mocks::f0,
+        mocks::d_f0,
+        NO_MAPPING,
+        NO_JACOBIAN_MAPPING,
+        NO_MAPPING,
+        NO_JACOBIAN_MAPPING,
+        NO_SET,
+        n2,
+    );
+
+    let alm_problem = AlmProblem::new(
+        bounds,
+        NO_SET,
+        NO_SET,
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        NO_MAPPING,
+        NO_MAPPING,
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-16)
+        .with_epsilon_tolerance(1e-5)
+        .with_initial_inner_tolerance(1e-5);
+
+    let mut u = vec![0.0; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let res = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, res.exit_status());
+    assert_eq!(1, res.num_outer_iterations());
+    assert!(res.last_problem_norm_fpr() <= 1e-5);
 }
