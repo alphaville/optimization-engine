@@ -64,10 +64,15 @@ class OptimizerTcpManager:
         encoded_data = text_to_send.encode()
         conn_socket.sendall(encoded_data)
         conn_socket.shutdown(socket.SHUT_WR)
-        for _i in range(100):
-            data = conn_socket.recv(buffer_size)
-            if data is not None:
+
+        data = b''
+        for _i in range(200):
+            # TODO: Get rid of '200' (but there must be some upper limit)
+            data_chunk = conn_socket.recv(buffer_size)
+            if data_chunk is None:
                 break
+            data += data_chunk
+
         conn_socket.close()
         return data.decode()
 
