@@ -1,5 +1,6 @@
 use crate::core::ExitStatus;
 
+/// Solution statistics for `AlmOptimizer`
 #[derive(Debug)]
 pub struct AlmOptimizerStatus {
     /// Exit status

@@ -2,6 +2,7 @@ use crate::panoc::PANOCCache;
 
 const DEFAULT_INITIAL_PENALTY: f64 = 10.0;
 
+/// Cache for `AlmOptimizer` (to be allocated once)
 #[derive(Debug)]
 pub struct AlmCache {
     /// PANOC cache for inner problems
@@ -28,6 +29,7 @@ pub struct AlmCache {
     /// Counter for inner iterations
     pub(crate) inner_iteration_count: usize,
     pub(crate) last_inner_problem_norm_fpr: f64,
+    pub(crate) available_time: Option<std::time::Duration>,
 }
 
 impl AlmCache {
@@ -51,7 +53,8 @@ impl AlmCache {
             f2_norm: 0.0,
             f2_norm_plus: std::f64::INFINITY,
             inner_iteration_count: 0,
-            last_inner_problem_norm_fpr: -1.0
+            last_inner_problem_norm_fpr: -1.0,
+            available_time: None,
         }
     }
 

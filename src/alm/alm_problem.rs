@@ -1,5 +1,6 @@
 use crate::{constraints::Constraint, SolverError};
 
+/// Definition of optimization problem to be solved with `AlmOptimizer`
 pub struct AlmProblem<
     MappingAlm,
     MappingPm,

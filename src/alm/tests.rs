@@ -302,3 +302,57 @@ fn t_alm_numeric_test_2() {
     assert!(crate::matrix_operations::norm2(&f2u) < 1e-4);
     println!("F2(u*) = {:#?}", &f2u);
 }
+
+#[test]
+fn t_alm_numeric_test_out_of_time() {
+    let tolerance = 1e-8;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 4;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0);
+    let bounds = Ball2::new(None, 10.0);
+    let set_y = Ball2::new(None, 10000.0);
+
+    let factory = AlmFactory::new(
+        mocks::f0,
+        mocks::d_f0,
+        Some(mocks::mapping_f1_affine),
+        Some(mocks::mapping_f1_affine_jacobian_product),
+        Some(mapping_f2),
+        Some(jac_mapping_f2_tr),
+        Some(set_c),
+        n2,
+    );
+
+    let set_c_b = Ball2::new(None, 1.0);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c_b),
+        Some(set_y),
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        Some(mocks::mapping_f1_affine),
+        Some(mapping_f2),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-4)
+        .with_epsilon_tolerance(1e-5)
+        .with_initial_inner_tolerance(1e-4)
+        .with_max_duration(std::time::Duration::from_micros(400));
+
+    let mut u = vec![0.0; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    assert_eq!(ExitStatus::NotConvergedOutOfTime, solver_result.unwrap().exit_status());
+}

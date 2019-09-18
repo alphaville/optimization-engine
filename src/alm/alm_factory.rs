@@ -51,7 +51,7 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 /// multipliers respectively, according to
 ///
 /// $$
-/// \psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) - c^{-1}y)
+/// \psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) + c^{-1}y)
 ///         + \Vert F_2(u) \Vert^2\right],
 /// $$
 ///
@@ -61,6 +61,8 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 /// \nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
 ///                              + c JF_2(u)^\top F_2(u).
 /// $$
+///
+/// where $t(u) = F_1(u) + c^{-1}y$.
 ///
 pub struct AlmFactory<
     MappingF1,
@@ -186,7 +188,8 @@ where
 
     /// Computes function $\psi$ given by
     ///
-    /// $$\psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) - c^{-1}y) + \Vert F_2(u) \Vert^2\right],$$
+    /// $$\psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) + c^{-1}y)
+    ///           + \Vert F_2(u) \Vert^2\right],$$
     ///
     /// where $f:\mathbb{R}^{n_u}\to\mathbb{R}$ is a $C^{1,1}$ function,
     /// $F_1:\mathbb{R}^{n_u}\to\mathbb{R}^{n_1}$ and $F_2:\mathbb{R}^{n_u}\to\mathbb{R}^{n_2}$
@@ -236,7 +239,7 @@ where
     /// $$\nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
     ///                                + c JF_2(u)^\top F_2(u),$$
     ///
-    /// where $t(u) = F_1(u) - c^{-1}y$.
+    /// where $t(u) = F_1(u) + c^{-1}y$.
     ///
     /// ## Arguments
     ///

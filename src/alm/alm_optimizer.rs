@@ -15,6 +15,23 @@ const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
 const SMALL_EPSILON: f64 = 2.0 * std::f64::EPSILON;
 
+/// Implements the ALM/PM method
+///
+/// `AlmOptimizer` solves the problem
+///
+///
+/// $$
+/// \begin{aligned}
+/// \mathrm{Minimize}\  f(u)
+/// \\\\
+/// u \in U
+/// \\\\
+/// F_1(u) \in C
+/// \\\\
+/// F_2(u) = 0
+/// \end{aligned}$$
+///
+///
 pub struct AlmOptimizer<
     'life,
     MappingAlm,
@@ -412,7 +429,14 @@ where
         // We don't need to update the tolerance here; this is done in
         // `update_inner_akkt_tolerance` which updates the AKKT-tolerance (epsilon)
         // in the PANOCCache instance held by AlmCache directly.
-        let mut inner_solver = PANOCOptimizer::new(inner_problem, &mut alm_cache.panoc_cache);
+        let mut inner_solver = PANOCOptimizer::new(inner_problem, &mut alm_cache.panoc_cache)
+            // Set the maximum duration of the inner solver to the available time, which is
+            // stored in AlmCache, or set it to the maximum possible duration
+            .with_max_duration(
+                alm_cache
+                    .available_time
+                    .unwrap_or(std::time::Duration::from_secs(std::u64::MAX)),
+            );
         // this method returns the result of .solve:
         inner_solver.solve(u)
     }
@@ -519,6 +543,9 @@ where
             self.alm_cache.inner_iteration_count += inner_iters;
         })?;
 
+        // TODO: Check whether the inner problem has converged; set a limit on
+        // FPR above which the outer loop cannot reduce the error
+
         // Update Lagrange multipliers:
         // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
         self.update_lagrange_multipliers(u)?;
@@ -556,13 +583,23 @@ where
     pub fn solve(&mut self, u: &mut [f64]) -> Result<AlmOptimizerStatus, SolverError> {
         let mut num_outer_iterations = 0;
         let tic = std::time::Instant::now();
-        let cache = &mut self.alm_cache;
-        cache.reset(); // first, reset the cache
-        cache
+        let mut exit_status = ExitStatus::Converged;
+        self.alm_cache.reset(); // first, reset the cache
+        self.alm_cache.available_time = self.max_duration;
+
+        self.alm_cache
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
 
         for _outer_iters in 1..=self.max_outer_iterations {
+            if let Some(max_duration) = self.max_duration {
+                let available_time_left = max_duration.checked_sub(tic.elapsed());
+                self.alm_cache.available_time = available_time_left;
+                if available_time_left.is_none() {
+                    exit_status = ExitStatus::NotConvergedOutOfTime; // no time left!
+                    break;
+                }
+            }
             num_outer_iterations += 1;
             if !self.step(u)? {
                 break;
@@ -575,7 +612,7 @@ where
             0.0
         };
 
-        Ok(AlmOptimizerStatus::new(ExitStatus::Converged)
+        Ok(AlmOptimizerStatus::new(exit_status)
             .with_solve_time(tic.elapsed())
             .with_inner_iterations(self.alm_cache.inner_iteration_count)
             .with_outer_iterations(num_outer_iterations)
