@@ -266,15 +266,19 @@ class RustBuildTestCase(unittest.TestCase):
             tcp_manager.ping()
 
         for i in range(100):
+            # Note: invoking the server with a very low buffer length
+            #       to test whether the communication channel works
+            #       as expected
             result = tcp_manager.call(p=[1.0, 10.0+i],
-                                      initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0])
+                                      initial_guess=[1.0, 1.0, 2.0 + 0.5*i, 3.0, 4.0],
+                                      buffer_len=8)
             _exit_status = result['exit_status']
             self.assertEqual("Converged", _exit_status, "Problem not converged")
 
         result = tcp_manager.call([1.0, 10.0, 100.0])
-        if not 'type' in result:
+        if 'type' not in result:
             self.fail("No 'type' in result")
-        if not 'code' in result:
+        if 'code' not in result:
             self.fail("No 'code' in result")
 
         self.assertEqual(result['type'], "Error", "Error not detected")

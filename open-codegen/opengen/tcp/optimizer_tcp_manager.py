@@ -5,6 +5,7 @@ import socket
 import json
 import logging
 import time
+import math
 from threading import Thread
 from retry import retry
 
@@ -59,15 +60,20 @@ class OptimizerTcpManager:
         s.connect((ip, port))
         return s
 
-    def __send_receive_data(self, text_to_send, buffer_size=512):
+    def __send_receive_data(self, text_to_send, buffer_size=512, max_data_size=1048576):
         conn_socket = self.__obtain_socket_connection()
         encoded_data = text_to_send.encode()
         conn_socket.sendall(encoded_data)
         conn_socket.shutdown(socket.SHUT_WR)
-        for _i in range(100):
-            data = conn_socket.recv(buffer_size)
-            if data is not None:
+
+        max_read_rounds = math.ceil(max_data_size/buffer_size)
+        data = b''
+        for _i in range(max_read_rounds):
+            data_chunk = conn_socket.recv(buffer_size)
+            if data_chunk is None:
                 break
+            data += data_chunk
+
         conn_socket.close()
         return data.decode()
 
@@ -100,7 +106,7 @@ class OptimizerTcpManager:
         request = '{"Kill":1}'
         self.__send_receive_data(request)
 
-    def call(self, p, initial_guess=None, buffer_len=4096):
+    def call(self, p, initial_guess=None, buffer_len=4096, max_data_size=1048576):
         """Calls the server
 
         Consumes the parametric optimizer by providing a parameter vector
@@ -111,6 +117,8 @@ class OptimizerTcpManager:
              initial_guess: initial guess vector (vector of float)
              buffer_len: buffer length used to read the server response
              (default value: 4096)
+             max_data_size: maximum data size that is expected to be
+             received from the TCP server (default value: 1048576)
 
         Returns:
             Dictionary with the following keys:
@@ -135,5 +143,5 @@ class OptimizerTcpManager:
             run_message += ']'
 
         run_message += '}}'
-        data = self.__send_receive_data(run_message, buffer_len)
+        data = self.__send_receive_data(run_message, buffer_len, max_data_size)
         return json.loads(data)
