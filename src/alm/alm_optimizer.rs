@@ -13,7 +13,7 @@ const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
 const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
 const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
-const SMALL_EPSILON: f64 = 2.0 * std::f64::EPSILON;
+const SMALL_EPSILON: f64 = std::f64::EPSILON;
 
 /// Implements the ALM/PM method
 ///
@@ -31,6 +31,38 @@ const SMALL_EPSILON: f64 = 2.0 * std::f64::EPSILON;
 /// F_2(u) = 0
 /// \end{aligned}$$
 ///
+/// where $u\in\mathbb{R}^{n_u}$, $f:\mathbb{R}^n\to\mathbb{R}$ is a $C^{1,1}$-smooth cost
+/// function, $U$ is a (not necessarily convex) closed subset of $\mathbb{R}^{n_u}$
+/// on which we can easily compute projections (e.g., a rectangle, a ball, a second-order cone,
+/// a finite set, etc), $F_1:\mathbb{R}^{n_u}\to\mathbb{R}^{n_1}$ and $F_2:\mathbb{R}^{n_u}
+/// \to\mathbb{R}^{n_2}$ are mappings with smooth partial derivatives, and  
+/// $C\subseteq\mathbb{R}^{n_1}$ is a convex closed set on which we can easily compute
+/// projections.
+///
+///
+/// ## Theoretical solution guarantees  
+/// The solver determines an $(\epsilon, delta)$-approximate KKT point for the problem,
+/// that is, a pair $(u^\star, y^\star)$ which satisfies
+///
+/// $$
+/// \begin{aligned}
+/// v {}\in{}& \partial_u L(u^\star, y^\star), \text{ with } \|v\| \leq \epsilon,
+/// \\\\
+/// w {}\in{}& \partial_y [-L](u^\star, y^\star), \text{ with } \|w\| \leq \delta,
+/// \\\\
+/// \|F_2(u^\star)\| {}\leq{}& \delta
+/// \end{aligned}
+/// $$
+///
+/// where $L:\mathbb{R}^{n_u}$ is the associated Lagrangian function which is given by
+///
+/// $$
+/// L(u, y) {}={} f(u) + y^\top F_1(u) + \delta_U(u) - \delta_{C^{\ast}}(y),
+/// $$
+///
+/// for $u\in\mathbb{R}^{n_u}$, $y\in\mathbb{R}^{n_1}$, $C^{\ast}$ is the convex conjugate set
+/// of $C$ and $\delta_{U}$, $\delta_{C^{\ast}}$ are the indicator functions of $U$ and $C^{\ast}$
+/// respectively.
 ///
 pub struct AlmOptimizer<
     'life,
@@ -113,9 +145,19 @@ where
     AlmSetC: constraints::Constraint,
     LagrangeSetY: constraints::Constraint,
 {
+    /* ---------------------------------------------------------------------------- */
+    /*          CONSTRUCTOR                                                         */
+    /* ---------------------------------------------------------------------------- */
+
     /// Create new instance of `AlmOptimizer`
     ///
     /// ## Arguments
+    ///
+    /// - `alm_cache`: a reuseable instance of `AlmCache`, which is borrowed by
+    ///    `AlmOptimizer`
+    /// - `alm_problem`: the problem specification (data for $f$, $\nabla f$, $F_1$
+    ///    (if any), $F_2$ (if any), and sets $C$, $U$ and $Y$)
+    ///
     ///
     /// ## Example
     ///
@@ -188,56 +230,204 @@ where
         }
     }
 
+    /* ---------------------------------------------------------------------------- */
+    /*          SETTER METHODS                                                      */
+    /* ---------------------------------------------------------------------------- */
+
+    /// Setter method for the maximum number of outer iterations
+    ///
+    /// ## Arguments
+    ///
+    /// - `max_outer_iterations`: maximum number of outer iterations
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified number of outer iterations is zero
+    ///
+    ///
     pub fn with_max_outer_iterations(mut self, max_outer_iterations: usize) -> Self {
+        assert!(
+            max_outer_iterations > 0,
+            "max_outer_iterations must be positive"
+        );
         self.max_outer_iterations = max_outer_iterations;
         self
     }
 
+    /// Setter method for the maximum number of iterations for the inner problems
+    /// which are solved with PANOC (see `PANOCOptimizer`).
+    ///
+    /// ## Arguments
+    ///
+    /// - `max_inner_iterations`: maximum number of inner iterations
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified number of inner iterations is zero
+    ///
+    ///
     pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
+        assert!(
+            max_inner_iterations > 0,
+            "max_inner_iterations must be positive"
+        );
         self.max_inner_iterations = max_inner_iterations;
         self
     }
 
+    /// Setter methods for the maximum duration
+    ///
+    /// If the maximum duration is not set, there is no upper bound on the time
+    /// allowed for the ALM/PM optimizer to run
+    ///
+    /// ## Arguments
+    ///
+    /// - `max_duration`: maximum allowed execution duration
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
     pub fn with_max_duration(mut self, max_duration: std::time::Duration) -> Self {
         self.max_duration = Some(max_duration);
         self
     }
 
+    /// Set the delta tolerance
+    ///
+    /// ## Arguments
+    ///
+    /// - `delta_tolerance`: tolerance $\delta > 0$
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified tolerance is not positive
+    ///
     pub fn with_delta_tolerance(mut self, delta_tolerance: f64) -> Self {
+        assert!(delta_tolerance > 0.0, "delta_tolerance must be positive");
         self.delta_tolerance = delta_tolerance;
         self
     }
 
+    /// Set the epsilon tolerance
+    ///
+    /// ## Arguments
+    ///
+    /// - `epsilon_tolerance`: tolerance $\epsilon > 0$
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified tolerance is not positive
+    ///
     pub fn with_epsilon_tolerance(mut self, epsilon_tolerance: f64) -> Self {
+        assert!(
+            epsilon_tolerance > 0.0,
+            "epsilon_tolerance must be positive"
+        );
         self.epsilon_tolerance = epsilon_tolerance;
         self
     }
 
+    /// Setter method for the penalty update factor.
+    ///
+    /// At every iteration of the ALM/PM algorithm, the penalty parameter, $c_\nu$,
+    /// may be updated by multiplying it by a constant factor. This can be specified
+    /// with this setter method. The default value is `5.0`.
+    ///
+    /// ## Arguments
+    ///
+    /// - `penalty_update_factor`: the penalty update factor
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the update factor is not larger than `1.0 + f64::EPSILON`
+    ///
+    ///
     pub fn with_penalty_update_factor(mut self, penalty_update_factor: f64) -> Self {
+        assert!(
+            penalty_update_factor > 1.0 + SMALL_EPSILON,
+            "`penalty_update_factor` must be larger than 1.0 + f64::EPSILON"
+        );
         self.penalty_update_factor = penalty_update_factor;
         self
     }
 
+    /// Setter method for the update factor for the epsilon tolerance
+    ///
+    /// The $\epsilon$-tolerance, which is the tolerance passed on to the inner problem,
+    /// starts at an initial value $\epsilon_0$, and is updated at every (outer) iteration
+    /// of the algorithm by being multiplied with this update factor, which must be in
+    /// the interval $(0, 1)$.
+    ///
+    /// ## Arguments
+    ///
+    /// - `inner_tolerance_update_factor`: the tolerance update factor
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified tolerance update factor is not in the
+    /// interval from `f64::EPSILON` to `1.0 - f64::EPSILON`.
+    ///
     pub fn with_inner_tolerance_update_factor(
         mut self,
         inner_tolerance_update_factor: f64,
     ) -> Self {
         assert!(
-            inner_tolerance_update_factor > SMALL_EPSILON && inner_tolerance_update_factor < 1.0,
-            "the tolerance update factor needs to be in (0, 1)"
+            inner_tolerance_update_factor > SMALL_EPSILON
+                && inner_tolerance_update_factor < 1.0 - SMALL_EPSILON,
+            "the tolerance update factor needs to be in (f64::EPSILON, 1)"
         );
         self.epsilon_update_factor = inner_tolerance_update_factor;
         self
     }
 
-    pub fn with_sufficient_decrease_coefficient(
-        mut self,
-        sufficient_decrease_coefficient: f64,
-    ) -> Self {
-        self.sufficient_decrease_coeff = sufficient_decrease_coefficient;
-        self
-    }
-
+    /// Setter method for the sufficient decrease coefficient
+    ///
+    /// The first inner problem is solved at an accuracy $\epsilon_0$. Subsequent
+    /// problems are solved at an accuracy $\epsilon_{\nu+1} = \max\{\epsilon, \beta \epsilon_{\nu}\}$,
+    /// where $\beta$ is the tolerance update factor and $\epsilon$ is the target
+    /// tolerance for the inner problem.
+    ///
+    /// ## Arguments
+    ///
+    /// - `initial_inner_tolerance`: the initial value of the inner tolerance, that is,
+    ///    the value $\espilon_0$
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified initial inner tolerance is less than the
+    /// target tolerance. If you need to decrease the target tolerance, please use
+    /// `with_inner_tolerance` to do so before invoking `with_initial_inner_tolerance`.
+    ///
+    ///
     pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: f64) -> Self {
         assert!(
             initial_inner_tolerance >= self.epsilon_tolerance,
@@ -251,12 +441,48 @@ where
         self
     }
 
-    /// Initialises the vector of Lagrange multipliers
+    /// Setter method for the sufficient decrease coefficient
+    ///
+    /// At every (outer) iteration, the ALM/PM may decide not to update the penalty
+    /// parameter if the progress has been sufficiently good with respect to the
+    /// previous iteration.
     ///
     /// ## Arguments
     ///
-    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]) of
+    /// - `sufficient_decrease_coefficient`: the sufficient decrease coefficient
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified sufficient decrease coefficient is not
+    /// in the range `(f64::EPSILON, 1.0 - f64::EPSILON)`
+    ///
+    pub fn with_sufficient_decrease_coefficient(
+        mut self,
+        sufficient_decrease_coefficient: f64,
+    ) -> Self {
+        assert!(
+            sufficient_decrease_coefficient < 1.0 - SMALL_EPSILON
+                && sufficient_decrease_coefficient > SMALL_EPSILON,
+            "sufficient_decrease_coefficient must be in (f64::EPSILON, 1.0 - f64::EPSILON)"
+        );
+        self.sufficient_decrease_coeff = sufficient_decrease_coefficient;
+        self
+    }
+
+    /// Setter method for the initial vector of Lagrange multipliers, $y^0$
+    ///
+    /// ## Arguments
+    ///
+    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]`) of
     ///             length equal to `n1`
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
     ///
     /// ## Panics
     ///
@@ -277,7 +503,26 @@ where
         self
     }
 
+    /// Setter method for the initial penalty parameter
+    ///
+    /// ## Arguments
+    ///
+    /// - `c0`: initial value of the penalty parameter
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the specified initial penalty parameter is not
+    /// larger than `f64::EPSILON`
+    ///
     pub fn with_initial_penalty(self, c0: f64) -> Self {
+        assert!(
+            c0 > SMALL_EPSILON,
+            "the initial penalty must be larger than f64::EPSILON"
+        );
         if let Some(xi_in_cache) = &mut self.alm_cache.xi {
             xi_in_cache[0] = c0;
         }

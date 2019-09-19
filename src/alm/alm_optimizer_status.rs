@@ -1,6 +1,11 @@
 use crate::core::ExitStatus;
 
 /// Solution statistics for `AlmOptimizer`
+///
+/// This structure has no public fields and no public setter methods.  
+/// The idea is that only Optimization Engine can create optimizer
+/// `AlmOptimizerStatus` instances.
+///
 #[derive(Debug)]
 pub struct AlmOptimizerStatus {
     /// Exit status
@@ -14,14 +19,31 @@ pub struct AlmOptimizerStatus {
     num_inner_iterations: usize,
     /// Norm of the fixed-point residual of the the problem
     last_problem_norm_fpr: f64,
+    ///
     lagrange_multipliers: Option<Vec<f64>>,
     /// Total solve time
     solve_time: std::time::Duration,
+    /// Last value of penalty parameter
     penalty: f64,
 }
 
 impl AlmOptimizerStatus {
-    pub fn new(exit_status: ExitStatus) -> Self {
+    /// Constructor for instances of `AlmOptimizerStatus`
+    ///
+    /// This method is only accessibly within this crate.
+    ///
+    /// Clients can then use getter methods to access the status of the
+    /// algorithm (get statistics about the solving procedure etc)
+    ///
+    /// ## Arguments
+    ///
+    /// - `exit_status`: Exit status of the algorithm
+    ///
+    /// ## Returns
+    ///
+    /// New instance of `AlmOptimizerStatus`. Use the setter methods below
+    /// to specify the algorithm status details.
+    pub(crate) fn new(exit_status: ExitStatus) -> Self {
         AlmOptimizerStatus {
             exit_status,
             num_outer_iterations: 0,
@@ -33,35 +55,43 @@ impl AlmOptimizerStatus {
         }
     }
 
-    pub fn with_solve_time(mut self, duration: std::time::Duration) -> Self {
+    pub(crate) fn with_solve_time(mut self, duration: std::time::Duration) -> Self {
         self.solve_time = duration;
         self
     }
 
-    pub fn with_outer_iterations(mut self, outer_iters: usize) -> Self {
+    pub(crate) fn with_outer_iterations(mut self, outer_iters: usize) -> Self {
         self.num_outer_iterations = outer_iters;
         self
     }
 
-    pub fn with_inner_iterations(mut self, inner_iters: usize) -> Self {
+    pub(crate) fn with_inner_iterations(mut self, inner_iters: usize) -> Self {
         self.num_inner_iterations = inner_iters;
         self
     }
 
-    pub fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[f64]) -> Self {
-        self.lagrange_multipliers = Some(vec![0.0; lagrange_multipliers.len()]);
+    pub(crate) fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[f64]) -> Self {
+        self.lagrange_multipliers = Some(vec![0.0]);
         if let Some(y) = &mut self.lagrange_multipliers {
-            y.copy_from_slice(&lagrange_multipliers);
+            y.extend_from_slice(&lagrange_multipliers);
         }
         self
     }
 
-    pub fn with_penalty(mut self, penalty: f64) -> Self {
+    pub(crate) fn with_penalty(mut self, penalty: f64) -> Self {
+        assert!(
+            penalty >= 0.0,
+            "the penalty parameter should not be negative"
+        );
         self.penalty = penalty;
         self
     }
 
-    pub fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: f64) -> Self {
+    pub(crate) fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: f64) -> Self {
+        assert!(
+            last_problem_norm_fpr >= 0.0,
+            "last_problem_norm_fpr should not be negative"
+        );
         self.last_problem_norm_fpr = last_problem_norm_fpr;
         self
     }
@@ -70,31 +100,41 @@ impl AlmOptimizerStatus {
     // Getter Methods
     // -------------------------------------------------
 
-    /// exit status of solver
+    /// Exit status of solver
     pub fn exit_status(&self) -> ExitStatus {
         self.exit_status
     }
 
+    /// Number of outer iterations
     pub fn num_outer_iterations(&self) -> usize {
         self.num_outer_iterations
     }
 
+    /// Total count of inner iterations performed by `PANOCOptimizer`
     pub fn num_inner_iterations(&self) -> usize {
         self.num_inner_iterations
     }
 
+    /// Vector of Lagrange multipliers at the solution
+    ///
+    /// The method returns a reference to an `Option<Vec<f64>>` which contains
+    /// the vector of Lagrange multipliers at the solution, or is `None` if
+    /// the problem has no ALM-type constraints.
     pub fn lagrange_multipliers(&self) -> &Option<Vec<f64>> {
         &self.lagrange_multipliers
     }
 
+    /// Norm of the fixed-point residual of the last inner problem
     pub fn last_problem_norm_fpr(&self) -> f64 {
         self.last_problem_norm_fpr
     }
 
+    /// Total time to solve the problem (runtime of method `AlmOptimizer.solve()`)
     pub fn solve_time(&self) -> std::time::Duration {
         self.solve_time
     }
 
+    /// Penalty parameter at the solution
     pub fn penalty(&self) -> f64 {
         self.penalty
     }
