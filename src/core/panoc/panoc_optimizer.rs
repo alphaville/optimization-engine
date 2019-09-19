@@ -69,7 +69,29 @@ where
         self
     }
 
+    /// Specify the tolerance $\epsilon$ related to the AKKT condition
+    ///
+    /// $$
+    /// \|\gamma^{-1}(u-u^+) + \nabla f(u) - \nabla f(u^+)\| \leq \epsilon
+    /// $$
+    ///
+    /// ## Arguments
+    ///
+    /// - `akkt_tolerance`: the AKKT-specific tolerance
+    ///
+    ///
+    /// ## Returns
+    ///
+    /// Returns the current mutable and updated instance of the provided object
+    ///
+    ///  
+    /// ## Panics
+    ///
+    /// The method panics if the provided value of the AKKT-specific tolerance is
+    /// not positive.
+    ///
     pub fn with_akkt_tolerance(self, akkt_tolerance: f64) -> Self {
+        assert!(akkt_tolerance > 0.0, "akkt_tolerance must be positive");
         self.panoc_engine.cache.set_akkt_tolerance(akkt_tolerance);
         self
     }

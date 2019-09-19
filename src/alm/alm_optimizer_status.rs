@@ -43,6 +43,11 @@ impl AlmOptimizerStatus {
     ///
     /// New instance of `AlmOptimizerStatus`. Use the setter methods below
     /// to specify the algorithm status details.
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub(crate) fn new(exit_status: ExitStatus) -> Self {
         AlmOptimizerStatus {
             exit_status,
@@ -55,21 +60,65 @@ impl AlmOptimizerStatus {
         }
     }
 
+    /// Setter method for the total solve time
+    ///
+    /// ## Arguments
+    ///
+    /// - `duration`: total time duration to solve the problem
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub(crate) fn with_solve_time(mut self, duration: std::time::Duration) -> Self {
         self.solve_time = duration;
         self
     }
 
+    /// Setter method for the number of outer ALM/PM-type iterations
+    ///
+    ///
+    /// ## Arguments
+    ///
+    /// - `outer_iters`: number of outer iterations
+    ///
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub(crate) fn with_outer_iterations(mut self, outer_iters: usize) -> Self {
         self.num_outer_iterations = outer_iters;
         self
     }
 
+    /// Setter method for the total number of inner iterations
+    ///
+    /// ## Arguments
+    ///
+    /// - `outer_iters`: total inner iteration count
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub(crate) fn with_inner_iterations(mut self, inner_iters: usize) -> Self {
         self.num_inner_iterations = inner_iters;
         self
     }
 
+    /// Setter method for the vector of Lagrange multipliers at the solution
+    ///
+    /// ## Arguments
+    ///
+    /// - `lagrange_multipliers`: vector of Lagrange multipliers (which is copied
+    ///    into an internal field of `AlmOptimizerStatus`)
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic; it is the responsibility of the caller to provide a vector of
+    /// Lagrange multipliers of correct length
+    ///
     pub(crate) fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[f64]) -> Self {
         self.lagrange_multipliers = Some(vec![0.0]);
         if let Some(y) = &mut self.lagrange_multipliers {
@@ -78,6 +127,13 @@ impl AlmOptimizerStatus {
         self
     }
 
+    /// Setter method for the penalty parameter
+    ///
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the provided penalty parameter is negative
+    ///
     pub(crate) fn with_penalty(mut self, penalty: f64) -> Self {
         assert!(
             penalty >= 0.0,
@@ -87,6 +143,14 @@ impl AlmOptimizerStatus {
         self
     }
 
+    /// Setter method for the norm of the fixed-point residual of the last
+    /// solved inner optimization problem (solved with PANOC)
+    ///
+    /// ## Panics
+    ///
+    /// The method panics if the provided norm of the fixed-point residual is
+    /// negative
+    ///
     pub(crate) fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: f64) -> Self {
         assert!(
             last_problem_norm_fpr >= 0.0,
@@ -101,16 +165,30 @@ impl AlmOptimizerStatus {
     // -------------------------------------------------
 
     /// Exit status of solver
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
     pub fn exit_status(&self) -> ExitStatus {
         self.exit_status
     }
 
     /// Number of outer iterations
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub fn num_outer_iterations(&self) -> usize {
         self.num_outer_iterations
     }
 
     /// Total count of inner iterations performed by `PANOCOptimizer`
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub fn num_inner_iterations(&self) -> usize {
         self.num_inner_iterations
     }
@@ -120,21 +198,40 @@ impl AlmOptimizerStatus {
     /// The method returns a reference to an `Option<Vec<f64>>` which contains
     /// the vector of Lagrange multipliers at the solution, or is `None` if
     /// the problem has no ALM-type constraints.
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub fn lagrange_multipliers(&self) -> &Option<Vec<f64>> {
         &self.lagrange_multipliers
     }
 
     /// Norm of the fixed-point residual of the last inner problem
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub fn last_problem_norm_fpr(&self) -> f64 {
         self.last_problem_norm_fpr
     }
 
     /// Total time to solve the problem (runtime of method `AlmOptimizer.solve()`)
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
+    ///
     pub fn solve_time(&self) -> std::time::Duration {
         self.solve_time
     }
 
     /// Penalty parameter at the solution
+    ///
+    /// ## Panics
+    ///
+    /// Does not panic
     pub fn penalty(&self) -> f64 {
         self.penalty
     }

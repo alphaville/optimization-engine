@@ -1,5 +1,7 @@
 //! PANOC super-fast algorithm
 
+#![deny(missing_docs)]
+
 mod panoc_cache;
 mod panoc_engine;
 mod panoc_optimizer;
