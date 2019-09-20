@@ -58,7 +58,7 @@ classdef OpEnOptimizer < handle
             end
             req_str = sprintf('{"parameter":[%s %f]}', p_formatted_str, p(end));
             fwrite(o.udp_connection, req_str);
-            json_response = fread(o.udp_connection, 50000, 'char');
+            json_response = fread(o.udp_connection, 524288, 'char');
             json_response = char(json_response');
             out = jsondecode(json_response);
         end
