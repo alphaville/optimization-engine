@@ -33,7 +33,7 @@ classdef OpEnOptimizer < handle
         
         function connect(o)
             o.udp_connection = udp(o.ip, o.port, ...
-                'InputBufferSize', 16384, 'OutputBufferSize', 8192);
+                'InputBufferSize', 4*16384, 'OutputBufferSize', 4*8192);
             fopen(o.udp_connection);
         end
         
@@ -51,11 +51,15 @@ classdef OpEnOptimizer < handle
         end
         
         function out = consume(o, p)
-            p_formatted_str = sprintf('%f, ', p(1:end-1));
-            req_str = sprintf('{"parameter":[%s %f]}', p_formatted_str,p(end));
+            if length(p) > 1
+            p_formatted_str = sprintf('%f, ', p(1:end-1))
+            else 
+                p_formatted_str = '';
+            end
+            req_str = sprintf('{"parameter":[%s %f]}', p_formatted_str, p(end))
             fwrite(o.udp_connection, req_str);
-            json_response = fread(o.udp_connection, 500000, 'char');
-            json_response = char(json_response');
+            json_response = fread(o.udp_connection, 50000, 'char')
+            json_response = char(json_response')
             out = jsondecode(json_response);
         end
     end
