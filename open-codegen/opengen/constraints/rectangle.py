@@ -1,4 +1,7 @@
-class Rectangle:
+from opengen.constraints.constraint import Constraint
+
+
+class Rectangle(Constraint):
     """A Rectangle (Box) constraint"""
 
     def __init__(self, xmin, xmax):
@@ -50,3 +53,8 @@ class Rectangle:
         """Maximum bound"""
         return self.__xmax
 
+    def distance_squared(self, u):
+        0
+
+    def project(self, u):
+        raise NotImplementedError()

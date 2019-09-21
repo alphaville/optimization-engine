@@ -112,7 +112,7 @@ class Problem:
         self.__alm_mapping_f1 = mapping_f1
         self.__alm_set_c = set_c
         self.__alm_set_y = set_y
-        raise self
+        return self
 
     # ---------- DIMENSIONS --------------------------------------------
 

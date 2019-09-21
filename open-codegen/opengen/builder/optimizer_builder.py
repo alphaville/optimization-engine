@@ -52,7 +52,7 @@ class OpEnOptimizerBuilder:
         self.__verbosity_level = 0
 
     def with_verbosity_level(self, verbosity_level):
-        """Sepcify the verbosity level
+        """Specify the verbosity level
 
         Args:
             verbosity_level: level of verbosity (0,1,2,3)
@@ -189,7 +189,7 @@ class OpEnOptimizerBuilder:
             penalty_function = self.__problem.penalty_function
             mu = cs.SX.sym("mu", self.__problem.dim_constraints_penalty())
             p = cs.vertcat(p, mu)
-            phi += cs.dot(mu, penalty_function(self.__problem.penalty_constraints))
+            phi += cs.dot(mu, penalty_function(self.__problem.penalty_mapping_f2))
 
         # Define cost and its gradient as CasADi functions
         cost_fun = cs.Function(self.__build_config.cost_function_name, [u, p], [phi])
@@ -212,7 +212,7 @@ class OpEnOptimizerBuilder:
         # Lastly, we generate code for the penalty constraints; if there aren't
         # any, we generate the function c(u; p) = 0 (which will not be used)
         if ncp > 0:
-            penalty_constraints = self.__problem.penalty_constraints
+            penalty_constraints = self.__problem.penalty_mapping_f2
         else:
             penalty_constraints = 0
 
@@ -246,7 +246,7 @@ class OpEnOptimizerBuilder:
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
                                           activate_clib_generation=self.__build_config.build_c_bindings)
-        target_source_path = os.path.join(target_dir, "src");
+        target_source_path = os.path.join(target_dir, "src")
         target_scr_lib_rs_path = os.path.join(target_source_path, "lib.rs")
         make_dir_if_not_exists(target_source_path)
         with open(target_scr_lib_rs_path, "w") as fh:
@@ -399,7 +399,7 @@ class OpEnOptimizerBuilder:
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
-        self.__generate_cargo_toml()             # generate Cargo.toml using tempalte
+        self.__generate_cargo_toml()             # generate Cargo.toml using template
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
