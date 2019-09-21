@@ -1,6 +1,6 @@
 import casadi.casadi as cs
 import numpy as np
-from opengen.constraints.constraint import Constraint
+from .constraint import Constraint
 
 
 class Ball2(Constraint):
@@ -70,8 +70,8 @@ class Ball2(Constraint):
                 v = u
             else:
                 # Note: self.__center is np.ndarray (`u` might be a list)
-                z = self.__center.reshape((len(u), 1))
-                u = np.array(u).reshape((len(u), 1))
+                z = self.__center.reshape(len(u))
+                u = np.array(u).reshape(len(u))
                 v = np.subtract(u, z)
         else:
             raise Exception("u is of invalid type")

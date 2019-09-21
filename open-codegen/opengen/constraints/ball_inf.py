@@ -1,6 +1,6 @@
 import casadi.casadi as cs
 import numpy as np
-from opengen.constraints.constraint import Constraint
+from .constraint import Constraint
 
 
 class BallInf(Constraint):
@@ -67,22 +67,24 @@ class BallInf(Constraint):
                 v = u
             else:
                 # Note: self.__center is np.ndarray (`u` might be a list)
-                z = self.__center.reshape((nu, 1))
-                u = np.array(u).reshape((nu, 1))
+                z = self.__center.reshape(nu)
+                u = np.array(u).reshape(nu)
                 v = np.subtract(u, z)
         else:
             raise Exception("u is of invalid type")
 
         # Compute distance to Ball infinity:
         # dist^2(u) = norm(v)^2
-        #            + SUM_i min{vi^2, r^2}
-        #            + SUM_i min{vi^2, r*|vi|}
+        #            + SUM_i [
+        #                         min{vi^2, r^2}
+        #                       - 2*min{vi^2, r*|vi|}
+        #                    ]
         # where v = u - xc
 
-        squared_distance = norm_fun(v)
+        squared_distance = norm_fun(v)**2
         for i in range(nu):
             squared_distance += min_fun(v[i]**2, self.radius**2) \
-                                + min_fun(v[i]**2, self.radius * abs_fun(v[i]))
+                                - 2.0 * min_fun(v[i]**2, self.radius * abs_fun(v[i]))
         return squared_distance
 
     def project(self, u):
