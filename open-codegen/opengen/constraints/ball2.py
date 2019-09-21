@@ -64,8 +64,8 @@ class Ball2(Constraint):
                 or isinstance(u, np.ndarray):
             # Case II: `u` is an array of numbers or an np.ndarray
             sign_fun = np.sign
-            norm_fun = np.linalg.norm
             max_fun = np.fmax
+            norm_fun = np.linalg.norm
             if self.__center is None:
                 v = u
             else:

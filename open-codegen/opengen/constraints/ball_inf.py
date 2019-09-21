@@ -51,32 +51,39 @@ class BallInf(Constraint):
         # use appropriate CasADi functions like cs.sign and cs.norm_2
         if isinstance(u, cs.SX):
             # Case I: `u` is a CasADi SX symbol
-            sign_fun = cs.sign
-            max_fun = cs.fmax
+            nu = u.size(1)
+            min_fun = cs.fmin
             norm_fun = cs.norm_2
-            norm_inf_fun = cs.norm_inf
+            abs_fun = cs.fabs
             v = u if self.__center is None else u - self.__center
         elif (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u)) \
                 or isinstance(u, np.ndarray):
             # Case II: `u` is an array of numbers or an np.ndarray
-            sign_fun = np.sign
+            nu = len(u)
+            min_fun = np.fmin
             norm_fun = np.linalg.norm
-            norm_inf_fun = BallInf.norm_inf_fun_np
-            max_fun = np.fmax
+            abs_fun = np.fabs
             if self.__center is None:
                 v = u
             else:
                 # Note: self.__center is np.ndarray (`u` might be a list)
-                z = self.__center.reshape((len(u), 1))
-                u = np.array(u).reshape((len(u), 1))
+                z = self.__center.reshape((nu, 1))
+                u = np.array(u).reshape((nu, 1))
                 v = np.subtract(u, z)
         else:
             raise Exception("u is of invalid type")
 
         # Compute distance to Ball infinity:
-        # dist^2(u) = norm(u)^2
-        #            + SUM_i min{ui^2, r^2}
-        #            + SUM_i min{ui^2, r*|ui|}
+        # dist^2(u) = norm(v)^2
+        #            + SUM_i min{vi^2, r^2}
+        #            + SUM_i min{vi^2, r*|vi|}
+        # where v = u - xc
+
+        squared_distance = norm_fun(v)
+        for i in range(nu):
+            squared_distance += min_fun(v[i]**2, self.radius**2) \
+                                + min_fun(v[i]**2, self.radius * abs_fun(v[i]))
+        return squared_distance
 
     def project(self, u):
         # Computes projection on Ball
