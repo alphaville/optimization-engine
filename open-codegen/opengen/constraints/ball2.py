@@ -1,6 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
 from .constraint import Constraint
+import opengen.functions as fn
 
 
 class Ball2(Constraint):
@@ -51,21 +52,12 @@ class Ball2(Constraint):
 
             :return: distance from set as a float or a CasADi symbol
         """
-        # Function `distance` can be applied to CasADi symbols and
-        # lists of numbers. However, if `u` is a symbol, we need to
-        # use appropriate CasADi functions like cs.sign and cs.norm_2
         if isinstance(u, cs.SX):
             # Case I: `u` is a CasADi SX symbol
-            sign_fun = cs.sign
-            max_fun = cs.fmax
-            norm_fun = cs.norm_2
             v = u if self.__center is None else u - self.__center
         elif (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u))\
                 or isinstance(u, np.ndarray):
             # Case II: `u` is an array of numbers or an np.ndarray
-            sign_fun = np.sign
-            max_fun = np.fmax
-            norm_fun = np.linalg.norm
             if self.__center is None:
                 v = u
             else:
@@ -87,8 +79,8 @@ class Ball2(Constraint):
         # but this leads to slightly lengthier CasADi symbols for
         # the Jacobian of the squared distance, so this approach was
         # abandoned
-        t = norm_fun(v) - self.radius
-        return max_fun(0.0, sign_fun(t) * t ** 2)
+        t = fn.norm2(v) - self.radius
+        return fn.fmax(0.0, fn.sign(t) * t ** 2)
 
     def project(self, u):
         # Idea: Computes projection on Ball as follows

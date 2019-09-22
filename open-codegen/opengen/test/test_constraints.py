@@ -95,6 +95,10 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(4, rect.distance_squared([0, 1]), 8)
         self.assertAlmostEqual(1, rect.distance_squared([5, -1.5]), 8)
         self.assertAlmostEqual(5, rect.distance_squared([5, 1]), 8)
+        # symbolic
+        x_sym = cs.SX.sym("x", 2)
+        d_sym = float(cs.substitute(rect.distance_squared(x_sym), x_sym, [5, 1]))
+        self.assertAlmostEqual(5, d_sym, 8)
 
     def test_rectangle_pos_quant(self):
         n = 3

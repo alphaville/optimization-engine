@@ -1,5 +1,6 @@
-from opengen.constraints.constraint import Constraint
+from .constraint import Constraint
 import numpy as np
+import opengen.functions as fn
 
 
 class Rectangle(Constraint):
@@ -112,20 +113,20 @@ class Rectangle(Constraint):
         return idx_xmin_infinite
 
     def distance_squared(self, u):
-        I1 = self.idx_infinite_only_xmin()
-        I2 = self.idx_infinite_only_xmax()
-        I3 = self.idx_bound_finite_all()
+        idx1 = self.idx_infinite_only_xmin()
+        idx2 = self.idx_infinite_only_xmax()
+        idx3 = self.idx_bound_finite_all()
 
         dist_sq = 0.0
-        for i in I1:
-            dist_sq += np.fmax(0.0, u[i] - self.__xmax[i]) ** 2
+        for i in idx1:
+            dist_sq += fn.fmax(0.0, u[i] - self.__xmax[i]) ** 2
 
-        for i in I2:
-            dist_sq += np.fmin(0.0, u[i] - self.__xmin[i]) ** 2
+        for i in idx2:
+            dist_sq += fn.fmin(0.0, u[i] - self.__xmin[i]) ** 2
 
-        for i in I3:
-            dist_sq += np.fmin(
-                np.fmax(0.0, u[i] - self.__xmax[i]),
+        for i in idx3:
+            dist_sq += fn.fmin(
+                fn.fmax(0.0, u[i] - self.__xmax[i]),
                 u[i] - self.__xmin[i]) ** 2
 
         return dist_sq

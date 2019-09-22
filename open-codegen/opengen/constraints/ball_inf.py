@@ -1,6 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
 from .constraint import Constraint
+import opengen.functions as fn
 
 
 class BallInf(Constraint):
@@ -52,17 +53,11 @@ class BallInf(Constraint):
         if isinstance(u, cs.SX):
             # Case I: `u` is a CasADi SX symbol
             nu = u.size(1)
-            min_fun = cs.fmin
-            norm_fun = cs.norm_2
-            abs_fun = cs.fabs
             v = u if self.__center is None else u - self.__center
         elif (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u)) \
                 or isinstance(u, np.ndarray):
             # Case II: `u` is an array of numbers or an np.ndarray
             nu = len(u)
-            min_fun = np.fmin
-            norm_fun = np.linalg.norm
-            abs_fun = np.fabs
             if self.__center is None:
                 v = u
             else:
@@ -81,10 +76,10 @@ class BallInf(Constraint):
         #                    ]
         # where v = u - xc
 
-        squared_distance = norm_fun(v)**2
+        squared_distance = fn.norm2(v)**2
         for i in range(nu):
-            squared_distance += min_fun(v[i]**2, self.radius**2) \
-                                - 2.0 * min_fun(v[i]**2, self.radius * abs_fun(v[i]))
+            squared_distance += fn.fmin(v[i]**2, self.radius**2) \
+                                - 2.0 * fn.fmin(v[i]**2, self.radius * fn.fabs(v[i]))
         return squared_distance
 
     def project(self, u):
