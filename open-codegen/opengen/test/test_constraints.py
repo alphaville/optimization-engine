@@ -83,5 +83,39 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(d_sym, correct_squared_distance,
                                8, "expected squared distance")
 
+    def test_rectangle_simple(self):
+        rect = og.constraints.Rectangle([-1, -2], [4, -1])
+        # some basic assertions
+        self.assertListEqual([0, 1], rect.idx_bound_finite_all())
+        self.assert_(len(rect.idx_infinite_only_xmax()) == 0)
+        self.assertTrue(len(rect.idx_infinite_only_xmin()) == 0)
+        self.assertEqual(2, rect.dimension())
+        # squared distance
+        self.assertAlmostEqual(1, rect.distance_squared([3, 0]), 8)
+        self.assertAlmostEqual(4, rect.distance_squared([0, 1]), 8)
+        self.assertAlmostEqual(1, rect.distance_squared([5, -1.5]), 8)
+        self.assertAlmostEqual(5, rect.distance_squared([5, 1]), 8)
+
+    def test_rectangle_pos_quant(self):
+        n = 3
+        rect = og.constraints.Rectangle([0.0]*n, None)
+        # some basic assertions
+        self.assertTrue(0 == len(rect.idx_bound_finite_all()))
+        self.assertTrue(0 == len(rect.idx_infinite_only_xmin()))
+        self.assertEqual([*range(n)], rect.idx_infinite_only_xmax())
+        # some squared distances
+        self.assertAlmostEqual(0.0, rect.distance_squared([0.0]*n), 8)
+        self.assertAlmostEqual(0.0, rect.distance_squared([1.0] * n), 8)
+        self.assertAlmostEqual(1.0, rect.distance_squared([-1.0] + [1.0] * (n-1)), 8)
+        self.assertAlmostEqual(5.0, rect.distance_squared([-1.0, -2.0, 5.0]), 8)
+
+    def test_rectangle_semiinf_corridor(self):
+        rect = og.constraints.Rectangle([-1.0, -2.0], [float('inf'), 3.0])
+        self.assertEqual([0], rect.idx_infinite_only_xmax())
+        self.assertAlmostEqual(0.0, rect.distance_squared([1e16, 1.5]), 8)
+        self.assertAlmostEqual(1.0, rect.distance_squared([1e16, 4.0]), 8)
+        self.assertAlmostEqual(4.0, rect.distance_squared([1e16, -4.0]), 8)
+
+
 if __name__ == '__main__':
     unittest.main()
