@@ -50,7 +50,7 @@ class BallInf(Constraint):
         # Function `distance` can be applied to CasADi symbols and
         # lists of numbers. However, if `u` is a symbol, we need to
         # use appropriate CasADi functions like cs.sign and cs.norm_2
-        if isinstance(u, cs.SX):
+        if fn.is_symbolic(u):
             # Case I: `u` is a CasADi SX symbol
             nu = u.size(1)
             v = u if self.__center is None else u - self.__center

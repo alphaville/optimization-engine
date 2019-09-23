@@ -48,7 +48,7 @@ class Ball2(Constraint):
         """Computes the squared distance between a given point `u` and this ball
 
             :param u: given point; can be a list of float, a numpy
-                n-dim array (`ndarray`) or a CasADi SX symbol
+                n-dim array (`ndarray`) or a CasADi SX/MX symbol
 
             :return: distance from set as a float or a CasADi symbol
         """

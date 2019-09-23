@@ -2,7 +2,7 @@ import unittest
 import casadi.casadi as cs
 import opengen as og
 import numpy as np
-
+import math
 
 class ConstraintsTestCase(unittest.TestCase):
 
@@ -13,9 +13,14 @@ class ConstraintsTestCase(unittest.TestCase):
         d_num = ball.distance_squared(x)
         d_sym = float(cs.substitute(ball.distance_squared(x_sym), x_sym, x))
         self.assertAlmostEqual(d_sym, d_num, 8, "computation of distance")
-        correct_squared_distance = 5
+        correct_squared_distance = 5.0
         self.assertAlmostEqual(d_num, correct_squared_distance,
                                8, "expected squared distance")
+        # verify that it works with cs.MX
+        x_sym_mx = cs.MX.sym("xmx", 2)
+        sqdist_mx = ball.distance_squared(x_sym_mx)
+        sqdist_mx_fun = cs.Function('sqd', [x_sym_mx], [sqdist_mx])
+        self.assertAlmostEqual(correct_squared_distance, sqdist_mx_fun(x)[0], 5)
 
     def test_ball_inf_origin_inside(self):
         ball = og.constraints.BallInf(None, 1)
@@ -119,6 +124,24 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(0.0, rect.distance_squared([1e16, 1.5]), 8)
         self.assertAlmostEqual(1.0, rect.distance_squared([1e16, 4.0]), 8)
         self.assertAlmostEqual(4.0, rect.distance_squared([1e16, -4.0]), 8)
+
+    def test_second_order_cone(self):
+        soc = og.constraints.SecondOrderCone()
+        sq_dist = soc.distance_squared([1.0, 2.0, 1.0])
+        sq_dist = soc.distance_squared([0.0, 0.0, 0.0])
+        self.assertAlmostEqual(0.0, sq_dist, 8)
+        pass
+
+    def test_second_order_cone_jacobian(self):
+        soc = og.constraints.SecondOrderCone()
+        u = cs.SX.sym('u', 3)
+        sq_dist = soc.distance_squared(u)
+        sq_dist_jac = cs.jacobian(sq_dist, u)
+        sq_dist_jac_fun = cs.Function('sq_dist_jac', [u], [sq_dist_jac])
+        v = sq_dist_jac_fun([0., 0., 0.])
+        for i in range(3):
+            print(v[i])
+            self.assertFalse(math.isnan(v[i]), "v[i] is NaN")
 
 
 if __name__ == '__main__':
