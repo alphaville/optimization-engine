@@ -134,13 +134,14 @@ class ConstraintsTestCase(unittest.TestCase):
 
     def test_second_order_cone_jacobian(self):
         soc = og.constraints.SecondOrderCone()
-        u = cs.SX.sym('u', 3)
+        # Important note: the second-order cone constraint does not work with cs.MX
+        #                 An exception will be raised if the user provides an SX
+        u = cs.MX.sym('u', 3)
         sq_dist = soc.distance_squared(u)
         sq_dist_jac = cs.jacobian(sq_dist, u)
         sq_dist_jac_fun = cs.Function('sq_dist_jac', [u], [sq_dist_jac])
         v = sq_dist_jac_fun([0., 0., 0.])
         for i in range(3):
-            print(v[i])
             self.assertFalse(math.isnan(v[i]), "v[i] is NaN")
 
 

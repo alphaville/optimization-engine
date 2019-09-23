@@ -41,6 +41,9 @@ class SecondOrderCone(Constraint):
             :return: distance from set as a float or a CasADi symbol
         """
 
+        if isinstance(u, cs.SX):
+            raise Exception("This function does not accept casadi.SX; use casadi.MX instead")
+
         if fn.is_symbolic(u):
             # Case I: `u` is a CasADi SX symbol
             nu = u.size(1)
@@ -54,24 +57,30 @@ class SecondOrderCone(Constraint):
         a = self.__a
         x = u[0:nu-1]
         r = u[nu-1]
-        # norm of x
-        norm_x = fn.norm2(x)
-        # The first branch is zero
-        # Second branch:
-        condition2 = r <= -norm_x
-        fun2 = cs.dot(x, x) + r ** 2
-        # Third branch:
-        condition3 = (-norm_x < r) * (norm_x > r)
-        beta = a**2/(a**2 + 1.0)
-        fun3 = norm_x ** 2 + beta * (a * norm_x + r) ** 2 \
-               - 2.0 * a * norm_x * (a*norm_x + r) \
-               + (r - (a * norm_x + r)/(a**2 + 1.0)) ** 2
 
-        y = cs.if_else(condition2*(1-condition3), fun2, fun3)
+        eps = 1e-16
 
-        # Function defined piecewise
-        # y = condition2 * fun2 + condition3 * fun3
-        return y
+        norm_x = fn.norm2(cs.fabs(x))  # norm of x
+        sq_norm_x = cs.dot(x, x)  # squared norm of x
+        beta = a ** 2 / (a ** 2 + 1.0)
+
+        fun1 = 0
+        fun2 = sq_norm_x + r ** 2
+        fun3 = norm_x ** 2 \
+               + beta * (a * norm_x + r) ** 2 \
+               - 2.0 * a * norm_x * (a * norm_x + r) \
+               + (r - (a * norm_x + r)/(a ** 2 + 1.0)) ** 2
+
+        condition0 = norm_x + cs.fabs(r) < eps
+        condition1 = r >= norm_x/a
+        condition2 = r <= -a*norm_x
+
+        f = cs.if_else(condition0, 0, cs.if_else(condition1, fun1,
+                       cs.if_else(condition2, fun2, fun3, True), True), True)
+
+        cs.Function
+
+        return f
 
     def project(self, u):
         # Idea: Computes projection on Ball as follows
