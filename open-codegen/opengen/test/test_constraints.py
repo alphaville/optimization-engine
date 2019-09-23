@@ -4,7 +4,12 @@ import opengen as og
 import numpy as np
 import math
 
+
 class ConstraintsTestCase(unittest.TestCase):
+
+    # -----------------------------------------------------------------------
+    # Infinity Ball
+    # -----------------------------------------------------------------------
 
     def test_ball_inf_origin(self):
         ball = og.constraints.BallInf(None, 1)
@@ -43,6 +48,10 @@ class ConstraintsTestCase(unittest.TestCase):
         correct_squared_distance = 2.5
         self.assertAlmostEqual(d_num, correct_squared_distance,
                                8, "expected squared distance")
+
+    # -----------------------------------------------------------------------
+    # Euclidean Ball
+    # -----------------------------------------------------------------------
 
     def test_ball_euclidean_origin(self):
         ball = og.constraints.Ball2(None, 1)
@@ -88,6 +97,10 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(d_sym, correct_squared_distance,
                                8, "expected squared distance")
 
+    # -----------------------------------------------------------------------
+    # Rectangle
+    # -----------------------------------------------------------------------
+
     def test_rectangle_simple(self):
         rect = og.constraints.Rectangle([-1, -2], [4, -1])
         # some basic assertions
@@ -125,12 +138,48 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(1.0, rect.distance_squared([1e16, 4.0]), 8)
         self.assertAlmostEqual(4.0, rect.distance_squared([1e16, -4.0]), 8)
 
+    # -----------------------------------------------------------------------
+    # Second-Order Cone (SOC)
+    # -----------------------------------------------------------------------
+
     def test_second_order_cone(self):
-        soc = og.constraints.SecondOrderCone()
-        sq_dist = soc.distance_squared([1.0, 2.0, 1.0])
+        soc = og.constraints.SecondOrderCone(2.0)
+
+        # dist_C^2(0, 0, 0) = 0 [origin is in the cone]
         sq_dist = soc.distance_squared([0.0, 0.0, 0.0])
-        self.assertAlmostEqual(0.0, sq_dist, 8)
-        pass
+        self.assertAlmostEqual(0, sq_dist, 16)
+
+        # dist_C^2(0, 0, 0) = 0 [close-origin]
+        sq_dist = soc.distance_squared([1e-12, 1e-12, 1e-12])
+        self.assertAlmostEqual(0, sq_dist, 16)
+
+        # dist_C^2(1, 1, 0.75) = 0 [case II]
+        sq_dist = soc.distance_squared([1.0, 1.0, 0.75])
+        self.assertAlmostEqual(0, sq_dist, 16)
+
+        # dist_C^2(3, 4, -11) = 146.0 [case II]
+        sq_dist = soc.distance_squared([3.0, 4.0, -11.0])
+        self.assertAlmostEqual(146.0, sq_dist, 16)
+        sq_dist = soc.distance_squared([4.0, 3.0, -11.0])
+        self.assertAlmostEqual(146.0, sq_dist, 16)
+
+        # dist_C^2(2, 3, 0.5) = 1.357... [case III]
+        sq_dist = soc.distance_squared([2.0, 3.0, 0.5])
+        self.assertAlmostEqual(1.35777948981440, sq_dist, 12)
+
+    def test_second_order_cone_symbolic(self):
+        soc = og.constraints.SecondOrderCone(2.0)
+        u = cs.SX.sym('u', 3, 1)
+        sq_dist = soc.distance_squared(u)
+        u0 = [4.0, 3.0, -11.0]
+
+        sq_dist_sx_fun = cs.Function('sqd1', [u], [sq_dist])
+        self.assertAlmostEqual(146.0, sq_dist_sx_fun(u0), 16)
+
+        umx = cs.MX.sym('u', 3, 1)
+        sq_dist_m2 = soc.distance_squared(u)
+        sq_dist_mx_fun = cs.Function('sqd2', [u], [sq_dist_m2])
+        self.assertAlmostEqual(146.0, sq_dist_mx_fun(u0), 16)
 
     def test_second_order_cone_jacobian(self):
         soc = og.constraints.SecondOrderCone()
@@ -143,6 +192,8 @@ class ConstraintsTestCase(unittest.TestCase):
         v = sq_dist_jac_fun([0., 0., 0.])
         for i in range(3):
             self.assertFalse(math.isnan(v[i]), "v[i] is NaN")
+        self.assertAlmostEqual(0, cs.norm_2(v), 12)
+
 
 
 if __name__ == '__main__':

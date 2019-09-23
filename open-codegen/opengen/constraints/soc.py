@@ -2,6 +2,7 @@ import casadi.casadi as cs
 import numpy as np
 from .constraint import Constraint
 import opengen.functions as fn
+import warnings
 
 
 class SecondOrderCone(Constraint):
@@ -42,7 +43,7 @@ class SecondOrderCone(Constraint):
         """
 
         if isinstance(u, cs.SX):
-            raise Exception("This function does not accept casadi.SX; use casadi.MX instead")
+            warnings.warn("This function does not accept casadi.SX; use casadi.MX instead")
 
         if fn.is_symbolic(u):
             # Case I: `u` is a CasADi SX symbol
@@ -60,25 +61,20 @@ class SecondOrderCone(Constraint):
 
         eps = 1e-16
 
-        norm_x = fn.norm2(cs.fabs(x))  # norm of x
+        norm_x = cs.norm_2(x)  # norm of x
         sq_norm_x = cs.dot(x, x)  # squared norm of x
-        beta = a ** 2 / (a ** 2 + 1.0)
+        gamma = (a * norm_x + r)/(a**2 + 1)
 
         fun1 = 0
         fun2 = sq_norm_x + r ** 2
-        fun3 = norm_x ** 2 \
-               + beta * (a * norm_x + r) ** 2 \
-               - 2.0 * a * norm_x * (a * norm_x + r) \
-               + (r - (a * norm_x + r)/(a ** 2 + 1.0)) ** 2
+        fun3 = sq_norm_x * (1 - gamma * a / norm_x)**2 + (r - gamma)**2
 
         condition0 = norm_x + cs.fabs(r) < eps
-        condition1 = r >= norm_x/a
-        condition2 = r <= -a*norm_x
+        condition1 = norm_x <= a*r
+        condition2 = a*norm_x <= -r
 
         f = cs.if_else(condition0, 0, cs.if_else(condition1, fun1,
                        cs.if_else(condition2, fun2, fun3, True), True), True)
-
-        cs.Function
 
         return f
 
