@@ -136,7 +136,6 @@ class Problem:
         """Not implemented yet"""
         return 0 if self.__alm_mapping_f1 is None \
             else self.__alm_mapping_f1.size(1)
-        return 0
 
     # ---------- OTHER GETTERS -----------------------------------------
 

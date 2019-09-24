@@ -83,5 +83,5 @@ class BallInf(Constraint):
         return squared_distance
 
     def project(self, u):
-        # Computes projection on Ball
+        # Computes projection on infinity Ball
         raise NotImplementedError("Method `project` is not implemented")

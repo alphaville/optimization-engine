@@ -6,3 +6,4 @@ from .is_numeric import *
 from .sign import *
 from .norm2 import *
 from .fabs import *
+from .sq_dist_to_soc import *

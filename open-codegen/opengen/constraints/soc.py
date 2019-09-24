@@ -46,7 +46,6 @@ class SecondOrderCone(Constraint):
             warnings.warn("This function does not accept casadi.SX; use casadi.MX instead")
 
         if fn.is_symbolic(u):
-            # Case I: `u` is a CasADi SX symbol
             nu = u.size(1)
         elif (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u)) \
                 or isinstance(u, np.ndarray):
@@ -61,7 +60,7 @@ class SecondOrderCone(Constraint):
 
         eps = 1e-16
 
-        norm_x = cs.norm_2(x)  # norm of x
+        norm_x = fn.norm2(x)  # norm of x
         sq_norm_x = cs.dot(x, x)  # squared norm of x
         gamma = (a * norm_x + r)/(a**2 + 1)
 
@@ -79,8 +78,5 @@ class SecondOrderCone(Constraint):
         return f
 
     def project(self, u):
-        # Idea: Computes projection on Ball as follows
-        #   Proj_B(u) = u / max{1, ||u||},
-        # which avoids dividing by zero or defining the projections
         raise NotImplementedError()
 

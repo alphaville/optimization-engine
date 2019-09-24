@@ -194,7 +194,20 @@ class ConstraintsTestCase(unittest.TestCase):
             self.assertFalse(math.isnan(v[i]), "v[i] is NaN")
         self.assertAlmostEqual(0, cs.norm_2(v), 12)
 
+    # -----------------------------------------------------------------------
+    # No Constraints
+    # -----------------------------------------------------------------------
 
+    def test_no_constraints(self):
+        whole_rn = og.constraints.NoConstraints()
+        u = [1., 2., 3., 4.]
+        self.assertAlmostEqual(0.0, whole_rn.distance_squared(u), 16)
+        self.assertListEqual(u, whole_rn.project(u))
 
+    # -----------------------------------------------------------------------
+    # Cartesian product of constraints
+    # -----------------------------------------------------------------------
+
+    
 if __name__ == '__main__':
     unittest.main()
