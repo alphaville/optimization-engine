@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Rust implementation of augmented Lagrangian method (ALM)
+* Rust docs for ALM
+* Release of crate version `0.6.1-alpha.1`
+* Introduced `#![allow(dead_code)]` in ALM implementation
 * New AKKT-compliant termination criterion
 * Tolerance relaxation in penalty method
 * Finite sets supported in Rust
