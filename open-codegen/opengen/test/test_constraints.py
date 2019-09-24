@@ -64,6 +64,13 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(d_sym, correct_squared_distance,
                                8, "expected squared distance")
 
+    def test_ball_euclidean_origin_3d(self):
+        ball = og.constraints.Ball2(None, 1)
+        x = np.array([1, 1, 1])
+        d_num = ball.distance_squared(x)
+        correct_squared_distance = 0.535898384862246
+        self.assertAlmostEqual(correct_squared_distance, d_num, 12, "computation of distance")
+
     def test_ball_euclidean_origin_inside(self):
         ball = og.constraints.Ball2(None, 1)
         x = np.array([0.2, 0.8])
@@ -208,6 +215,33 @@ class ConstraintsTestCase(unittest.TestCase):
     # Cartesian product of constraints
     # -----------------------------------------------------------------------
 
-    
+    def test_cartesian(self):
+        inf = float('inf')
+        ball_inf = og.constraints.BallInf(None, 1)
+        ball_eucl = og.constraints.Ball2(None, 1)
+        rect = og.constraints.Rectangle(xmin=[0.0, 1.0, -inf, 2.0],
+                                        xmax=[1.0, inf, 10.0, 10.0])
+        # Segments:
+        # [0, 1]
+        # [2, 3, 4]
+        # [5, 6, 7, 8]
+        cartesian = og.constraints.CartesianProduct(9, [1, 4, 8], [ball_inf, ball_eucl, rect])
+        sq_dist = cartesian.distance_squared([5, 10, 1, 1, 1, 0.5, -1, 0, 11])
+        correct_sq_distance = 102.0 + (math.sqrt(3)-1.0)**2
+        self.assertAlmostEqual(correct_sq_distance, sq_dist, 12)
+
+    def test_cartesian_sx(self):
+        inf = float('inf')
+        ball_inf = og.constraints.BallInf(None, 1)
+        ball_eucl = og.constraints.Ball2(None, 1)
+        rect = og.constraints.Rectangle(xmin=[0.0, 1.0, -inf, 2.0],
+                                        xmax=[1.0, inf, 10.0, 10.0])
+        cartesian = og.constraints.CartesianProduct(9, [1, 4, 8], [ball_inf, ball_eucl, rect])
+        u_sx = cs.SX.sym("u", 9, 1)
+        sqd_sx = cartesian.distance_squared(u_sx)
+        u_mx = cs.SX.sym("u", 9, 1)
+        sqd_mx = cartesian.distance_squared(u_mx)
+
+
 if __name__ == '__main__':
     unittest.main()
