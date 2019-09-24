@@ -66,7 +66,7 @@ OpEn allows application developers and researchers to focus on the challenges of
 ### Embedded applications
 OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz** using only **15%** CPU!
 
-![Autonomous Aerial Vehicle](https://raw.githubusercontent.com/alphaville/optimization-engine/master/ "Fast NMPC of MAV")
+![Autonomous Aerial Vehicle](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
 
 
 ## Getting started
