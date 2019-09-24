@@ -142,6 +142,20 @@ class OpEnOptimizerBuilder:
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
 
+    def __generate_icasadi_memory_allocator(self):
+        logging.info("Generating icallocator.c")
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('icallocator.c.template')
+        output_template = template.render(meta=self.__meta,
+                                          problem=self.__problem,
+                                          build_config=self.__build_config,
+                                          timestamp_created=datetime.datetime.now())
+        icallocator_path = os.path.abspath(
+            os.path.join(self.__icasadi_target_dir(), "extern/icallocator.c"))
+        with open(icallocator_path, "w") as fh:
+            fh.write(output_template)
+
     def __generate_icasadi_lib(self):
         """Generates the Rust library file of icasadi
 
@@ -185,12 +199,14 @@ class OpEnOptimizerBuilder:
         nalm = self.__problem.dim_constraints_aug_lagrangian()
         print("number of ALM constraints:", nalm)
         phi = self.__problem.cost_function
+        print("number of PM constraints:", ncp)
 
         # If there are penalty-type constraints, we need to define a modified
         # cost function
         if ncp > 0:
             penalty_function = self.__problem.penalty_function
-            mu = cs.SX.sym("mu", self.__problem.dim_constraints_penalty())
+            mu = cs.SX.sym("mu", self.__problem.dim_constraints_penalty()) \
+                if isinstance(p, cs.SX) else cs.MX.sym("mu", self.__problem.dim_constraints_penalty())
             p = cs.vertcat(p, mu)
             phi += cs.dot(mu, penalty_function(self.__problem.penalty_mapping_f2))
 
@@ -423,11 +439,13 @@ class OpEnOptimizerBuilder:
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_cargo_toml()             # generate Cargo.toml using template
+        self.__generate_icasadi_memory_allocator()  # generate icasadi/extern/icallocator.c
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file
         self.__generate_yaml_data_file()
+
         if not self.__generate_not_build:
             logging.info("Building optimizer")
             self.__build_optimizer()             # build overall project

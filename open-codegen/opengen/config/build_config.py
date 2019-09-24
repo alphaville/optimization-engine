@@ -24,6 +24,7 @@ class BuildConfiguration:
 
         self.__target_system = 'default'
         self.__build_mode = 'release'
+        self.__id = random_string
         self.__cost_function_name = 'phi_' + random_string
         self.__grad_cost_function_name = 'grad_phi_' + random_string
         self.__constraint_penalty_function = 'mapping_f2_' + random_string
@@ -40,6 +41,10 @@ class BuildConfiguration:
     def rebuild(self):
         """Whether to re-build the optimizer from scratch"""
         return self.__rebuild
+
+    @property
+    def id(self):
+        return self.__id
 
     @property
     def cost_function_name(self):

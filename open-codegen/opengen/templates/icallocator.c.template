@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifndef casadi_real
+#define casadi_real double
+#endif
+
+#ifndef casadi_int
+#define casadi_int long long int
+#endif
+
+#define TRUE 1
+#define FALSE 0
+
+extern int {{build_config.cost_function_name or 'phi'}}_work(
+	casadi_int *sz_arg,
+	casadi_int *sz_res,
+	casadi_int *sz_iw,
+	casadi_int *sz_w);
+
+extern int {{build_config.grad_function_name  or 'grad_phi'}}_work(
+	casadi_int *sz_arg,
+	casadi_int *sz_res,
+	casadi_int *sz_iw,
+	casadi_int *sz_w);
+
+static char is_allocated = FALSE;
+static casadi_int *allocated_i_workspace_cost;
+static casadi_real *allocated_r_workspace_cost;
+static casadi_int *allocated_i_workspace_grad;
+static casadi_real *allocated_r_workspace_grad;
+
+/* returns 0 if the allocation of memory was successful */
+static int allocate_if_not_yet() {
+
+	/* Sizes for cost function */
+	casadi_int sz_arg_cost = 0;
+	casadi_int sz_res_cost = 0;
+	casadi_int sz_iw_cost = 0;
+	casadi_int sz_w_cost = 0;
+
+	/* Sizes for gradient */
+	casadi_int sz_arg_grad = 0;
+	casadi_int sz_res_grad = 0;
+	casadi_int sz_iw_grad = 0;
+	casadi_int sz_w_grad = 0;
+
+	/* Obtain sizes */
+	{{build_config.cost_function_name or 'phi'}}_work(&sz_arg_cost, &sz_res_cost, &sz_iw_cost, &sz_w_cost);
+	{{build_config.grad_function_name  or 'grad_phi'}}_work(&sz_arg_grad, &sz_res_grad, &sz_iw_grad, &sz_w_grad);
+
+	printf("cost = (%lld, %lld, %lld, %lld)", sz_arg_cost, sz_res_cost, sz_iw_cost, sz_w_cost);
+
+	/* Allocate memory, if not allocated before */
+	if (!is_allocated) {
+
+		/* Allocate memory for cost function */
+		allocated_i_workspace_cost = (casadi_int*)malloc(sz_iw_cost*sizeof(casadi_int));
+		if (allocated_i_workspace_cost == NULL) goto fail_1;
+		allocated_r_workspace_cost = (casadi_real*)malloc(sz_w_cost*sizeof(casadi_real));
+		if (allocated_r_workspace_cost == NULL) goto fail_2;
+
+		/* Allocate memory for gradient */
+		allocated_i_workspace_grad = (casadi_int*)malloc(sz_iw_grad*sizeof(casadi_int));
+		if (allocated_i_workspace_grad == NULL) goto fail_3;
+		allocated_r_workspace_grad = (casadi_real*)malloc(sz_w_grad*sizeof(casadi_real));
+		if (allocated_r_workspace_grad == NULL) goto fail_4;
+
+	}
+
+	return 0;
+
+	/* Free memory that has been previously allocated (failure!) */
+	fail_4:
+		free(allocated_i_workspace_grad);
+	fail_3:
+		free(allocated_r_workspace_cost);
+	fail_2:
+		free(allocated_i_workspace_cost);
+	fail_1:
+		return 1;
+}
+
+int init_{{build_config.id or '0'}}() {
+	if (!is_allocated){
+	  return allocate_if_not_yet();
+	}
+	return 0;
+}
+
+int destroy_{{build_config.id or '0'}}() {
+	return 0;
+}
+
+casadi_int * allocated_{{build_config.cost_function_name or 'phi'}}_iwork() {
+	if (!is_allocated) allocate_if_not_yet();
+	return allocated_i_workspace_cost;
+}
+
+casadi_real * allocated_{{build_config.cost_function_name or 'phi'}}_rwork() {
+	if (!is_allocated) allocate_if_not_yet();
+	return allocated_r_workspace_cost;
+}
