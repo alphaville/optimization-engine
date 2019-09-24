@@ -256,7 +256,7 @@ pub fn solve(
 	/* penalty-type constraints: c(u; p) */
     let penalty_constr_function =
     |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
-        if icasadi::constraints_as_penalty(u, q, constraints) == 0 {
+        if icasadi::mapping_f2(u, q, constraints) == 0 {
             Ok(())
         } else {
             Err(SolverError::Cost)

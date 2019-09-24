@@ -14,6 +14,7 @@ import logging
 _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_constraints_type_penalty.c'
+_AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
 
 
 def make_dir_if_not_exists(directory):
@@ -181,6 +182,8 @@ class OpEnOptimizerBuilder:
         u = self.__problem.decision_variables
         p = self.__problem.parameter_variables
         ncp = self.__problem.dim_constraints_penalty()
+        nalm = self.__problem.dim_constraints_aug_lagrangian()
+        print("number of ALM constraints:", nalm)
         phi = self.__problem.cost_function
 
         # If there are penalty-type constraints, we need to define a modified
@@ -208,6 +211,26 @@ class OpEnOptimizerBuilder:
         icasadi_extern_dir = os.path.join(self.__icasadi_target_dir(), "extern")
         shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
         shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
+
+        # Next, we generate a CasADi function for the augmented Lagrangian constraints,
+        # that is, mapping F1(u, p)
+        if nalm > 0:
+            mapping_f1 = self.__problem.penalty_mapping_f1
+        else:
+            mapping_f1 = 0
+
+        # Target C file name of mapping F1(u, p)
+        alm_mapping_f1_file_name = \
+            self.__build_config.alm_mapping_f1_function_name + ".c"
+        # Define CasADi function F1(u, p)
+        alm_mapping_f1_fun = cs.Function(
+            self.__build_config.alm_mapping_f1_function_name,
+            [u, p], [mapping_f1])
+        # Generate code for F1(u, p)
+        alm_mapping_f1_fun.generate(alm_mapping_f1_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(alm_mapping_f1_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_F1_FNAME))
 
         # Lastly, we generate code for the penalty constraints; if there aren't
         # any, we generate the function c(u; p) = 0 (which will not be used)
