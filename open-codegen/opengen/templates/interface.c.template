@@ -184,13 +184,13 @@ static void copy_args_into_up_space(const casadi_real** arg) {
 int cost_function(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
     copy_args_into_up_space(arg);
-    
+
     result_space_cost[0] = res[0];
     return {{build_config.cost_function_name or 'phi'}}(
-        args__, 
-        result_space_cost, 
-        allocated_i_workspace_cost, 
-        allocated_r_workspace_cost, 
+        args__,
+        result_space_cost,
+        allocated_i_workspace_cost,
+        allocated_r_workspace_cost,
         (void*) 0);
 }
 
@@ -199,13 +199,13 @@ int cost_function(const casadi_real** arg, casadi_real** res) {
 
 int grad_cost_function(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
-    copy_args_into_up_space(arg);    
+    copy_args_into_up_space(arg);
     result_space_grad[0] = res[0];
     return {{build_config.grad_function_name  or 'grad_phi'}}(
-        args__, 
-        result_space_grad, 
-        allocated_i_workspace_grad, 
-        allocated_r_workspace_grad, 
+        args__,
+        result_space_grad,
+        allocated_i_workspace_grad,
+        allocated_r_workspace_grad,
         (void*) 0);
 }
 
@@ -214,13 +214,13 @@ int grad_cost_function(const casadi_real** arg, casadi_real** res) {
 
 int mapping_f1_function(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
-    copy_args_into_up_space(arg);    
+    copy_args_into_up_space(arg);
     result_space_f1[0] = res[0];
     return {{build_config.alm_mapping_f1_function_name}}(
-        args__, 
-        result_space_f1, 
-        allocated_i_workspace_f1, 
-        allocated_r_workspace_f1, 
+        args__,
+        result_space_f1,
+        allocated_i_workspace_f1,
+        allocated_r_workspace_f1,
         (void*) 0);
 }
 

@@ -2,6 +2,7 @@ from opengen.config.tcp_server_config import TcpServerConfiguration
 import random
 import string
 
+
 class BuildConfiguration:
     """Build configuration
 

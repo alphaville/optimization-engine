@@ -195,7 +195,11 @@ class OpEnOptimizerBuilder:
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('casadi_memory.h.template')
-        output_template = template.render(cost=cost, grad=grad, f1=f1, f2=f2)
+        output_template = template.render(cost=cost, grad=grad,
+                                          f1=f1, f2=f2,
+                                          build_config=self.__build_config,
+                                          meta=self.__meta,
+                                          timestamp_created=datetime.datetime.now())
         memory_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern/casadi_memory.h"))
         with open(memory_path, "w") as fh:
@@ -462,8 +466,9 @@ class OpEnOptimizerBuilder:
         if not self.__generate_not_build:
             logging.info("Building optimizer")
             self.__build_optimizer()             # build overall project
-        if self.__build_config.tcp_interface_config is not None:
-            logging.info("Generating TCP/IP server")
-            self.__generate_code_tcp_interface()
-            if not self.__generate_not_build:
-                self.__build_tcp_iface()
+
+            if self.__build_config.tcp_interface_config is not None:
+                logging.info("Generating TCP/IP server")
+                self.__generate_code_tcp_interface()
+                if not self.__generate_not_build:
+                    self.__build_tcp_iface()
