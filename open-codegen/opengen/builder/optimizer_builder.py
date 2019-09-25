@@ -195,7 +195,7 @@ class OpEnOptimizerBuilder:
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('casadi_memory.h.template')
-        output_template = template.render(cost=cost, grad=grad)
+        output_template = template.render(cost=cost, grad=grad, f1=f1, f2=f2)
         memory_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern/casadi_memory.h"))
         with open(memory_path, "w") as fh:
@@ -279,7 +279,7 @@ class OpEnOptimizerBuilder:
         shutil.move(constraints_penalty_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
-        self.__generate_memory_code(cost_fun, grad_cost_fun)
+        self.__generate_memory_code(cost_fun, grad_cost_fun, alm_mapping_f1_fun, constraint_penalty_fun)
 
     def __build_icasadi(self):
         icasadi_dir = self.__icasadi_target_dir()

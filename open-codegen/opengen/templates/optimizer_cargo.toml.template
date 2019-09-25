@@ -18,8 +18,6 @@ publish=false
 
 
 [dependencies]
-#TODO: In production, change the following line
-#optimization_engine = { git = "https://github.com/alphaville/optimization-engine" }
 optimization_engine = "{{open_version or '0.6.1-alpha.1'}}"
 icasadi = {path = "./icasadi/"}
 {% if activate_clib_generation -%}
