@@ -1,0 +1,19 @@
+#pragma once
+
+/*
+ * Cost sizes
+ */
+#define COST_SZ_ARG {{ cost.sz_arg() }}
+#define COST_SZ_IW {{ cost.sz_iw() }}
+#define COST_SZ_W {{ cost.sz_w() }}
+#define COST_SZ_RES {{ cost.sz_res() }}
+
+/*
+ * Gradient sizes
+ */
+#define GRAD_SZ_ARG {{ grad.sz_arg() }}
+#define GRAD_SZ_IW {{ grad.sz_iw() }}
+#define GRAD_SZ_W {{ grad.sz_w() }}
+#define GRAD_SZ_RES {{ grad.sz_res() }}
+
+
