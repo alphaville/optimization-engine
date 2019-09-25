@@ -142,17 +142,17 @@ class OpEnOptimizerBuilder:
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
 
-    def __generate_icasadi_memory_allocator(self):
-        logging.info("Generating icallocator.c")
+    def __generate_icasadi_c_interface(self):
+        logging.info("Generating intercafe.c (C interface)")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('icallocator.c.template')
+        template = env.get_template('interface.c.template')
         output_template = template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
         icallocator_path = os.path.abspath(
-            os.path.join(self.__icasadi_target_dir(), "extern/icallocator.c"))
+            os.path.join(self.__icasadi_target_dir(), "extern/interface.c"))
         with open(icallocator_path, "w") as fh:
             fh.write(output_template)
 
@@ -439,7 +439,7 @@ class OpEnOptimizerBuilder:
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_cargo_toml()             # generate Cargo.toml using template
-        self.__generate_icasadi_memory_allocator()  # generate icasadi/extern/icallocator.c
+        self.__generate_icasadi_c_interface()    # generate icasadi/extern/icallocator.c
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
