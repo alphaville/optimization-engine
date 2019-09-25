@@ -66,6 +66,7 @@ static casadi_real *allocated_r_workspace_f2 = NULL;    /* F2   (real) */
  * Returns 0 if the allocation of memory was successful 
  */
 static int allocate_if_not_yet() {
+    if (is_allocated) return 0;
 
 	/* 
 	 * Number of input/output arguments of CasADi args 
@@ -97,34 +98,34 @@ static int allocate_if_not_yet() {
 	{{build_config.constraint_penalty_function_name}}_work(&sz_arg, &sz_res, &sz_iw_f2, &sz_w_f2);
 
 
-	/* Allocate memory, if not allocated before */
-	if (!is_allocated) {
+	/*
+	 * Allocate memory (if not allocated previously)
+	 */
 
-		/* Allocate memory for cost function */
-		allocated_i_workspace_cost = (casadi_int*)malloc(sz_iw_cost*sizeof(casadi_int));
-		if (sz_iw_cost > 0 && allocated_i_workspace_cost == NULL) goto fail_1;
-		allocated_r_workspace_cost = (casadi_real*)malloc(sz_w_cost*sizeof(casadi_real));
-		if (sz_w_cost > 0 && allocated_r_workspace_cost == NULL) goto fail_2;
+    /* Allocate memory for cost function */
+    allocated_i_workspace_cost = (casadi_int*)malloc(sz_iw_cost*sizeof(casadi_int));
+    if (sz_iw_cost > 0 && allocated_i_workspace_cost == NULL) goto fail_1;
+    allocated_r_workspace_cost = (casadi_real*)malloc(sz_w_cost*sizeof(casadi_real));
+    if (sz_w_cost > 0 && allocated_r_workspace_cost == NULL) goto fail_2;
 
-		/* Allocate memory for gradient */
-		allocated_i_workspace_grad = (casadi_int*)malloc(sz_iw_grad*sizeof(casadi_int));
-		if (sz_iw_grad > 0 && allocated_i_workspace_grad == NULL) goto fail_3;
-		allocated_r_workspace_grad = (casadi_real*)malloc(sz_w_grad*sizeof(casadi_real));
-		if (sz_w_grad > 0 && allocated_r_workspace_grad == NULL) goto fail_4;
+    /* Allocate memory for gradient */
+    allocated_i_workspace_grad = (casadi_int*)malloc(sz_iw_grad*sizeof(casadi_int));
+    if (sz_iw_grad > 0 && allocated_i_workspace_grad == NULL) goto fail_3;
+    allocated_r_workspace_grad = (casadi_real*)malloc(sz_w_grad*sizeof(casadi_real));
+    if (sz_w_grad > 0 && allocated_r_workspace_grad == NULL) goto fail_4;
 
-		/* Allocate memory for F1 */
-		allocated_i_workspace_f1 = (casadi_int*)malloc(sz_iw_f1*sizeof(casadi_int));
-		if (sz_iw_f1 > 0 && allocated_i_workspace_f1 == NULL) goto fail_5;
-		allocated_r_workspace_f1 = (casadi_real*)malloc(sz_w_f1*sizeof(casadi_real));
-		if (sz_w_f1 > 0 && allocated_r_workspace_f1 == NULL) goto fail_6;
+    /* Allocate memory for F1 */
+    allocated_i_workspace_f1 = (casadi_int*)malloc(sz_iw_f1*sizeof(casadi_int));
+    if (sz_iw_f1 > 0 && allocated_i_workspace_f1 == NULL) goto fail_5;
+    allocated_r_workspace_f1 = (casadi_real*)malloc(sz_w_f1*sizeof(casadi_real));
+    if (sz_w_f1 > 0 && allocated_r_workspace_f1 == NULL) goto fail_6;
 
-		/* Allocate memory for F2 */
-		allocated_i_workspace_f2 = (casadi_int*)malloc(sz_iw_f2*sizeof(casadi_int));
-		if (sz_iw_f2 > 0 && allocated_i_workspace_f2 == NULL) goto fail_7;
-		allocated_r_workspace_f2 = (casadi_real*)malloc(sz_w_f2*sizeof(casadi_real));
-		if (sz_w_f2 > 0 && allocated_r_workspace_f2 == NULL) goto fail_8;
+    /* Allocate memory for F2 */
+    allocated_i_workspace_f2 = (casadi_int*)malloc(sz_iw_f2*sizeof(casadi_int));
+    if (sz_iw_f2 > 0 && allocated_i_workspace_f2 == NULL) goto fail_7;
+    allocated_r_workspace_f2 = (casadi_real*)malloc(sz_w_f2*sizeof(casadi_real));
+    if (sz_w_f2 > 0 && allocated_r_workspace_f2 == NULL) goto fail_8;
 
-	}
 
 	/* All memory has been allocated; it shouldn't be re-allocated */
 	is_allocated = TRUE;
@@ -187,7 +188,7 @@ int destroy_{{build_config.id or '0'}}() {
  * Integer-type workspace for COST
  */
 casadi_int * allocated_{{build_config.cost_function_name or 'phi'}}_iwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_i_workspace_cost;
 }
 
@@ -195,7 +196,7 @@ casadi_int * allocated_{{build_config.cost_function_name or 'phi'}}_iwork() {
  * Real-type workspace for COST
  */
 casadi_real * allocated_{{build_config.cost_function_name or 'phi'}}_rwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_r_workspace_cost;
 }
 
@@ -206,7 +207,7 @@ casadi_real * allocated_{{build_config.cost_function_name or 'phi'}}_rwork() {
  * Integer-type workspace for GRADient
  */
 casadi_int * allocated_{{build_config.grad_function_name  or 'grad_phi'}}_iwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_i_workspace_grad;
 }
 
@@ -214,7 +215,7 @@ casadi_int * allocated_{{build_config.grad_function_name  or 'grad_phi'}}_iwork(
  * Real-type workspace for GRADient
  */
 casadi_real * allocated_{{build_config.grad_function_name  or 'grad_phi'}}_rwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_r_workspace_grad;
 }
 
@@ -225,7 +226,7 @@ casadi_real * allocated_{{build_config.grad_function_name  or 'grad_phi'}}_rwork
  * Integer-type workspace for F1
  */
 casadi_int * allocated_{{build_config.alm_mapping_f1_function_name}}_iwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_i_workspace_f1;
 }
 
@@ -233,7 +234,7 @@ casadi_int * allocated_{{build_config.alm_mapping_f1_function_name}}_iwork() {
  * Real-type workspace for F1
  */
 casadi_real * allocated_{{build_config.alm_mapping_f1_function_name}}_rwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_r_workspace_f1;
 }
 
@@ -244,7 +245,7 @@ casadi_real * allocated_{{build_config.alm_mapping_f1_function_name}}_rwork() {
  * Integer-type workspace for F2
  */
 casadi_int * allocated_{{build_config.constraint_penalty_function_name}}_iwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_i_workspace_f2;
 }
 
@@ -252,6 +253,6 @@ casadi_int * allocated_{{build_config.constraint_penalty_function_name}}_iwork()
  * Real-type workspace for F2
  */
 casadi_real * allocated_{{build_config.constraint_penalty_function_name}}_rwork() {
-	if (!is_allocated) allocate_if_not_yet();
+	allocate_if_not_yet();
 	return allocated_r_workspace_f2;
 }
