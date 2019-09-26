@@ -31,8 +31,20 @@
 #define TRUE 1
 #define FALSE 0
 
+/* Number of input variables */
 #define NU {{ problem.dim_decision_variables() }}
+
+/* Number of static parameters */
 #define NP {{ problem.dim_parameters() + problem.dim_constraints_penalty() }}
+
+/* Dimension of F1 (number of ALM constraints) */
+#define N1 {{ problem.dim_constraints_aug_lagrangian() }}
+
+/* Dimension of F2 (number of PM constraints) */
+#define N2 {{ problem.dim_constraints_penalty() }}
+
+/* Dimension of xi = (c, y) */
+#define NXI {% if problem.dim_constraints_aug_lagrangian() + problem.dim_constraints_penalty() > 0 %}{{ 1 + problem.dim_constraints_aug_lagrangian() }}{% else %}0{% endif %}
 
 #ifndef casadi_real
 #define casadi_real double
@@ -41,6 +53,9 @@
 #ifndef casadi_int
 #define casadi_int long long int
 #endif
+
+
+/* ------EXTERNAL FUNCTIONS (DEFINED IN C FILES)-------------------------------- */
 
 /*
  * CasADi interface for the cost function
@@ -83,29 +98,31 @@ extern int {{build_config.constraint_penalty_function_name}}(
     void* mem);
 
 
+/* ------WORKSPACES------------------------------------------------------------- */
+
 /* 
  * Integer workspaces 
  */
 #if COST_SZ_IW > 0
-static casadi_int allocated_i_workspace_cost[COST_SZ_IW];   /* cost (int ) */
+static casadi_int allocated_i_workspace_cost[COST_SZ_IW];  /* cost (int )  */
 #else
 static casadi_int *allocated_i_workspace_cost = NULL;
 #endif 
 
 #if GRAD_SZ_IW > 0
-static casadi_int allocated_i_workspace_grad[GRAD_SZ_IW];  /* grad (int ) */
+static casadi_int allocated_i_workspace_grad[GRAD_SZ_IW];  /* grad (int )  */
 #else
 static casadi_int *allocated_i_workspace_grad = NULL;
 #endif
 
 #if F1_SZ_IW > 0
-static casadi_int allocated_i_workspace_f1[F1_SZ_IW];
+static casadi_int allocated_i_workspace_f1[F1_SZ_IW];      /* f1 (int )    */
 #else
 static casadi_int *allocated_i_workspace_f1 = NULL;
 #endif
 
 #if F2_SZ_IW > 0
-static casadi_int allocated_i_workspace_f2[F2_SZ_IW];
+static casadi_int allocated_i_workspace_f2[F2_SZ_IW];      /* f2 (int )    */
 #else
 static casadi_int *allocated_i_workspace_f2 = NULL;
 #endif
@@ -115,26 +132,26 @@ static casadi_int *allocated_i_workspace_f2 = NULL;
  * Real workspaces 
  */
 #if COST_SZ_W > 0
-static casadi_real allocated_r_workspace_cost[COST_SZ_W];  /* cost (real) */
+static casadi_real allocated_r_workspace_cost[COST_SZ_W];  /* cost (real)  */
 #else 
 static casadi_real *allocated_r_workspace_cost = NULL;
 #endif
 
 
 #if GRAD_SZ_W > 0
-static casadi_real allocated_r_workspace_grad[GRAD_SZ_W];   /* grad (real ) */
+static casadi_real allocated_r_workspace_grad[GRAD_SZ_W];  /* grad (real ) */
 #else
 static casadi_real *allocated_r_workspace_grad = NULL;
 #endif
 
 #if F1_SZ_W > 0
-static casadi_real allocated_r_workspace_f1[F1_SZ_W];
+static casadi_real allocated_r_workspace_f1[F1_SZ_W];      /* f1 (real )   */
 #else
 static casadi_real *allocated_r_workspace_f1 = NULL;
 #endif
 
 #if F2_SZ_W > 0
-static casadi_real allocated_r_workspace_f2[F2_SZ_W];
+static casadi_real allocated_r_workspace_f2[F2_SZ_W];      /* f2 (real )   */
 #else
 static casadi_real *allocated_r_workspace_f2 = NULL;
 #endif
@@ -143,47 +160,73 @@ static casadi_real *allocated_r_workspace_f2 = NULL;
  * Result workspaces 
  */
 #if COST_SZ_RES > 0
-static casadi_real *result_space_cost[COST_SZ_RES ];        /* cost (real) */
+static casadi_real *result_space_cost[COST_SZ_RES ];       /* cost (res )  */
 #else
 static casadi_real **result_space_cost = NULL;
 #endif
 
 #if GRAD_SZ_RES > 0
-static casadi_real *result_space_grad[GRAD_SZ_RES];         /* grad (real) */
+static casadi_real *result_space_grad[GRAD_SZ_RES];        /* grad (res )  */
 #else
 static casadi_real **result_space_grad = NULL;
 #endif
 
 
 #if F1_SZ_RES > 0
-static casadi_real *result_space_f1[F1_SZ_RES];
+static casadi_real *result_space_f1[F1_SZ_RES];            /* f1 (res )    */
 #else
 static casadi_real **result_space_f1 = NULL;
 #endif
 
 
 #if F2_SZ_RES > 0
-static casadi_real *result_space_f2[F2_SZ_RES];
+static casadi_real *result_space_f2[F2_SZ_RES];            /* f2 (res )    */
 #else
 static casadi_real **result_space_f2 = NULL;
 #endif
 
 
 
-/* ------U, P------------------------------------------------------------------- */
-static casadi_real up_space[NU+NP];
+/* ------U, XI, P--------------------------------------------------------------- */
 
+/*
+ * Space for storing (u, xi, p)
+ * that is, uxip_space = [u, xi, p]
+ *
+ * 0        NU-1      NU          NU+NXI-1   NU+NX          NU+NXI+NP-1
+ * |----u-----|       |-----xi--------|       |------p-----------|
+ */
+static casadi_real uxip_space[NU+NXI+NP];
+
+/**
+ * Copy (u, xi, p) into uxip_space
+ *
+ * Input arguments:
+ * - `arg = {u, xi, p}`, where `u`, `xi` and `p` are pointer-to-double
+ */
+static void copy_args_into_uxip_space(const casadi_real** arg) {
+    int i;
+    for (i=0; i<NU; i++)  uxip_space[i] = arg[0][i];        /* copy u  */
+    for (i=0; i<NXI; i++) uxip_space[NU+i] = arg[1][i];     /* copy xi */
+    for (i=0; i<NP; i++)  uxip_space[NU+NXI+i] = arg[2][i]; /* copy p  */
+}
+
+/**
+ * Copy (u, p) into uxip_space
+ */
 static void copy_args_into_up_space(const casadi_real** arg) {
     int i;
-    for (i=0; i<NU; i++) up_space[i] = arg[0][i];
-    for (i=0; i<NP; i++) up_space[NU+i] = arg[1][i];
+    for (i=0; i<NU; i++) uxip_space[i] = arg[0][i];         /* copy u  */
+    for (i=0; i<NP; i++) uxip_space[NU+NXI+i] = arg[1][i];  /* copy p  */
 }
 
 /* ------COST------------------------------------------------------------------- */
 
 int cost_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
-    copy_args_into_up_space(arg);
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space,              /* :u     */
+                                              uxip_space + NU,         /* :xi    */ 
+                                              uxip_space + NU + NXI};  /* :p     */
+    copy_args_into_uxip_space(arg);
 
     result_space_cost[0] = res[0];
     return {{build_config.cost_function_name or 'phi'}}(
@@ -198,8 +241,10 @@ int cost_function(const casadi_real** arg, casadi_real** res) {
 /* ------GRADIENT--------------------------------------------------------------- */
 
 int grad_cost_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
-    copy_args_into_up_space(arg);
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space,              /* :u     */
+                                              uxip_space + NU,         /* :xi    */ 
+                                              uxip_space + NU + NXI};  /* :p     */
+    copy_args_into_uxip_space(arg);
     result_space_grad[0] = res[0];
     return {{build_config.grad_function_name  or 'grad_phi'}}(
         args__,
@@ -213,7 +258,7 @@ int grad_cost_function(const casadi_real** arg, casadi_real** res) {
 /* ------MAPPING F1------------------------------------------------------------- */
 
 int mapping_f1_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space, uxip_space + NU};
     copy_args_into_up_space(arg);
     result_space_f1[0] = res[0];
     return {{build_config.alm_mapping_f1_function_name}}(
@@ -228,14 +273,14 @@ int mapping_f1_function(const casadi_real** arg, casadi_real** res) {
 /* ------MAPPING F2------------------------------------------------------------- */
 
 int mapping_f2_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {up_space, up_space + NU};
-    copy_args_into_up_space(arg);    
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space, uxip_space + NU};
+    copy_args_into_up_space(arg);
     result_space_f2[0] = res[0];
     return {{build_config.constraint_penalty_function_name}}(
-        args__, 
-        result_space_f2, 
-        allocated_i_workspace_f2, 
-        allocated_r_workspace_f2, 
+        args__,
+        result_space_f2,
+        allocated_i_workspace_f2,
+        allocated_r_workspace_f2,
         (void*) 0);
 }
 

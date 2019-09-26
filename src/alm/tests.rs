@@ -303,6 +303,73 @@ fn t_alm_numeric_test_2() {
     println!("F2(u*) = {:#?}", &f2u);
 }
 
+fn mockito_f0(_u: &[f64], _xi: &[f64], _p: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+    *cost = 0.0;
+    Ok(())
+}
+
+fn mockito_jacobian(
+    _u: &[f64],
+    _xi: &[f64],
+    _p: &[f64],
+    _grad: &mut [f64],
+) -> Result<(), SolverError> {
+    Ok(())
+}
+
+#[test]
+fn t_alm_numeric_test_repeat() {
+    let tolerance = 1e-8;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 4;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    for i in 1..3 {
+        let bounds = Ball2::new(None, 10.0);
+        let set_y = Ball2::new(None, 10000.0);
+
+        let parameter = [1.0, 2.0 * i as f64];
+
+        let f_ = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            mockito_f0(u, xi, &parameter, cost)
+        };
+
+        let jf_ = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            mockito_jacobian(u, xi, &parameter, grad)
+        };
+
+        let set_c_b = Ball2::new(None, 1.0);
+        let alm_problem = AlmProblem::new(
+            bounds,
+            Some(set_c_b),
+            Some(set_y),
+            f_,
+            jf_,
+            Some(mocks::mapping_f1_affine),
+            Some(mapping_f2),
+            n1,
+            n2,
+        );
+
+        // ALM *borrows* the cache: lovely! Otherwise we wouldn't be able to
+        // run this in a loop with the cache allocated outside the loop once
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_delta_tolerance(1e-4)
+            .with_epsilon_tolerance(1e-5)
+            .with_initial_inner_tolerance(1e-4);
+
+        let mut u = vec![0.0; nx];
+        let solver_result = alm_optimizer.solve(&mut u);
+        assert!(solver_result.is_ok());
+        assert_eq!(
+            ExitStatus::Converged,
+            solver_result.unwrap().exit_status());
+    }
+}
+
 #[test]
 fn t_alm_numeric_test_out_of_time() {
     let tolerance = 1e-8;
