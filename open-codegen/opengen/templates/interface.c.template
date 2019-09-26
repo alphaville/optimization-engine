@@ -87,25 +87,25 @@ extern int {{build_config.constraint_penalty_function_name}}(
  * Integer workspaces 
  */
 #if COST_SZ_IW > 0
-static casadi_int allocated_i_workspace_cost[COST_SZ_IW];   /* cost (int ) */
+static casadi_int allocated_i_workspace_cost[COST_SZ_IW];  /* cost (int )  */
 #else
 static casadi_int *allocated_i_workspace_cost = NULL;
 #endif 
 
 #if GRAD_SZ_IW > 0
-static casadi_int allocated_i_workspace_grad[GRAD_SZ_IW];  /* grad (int ) */
+static casadi_int allocated_i_workspace_grad[GRAD_SZ_IW];  /* grad (int )  */
 #else
 static casadi_int *allocated_i_workspace_grad = NULL;
 #endif
 
 #if F1_SZ_IW > 0
-static casadi_int allocated_i_workspace_f1[F1_SZ_IW];
+static casadi_int allocated_i_workspace_f1[F1_SZ_IW];      /* f1 (int )    */
 #else
 static casadi_int *allocated_i_workspace_f1 = NULL;
 #endif
 
 #if F2_SZ_IW > 0
-static casadi_int allocated_i_workspace_f2[F2_SZ_IW];
+static casadi_int allocated_i_workspace_f2[F2_SZ_IW];      /* f2 (int )    */
 #else
 static casadi_int *allocated_i_workspace_f2 = NULL;
 #endif
@@ -115,26 +115,26 @@ static casadi_int *allocated_i_workspace_f2 = NULL;
  * Real workspaces 
  */
 #if COST_SZ_W > 0
-static casadi_real allocated_r_workspace_cost[COST_SZ_W];  /* cost (real) */
+static casadi_real allocated_r_workspace_cost[COST_SZ_W];  /* cost (real)  */
 #else 
 static casadi_real *allocated_r_workspace_cost = NULL;
 #endif
 
 
 #if GRAD_SZ_W > 0
-static casadi_real allocated_r_workspace_grad[GRAD_SZ_W];   /* grad (real ) */
+static casadi_real allocated_r_workspace_grad[GRAD_SZ_W];  /* grad (real ) */
 #else
 static casadi_real *allocated_r_workspace_grad = NULL;
 #endif
 
 #if F1_SZ_W > 0
-static casadi_real allocated_r_workspace_f1[F1_SZ_W];
+static casadi_real allocated_r_workspace_f1[F1_SZ_W];      /* f1 (real )   */
 #else
 static casadi_real *allocated_r_workspace_f1 = NULL;
 #endif
 
 #if F2_SZ_W > 0
-static casadi_real allocated_r_workspace_f2[F2_SZ_W];
+static casadi_real allocated_r_workspace_f2[F2_SZ_W];      /* f2 (real )   */
 #else
 static casadi_real *allocated_r_workspace_f2 = NULL;
 #endif
@@ -143,27 +143,27 @@ static casadi_real *allocated_r_workspace_f2 = NULL;
  * Result workspaces 
  */
 #if COST_SZ_RES > 0
-static casadi_real *result_space_cost[COST_SZ_RES ];        /* cost (real) */
+static casadi_real *result_space_cost[COST_SZ_RES ];       /* cost (res )  */
 #else
 static casadi_real **result_space_cost = NULL;
 #endif
 
 #if GRAD_SZ_RES > 0
-static casadi_real *result_space_grad[GRAD_SZ_RES];         /* grad (real) */
+static casadi_real *result_space_grad[GRAD_SZ_RES];        /* grad (res )  */
 #else
 static casadi_real **result_space_grad = NULL;
 #endif
 
 
 #if F1_SZ_RES > 0
-static casadi_real *result_space_f1[F1_SZ_RES];
+static casadi_real *result_space_f1[F1_SZ_RES];            /* f1 (res )    */
 #else
 static casadi_real **result_space_f1 = NULL;
 #endif
 
 
 #if F2_SZ_RES > 0
-static casadi_real *result_space_f2[F2_SZ_RES];
+static casadi_real *result_space_f2[F2_SZ_RES];            /* f2 (res )    */
 #else
 static casadi_real **result_space_f2 = NULL;
 #endif

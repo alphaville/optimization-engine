@@ -205,34 +205,102 @@ class OpEnOptimizerBuilder:
         with open(memory_path, "w") as fh:
             fh.write(output_template)
 
+    def __construct_function_psi(self) -> cs.Function:
+        logging.info("Defining function psi(u, xi, p), where xi = (c, y)")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n2 = problem.dim_constraints_penalty()
+        n1 = problem.dim_constraints_aug_lagrangian()
+        phi = problem.cost_function
+        alm_set_c = problem.alm_set_c
+        f1 = problem.penalty_mapping_f1
+        f2 = problem.penalty_mapping_f2
+
+        psi = phi
+
+        if n1 + n2 > 0:
+            n_xi = n1 + 1
+            xi = cs.SX.sym('xi', n_xi, 1) if isinstance(u, cs.SX) \
+                else cs.MX.sym('xi', n_xi, 1)
+
+        if n1 > 0:
+            sq_dist_term = alm_set_c.distance_squared(f1 + xi[1:n1+1]/xi[0])
+            psi += xi[0] * sq_dist_term / 2
+
+        if n2 > 0:
+            psi += xi[0] * cs.norm_2(f2) / 2
+
+        psi_fun = cs.Function('psi', [u, xi, p], [psi])
+        return psi_fun
+
+    def __construct_mapping_f1_function(self) -> cs.Function:
+        logging.info("Defining function F1(u, p)")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n1 = problem.dim_constraints_aug_lagrangian()
+        f1 = problem.penalty_mapping_f1
+
+        if n1 > 0:
+            mapping_f1 = f1
+        else:
+            mapping_f1 = 0
+
+        alm_mapping_f1_fun = cs.Function(
+            self.__build_config.alm_mapping_f1_function_name,
+            [u, p], [mapping_f1])
+        return alm_mapping_f1_fun
+
+    def __construct_mapping_f2_function(self) -> cs.Function:
+        logging.info("Defining function F2(u, p)")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n2 = problem.dim_constraints_penalty()
+
+        if n2 > 0:
+            penalty_constraints = problem.penalty_mapping_f2
+        else:
+            penalty_constraints = 0
+
+        alm_mapping_f2_fun = cs.Function(
+            self.__build_config.constraint_penalty_function_name,
+            [u, p], [penalty_constraints])
+
+        return alm_mapping_f2_fun
+
     def __generate_casadi_code(self):
-        """Generates CasADi code"""
+        """Generates CasADi C code"""
         logging.info("Defining CasADi functions and generating C code")
-        u = self.__problem.decision_variables
-        p = self.__problem.parameter_variables
-        ncp = self.__problem.dim_constraints_penalty()
-        nalm = self.__problem.dim_constraints_aug_lagrangian()
-        print("number of ALM constraints:", nalm)
-        phi = self.__problem.cost_function
-        print("number of PM constraints:", ncp)
+        problem = self.__problem
+        bconfig = self.__build_config
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        nalm = problem.dim_constraints_aug_lagrangian()
+        n2 = problem.dim_constraints_penalty()
+        phi = problem.cost_function
+
+        psi_fun = self.__construct_function_psi()
+        print(psi_fun)
 
         # If there are penalty-type constraints, we need to define a modified
         # cost function
-        if ncp > 0:
-            penalty_function = self.__problem.penalty_function
-            mu = cs.SX.sym("mu", self.__problem.dim_constraints_penalty()) \
-                if isinstance(p, cs.SX) else cs.MX.sym("mu", self.__problem.dim_constraints_penalty())
+        if n2 > 0:
+            penalty_function = problem.penalty_function
+            mu = cs.SX.sym("mu", problem.dim_constraints_penalty()) \
+                if isinstance(p, cs.SX) else cs.MX.sym("mu", problem.dim_constraints_penalty())
             p = cs.vertcat(p, mu)
-            phi += cs.dot(mu, penalty_function(self.__problem.penalty_mapping_f2))
+            phi += cs.dot(mu, penalty_function(problem.penalty_mapping_f2))
 
         # Define cost and its gradient as CasADi functions
-        cost_fun = cs.Function(self.__build_config.cost_function_name, [u, p], [phi])
-        grad_cost_fun = cs.Function(self.__build_config.grad_function_name,
+        cost_fun = cs.Function(bconfig.cost_function_name, [u, p], [phi])
+        grad_cost_fun = cs.Function(bconfig.grad_function_name,
                                  [u, p], [cs.jacobian(phi, u)])
 
         # Filenames of cost and gradient (C file names)
-        cost_file_name = self.__build_config.cost_function_name + ".c"
-        grad_file_name = self.__build_config.grad_function_name + ".c"
+        cost_file_name = bconfig.cost_function_name + ".c"
+        grad_file_name = bconfig.grad_function_name + ".c"
 
         # Code generation using CasADi (cost and gradient)
         cost_fun.generate(cost_file_name)
@@ -243,47 +311,28 @@ class OpEnOptimizerBuilder:
         shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
         shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
 
-        # Next, we generate a CasADi function for the augmented Lagrangian constraints,
-        # that is, mapping F1(u, p)
-        if nalm > 0:
-            mapping_f1 = self.__problem.penalty_mapping_f1
-        else:
-            mapping_f1 = 0
-
+        # -----------------------------------------------------------------------
+        mapping_f1_fun = self.__construct_mapping_f1_function()
         # Target C file name of mapping F1(u, p)
-        alm_mapping_f1_file_name = \
-            self.__build_config.alm_mapping_f1_function_name + ".c"
-        # Define CasADi function F1(u, p)
-        alm_mapping_f1_fun = cs.Function(
-            self.__build_config.alm_mapping_f1_function_name,
-            [u, p], [mapping_f1])
+        f1_file_name = bconfig.alm_mapping_f1_function_name + ".c"
         # Generate code for F1(u, p)
-        alm_mapping_f1_fun.generate(alm_mapping_f1_file_name)
+        mapping_f1_fun.generate(f1_file_name)
         # Move auto-generated file to target folder
-        shutil.move(alm_mapping_f1_file_name,
+        shutil.move(f1_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_F1_FNAME))
 
-        # Lastly, we generate code for the penalty constraints; if there aren't
-        # any, we generate the function c(u; p) = 0 (which will not be used)
-        if ncp > 0:
-            penalty_constraints = self.__problem.penalty_mapping_f2
-        else:
-            penalty_constraints = 0
-
-        # Target C file name
-        constraints_penalty_file_name = \
-            self.__build_config.constraint_penalty_function_name + ".c"
-        # Define CasADi function for c(u; q)
-        constraint_penalty_fun = cs.Function(
-            self.__build_config.constraint_penalty_function_name,
-            [u, p], [penalty_constraints])
-        # Generate code
-        constraint_penalty_fun.generate(constraints_penalty_file_name)
+        # -----------------------------------------------------------------------
+        mapping_f2_fun = self.__construct_mapping_f2_function()
+        f2_file_name = bconfig.constraint_penalty_function_name + ".c"
+        mapping_f2_fun.generate(f2_file_name)
         # Move auto-generated file to target folder
-        shutil.move(constraints_penalty_file_name,
+        shutil.move(f2_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
-        self.__generate_memory_code(cost_fun, grad_cost_fun, alm_mapping_f1_fun, constraint_penalty_fun)
+        self.__generate_memory_code(cost_fun,
+                                    grad_cost_fun,
+                                    mapping_f1_fun,
+                                    mapping_f2_fun)
 
     def __build_icasadi(self):
         icasadi_dir = self.__icasadi_target_dir()
@@ -458,17 +507,17 @@ class OpEnOptimizerBuilder:
         self.__generate_cargo_toml()             # generate Cargo.toml using template
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
-        self.__generate_icasadi_c_interface()  # generate icasadi/extern/icallocator.c
-        self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
-        self.__generate_build_rs()               # generate build.rs file
-        self.__generate_yaml_data_file()
-
-        if not self.__generate_not_build:
-            logging.info("Building optimizer")
-            self.__build_optimizer()             # build overall project
-
-            if self.__build_config.tcp_interface_config is not None:
-                logging.info("Generating TCP/IP server")
-                self.__generate_code_tcp_interface()
-                if not self.__generate_not_build:
-                    self.__build_tcp_iface()
+        self.__generate_icasadi_c_interface()    # generate icasadi/extern/icallocator.c
+        # self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
+        # self.__generate_build_rs()               # generate build.rs file
+        # self.__generate_yaml_data_file()
+        #
+        # if not self.__generate_not_build:
+        #     logging.info("Building optimizer")
+        #     self.__build_optimizer()             # build overall project
+        #
+        #     if self.__build_config.tcp_interface_config is not None:
+        #         logging.info("Generating TCP/IP server")
+        #         self.__generate_code_tcp_interface()
+        #         if not self.__generate_not_build:
+        #             self.__build_tcp_iface()
