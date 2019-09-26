@@ -10,16 +10,31 @@ use icasadi;
 use libc::{c_double, c_ulong, c_ulonglong};
 use optimization_engine::continuation::HomotopyCache;
 {% endif %}
-use optimization_engine::{constraints::*, panoc::*, *};
+use optimization_engine::{constraints::*, panoc::*, alm::*, *};
+
+// ---Private Constants----------------------------------------------------------------------------------
 
 /// Tolerance of inner solver
-const TOLERANCE_INNER_SOLVER: f64 = {{solver_config.tolerance or 0.0001}};
+const EPSILON_TOLERANCE: f64 = {{solver_config.tolerance or 0.0001}};
+
+/// Delta tolerance
+const DELTA_TOLERANCE: f64 = {{solver_config.constraints_tolerance or 0.0001}};
 
 /// LBFGS memory
 const LBFGS_MEMORY: usize = {{solver_config.lbfgs_memory or 10}};
 
 /// Maximum number of iterations of the inner solver
-const MAX_INNER_ITERS: usize = {{solver_config.max_inner_iterations or 2000}};
+const MAX_INNER_ITERATIONS: usize = {{solver_config.max_inner_iterations or 10000}};
+
+/// Maximum number of outer iterations
+const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations or 10}};
+
+/// Maximum execution duration in microseconds
+const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
+
+
+
+// ---Public Constants-----------------------------------------------------------------------------------
 
 /// Number of decision variables
 pub const {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES: usize = {{problem.dim_decision_variables()}};
@@ -27,278 +42,92 @@ pub const {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES: usize = {{proble
 /// Number of parameters
 pub const {{meta.optimizer_name|upper}}_NUM_PARAMETERS: usize = {{problem.dim_parameters()}};
 
+/// Number of parameters associated with augmented Lagrangian
+pub const {{meta.optimizer_name|upper}}_N1: usize = {{problem.dim_constraints_aug_lagrangian()}};
+
 /// Number of penalty constraints
-const {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY: usize = {{problem.dim_constraints_penalty() or 0}};
+pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_penalty() or 0}};
 
-{% if problem.dim_constraints_aug_lagrangian() > 0 %}
-// Number of parameters associated with augmented Lagrangian
-const NCAL: usize = {{problem.dim_constraints_aug_lagrangian()}};
-{% endif %}
-
-// Required tolerance for c(u; p)
-const CONSTRAINTS_TOLERANCE: f64 = {{solver_config.constraints_tolerance or 0.0001}};
-
-// Maximum number of outer iterations
-const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations or 10}};
-
-{% if problem.dim_constraints_penalty() > 0 %}
-// Update factor for the penalty method
-const PENALTY_WEIGHT_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 5.0}};
-
-// Initial values of the weights
-{% if solver_config.initial_penalty_weights | length == 1 -%}
-const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights[0]}}; {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY];
-{% else -%}
-const INITIAL_PENALTY_WEIGHTS: &[f64] = &[{{solver_config.initial_penalty_weights|join(', ')}}];
-{% endif %}
-{% endif %}
-// Parameters of the constraints
-{% if 'Ball2' == problem.constraints.__class__.__name__ and problem.constraints.center is not none -%}
-const XC: [f64; {{problem.dim_decision_variables()}}] = [{{problem.constraints.center | join(', ')}}];
-{%- elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
-{%- if problem.constraints.xmin is not none -%}
-const XMIN :Option<&[f64]> = Some(&[{{problem.constraints.xmin|join(', ')}}]);
-{%- else -%}
-const XMIN :Option<&[f64]> = None;
-{%- endif -%}
-{% if problem.constraints.xmax is not none %}
-const XMAX :Option<&[f64]> = Some(&[{{problem.constraints.xmax|join(', ')}}]);
-{%- else %}
-const XMAX :Option<&[f64]> = None;
-{% endif %}
-{%- endif %}
+{#- THIS WAY WE CAN INCLUDE ANOTHER TEMPLATE -#}
+{% include "optimizer_cinterface.rs.template" %}
 
 
-{% if solver_config.max_duration_micros > 0 %}
-// Maximum execution duration in microseconds
-const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
-{% else %}
-# --- {{ solver_config.max_duration_micros }}
-{% endif %}
+// ---Internal private helper functions------------------------------------------------------------------
 
-{% if activate_clib_generation -%}
-/// Solver cache
-#[allow(non_camel_case_types)]
-pub struct {{meta.optimizer_name}}Cache {
-    cache: HomotopyCache,
+fn make_constraints() -> impl Constraint {
+    let bounds = Ball2::new(None, 10.0);
+    bounds
 }
 
-impl {{meta.optimizer_name}}Cache {
-    pub fn new(cache: HomotopyCache) -> Self {
-        {{meta.optimizer_name}}Cache { cache }
-    }
-}
+// ---Main public API functions--------------------------------------------------------------------------
 
-/// {{meta.optimizer_name}} version of ExitStatus
-#[allow(non_camel_case_types)]
-#[repr(C)]
-pub enum {{meta.optimizer_name}}ExitStatus {
-    /// The algorithm has converged
-    ///
-    /// All termination criteria are satisfied and the algorithm
-    /// converged within the available time and number of iterations
-    {{meta.optimizer_name}}Converged,
-    /// Failed to converge because the maximum number of iterations was reached
-    {{meta.optimizer_name}}NotConvergedIterations,
-    /// Failed to converge because the maximum execution time was reached
-    {{meta.optimizer_name}}NotConvergedOutOfTime,
-    /// If the gradient or cost function cannot be evaluated internally
-    {{meta.optimizer_name}}NotConvergedCost,
-    /// Computation failed and NaN/Infinite value was obtained
-    {{meta.optimizer_name}}NotConvergedNotFiniteComputation,
-}
-
-/// {{meta.optimizer_name}} version of HomotopySolverStatus
-#[repr(C)]
-pub struct {{meta.optimizer_name}}SolverStatus {
-    /// Exit status
-    exit_status: {{meta.optimizer_name}}ExitStatus,
-    /// Number of outer iterations
-    num_outer_iterations: c_ulong,
-    /// Total number of inner iterations
-    ///
-    /// This is the sum of the numbers of iterations of
-    /// inner solvers
-    num_inner_iterations: c_ulong,
-    /// Norm of the fixed-point residual of the the problem
-    last_problem_norm_fpr: c_double,
-    /// Maximum constraint violation
-    max_constraint_violation: c_double,
-    /// Total solve time
-    solve_time_ns: c_ulonglong,
-}
-
-/// Allocate memory and setup the solver
-#[no_mangle]
-pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_name}}Cache {
-    Box::into_raw(Box::new({{meta.optimizer_name}}Cache::new(initialize_solver())))
-}
-
-/// Run the solver on the input and parameters
-#[no_mangle]
-pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
-    instance: *mut {{meta.optimizer_name}}Cache,
-    u: *mut c_double,
-    params: *const c_double,
-) -> {{meta.optimizer_name}}SolverStatus {
-    // Convert all pointers into the required data structures
-    let instance: &mut {{meta.optimizer_name}}Cache = unsafe {
-        assert!(!instance.is_null());
-        &mut *instance
-    };
-
-    let u = unsafe {
-        assert!(!u.is_null());
-        std::slice::from_raw_parts_mut(u as *mut f64, {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES)
-    };
-
-    let params = unsafe {
-        assert!(!params.is_null());
-        std::slice::from_raw_parts(params as *const f64, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
-    };
-
-    let status = solve(params,&mut instance.cache, u);
-
-    match status {
-        Ok(status) => {{meta.optimizer_name}}SolverStatus {
-            exit_status: match status.exit_status() {
-                core::ExitStatus::Converged => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}Converged,
-                core::ExitStatus::NotConvergedIterations => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedIterations,
-                core::ExitStatus::NotConvergedOutOfTime => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedOutOfTime,
-            },
-            num_outer_iterations: status.num_outer_iterations() as c_ulong,
-            num_inner_iterations: status.num_inner_iterations() as c_ulong,
-            last_problem_norm_fpr: status.last_problem_norm_fpr(),
-            max_constraint_violation: status.max_constraint_violation(),
-            solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
-        },
-        Err(e) => {{meta.optimizer_name}}SolverStatus {
-            exit_status: match e {
-                SolverError::Cost => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
-                SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
-            },
-            num_outer_iterations: std::u64::MAX as c_ulong,
-            num_inner_iterations: std::u64::MAX as c_ulong,
-            last_problem_norm_fpr: std::f64::INFINITY,
-            max_constraint_violation: std::f64::INFINITY,
-            solve_time_ns: std::u64::MAX as c_ulonglong,
-        },
-    }
-}
-
-/// Deallocate the solver's memory
-#[no_mangle]
-pub extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optimizer_name}}Cache) {
-    // Add impl
-    unsafe {
-        assert!(!instance.is_null());
-        Box::from_raw(instance);
-    }
-}
-{% endif %}
 
 /// Initialisation of the solver
-pub fn initialize_solver() -> continuation::HomotopyCache {
-    let panoc_cache = PANOCCache::new({{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, TOLERANCE_INNER_SOLVER, LBFGS_MEMORY);
+pub fn initialize_solver() -> AlmCache {
+    let panoc_cache = PANOCCache::new({{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, EPSILON_TOLERANCE, LBFGS_MEMORY);
     {% if solver_config.cbfgs_alpha is not none and solver_config.cbfgs_epsilon is not none -%}
         let panoc_cache = panoc_cache.with_cbfgs_parameters({{solver_config.cbfgs_alpha}}, {{solver_config.cbfgs_epsilon}}, {{solver_config.cbfgs_sy_epsilon}});
-    {% endif %}
+    {% endif -%}
+    let alm_cache = AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2);
 
-
-    let {% if problem.dim_constraints_penalty() > 0 %}mut{% endif %} homotopy_cache = continuation::HomotopyCache::new(panoc_cache);
-
-{% if problem.dim_constraints_penalty() > 0 %}
-    // Define the initial weights, the update rule and the update factor
-    let idx_y: Vec<usize> = ({{meta.optimizer_name|upper}}_NUM_PARAMETERS..{{meta.optimizer_name|upper}}_NUM_PARAMETERS +
-                             {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY).collect();
-    homotopy_cache.add_continuations(
-        &idx_y[..],
-        INITIAL_PENALTY_WEIGHTS,
-        &[0.; {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY],
-        &[continuation::ContinuationMode::Geometric(PENALTY_WEIGHT_UPDATE_FACTOR);
-          {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY],
-    );
-{% endif %}
-
-    homotopy_cache
+    alm_cache
 }
 
 
 pub fn solve(
     p: &[f64],
-    cache: &mut continuation::HomotopyCache,
+    alm_cache: &mut AlmCache,
     u: &mut [f64],
-) -> Result<continuation::HomotopySolverStatus, SolverError> {
+) -> Result<AlmOptimizerStatus, SolverError> {
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
-    let mut q_augmented_params = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS + {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY];
-    q_augmented_params[0..{{meta.optimizer_name|upper}}_NUM_PARAMETERS].copy_from_slice(p);
-
-
-	// cost function, f(u; q)
-    let cost_function = |u: &[f64], q: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        icasadi::cost(u, q, cost);
+    let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+        icasadi::cost(&u, &xi, &p, cost);
         Ok(())
     };
 
-    // parametric gradient, df(u, q)
-    let gradient_function = |u: &[f64], q: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        if icasadi::grad(u, q, grad) == 0 {
-            Ok(())
-        } else {
-            Err(SolverError::Cost)
-        }
-
+    let grad_psi = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        icasadi::grad(&u, &xi, &p, grad);
+        Ok(())
     };
 
-	/* penalty-type constraints: c(u; p) */
-    let penalty_constr_function =
-    |u: &[f64], q: &[f64], constraints: &mut [f64]| -> Result<(), SolverError> {
-        if icasadi::mapping_f2(u, q, constraints) == 0 {
-            Ok(())
-        } else {
-            Err(SolverError::Cost)
-        }
+    let f1 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+        icasadi::mapping_f1(&u, &p, res);
+        Ok(())
     };
 
-    // Constraints...
-{%- if problem.constraints is none %}
-    let bounds = NoConstraints::new();
-{%- elif 'Ball2' == problem.constraints.__class__.__name__ %}
-{%- if problem.constraints.center is none %}
-	let bounds = Ball2::new(None, {{problem.constraints.radius}});
-{%- else %}
-	let bounds = Ball2::new(Some(&XC), {{problem.constraints.radius}});
-{%- endif %}
-{%- elif 'Rectangle' == problem.constraints.__class__.__name__ %}
-    let bounds = Rectangle::new(XMIN, XMAX);
-{%- endif %}
+    let f2 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+        icasadi::mapping_f2(&u, &p, res);
+        Ok(())
+    };
 
+    let bounds = make_constraints();
+    let set_y = Ball2::new(None, 10000.0);
+    let set_c = Ball2::new(None, 1.0);
 
-    // Define homotopy problem
-    let homotopy_problem = continuation::HomotopyProblem::new(
+    let alm_problem = AlmProblem::new(
         bounds,
-        gradient_function,
-        cost_function,
-        penalty_constr_function,
-        {{meta.optimizer_name|upper}}_NUM_CONSTAINTS_TYPE_PENALTY
+        Some(set_c),
+        Some(set_y),
+        psi,
+        grad_psi,
+        Some(f1),
+        Some(f2),
+        {{meta.optimizer_name|upper}}_N1,
+        {{meta.optimizer_name|upper}}_N2,
     );
 
-    // construct a homotopy optimizer
-    let homotopy_optimizer = continuation::HomotopyOptimizer::new(homotopy_problem, cache)
-        .with_constraint_tolerance(CONSTRAINTS_TOLERANCE)
+    let mut alm_optimizer = AlmOptimizer::new(alm_cache, alm_problem)
+        .with_delta_tolerance(DELTA_TOLERANCE)
+        .with_epsilon_tolerance(EPSILON_TOLERANCE)
+        .with_initial_inner_tolerance(1e-2)
+        .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS))
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
-        .with_max_inner_iterations(MAX_INNER_ITERS);
+        .with_max_inner_iterations(MAX_INNER_ITERATIONS);
 
-{% if solver_config.max_duration_micros > 0 %}
-    // set the maximum execution duration
-    let mut homotopy_optimizer = homotopy_optimizer
-        .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS));
-{% endif %}
-
-    // solve the problem and return its status
-    // parameter `u` is updated with the solution
-    homotopy_optimizer.solve(u, &q_augmented_params)
+    // solve the problem using `u` an the initial condition
+    // return the problem status (instance of `AlmOptimizerStatus`)
+    alm_optimizer.solve(u)
 }

@@ -527,11 +527,11 @@ class OpEnOptimizerBuilder:
         self.__generate_icasadi_c_interface()    # generate icasadi/extern/interface.c
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file
-        # self.__generate_yaml_data_file()
-        #
-        # if not self.__generate_not_build:
-        #     logging.info("Building optimizer")
-        #     self.__build_optimizer()             # build overall project
+        self.__generate_yaml_data_file()
+
+        if not self.__generate_not_build:
+            logging.info("Building optimizer")
+            self.__build_optimizer()             # build overall project
         #
         #     if self.__build_config.tcp_interface_config is not None:
         #         logging.info("Generating TCP/IP server")
