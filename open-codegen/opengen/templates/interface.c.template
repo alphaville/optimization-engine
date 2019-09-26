@@ -44,7 +44,7 @@
 #define N2 {{ problem.dim_constraints_penalty() }}
 
 /* Dimension of xi = (c, y) */
-#define NXI {% if problem.dim_constraints_aug_lagrangian() + problem.dim_constraints_penalty() > 0 %}{{ 1 + problem.dim_constraints_aug_lagrangian() }}{% endif %}
+#define NXI {% if problem.dim_constraints_aug_lagrangian() + problem.dim_constraints_penalty() > 0 %}{{ 1 + problem.dim_constraints_aug_lagrangian() }}{% else %}0{% endif %}
 
 #ifndef casadi_real
 #define casadi_real double
@@ -223,7 +223,9 @@ static void copy_args_into_up_space(const casadi_real** arg) {
 /* ------COST------------------------------------------------------------------- */
 
 int cost_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {uxip_space, uxip_space + NU};
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space,              /* :u     */
+                                              uxip_space + NU,         /* :xi    */ 
+                                              uxip_space + NU + NXI};  /* :p     */
     copy_args_into_uxip_space(arg);
 
     result_space_cost[0] = res[0];
@@ -239,7 +241,9 @@ int cost_function(const casadi_real** arg, casadi_real** res) {
 /* ------GRADIENT--------------------------------------------------------------- */
 
 int grad_cost_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[COST_SZ_ARG] = {uxip_space, uxip_space + NU};
+    const casadi_real* args__[COST_SZ_ARG] = {uxip_space,              /* :u     */
+                                              uxip_space + NU,         /* :xi    */ 
+                                              uxip_space + NU + NXI};  /* :p     */
     copy_args_into_uxip_space(arg);
     result_space_grad[0] = res[0];
     return {{build_config.grad_function_name  or 'grad_phi'}}(

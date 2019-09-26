@@ -14,7 +14,7 @@
 //! Generated at: {{timestamp_created}}
 //!
 
-#![no_std]
+// #![no_std]
 
 /// Number of static parameters (this also includes penalty constraints)
 pub const NUM_STATIC_PARAMETERS: usize = {{ problem.dim_parameters() + problem.dim_constraints_penalty() or 0 }};
@@ -45,15 +45,16 @@ extern "C" {
 
 
 ///
-/// Consume the cost function written in C
+/// Consume the cost function psi(u, xi, p) written in C
 ///
 /// # Example
-/// ```
+/// ```ignore
 /// fn tst_call_casadi_cost() {
-///     let u = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
+///     let u = [1.0, 2.0, 3.0, -5.0, 6.0];
 ///     let p = [1.0, -1.0];
+///     let xi = [100.0, 0.0, 1.5., 3.0];
 ///     let mut cost_value = 0.0;
-///     icasadi::cost(&u, &p, &mut cost_value);
+///     icasadi::cost(&u, &xi, &p, &mut cost_value);
 /// }
 /// ```
 ///
@@ -64,8 +65,8 @@ extern "C" {
 /// - `static_params.len() == NUM_STATIC_PARAMETERS`
 ///
 pub fn cost(u: &[f64], xi: &[f64], static_params: &[f64], cost_value: &mut f64) -> i32 {
-    assert_eq!(u.len(), NUM_DECISION_VARIABLES);
-    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS);
+    assert_eq!(u.len(), NUM_DECISION_VARIABLES, "wrong length of `u`");
+    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS, "wrong length of `p`");
 
     let arguments = &[u.as_ptr(), xi.as_ptr(), static_params.as_ptr()];
     let cost = &mut [cost_value as *mut c_double];
@@ -82,12 +83,13 @@ pub fn cost(u: &[f64], xi: &[f64], static_params: &[f64], cost_value: &mut f64) 
 /// Consume the Jacobian function written in C
 ///
 /// # Example
-/// ```
+/// ```ignore
 /// fn tst_call_casadi_cost() {
-///     let u = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
+///     let u = [1.0, 2.0, 3.0, -5.0, 6.0];
 ///     let p = [1.0, -1.0];
+///     let xi = [100.0, 0.0, 1.5., 3.0];
 ///     let mut jac = [0.0; 10];
-///     icasadi::grad(&u, &p, &mut jac);
+///     icasadi::grad(&u, &xi, &p, &mut jac);
 /// }
 /// ```
 ///
@@ -99,9 +101,9 @@ pub fn cost(u: &[f64], xi: &[f64], static_params: &[f64], cost_value: &mut f64) 
 /// - `cost_jacobian.len() == icasadi::num_decision_variables()`
 ///
 pub fn grad(u: &[f64], xi: &[f64], static_params: &[f64], cost_jacobian: &mut [f64]) -> i32 {
-    assert_eq!(u.len(), NUM_DECISION_VARIABLES);
-    assert_eq!(cost_jacobian.len(), NUM_DECISION_VARIABLES);
-    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS);
+    assert_eq!(u.len(), NUM_DECISION_VARIABLES, "wrong length of `u`");
+    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS, "wrong length of `u`");
+    assert_eq!(cost_jacobian.len(), NUM_DECISION_VARIABLES, "wrong length of `cost_jacobian`");
 
     let arguments = &[u.as_ptr(), xi.as_ptr(), static_params.as_ptr()];
     let grad = &mut [cost_jacobian.as_mut_ptr()];
@@ -168,10 +170,10 @@ pub fn mapping_f2(
     static_params: &[f64],
     f2: &mut [f64],
 ) -> i32 {
-    assert_eq!(u.len(), NUM_DECISION_VARIABLES);
-    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS);
+    assert_eq!(u.len(), NUM_DECISION_VARIABLES, "Incompatible dimension of `u`");
+    assert_eq!(static_params.len(), NUM_STATIC_PARAMETERS, "Incompatible dimension of `p`");
     assert!(f2.len() == NUM_CONSTAINTS_TYPE_PENALTY ||
-            NUM_CONSTAINTS_TYPE_PENALTY == 0);
+            NUM_CONSTAINTS_TYPE_PENALTY == 0, "Incompatible dimension of `f2` (result)");
 
     let arguments = &[u.as_ptr(), static_params.as_ptr()];
     let constraints = &mut [f2.as_mut_ptr()];
@@ -204,16 +206,18 @@ mod tests {
         let p = [0.1; NUM_STATIC_PARAMETERS];
 	let xi = [2.0; NUM_CONSTRAINTS_TYPE_ALM+1];
         let mut cost = 0.0;
-        assert_eq!(0, super::cost(&u, &p, &xi, &mut cost));
+        assert_eq!(0, super::cost(&u, &xi, &p, &mut cost));
+	println!("psi(u, xi, p) = {}", cost);
     }
 
     #[test]
     fn tst_call_grad() {
         let u = [0.1; NUM_DECISION_VARIABLES];
         let p = [0.1; NUM_STATIC_PARAMETERS];
-	let xi = [2.0; NUM_CONSTRAINTS_TYPE_ALM+1];
+	let xi = [10.0; NUM_CONSTRAINTS_TYPE_ALM+1];
         let mut grad = [0.0; NUM_DECISION_VARIABLES];
-        assert_eq!(0, super::grad(&u, &p, &xi, &mut grad));
+        assert_eq!(0, super::grad(&u, &xi, &p, &mut grad));
+	println!("D_u psi(u, xi, p) = {:#?}", grad);
     }
 
     #[test]
@@ -231,7 +235,7 @@ mod tests {
         let p = [0.1; NUM_STATIC_PARAMETERS];
         let mut f2up = [0.0; NUM_CONSTAINTS_TYPE_PENALTY];
         assert_eq!(0, super::mapping_f2(&u, &p, &mut f2up));
-	println!("F1(u, p) = {:#?}", f2up);
+        println!("F2(u, p) = {:#?}", f2up);
     }
 
 }

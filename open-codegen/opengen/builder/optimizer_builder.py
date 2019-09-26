@@ -217,7 +217,7 @@ class OpEnOptimizerBuilder:
         :param f1: mapping F1  (cs.Function)
         :param f2: mapping F2  (cs.Function)
         """
-        logging.info("Generating memory")
+        logging.info("Generating casadi_memory.h")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('casadi_memory.h.template')
@@ -253,8 +253,11 @@ class OpEnOptimizerBuilder:
 
         if n1 + n2 > 0:
             n_xi = n1 + 1
-            xi = cs.SX.sym('xi', n_xi, 1) if isinstance(u, cs.SX) \
-                else cs.MX.sym('xi', n_xi, 1)
+        else:
+            n_xi = 0
+
+        xi = cs.SX.sym('xi', n_xi, 1) if isinstance(u, cs.SX) \
+            else cs.MX.sym('xi', n_xi, 1)
 
         if n1 > 0:
             sq_dist_term = alm_set_c.distance_squared(f1 + xi[1:n1+1]/xi[0])
@@ -314,6 +317,7 @@ class OpEnOptimizerBuilder:
         psi_fun, grad_psi_fun = self.__construct_function_psi()
         cost_file_name = bconfig.cost_function_name + ".c"
         grad_file_name = bconfig.grad_function_name + ".c"
+        logging.info("Function psi and its gradient (C code)")
         psi_fun.generate(cost_file_name)
         grad_psi_fun.generate(grad_file_name)
         icasadi_extern_dir = os.path.join(self.__icasadi_target_dir(), "extern")
@@ -323,6 +327,7 @@ class OpEnOptimizerBuilder:
         # -----------------------------------------------------------------------
         mapping_f1_fun = self.__construct_mapping_f1_function()
         f1_file_name = bconfig.alm_mapping_f1_function_name + ".c"
+        logging.info("Mapping F1 (C code)")
         mapping_f1_fun.generate(f1_file_name)
         # Move auto-generated file to target folder
         shutil.move(f1_file_name,
@@ -331,6 +336,7 @@ class OpEnOptimizerBuilder:
         # -----------------------------------------------------------------------
         mapping_f2_fun = self.__construct_mapping_f2_function()
         f2_file_name = bconfig.constraint_penalty_function_name + ".c"
+        logging.info("Mapping F2 (C code)")
         mapping_f2_fun.generate(f2_file_name)
         # Move auto-generated file to target folder
         shutil.move(f2_file_name,
@@ -512,8 +518,13 @@ class OpEnOptimizerBuilder:
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_cargo_toml()             # generate Cargo.toml using template
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
-        self.__generate_casadi_code()            # generate all necessary CasADi C files
-        self.__generate_icasadi_c_interface()    # generate icasadi/extern/icallocator.c
+        self.__generate_casadi_code()            # generate all necessary CasADi C files:
+        #                                        #   - auto_casadi_cost.c
+        #                                        #   - auto_casadi_grad.c
+        #                                        #   - auto_casadi_mapping_f1.c
+        #                                        #   - auto_casadi_mapping_f2.c
+        #                                        #   - casadi_memory.h
+        self.__generate_icasadi_c_interface()    # generate icasadi/extern/interface.c
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file
         # self.__generate_yaml_data_file()
@@ -527,3 +538,4 @@ class OpEnOptimizerBuilder:
         #         self.__generate_code_tcp_interface()
         #         if not self.__generate_not_build:
         #             self.__build_tcp_iface()
+
