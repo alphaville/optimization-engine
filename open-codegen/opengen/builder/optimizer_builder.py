@@ -463,13 +463,15 @@ class OpEnOptimizerBuilder:
                             'version': metadata.version,
                             'authors': metadata.authors,
                             'licence': metadata.licence}
-        build_details = {'open_version': build_config.open_version,
+        build_details = {'id': build_config.id,
+                         'open_version': build_config.open_version,
                          'build_dir': build_config.build_dir,
                          'build_mode': build_config.build_mode,
                          'target_system': build_config.target_system,
                          'cost_function_name': build_config.cost_function_name,
                          'grad_function_name': build_config.grad_function_name,
-                         'constraint_penalty_function_name': build_config.constraint_penalty_function_name
+                         'mapping_f2': build_config.constraint_penalty_function_name,
+                         'mapping_f1': build_config.alm_mapping_f1_function_name
                          }
         solver_details = {'initial_penalty_weights': solver_config.initial_penalty_weights,
                           'lbfgs_memory': solver_config.lbfgs_memory,
@@ -480,10 +482,6 @@ class OpEnOptimizerBuilder:
                           'max_inner_iterations': solver_config.max_inner_iterations,
                           'max_duration_micros': solver_config.max_duration_micros
                           }
-        casadi_functions = {'cost_function_name': solver_config.initial_penalty_weights,
-                            'cost_gradient_name': solver_config.lbfgs_memory,
-                            'constraint_penalty_function_name': solver_config.tolerance
-                            }
         details = {'meta': metadata_details, 'tcp': tcp_details, 'build': build_details,
                    'solver': solver_details}
         with open(target_yaml_file_path, 'w') as outfile:
@@ -532,10 +530,10 @@ class OpEnOptimizerBuilder:
         if not self.__generate_not_build:
             logging.info("Building optimizer")
             self.__build_optimizer()             # build overall project
-        #
-        #     if self.__build_config.tcp_interface_config is not None:
-        #         logging.info("Generating TCP/IP server")
-        #         self.__generate_code_tcp_interface()
-        #         if not self.__generate_not_build:
-        #             self.__build_tcp_iface()
+
+            if self.__build_config.tcp_interface_config is not None:
+                logging.info("Generating TCP/IP server")
+                self.__generate_code_tcp_interface()
+                if not self.__generate_not_build:
+                    self.__build_tcp_iface()
 

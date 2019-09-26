@@ -2,7 +2,7 @@
 /// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
 /// Generated at: {{timestamp_created}}
 ///
-use optimization_engine::continuation::{HomotopyCache, HomotopySolverStatus};
+use optimization_engine::alm::*;
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -81,7 +81,7 @@ fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &
 /// Serializes the solution and solution status and returns it
 /// to the client
 fn return_solution_to_client(
-    status: HomotopySolverStatus,
+    status: AlmOptimizerStatus,
     solution: &[f64],
     stream: &mut std::net::TcpStream,
 ) {
@@ -90,7 +90,7 @@ fn return_solution_to_client(
         num_outer_iterations: status.num_outer_iterations(),
         num_inner_iterations: status.num_inner_iterations(),
         last_problem_norm_fpr: status.last_problem_norm_fpr(),
-        max_constraint_violation: status.max_constraint_violation(),
+        max_constraint_violation: -1.0,
         solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
         solution: solution,
     };
@@ -102,7 +102,7 @@ fn return_solution_to_client(
 
 /// Handles an execution request
 fn execution_handler(
-    cache: &mut HomotopyCache,
+    cache: &mut AlmCache,
     execution_parameter: &ExecutionParameter,
     u: &mut [f64],
     p: &mut [f64],
