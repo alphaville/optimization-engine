@@ -55,11 +55,9 @@ class OpEnOptimizerBuilder:
     def with_verbosity_level(self, verbosity_level):
         """Specify the verbosity level
 
-        Args:
-            verbosity_level: level of verbosity (0,1,2,3)
+        :param verbosity_level: level of verbosity (0,1,2,3)
 
-        Returns:
-            Current builder object
+        :returns: Current builder object
         """
         self.__verbosity_level = verbosity_level
         return self
@@ -67,11 +65,9 @@ class OpEnOptimizerBuilder:
     def with_problem(self, problem):
         """Specify problem
 
-        Args:
-            problem: optimization problem data
+        :param problem: optimization problem data
 
-        Returns:
-            Current builder object
+        :returns: Current builder object
         """
         self.__problem = problem
         return self
@@ -82,30 +78,40 @@ class OpEnOptimizerBuilder:
         If set to true, the code will be generated, but it will not be
         build (mainly for debugging purposes)
 
-        Args:
-            flag: generate and not build
+        :param flag: generate and not build
 
-        Returns:
-            Current builder object
+        :returns: Current builder object
         """
         self.__generate_not_build = flag
         return self
 
     def __make_build_command(self):
+        """
+        Cargo build command (possibly, with --release)
+
+        """
         command = ['cargo', 'build']
         if self.__build_config.build_mode.lower() == 'release':
             command.append('--release')
         return command
 
     def __target_dir(self):
-        """target directory"""
+        """
+
+        Target directory
+
+        """
         return os.path.abspath(
             os.path.join(
                 self.__build_config.build_dir,
                 self.__meta.optimizer_name))
 
     def __icasadi_target_dir(self):
-        """icasadi target directory"""
+        """
+
+        Returns icasadi target directory (instance of os.path)
+
+        """
         return os.path.abspath(
             os.path.join(
                 self.__build_config.build_dir,
@@ -114,7 +120,7 @@ class OpEnOptimizerBuilder:
     def __prepare_target_project(self):
         """Creates folder structure
 
-        Creates necessary folders (at build/{project_name})
+        Creates necessary folders
         Runs `cargo init` in that folder
 
         """
@@ -130,7 +136,11 @@ class OpEnOptimizerBuilder:
             make_dir_if_not_exists(target_dir)
 
     def __copy_icasadi_to_target(self):
-        """Copy 'icasadi' into target directory"""
+        """
+
+        Copy 'icasadi' folder and its contents into target directory
+
+        """
         logging.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self.__icasadi_target_dir()
@@ -143,6 +153,10 @@ class OpEnOptimizerBuilder:
                             '*.lock', 'ci*', 'target', 'auto*'))
 
     def __generate_icasadi_c_interface(self):
+        """
+        Generates the C interface file interface.c
+
+        """
         logging.info("Generating intercafe.c (C interface)")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -157,7 +171,8 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_icasadi_lib(self):
-        """Generates the Rust library file of icasadi
+        """
+        Generates the Rust library file of icasadi
 
         Generates src/lib.rs
         """
@@ -175,7 +190,10 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_cargo_toml(self):
-        """Generates Cargo.toml for generated project"""
+        """
+        Generates Cargo.toml for generated project
+
+        """
         logging.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
@@ -191,6 +209,14 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None):
+        """
+        Creates file casadi_memory.h with memory sizes
+
+        :param cost: cost function (cs.Function)
+        :param grad: grad function (cs.Function)
+        :param f1: mapping F1  (cs.Function)
+        :param f2: mapping F2  (cs.Function)
+        """
         logging.info("Generating memory")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -205,9 +231,15 @@ class OpEnOptimizerBuilder:
         with open(memory_path, "w") as fh:
             fh.write(output_template)
 
-    def __construct_function_psi(self) -> cs.Function:
-        logging.info("Defining function psi(u, xi, p), where xi = (c, y)")
+    def __construct_function_psi(self):
+        """
+        Construct function psi and its gradient
+
+        :return: cs.Function objects: psi_fun, grad_psi_fun
+        """
+        logging.info("Defining function psi(u, xi, p) and its gradient")
         problem = self.__problem
+        bconfig = self.__build_config
         u = problem.decision_variables
         p = problem.parameter_variables
         n2 = problem.dim_constraints_penalty()
@@ -231,8 +263,11 @@ class OpEnOptimizerBuilder:
         if n2 > 0:
             psi += xi[0] * cs.norm_2(f2) / 2
 
-        psi_fun = cs.Function('psi', [u, xi, p], [psi])
-        return psi_fun
+        jac_psi = cs.jacobian(psi, u)
+
+        psi_fun = cs.Function(bconfig.cost_function_name, [u, xi, p], [psi])
+        grad_psi_fun = cs.Function(bconfig.grad_function_name, [u, xi, p], [jac_psi])
+        return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
         logging.info("Defining function F1(u, p)")
@@ -273,49 +308,21 @@ class OpEnOptimizerBuilder:
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
         logging.info("Defining CasADi functions and generating C code")
-        problem = self.__problem
         bconfig = self.__build_config
-        u = problem.decision_variables
-        p = problem.parameter_variables
-        nalm = problem.dim_constraints_aug_lagrangian()
-        n2 = problem.dim_constraints_penalty()
-        phi = problem.cost_function
 
-        psi_fun = self.__construct_function_psi()
-        print(psi_fun)
-
-        # If there are penalty-type constraints, we need to define a modified
-        # cost function
-        if n2 > 0:
-            penalty_function = problem.penalty_function
-            mu = cs.SX.sym("mu", problem.dim_constraints_penalty()) \
-                if isinstance(p, cs.SX) else cs.MX.sym("mu", problem.dim_constraints_penalty())
-            p = cs.vertcat(p, mu)
-            phi += cs.dot(mu, penalty_function(problem.penalty_mapping_f2))
-
-        # Define cost and its gradient as CasADi functions
-        cost_fun = cs.Function(bconfig.cost_function_name, [u, p], [phi])
-        grad_cost_fun = cs.Function(bconfig.grad_function_name,
-                                 [u, p], [cs.jacobian(phi, u)])
-
-        # Filenames of cost and gradient (C file names)
+        # -----------------------------------------------------------------------
+        psi_fun, grad_psi_fun = self.__construct_function_psi()
         cost_file_name = bconfig.cost_function_name + ".c"
         grad_file_name = bconfig.grad_function_name + ".c"
-
-        # Code generation using CasADi (cost and gradient)
-        cost_fun.generate(cost_file_name)
-        grad_cost_fun.generate(grad_file_name)
-
-        # Move generated files to target folder
+        psi_fun.generate(cost_file_name)
+        grad_psi_fun.generate(grad_file_name)
         icasadi_extern_dir = os.path.join(self.__icasadi_target_dir(), "extern")
         shutil.move(cost_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_COST_FNAME))
         shutil.move(grad_file_name, os.path.join(icasadi_extern_dir, _AUTOGEN_GRAD_FNAME))
 
         # -----------------------------------------------------------------------
         mapping_f1_fun = self.__construct_mapping_f1_function()
-        # Target C file name of mapping F1(u, p)
         f1_file_name = bconfig.alm_mapping_f1_function_name + ".c"
-        # Generate code for F1(u, p)
         mapping_f1_fun.generate(f1_file_name)
         # Move auto-generated file to target folder
         shutil.move(f1_file_name,
@@ -329,11 +336,10 @@ class OpEnOptimizerBuilder:
         shutil.move(f2_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
-        self.__generate_memory_code(cost_fun,
-                                    grad_cost_fun,
-                                    mapping_f1_fun,
-                                    mapping_f2_fun)
+        self.__generate_memory_code(psi_fun, grad_psi_fun,
+                                    mapping_f1_fun, mapping_f2_fun)
 
+    # TODO: it seems that the following method is never used
     def __build_icasadi(self):
         icasadi_dir = self.__icasadi_target_dir()
         command = self.__make_build_command()
@@ -508,8 +514,8 @@ class OpEnOptimizerBuilder:
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files
         self.__generate_icasadi_c_interface()    # generate icasadi/extern/icallocator.c
-        # self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
-        # self.__generate_build_rs()               # generate build.rs file
+        self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
+        self.__generate_build_rs()               # generate build.rs file
         # self.__generate_yaml_data_file()
         #
         # if not self.__generate_not_build:
