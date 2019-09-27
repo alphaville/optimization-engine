@@ -69,9 +69,10 @@ pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_pe
 // ---Parameters of the constraints----------------------------------------------------------------------
 
 {% if 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ -%}
-/// Constraints: Centre of Euclidean Ball
+/// Constraints: Centre of Ball
 const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
-/// Constraints: Radius of Euclidean Ball
+
+/// Constraints: Radius of Ball
 const CONSTRAINTS_BALL_RADIUS : f64 = {{problem.constraints.radius}};
 {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
 const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[{{problem.constraints.xmin|join(', ')}}]){% else %}None{% endif %};
@@ -85,6 +86,7 @@ const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not n
 {% if 'Ball2' == problem.alm_set_c.__class__.__name__ or 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
 /// Constraints: Centre of Euclidean Ball
 const SET_C_BALL_XC: Option<&[f64]> = {% if problem.alm_set_c.center is not none %}Some(&[{{problem.alm_set_c.center | join(', ')}}]){% else %}None{% endif %};
+
 /// Constraints: Radius of Euclidean Ball
 const SET_C_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
 {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
@@ -96,14 +98,18 @@ const SET_C_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}So
 
 // ---Parameters of ALM-type constraints (Set Y)---------------------------------------------------------
 
-{% if problem.alm_set_y is not none %}
+{% if problem.alm_set_y is not none -%}
 {% if 'Ball2' == problem.alm_set_y.__class__.__name__ or 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
 /// Constraints: Centre of Euclidean Ball
 const SET_Y_BALL_XC: Option<&[f64]> = {% if problem.alm_set_y.center is not none %}Some(&[{{problem.alm_set_y.center | join(', ')}}]){% else %}None{% endif %};
+
 /// Constraints: Radius of Euclidean Ball
 const SET_Y_BALL_RADIUS : f64 = {{problem.alm_set_y.radius}};
 {% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
+/// Y_min
 const SET_Y_XMIN :Option<&[f64]> = {% if problem.alm_set_y.xmin is not none %}Some(&[{{problem.alm_set_y.xmin|join(', ')}}]){% else %}None{% endif %};
+
+/// Y_max
 const SET_Y_XMAX :Option<&[f64]> = {% if problem.alm_set_y.xmax is not none %}Some(&[{{problem.alm_set_y.xmax|join(', ')}}]){% else %}None{% endif %};
 {% endif %}
 {% endif %}
@@ -111,6 +117,7 @@ const SET_Y_XMAX :Option<&[f64]> = {% if problem.alm_set_y.xmax is not none %}So
 
 // ---Internal private helper functions------------------------------------------------------------------
 
+/// Make constraints U
 fn make_constraints() -> impl Constraint {
     {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
     let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
@@ -124,7 +131,8 @@ fn make_constraints() -> impl Constraint {
     bounds
 }
 
-{% if problem.alm_set_c is not none %}
+{% if problem.alm_set_c is not none -%}
+/// Make set C
 fn make_set_c() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_c.__class__.__name__ -%}
     let set_c = Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
@@ -139,7 +147,8 @@ fn make_set_c() -> impl Constraint {
 }
 {% endif %}
 
-{% if problem.alm_set_y is not none %}
+{% if problem.alm_set_y is not none -%}
+/// Make set Y
 fn make_set_y() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_y.__class__.__name__ -%}
     let set_y = Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
@@ -174,6 +183,7 @@ pub fn solve(
     p: &[f64],
     alm_cache: &mut AlmCache,
     u: &mut [f64],
+    y0: &Option<Vec<f64>>
 ) -> Result<AlmOptimizerStatus, SolverError> {
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
@@ -227,7 +237,14 @@ pub fn solve(
         .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
         .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 
-    // solve the problem using `u` an the initial condition
-    // return the problem status (instance of `AlmOptimizerStatus`)
-    alm_optimizer.solve(u)
+    // solve the problem using `u` an the initial condition `u` and
+    // initial vector of Lagrange multipliers, if provided;
+    // returns the problem status (instance of `AlmOptimizerStatus`)
+    if let Some(y0_) = y0 {
+        let mut alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(&y0_);
+        alm_optimizer.solve(u)
+    } else {
+        alm_optimizer.solve(u)
+    }
+
 }

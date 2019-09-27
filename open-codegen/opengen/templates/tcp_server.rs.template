@@ -30,6 +30,8 @@ struct ExecutionParameter {
     parameter: Vec<f64>,
     /// Initial guess (can be null)
     initial_guess: Option<Vec<f64>>,
+    /// Initial Lagrange multipliers (can be null)
+    initial_lagrange_multipliers: Option<Vec<f64>>,
 }
 
 /// Request from the client
@@ -143,7 +145,7 @@ fn execution_handler(
         return;
     }
     p.copy_from_slice(&parameter);
-    let status = solve(&p, cache, u);
+    let status = solve(&p, cache, u, &execution_parameter.initial_lagrange_multipliers);
     match status {
         Ok(ok_status) => {
             return_solution_to_client(ok_status, u, stream);
@@ -182,9 +184,13 @@ fn run_server() {
         trace!("Received new request");
         match received_request {
             Ok(request_content) => match request_content {
-                ClientRequest::Run(param) => {
+                ClientRequest::Run(execution_param) => {
                     trace!("Running solver");
-                    execution_handler(&mut cache, &param, &mut u, &mut p, &mut stream);
+                    execution_handler(&mut cache,
+                                      &execution_param,
+                                      &mut u,
+                                      &mut p,
+                                      &mut stream);
                 }
                 ClientRequest::Kill(_) => {
                     info!("Quitting on request");

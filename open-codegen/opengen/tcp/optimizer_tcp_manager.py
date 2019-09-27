@@ -106,7 +106,7 @@ class OptimizerTcpManager:
         request = '{"Kill":1}'
         self.__send_receive_data(request)
 
-    def call(self, p, initial_guess=None, buffer_len=4096, max_data_size=1048576):
+    def call(self, p, initial_guess=None, initial_y=None, buffer_len=4096, max_data_size=1048576):
         """Calls the server
 
         Consumes the parametric optimizer by providing a parameter vector
@@ -140,6 +140,11 @@ class OptimizerTcpManager:
         if initial_guess is not None:
             run_message += ', "initial_guess": ['
             run_message += ','.join(map(str, initial_guess))
+            run_message += ']'
+
+        if initial_y is not None:
+            run_message += ', "initial_lagrange_multipliers": ['
+            run_message += ','.join(map(str, initial_y))
             run_message += ']'
 
         run_message += '}}'

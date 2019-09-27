@@ -57,18 +57,21 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 ///
 /// The ALM/PM algorithm performs the following iterations:
 ///
+/// - $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $x\gets{}x^0$, $t,z\gets{}0$
 /// - For $\nu=0,\ldots, \nu_{\max}$
 ///     - $y \gets \Pi_Y(y)$
 ///     - $x \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem is
-///         solved with tolerance $\epsilon$
-///         (see `AlmFactory` regarding how this is constructed)
+///         solved with tolerance $\bar\epsilon$
+///         (see [`AlmFactory`](./struct.AlmFactory.html) regarding how this is constructed)
 ///     - $y^+ \gets y + c(F_1(u) - \Pi_C(F_1(u) + y/c))$
 ///     - Define $z^+ \gets \Vert y^+ - y \Vert$ and $t^+ = \Vert F_2(u) \Vert$
-///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$
+///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(x, y^+)$
+///     - else if not ($\nu=0$ or ($z^+ \leq \theta z$ and $t^+ \leq \theta t$)), $c \gets \rho{}c$
+///     - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$
 ///
 ///
 /// ## Theoretical solution guarantees  
-/// The solver determines an $(\epsilon, delta)$-approximate KKT point for the problem,
+/// The solver determines an $(\epsilon, \delta)$-approximate KKT point for the problem,
 /// that is, a pair $(u^\star, y^\star)$ which satisfies
 ///
 /// $$
@@ -81,10 +84,11 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 /// \end{aligned}
 /// $$
 ///
-/// where $L:\mathbb{R}^{n_u}$ is the associated Lagrangian function which is given by
+/// where $L:\mathbb{R}^{n_u}\times\mathbb{R}^{n_1}{}\to{}\mathbb{R}$ is the associated
+/// Lagrangian function which is given by
 ///
 /// $$
-/// L(u, y) {}={} f(u) + y^\top F_1(u) + \delta_U(u) - \delta_{C^{\ast}}(y),
+/// L(u, y) {}={} f(u) + y^\top F_1(u) + \delta_U(u) + \delta_{C^{\ast}}(y),
 /// $$
 ///
 /// for $u\in\mathbb{R}^{n_u}$, $y\in\mathbb{R}^{n_1}$, $C^{\ast}$ is the convex conjugate set
@@ -180,10 +184,11 @@ where
     ///
     /// ## Arguments
     ///
-    /// - `alm_cache`: a reuseable instance of `AlmCache`, which is borrowed by
+    /// - `alm_cache`: a reuseable instance of [`AlmCache`](./struct.AlmCache.html), which is borrowed by
     ///    `AlmOptimizer`
-    /// - `alm_problem`: the problem specification (data for $f$, $\nabla f$, $F_1$
-    ///    (if any), $F_2$ (if any), and sets $C$, $U$ and $Y$)
+    /// - `alm_problem`: the problem specification (data for $\psi(u, \xi)$,
+    ///    $\nabla_u \psi(u, \xi)$, $F_1(u)$ (if any), $F_2(u)$ (if any), and sets
+    ///    $C$, $U$ and $Y$)
     ///
     ///
     /// ## Example

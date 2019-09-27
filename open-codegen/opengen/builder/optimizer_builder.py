@@ -471,7 +471,8 @@ class OpEnOptimizerBuilder:
                           'max_duration_micros': solver_config.max_duration_micros
                           }
         details = {'meta': metadata_details, 'tcp': tcp_details, 'build': build_details,
-                   'solver': solver_details}
+                   'solver': solver_details,
+                   "_comment": "auto-generated file; do not modify"}
         with open(target_yaml_file_path, 'w') as outfile:
             yaml.dump(details, outfile, Dumper=yaml.Dumper)
 
@@ -513,7 +514,7 @@ class OpEnOptimizerBuilder:
         self.__generate_icasadi_c_interface()    # generate icasadi/extern/interface.c
         self.__generate_main_project_code()      # generate main part of code (at build/{name}/src/main.rs)
         self.__generate_build_rs()               # generate build.rs file
-        self.__generate_yaml_data_file()
+        self.__generate_yaml_data_file()         # create YAML file with metadata
 
         if not self.__generate_not_build:
             logging.info("Building optimizer")
