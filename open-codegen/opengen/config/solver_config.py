@@ -20,11 +20,17 @@ class SolverConfiguration:
         self.__penalty_weight_update_factor = 5.0
         self.__max_duration_micros = 5000000
         self.__inner_tolerance_update_factor = 0.1
+        self.__sufficient_decrease_coefficient = 0.1
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
 
     # --------- GETTERS -----------------------------
+
+    @property
+    def sufficient_decrease_coefficient(self):
+        """Sufficient decrease coefficient"""
+        return self.__sufficient_decrease_coefficient
 
     @property
     def initial_penalty(self):
@@ -93,6 +99,13 @@ class SolverConfiguration:
         return self.__max_duration_micros
 
     # --------- SETTERS -----------------------------
+
+    def with_sufficient_decrease_coefficient(self, sufficient_decrease_coefficient):
+        """Specify the sufficient decrease coefficient of the algorithm"""
+        if sufficient_decrease_coefficient <= 0.0 or sufficient_decrease_coefficient >= 1.0:
+            raise Exception("sufficient decrease coeff must be in (0,1)")
+        self.__sufficient_decrease_coefficient = sufficient_decrease_coefficient
+        return self
 
     def with_initial_penalty(self, initial_penalty):
         """Initial penalty"""

@@ -39,6 +39,34 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 /// is a convex closed set on which we can easily compute projections.
 ///
 ///
+/// ## Numerical algorithm
+///
+///
+/// Input:
+///
+/// - $\epsilon, \delta > 0$ (tolerance),
+/// - $\nu_{\max}$ (maximum number of iterations),
+/// - $c_0 > 0$ (initial penalty parameter),  
+/// - $\epsilon_0 > \epsilon$ (initial tolerance),
+/// - $\rho > 1$ (update factor for the penalty parameter)
+/// - $\beta \in (0, 1)$ (decrease factor for the inner tolerance)
+/// - $\theta \in (0, 1)$ (sufficient decrease coefficient)
+/// - $u^0 \in \mathbb{R}^n$ (initial guess)
+/// - $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers)
+/// - $Y \subseteq C^*$ (compact set)
+///
+/// The ALM/PM algorithm performs the following iterations:
+///
+/// - For $\nu=0,\ldots, \nu_{\max}$
+///     - $y \gets \Pi_Y(y)$
+///     - $x \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem is
+///         solved with tolerance $\epsilon$
+///         (see `AlmFactory` regarding how this is constructed)
+///     - $y^+ \gets y + c(F_1(u) - \Pi_C(F_1(u) + y/c))$
+///     - Define $z^+ \gets \Vert y^+ - y \Vert$ and $t^+ = \Vert F_2(u) \Vert$
+///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$
+///
+///
 /// ## Theoretical solution guarantees  
 /// The solver determines an $(\epsilon, delta)$-approximate KKT point for the problem,
 /// that is, a pair $(u^\star, y^\star)$ which satisfies
@@ -721,12 +749,12 @@ where
         // This is if iteration = 0, or there has been a sufficient
         // decrease in infeasibility
         if cache.iteration == 0
-            || (problem.n1 > 0
+            || ((problem.n1 > 0
                 && cache.delta_y_norm_plus
                     <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON)
-            || (problem.n2 > 0
-                && cache.f2_norm_plus
-                    <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON)
+                && (problem.n2 > 0
+                    && cache.f2_norm_plus
+                        <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON))
         {
             return true;
         }

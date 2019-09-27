@@ -44,6 +44,9 @@ const PENALTY_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor 
 /// Initial penalty
 const INITIAL_PENALTY_PARAMETER: f64 = {{solver_config.initial_penalty or 1.0}};
 
+/// Sufficient decrease coefficient
+const SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT: f64 = {{solver_config.sufficient_decrease_coefficient or 0.1}};
+
 
 // ---Public Constants-----------------------------------------------------------------------------------
 
@@ -112,7 +115,7 @@ fn make_constraints() -> impl Constraint {
     {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
     let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
     {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
-    // not implemented yet
+    let bounds = BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
@@ -126,7 +129,7 @@ fn make_set_c() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_c.__class__.__name__ -%}
     let set_c = Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
     {% elif 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
-    // not implemented yet
+    let set_c = BallInf::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
     {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
     let set_c = Rectangle::new(SET_C_XMIN, SET_C_XMAX);
     {% elif 'NoConstraints' == problem.alm_set_c.__class__.__name__ -%}
@@ -141,7 +144,7 @@ fn make_set_y() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_y.__class__.__name__ -%}
     let set_y = Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
     {% elif 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
-    /* not implemented yet */
+    let set_y = BallInf::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
     {% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
     let set_y = Rectangle::new(SET_Y_XMIN, SET_Y_XMAX);
     {% elif 'NoConstraints' == problem.alm_set_y.__class__.__name__ -%}
@@ -221,7 +224,8 @@ pub fn solve(
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERATIONS)
         .with_initial_penalty(INITIAL_PENALTY_PARAMETER)
-        .with_penalty_update_factor(PENALTY_UPDATE_FACTOR);
+        .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
+        .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 
     // solve the problem using `u` an the initial condition
     // return the problem status (instance of `AlmOptimizerStatus`)
