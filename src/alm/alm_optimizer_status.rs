@@ -120,7 +120,7 @@ impl AlmOptimizerStatus {
     /// Lagrange multipliers of correct length
     ///
     pub(crate) fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[f64]) -> Self {
-        self.lagrange_multipliers = Some(vec![0.0]);
+        self.lagrange_multipliers = Some(vec![]);
         if let Some(y) = &mut self.lagrange_multipliers {
             y.extend_from_slice(&lagrange_multipliers);
         }

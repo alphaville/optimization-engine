@@ -301,6 +301,8 @@ fn t_alm_numeric_test_2() {
     assert!(mapping_f2(&u, &mut f2u).is_ok());
     assert!(crate::matrix_operations::norm2(&f2u) < 1e-4);
     println!("F2(u*) = {:#?}", &f2u);
+
+    println!("y = {:#?}", r.lagrange_multipliers());
 }
 
 fn mockito_f0(_u: &[f64], _xi: &[f64], _p: &[f64], cost: &mut f64) -> Result<(), SolverError> {
@@ -364,9 +366,7 @@ fn t_alm_numeric_test_repeat() {
         let mut u = vec![0.0; nx];
         let solver_result = alm_optimizer.solve(&mut u);
         assert!(solver_result.is_ok());
-        assert_eq!(
-            ExitStatus::Converged,
-            solver_result.unwrap().exit_status());
+        assert_eq!(ExitStatus::Converged, solver_result.unwrap().exit_status());
     }
 }
 

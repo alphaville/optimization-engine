@@ -7,8 +7,8 @@
 
 use crate::{constraints::Constraint, matrix_operations, SolverError};
 
-/// Prepares function `psi` and its gradient given the problem data: `f`, `df`,
-/// and optionally `F1`, `JF1`, `C` and `F2`
+/// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
+/// and optionally $F_1$, $JF_1$, $C$ and $F_2$
 ///
 /// ## Types
 ///

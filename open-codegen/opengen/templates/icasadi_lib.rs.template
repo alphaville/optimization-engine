@@ -17,16 +17,16 @@
 // #![no_std]
 
 /// Number of static parameters (this also includes penalty constraints)
-pub const NUM_STATIC_PARAMETERS: usize = {{ problem.dim_parameters() or 0 }};
+const NUM_STATIC_PARAMETERS: usize = {{ problem.dim_parameters() or 0 }};
 
 /// Number of decision variables
-pub const NUM_DECISION_VARIABLES: usize = {{ problem.dim_decision_variables() }};
+const NUM_DECISION_VARIABLES: usize = {{ problem.dim_decision_variables() }};
 
 /// Number of ALM-type constraints (dimension of F1, i.e., n1)
-pub const NUM_CONSTRAINTS_TYPE_ALM: usize = {{ problem.dim_constraints_aug_lagrangian() or 0 }};
+const NUM_CONSTRAINTS_TYPE_ALM: usize = {{ problem.dim_constraints_aug_lagrangian() or 0 }};
 
 /// Number of penalty constraints (dimension of F2, i.e., n2)
-pub const NUM_CONSTAINTS_TYPE_PENALTY: usize = {{ problem.dim_constraints_penalty() or 0 }};
+const NUM_CONSTAINTS_TYPE_PENALTY: usize = {{ problem.dim_constraints_penalty() or 0 }};
 
 use libc::{c_double, c_int};  // might need to include: c_longlong, c_void
 
@@ -228,16 +228,6 @@ pub fn mapping_f2(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn tst_num_static() {
-        let _np = NUM_STATIC_PARAMETERS;
-    }
-
-    #[test]
-    fn tst_num_decision_var() {
-        let _nu = NUM_DECISION_VARIABLES;
-    }
 
     #[test]
     fn tst_call_cost() {
