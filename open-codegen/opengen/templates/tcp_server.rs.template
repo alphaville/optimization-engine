@@ -50,7 +50,6 @@ struct OptimizerSolution<'a> {
     num_outer_iterations: usize,
     num_inner_iterations: usize,
     last_problem_norm_fpr: f64,
-    max_constraint_violation: f64,
     solve_time_ms: f64,
     penalty: f64,
     solution: &'a [f64],
@@ -95,7 +94,6 @@ fn return_solution_to_client(
         last_problem_norm_fpr: status.last_problem_norm_fpr(),
         penalty: status.penalty(),
         lagrange_multipliers: if let Some(y) = &status.lagrange_multipliers() { y } else { &empty_vec },
-        max_constraint_violation: -1.0,
         solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
         solution: solution,
 

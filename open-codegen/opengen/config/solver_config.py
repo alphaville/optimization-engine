@@ -11,18 +11,26 @@ class SolverConfiguration:
 
         """
         self.__tolerance = 1e-4
+        self.__initial_tolerance = 1e-4
         self.__lbfgs_memory = 10
         self.__max_inner_iterations = 500
         self.__max_outer_iterations = 10
         self.__constraints_tolerance = 1e-4
+        self.__initial_penalty = 1.0
         self.__penalty_weight_update_factor = 5.0
-        self.__initial_weights = 10.0
         self.__max_duration_micros = 5000000
+        self.__inner_tolerance_update_factor = 0.1
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
 
     # --------- GETTERS -----------------------------
+
+    @property
+    def initial_penalty(self):
+        """Initial penalty"""
+        return self.__initial_penalty
+
     @property
     def cbfgs_alpha(self):
         return self.__cbfgs_alpha
@@ -39,6 +47,16 @@ class SolverConfiguration:
     def tolerance(self):
         """Tolerance of inner solver"""
         return self.__tolerance
+
+    @property
+    def initial_tolerance(self):
+        """Initial tolerance of inner solver"""
+        return self.__initial_tolerance
+
+    @property
+    def inner_tolerance_update_factor(self):
+        """"Update factor for inner tolerance"""
+        return self.__inner_tolerance_update_factor
 
     @property
     def lbfgs_memory(self):
@@ -66,14 +84,6 @@ class SolverConfiguration:
         return self.__penalty_weight_update_factor
 
     @property
-    def initial_penalty_weights(self):
-        """Initial penalty weights"""
-        if isinstance(self.__initial_weights, list):
-            return self.__initial_weights
-        else:
-            return [self.__initial_weights]
-
-    @property
     def max_duration_micros(self):
         """Maximum execution time in microseconds
 
@@ -83,6 +93,15 @@ class SolverConfiguration:
         return self.__max_duration_micros
 
     # --------- SETTERS -----------------------------
+
+    def with_initial_penalty(self, initial_penalty):
+        """Initial penalty"""
+        if initial_penalty <= 0:
+            raise Exception("Initial penalty must be >0")
+
+        self.__initial_penalty = float(initial_penalty)
+        return self
+
     def with_tolerance(self, tolerance):
         """Specify tolerance
 
@@ -95,6 +114,19 @@ class SolverConfiguration:
         if tolerance <= 0:
             raise Exception("The tolerance must be >0")
         self.__tolerance = float(tolerance)
+        return self
+
+    def with_initial_tolerance(self, initial_tolerance):
+        if initial_tolerance <= 0:
+            raise Exception("The initial tolerance must be >0")
+        self.__initial_tolerance = float(initial_tolerance)
+        return self
+
+    def with_inner_tolerance_update_factor(self, inner_tol_update_factor):
+        if inner_tol_update_factor <= 0 or inner_tol_update_factor > 1:
+            raise Exception("The tolerance update factor must be in [0, 1)")
+
+        self.__inner_tolerance_update_factor = float(inner_tol_update_factor)
         return self
 
     def with_lfbgs_memory(self, lbfgs_memory):
@@ -123,7 +155,7 @@ class SolverConfiguration:
         self.__max_inner_iterations = int(max_iters)
         return self
 
-    def with_constraints_tolerance(self, constraints_tolerance):
+    def with_delta_tolerance(self, constraints_tolerance):
         """Tolerance on constraint violation
 
         Returns:
@@ -163,15 +195,6 @@ class SolverConfiguration:
         if penalty_weight_update_factor < 1.0:
             raise Exception("The penalty update factor needs to be >= 1")
         self.__penalty_weight_update_factor = float(penalty_weight_update_factor)
-        return self
-
-    def with_initial_penalty_weights(self, initial_weights):
-        """Specify the initial penalty weights
-
-        Returns:
-            The current object
-        """
-        self.__initial_weights = initial_weights
         return self
 
     def with_max_duration_micros(self, max_duration_micros):

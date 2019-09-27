@@ -17,6 +17,12 @@ use optimization_engine::{constraints::*, panoc::*, alm::*, *};
 /// Tolerance of inner solver
 const EPSILON_TOLERANCE: f64 = {{solver_config.tolerance or 0.0001}};
 
+/// Initial tolerance
+const INITIAL_EPSILON_TOLERANCE: f64 = {{solver_config.initial_tolerance or 0.0001}};
+
+/// Update factor for inner tolerance
+const EPSILON_TOLERANCE_UPDATE_FACTOR: f64 = {{solver_config.inner_tolerance_update_factor or 0.1}};
+
 /// Delta tolerance
 const DELTA_TOLERANCE: f64 = {{solver_config.constraints_tolerance or 0.0001}};
 
@@ -32,6 +38,11 @@ const MAX_OUTER_ITERATIONS: usize = {{solver_config.max_outer_iterations or 10}}
 /// Maximum execution duration in microseconds
 const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 
+/// Penalty update factor
+const PENALTY_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 10.0}};
+
+/// Initial penalty
+const INITIAL_PENALTY_PARAMETER: f64 = {{solver_config.initial_penalty or 1.0}};
 
 
 // ---Public Constants-----------------------------------------------------------------------------------
@@ -204,10 +215,13 @@ pub fn solve(
     let mut alm_optimizer = AlmOptimizer::new(alm_cache, alm_problem)
         .with_delta_tolerance(DELTA_TOLERANCE)
         .with_epsilon_tolerance(EPSILON_TOLERANCE)
-        .with_initial_inner_tolerance(EPSILON_TOLERANCE)
+        .with_initial_inner_tolerance(INITIAL_EPSILON_TOLERANCE)
+        .with_inner_tolerance_update_factor(EPSILON_TOLERANCE_UPDATE_FACTOR)
         .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS))
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
-        .with_max_inner_iterations(MAX_INNER_ITERATIONS);
+        .with_max_inner_iterations(MAX_INNER_ITERATIONS)
+        .with_initial_penalty(INITIAL_PENALTY_PARAMETER)
+        .with_penalty_update_factor(PENALTY_UPDATE_FACTOR);
 
     // solve the problem using `u` an the initial condition
     // return the problem status (instance of `AlmOptimizerStatus`)
