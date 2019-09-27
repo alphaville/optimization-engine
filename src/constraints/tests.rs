@@ -373,3 +373,52 @@ fn t_cartesian_product_dimension() {
         "wrong projection on cartesian product",
     );
 }
+
+#[test]
+fn t_ball_inf_origin() {
+    let ball_inf = BallInf::new(None, 1.0);
+    let mut x = [0.0, -0.5, 0.5, 1.5, 3.5, 0.8, 1.1, -5.0, -10.0];
+    let x_correct = [0.0, -0.5, 0.5, 1.0, 1.0, 0.8, 1.0, -1.0, -1.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-10,
+        1e-12,
+        "projection on ball inf",
+    );
+    println!("x = {:#?}", x);
+}
+
+#[test]
+fn t_ball_inf_center() {
+    let xc = [5.0, -6.0];
+    let ball_inf = BallInf::new(Some(&xc), 1.5);
+    let mut x = [11.0, -0.5];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[6.5, -4.5], &x, 1e-10, 1e-12, "upper right");
+
+    let mut x = [3.0, -7.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[3.5, -7.0], &x, 1e-10, 1e-12, "left");
+
+    let mut x = [800.0, -5.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[6.5, -5.0], &x, 1e-10, 1e-12, "right");
+
+    let mut x = [9.0, -10.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[6.5, -7.5], &x, 1e-10, 1e-12, "down right");
+
+    let mut x = [3.0, 0.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[3.5, -4.5], &x, 1e-10, 1e-12, "top left");
+
+    let mut x = [6.0, -5.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[6.0, -5.0], &x, 1e-10, 1e-12, "inside");
+
+    let mut x = [5.0, -6.0];
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[5.0, -6.0], &x, 1e-10, 1e-12, "centre");
+}

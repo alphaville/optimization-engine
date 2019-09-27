@@ -1,8 +1,8 @@
 use super::Constraint;
 
 ///
-/// A finite set, `X = {x1, x2, ..., xn}`, where `xi` are given vectors
-/// of equal dimensions.
+/// A finite set, $X = \\{x_1, x_2, \ldots, x_n\\}\subseteq\mathbb{R}^n$, given vectors
+/// $x_i\in\mathbb{R}^n$
 ///
 pub struct FiniteSet {
     /// The data is stored in a Vec-of-Vec datatype, that is, a vector
@@ -11,8 +11,8 @@ pub struct FiniteSet {
 }
 
 impl FiniteSet {
-    /// Construct a finite set, `X = {x1, x2, ..., xn}`, given vectors
-    /// `xi` of equal dimensions
+    /// Construct a finite set, $X = \\{x_1, x_2, \ldots, x_n\\}$, given vectors
+    /// $x_i\in\mathbb{R}^n$
     ///
     ///
     /// ### Parameters

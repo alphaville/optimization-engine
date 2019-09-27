@@ -1,6 +1,7 @@
 //! Constraints and projections
 
 mod ball2;
+mod ballinf;
 mod cartesian_product;
 mod finite;
 mod no_constraints;
@@ -8,6 +9,7 @@ mod rectangle;
 mod soc;
 
 pub use ball2::Ball2;
+pub use ballinf::BallInf;
 pub use cartesian_product::CartesianProduct;
 pub use finite::FiniteSet;
 pub use no_constraints::NoConstraints;

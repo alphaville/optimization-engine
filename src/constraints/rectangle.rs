@@ -1,17 +1,32 @@
 use super::Constraint;
 
 ///
-/// A rectangle
+/// A rectangle, $R = \\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$
 ///
-/// A set of the form `{x : xmin <= x <= xmax}`, where `<=` is meant in the
-/// element-wise sense and either of `xmin` and `xmax` can be equal to infinity.
+/// A set of the form $\\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$,
+/// where $\leq$ is meant in the element-wise sense and either of $x_{\min}$ and $x_{\max}$ can
+/// be equal to infinity.
 pub struct Rectangle<'a> {
     xmin: Option<&'a [f64]>,
     xmax: Option<&'a [f64]>,
 }
 
 impl<'a> Rectangle<'a> {
-    /// Construct a new rectangle with given `xmin` and `xmax`
+    /// Construct a new rectangle with given $x_{\min}$ and $x_{\max}$
+    ///
+    /// ## Arguments
+    /// 
+    /// - `xmin`
+    /// - `xmin`
+    /// 
+    /// ## Panics
+    /// 
+    /// The method panics if:
+    /// 
+    /// - Both `xmin` and `xmax` are `None` (use `NoConstraints` instead)
+    /// - Both `xmin` and `xmax` have been provided, but they have incompatible 
+    ///   dimensions
+    /// 
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
         assert!(xmin != None || xmax != None); // xmin or xmax must be Some
         assert!(
