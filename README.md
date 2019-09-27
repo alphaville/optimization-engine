@@ -57,7 +57,7 @@ You can use the [MATLAB](https://alphaville.github.io/optimization-engine/docs/m
 
 This can then be called directly, using Rust, or, it can be consumed as a service over a [UDP socket](https://alphaville.github.io/optimization-engine/docs/udp-sockets).
 
-![Code generation](website/static/img/115ba54c2ad0.gif "Easy Code Generation")
+![Code generation](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/115ba54c2ad0.gif "Easy Code Generation")
 
 You can generate a parametric optimizer in just very few lines of code and in no time.
 
@@ -66,7 +66,7 @@ OpEn allows application developers and researchers to focus on the challenges of
 ### Embedded applications
 OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz** using only **15%** CPU!
 
-![Autonomous Aerial Vehicle](website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
+![Autonomous Aerial Vehicle](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
 
 
 ## Getting started
