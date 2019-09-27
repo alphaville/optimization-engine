@@ -54,21 +54,62 @@ pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_pe
 
 // ---Parameters of the constraints----------------------------------------------------------------------
 
-{% if 'Ball2' == problem.constraints.__class__.__name__ -%}
+{% if 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ -%}
 /// Constraints: Centre of Euclidean Ball
-const CONSTRAINTS_BALL2_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
-
+const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
 /// Constraints: Radius of Euclidean Ball
-const CONSTRAINTS_BALL2_RADIUS : f64 = {{problem.constraints.radius}};
-{%- endif %}
+const CONSTRAINTS_BALL_RADIUS : f64 = {{problem.constraints.radius}};
+{% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[{{problem.constraints.xmin|join(', ')}}]){% else %}None{% endif %};
+const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not none %}Some(&[{{problem.constraints.xmax|join(', ')}}]){% else %}None{% endif %};
+{% endif %}
+
+
+
+// ---Parameters of ALM-type constraints (Set C)---------------------------------------------------------
+
+{% if problem.alm_set_c is not none %}
+{% if 'Ball2' == problem.alm_set_c.__class__.__name__ or 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
+/// Constraints: Centre of Euclidean Ball
+const SET_C_BALL_XC: Option<&[f64]> = {% if problem.alm_set_c.center is not none %}Some(&[{{problem.alm_set_c.center | join(', ')}}]){% else %}None{% endif %};
+/// Constraints: Radius of Euclidean Ball
+const SET_C_CONSTRAINTS_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
+{% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
+const SET_C_CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[{{problem.alm_set_c.xmin|join(', ')}}]){% else %}None{% endif %};
+const SET_C_CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[{{problem.alm_set_c.xmax|join(', ')}}]){% else %}None{% endif %};
+{% endif %}
+{% endif %}
 
 
 // ---Internal private helper functions------------------------------------------------------------------
 
 fn make_constraints() -> impl Constraint {
-    let bounds = Ball2::new(CONSTRAINTS_BALL2_XC, CONSTRAINTS_BALL2_RADIUS);
+    {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
+    let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
+    let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+    let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
+    {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
+    let bounds = NoConstraints::new();
+    {% endif -%}
     bounds
 }
+
+{% if problem.alm_set_c is not none %}
+fn make_set_c() -> impl Constraint {
+    {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
+    let set_c = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
+    let set_c = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+    let set_c = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
+    {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
+    let set_c = NoConstraints::new();
+    {% endif -%}
+    set_c
+}
+{% endif %}
 
 // ---Main public API functions--------------------------------------------------------------------------
 
@@ -85,6 +126,7 @@ pub fn initialize_solver() -> AlmCache {
 }
 
 
+/// Solver interface
 pub fn solve(
     p: &[f64],
     alm_cache: &mut AlmCache,
@@ -115,7 +157,7 @@ pub fn solve(
 
     {% if problem.dim_constraints_aug_lagrangian() > 0 -%}
     let set_y = Ball2::new(None, 10000.0);
-    let set_c = Ball2::new(None, 1.0);
+    let set_c = make_set_c();
     {% endif -%}
 
     let alm_problem = AlmProblem::new(
