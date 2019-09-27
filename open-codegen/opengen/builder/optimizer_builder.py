@@ -264,7 +264,7 @@ class OpEnOptimizerBuilder:
             psi += xi[0] * sq_dist_term / 2
 
         if n2 > 0:
-            psi += xi[0] * cs.norm_2(f2) / 2
+            psi += xi[0] * cs.dot(f2, f2) / 2
 
         jac_psi = cs.jacobian(psi, u)
 
