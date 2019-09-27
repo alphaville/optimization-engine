@@ -52,7 +52,7 @@ class Ball2(Constraint):
 
             :return: distance from set as a float or a CasADi symbol
         """
-        if isinstance(u, cs.SX):
+        if fn.is_symbolic(u):
             # Case I: `u` is a CasADi SX symbol
             v = u if self.__center is None else u - self.__center
         elif (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u))\

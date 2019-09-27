@@ -863,6 +863,8 @@ where
             .with_outer_iterations(num_outer_iterations)
             .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()))
             .with_last_problem_norm_fpr(self.alm_cache.last_inner_problem_norm_fpr)
+            .with_delta_y_norm(self.alm_cache.delta_y_norm_plus)
+            .with_f2_norm(self.alm_cache.f2_norm_plus)
             .with_penalty(c))
     }
 }
@@ -1285,7 +1287,10 @@ mod tests {
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_delta_tolerance(1e-3);
 
         // should not exit yet...
-        assert!(!alm_optimizer.is_exit_criterion_satisfied(), "exists right away");
+        assert!(
+            !alm_optimizer.is_exit_criterion_satisfied(),
+            "exists right away"
+        );
 
         let mut alm_optimizer = alm_optimizer
             .with_initial_inner_tolerance(1e-3)

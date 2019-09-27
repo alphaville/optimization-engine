@@ -25,6 +25,8 @@ pub struct AlmOptimizerStatus {
     solve_time: std::time::Duration,
     /// Last value of penalty parameter
     penalty: f64,
+    delta_y_norm: f64,
+    f2_norm: f64,
 }
 
 impl AlmOptimizerStatus {
@@ -57,6 +59,8 @@ impl AlmOptimizerStatus {
             lagrange_multipliers: None,
             solve_time: std::time::Duration::from_nanos(0),
             penalty: 0.0,
+            delta_y_norm: 0.0,
+            f2_norm: 0.0,
         }
     }
 
@@ -160,6 +164,18 @@ impl AlmOptimizerStatus {
         self
     }
 
+    pub(crate) fn with_delta_y_norm(mut self, delta_y_norm: f64) -> Self {
+        assert!(delta_y_norm >= 0.0, "delta_y_norm must be nonnegative");
+        self.delta_y_norm = delta_y_norm;
+        self
+    }
+
+    pub(crate) fn with_f2_norm(mut self, f2_norm: f64) -> Self {
+        assert!(f2_norm >= 0.0, "f2_norm must be nonnegative");
+        self.f2_norm = f2_norm;
+        self
+    }
+
     // -------------------------------------------------
     // Getter Methods
     // -------------------------------------------------
@@ -234,5 +250,16 @@ impl AlmOptimizerStatus {
     /// Does not panic
     pub fn penalty(&self) -> f64 {
         self.penalty
+    }
+
+    /// Norm of Delta y divided by max{c, 1} - measure of infeasibility
+    pub fn delta_y_norm_over_c(&self) -> f64 {
+        let c = self.penalty();
+        self.delta_y_norm / if c < 1.0 { 1.0 } else { c }
+    }
+
+    /// Norm of F2(u) - measure of infeasibility of F2(u) = 0
+    pub fn f2_norm(&self) -> f64 {
+        self.f2_norm
     }
 }
