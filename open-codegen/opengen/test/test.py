@@ -46,7 +46,7 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_solver_config_wrong_constraints_tolerance(self):
         with self.assertRaises(Exception) as __context:
-            og.config.SolverConfiguration().with_constraints_tolerance(0)
+            og.config.SolverConfiguration().with_delta_tolerance(0)
 
     def test_solver_config_wrong_inner_tolerance(self):
         with self.assertRaises(Exception) as __context:
@@ -151,7 +151,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_lfbgs_memory(15)                        \
             .with_tolerance(1e-5)                         \
             .with_max_inner_iterations(155)               \
-            .with_constraints_tolerance(1e-4)             \
+            .with_delta_tolerance(1e-4)             \
             .with_max_outer_iterations(15)                \
             .with_penalty_weight_update_factor(8.0)       \
             .with_initial_penalty_weights([20.0, 5.0]).with_cbfgs_parameters(1.0, 1e-8, 1e-9)
@@ -192,7 +192,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_lfbgs_memory(15)                        \
             .with_tolerance(1e-5)                         \
             .with_max_inner_iterations(155)               \
-            .with_constraints_tolerance(1e-4)             \
+            .with_delta_tolerance(1e-4)             \
             .with_max_outer_iterations(15)                \
             .with_penalty_weight_update_factor(8.0)       \
             .with_initial_penalty_weights([20.0, 5.0])

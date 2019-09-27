@@ -1,6 +1,25 @@
 use crate::{constraints::Constraint, SolverError};
 
-/// Definition of optimization problem to be solved with `AlmOptimizer`
+/// Definition of optimization problem to be solved with `AlmOptimizer`. The optimization
+/// problem has the general form
+///
+/// $$\begin{aligned}
+/// \mathrm{Minimize}\  f(u)
+/// \\\\
+/// u \in U
+/// \\\\
+/// F_1(u) \in C
+/// \\\\
+/// F_2(u) = 0
+/// \end{aligned}$$
+///
+/// where $u\in\mathbb{R}^{n_u}$, $f:\mathbb{R}^n\to\mathbb{R}$ is a $C^{1,1}$-smooth cost
+/// function, $U$ is a (not necessarily convex) closed subset of $\mathbb{R}^{n_u}$
+/// on which we can easily compute projections (e.g., a rectangle, a ball, a second-order cone,
+/// a finite set, etc), $F_1:\mathbb{R}^{n_u}\to\mathbb{R}^{n_1}$ and $F_2:\mathbb{R}^{n_u}
+/// \to\mathbb{R}^{n_2}$ are mappings with smooth partial derivatives, and $C\subseteq\mathbb{R}^{n_1}$
+/// is a convex closed set on which we can easily compute projections.
+///
 pub struct AlmProblem<
     MappingAlm,
     MappingPm,
@@ -77,15 +96,16 @@ where
     ///
     /// ## Arguments
     ///
-    /// - `constraints`: hard constraints
-    /// - `alm_set_c`: Set `C` of ALM-specific constraints
-    /// - `alm_set_y`: Compact, convex set `Y` of Lagrange multipliers
-    /// - `parametric_cost`: Parametric cost function, `f(x; p)`
-    /// - `parametric_gradient`: Gradient of cost function wrt `x`, that is `df(x; p)`
-    /// - `mapping_f1`: Mapping `F1` of ALM-specific constraints (`F1(x; p) in C`)
-    /// - `mapping_f2`: Mapping `F2` of PM-specific constraints (`F2(x; p) = 0`)
-    /// - `n1`: range dimension of `mapping_f1`
-    /// - `n2`: range dimension of `mapping_f2`
+    /// - `constraints`: hard constraints, set $U$
+    /// - `alm_set_c`: Set $C$ of ALM-specific constraints (convex, closed)
+    /// - `alm_set_y`: Compact, convex set $Y$ of Lagrange multipliers, which needs to be a
+    ///    compact subset of $C^*$ (the convex conjugate of the convex set $C{}\subseteq{}\mathbb{R}^{n_1}$)
+    /// - `parametric_cost`: Parametric cost function, $\psi(u, \xi)$, where $\xi = (c, y)$
+    /// - `parametric_gradient`: Gradient of cost function wrt $u$, that is $\nabla_x \psi(u, \xi)$
+    /// - `mapping_f1`: Mapping `F1` of ALM-specific constraints ($F1(u) \in C$)
+    /// - `mapping_f2`: Mapping `F2` of PM-specific constraints ($F2(u) = 0$)
+    /// - `n1`: range dimension of $F_1(u)$ (that is, `mapping_f1`)
+    /// - `n2`: range dimension of $F_2(u)$ (that is, `mapping_f2`)
     ///
     ///
     /// ## Returns
@@ -98,13 +118,13 @@ where
     /// ```rust
     /// use optimization_engine::{SolverError, alm::*, constraints::Ball2};
     ///
-    /// let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
+    /// let dpsi = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
     /// let n1 = 0;
     /// let n2 = 0;
     /// let bounds = Ball2::new(None, 10.0);
     /// let _alm_problem = AlmProblem::new(
-    ///     bounds, NO_SET, NO_SET, f, df, NO_MAPPING, NO_MAPPING, n1, n2,
+    ///     bounds, NO_SET, NO_SET, psi, dpsi, NO_MAPPING, NO_MAPPING, n1, n2,
     /// );
     /// ```
     ///

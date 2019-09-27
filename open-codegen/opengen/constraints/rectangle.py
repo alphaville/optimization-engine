@@ -1,4 +1,9 @@
-class Rectangle:
+from .constraint import Constraint
+import numpy as np
+import opengen.functions as fn
+
+
+class Rectangle(Constraint):
     """A Rectangle (Box) constraint"""
 
     def __init__(self, xmin, xmax):
@@ -10,7 +15,7 @@ class Rectangle:
 
         Raises:
             Exception: if both xmin and xmax is None
-            Exception: if xmin/xmax is not None and not a list (wrong type)
+              Exception: if xmin/xmax is not None and not a list (wrong type)
             Exception: if xmin and xmax have incompatible lengths
             Exception: if xmin(i) > xmax(i) for some i (empty set)
 
@@ -50,3 +55,81 @@ class Rectangle:
         """Maximum bound"""
         return self.__xmax
 
+    def dimension(self):
+        if self.__xmin is not None:
+            return len(self.__xmin)
+        elif self.__xmax is not None:
+            return len(self.__xmax)
+        else:
+            raise Exception("Absurd: both xmin and xmax are None!")
+
+    def idx_bound_finite_all(self):
+        idx_both_finite = []
+
+        if self.__xmin is None or self.__xmax is None:
+            return idx_both_finite
+
+        for i in range(self.dimension()):
+            xmini = self.__xmin[i]
+            xmaxi = self.__xmax[i]
+            if xmini > float('-inf') and xmaxi < float('inf'):
+                idx_both_finite += [i]
+
+        return idx_both_finite
+
+    def idx_infinite_only_xmin(self):
+        idx_xmin_infinite = []
+
+        if self.__xmax is None:
+            # If xmax is None (infinite), we should return
+            # the empty set
+            return idx_xmin_infinite
+
+        # Hereafter, xmax is not None (but xmin can be None)
+
+        for i in range(self.dimension()):
+            xmini = self.__xmin[i] if self.__xmin is not None else float('-inf')
+            xmaxi = self.__xmax[i]
+            if xmini == float('-inf') and xmaxi < float('inf'):
+                idx_xmin_infinite += [i]
+
+        return idx_xmin_infinite
+
+    def idx_infinite_only_xmax(self):
+        idx_xmin_infinite = []
+
+        if self.__xmin is None:
+            # If xmin is None (-infinity), we should return
+            # the empty set
+            return idx_xmin_infinite
+
+        # Hereafter, xmin is not None (xmax might be)
+        for i in range(self.dimension()):
+            xmini = self.__xmin[i]
+            xmaxi = self.__xmax[i] if self.__xmax is not None else float('inf')
+            if xmaxi == float('inf') and xmini > float('-inf'):
+                idx_xmin_infinite += [i]
+
+        return idx_xmin_infinite
+
+    def distance_squared(self, u):
+        idx1 = self.idx_infinite_only_xmin()
+        idx2 = self.idx_infinite_only_xmax()
+        idx3 = self.idx_bound_finite_all()
+
+        dist_sq = 0.0
+        for i in idx1:
+            dist_sq += fn.fmax(0.0, u[i] - self.__xmax[i]) ** 2
+
+        for i in idx2:
+            dist_sq += fn.fmin(0.0, u[i] - self.__xmin[i]) ** 2
+
+        for i in idx3:
+            dist_sq += fn.fmin(
+                fn.fmax(0.0, u[i] - self.__xmax[i]),
+                u[i] - self.__xmin[i]) ** 2
+
+        return dist_sq
+
+    def project(self, u):
+        raise NotImplementedError()

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.6.1-alpha.2] - 2019-09-7
+
 ### Fixed
 
 * TCP server: Malformed error JSON is now fixed
@@ -19,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-* Rust implementation of augmented Lagrangian method (ALM)
+* Rust implementation of joint ALM/PM algorithms
 * Rust docs for ALM
 * Release of crate version `0.6.1-alpha.1`
 * Introduced `#![allow(dead_code)]` in ALM implementation
@@ -32,6 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 * Support for Python <3.6 (deprecated)
+* Module `continuation` is going to become obsolete
 
 <!-- ---------------------
       v0.5.0
@@ -116,7 +119,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...master
+[v0.6.1-alpha.2]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...v0.6.1-alpha.2
 [v0.5.0]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1

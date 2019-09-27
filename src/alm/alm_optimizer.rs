@@ -35,9 +35,8 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 /// function, $U$ is a (not necessarily convex) closed subset of $\mathbb{R}^{n_u}$
 /// on which we can easily compute projections (e.g., a rectangle, a ball, a second-order cone,
 /// a finite set, etc), $F_1:\mathbb{R}^{n_u}\to\mathbb{R}^{n_1}$ and $F_2:\mathbb{R}^{n_u}
-/// \to\mathbb{R}^{n_2}$ are mappings with smooth partial derivatives, and  
-/// $C\subseteq\mathbb{R}^{n_1}$ is a convex closed set on which we can easily compute
-/// projections.
+/// \to\mathbb{R}^{n_2}$ are mappings with smooth partial derivatives, and $C\subseteq\mathbb{R}^{n_1}$
+/// is a convex closed set on which we can easily compute projections.
 ///
 ///
 /// ## Theoretical solution guarantees  
@@ -46,11 +45,11 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 ///
 /// $$
 /// \begin{aligned}
-/// v {}\in{}& \partial_u L(u^\star, y^\star), \text{ with } \|v\| \leq \epsilon,
+/// v {}\in{}& \partial_u L(u^\star, y^\star), \text{ with } \Vert v \Vert \leq \epsilon,
 /// \\\\
-/// w {}\in{}& \partial_y [-L](u^\star, y^\star), \text{ with } \|w\| \leq \delta,
+/// w {}\in{}& \partial_y [-L](u^\star, y^\star), \text{ with } \Vert w \Vert \leq \delta,
 /// \\\\
-/// \|F_2(u^\star)\| {}\leq{}& \delta
+/// \Vert F_2(u^\star) \Vert {}\leq{}& \delta
 /// \end{aligned}
 /// $$
 ///
@@ -695,7 +694,8 @@ where
         let criterion_1 = problem.n1 == 0
             || if let Some(xi) = &cache.xi {
                 let c = xi[0];
-                cache.delta_y_norm_plus <= c * self.delta_tolerance + SMALL_EPSILON
+                cache.iteration > 0
+                    && cache.delta_y_norm_plus <= c * self.delta_tolerance + SMALL_EPSILON
             } else {
                 true
             };
@@ -1279,12 +1279,13 @@ mod tests {
         let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-6, 5, 2, 2, 3);
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        alm_cache.iteration = 2;
         let alm_problem = make_dummy_alm_problem(n1, n2);
         let alm_optimizer =
             AlmOptimizer::new(&mut alm_cache, alm_problem).with_delta_tolerance(1e-3);
 
         // should not exit yet...
-        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+        assert!(!alm_optimizer.is_exit_criterion_satisfied(), "exists right away");
 
         let mut alm_optimizer = alm_optimizer
             .with_initial_inner_tolerance(1e-3)

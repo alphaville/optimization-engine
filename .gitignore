@@ -7,6 +7,7 @@ target/
 *.odp#
 *.egg-info
 *.pyc
+open-codegen/opengen/icasadi/extern/Makefile
 
 # Python tests create this folder:
 open-codegen/opengen/.python_test_build/
