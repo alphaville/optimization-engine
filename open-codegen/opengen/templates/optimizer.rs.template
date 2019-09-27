@@ -65,7 +65,6 @@ const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not n
 {% endif %}
 
 
-
 // ---Parameters of ALM-type constraints (Set C)---------------------------------------------------------
 
 {% if problem.alm_set_c is not none %}
@@ -73,10 +72,25 @@ const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not n
 /// Constraints: Centre of Euclidean Ball
 const SET_C_BALL_XC: Option<&[f64]> = {% if problem.alm_set_c.center is not none %}Some(&[{{problem.alm_set_c.center | join(', ')}}]){% else %}None{% endif %};
 /// Constraints: Radius of Euclidean Ball
-const SET_C_CONSTRAINTS_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
+const SET_C_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
 {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
-const SET_C_CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[{{problem.alm_set_c.xmin|join(', ')}}]){% else %}None{% endif %};
-const SET_C_CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[{{problem.alm_set_c.xmax|join(', ')}}]){% else %}None{% endif %};
+const SET_C_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[{{problem.alm_set_c.xmin|join(', ')}}]){% else %}None{% endif %};
+const SET_C_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[{{problem.alm_set_c.xmax|join(', ')}}]){% else %}None{% endif %};
+{% endif %}
+{% endif %}
+
+
+// ---Parameters of ALM-type constraints (Set Y)---------------------------------------------------------
+
+{% if problem.alm_set_y is not none %}
+{% if 'Ball2' == problem.alm_set_y.__class__.__name__ or 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
+/// Constraints: Centre of Euclidean Ball
+const SET_Y_BALL_XC: Option<&[f64]> = {% if problem.alm_set_y.center is not none %}Some(&[{{problem.alm_set_y.center | join(', ')}}]){% else %}None{% endif %};
+/// Constraints: Radius of Euclidean Ball
+const SET_Y_BALL_RADIUS : f64 = {{problem.alm_set_y.radius}};
+{% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
+const SET_Y_XMIN :Option<&[f64]> = {% if problem.alm_set_y.xmin is not none %}Some(&[{{problem.alm_set_y.xmin|join(', ')}}]){% else %}None{% endif %};
+const SET_Y_XMAX :Option<&[f64]> = {% if problem.alm_set_y.xmax is not none %}Some(&[{{problem.alm_set_y.xmax|join(', ')}}]){% else %}None{% endif %};
 {% endif %}
 {% endif %}
 
@@ -87,7 +101,7 @@ fn make_constraints() -> impl Constraint {
     {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
     let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
     {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
-    let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    // not implemented yet
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
@@ -98,16 +112,31 @@ fn make_constraints() -> impl Constraint {
 
 {% if problem.alm_set_c is not none %}
 fn make_set_c() -> impl Constraint {
-    {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
-    let set_c = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
-    {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
-    let set_c = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
-    {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
-    let set_c = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
-    {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
+    {% if 'Ball2' == problem.alm_set_c.__class__.__name__ -%}
+    let set_c = Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
+    {% elif 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
+    // not implemented yet
+    {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
+    let set_c = Rectangle::new(SET_C_XMIN, SET_C_XMAX);
+    {% elif 'NoConstraints' == problem.alm_set_c.__class__.__name__ -%}
     let set_c = NoConstraints::new();
     {% endif -%}
     set_c
+}
+{% endif %}
+
+{% if problem.alm_set_y is not none %}
+fn make_set_y() -> impl Constraint {
+    {% if 'Ball2' == problem.alm_set_y.__class__.__name__ -%}
+    let set_y = Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
+    {% elif 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
+    /* not implemented yet */
+    {% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
+    let set_y = Rectangle::new(SET_Y_XMIN, SET_Y_XMAX);
+    {% elif 'NoConstraints' == problem.alm_set_y.__class__.__name__ -%}
+    let set_y = NoConstraints::new();
+    {% endif -%}
+    set_y
 }
 {% endif %}
 
@@ -156,7 +185,7 @@ pub fn solve(
     let bounds = make_constraints();
 
     {% if problem.dim_constraints_aug_lagrangian() > 0 -%}
-    let set_y = Ball2::new(None, 10000.0);
+    let set_y = make_set_y();
     let set_c = make_set_c();
     {% endif -%}
 
