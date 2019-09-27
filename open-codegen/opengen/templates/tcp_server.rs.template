@@ -52,7 +52,9 @@ struct OptimizerSolution<'a> {
     last_problem_norm_fpr: f64,
     max_constraint_violation: f64,
     solve_time_ms: f64,
+    penalty: f64,
     solution: &'a [f64],
+    lagrange_multipliers: &'a [f64],
 }
 
 fn pong(stream: &mut std::net::TcpStream, code: i32) {
@@ -85,14 +87,18 @@ fn return_solution_to_client(
     solution: &[f64],
     stream: &mut std::net::TcpStream,
 ) {
+    let empty_vec = [0.0];
     let solution: OptimizerSolution = OptimizerSolution {
         exit_status: format!("{:?}", status.exit_status()),
         num_outer_iterations: status.num_outer_iterations(),
         num_inner_iterations: status.num_inner_iterations(),
         last_problem_norm_fpr: status.last_problem_norm_fpr(),
+        penalty: status.penalty(),
+        lagrange_multipliers: if let Some(y) = &status.lagrange_multipliers() { y } else { &empty_vec },
         max_constraint_violation: -1.0,
         solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
         solution: solution,
+
     };
     let solution_json = serde_json::to_string_pretty(&solution).unwrap();
     stream
