@@ -183,7 +183,8 @@ pub fn solve(
     p: &[f64],
     alm_cache: &mut AlmCache,
     u: &mut [f64],
-    y0: &Option<Vec<f64>>
+    y0: &Option<Vec<f64>>,
+    c0: &Option<f64>,
 ) -> Result<AlmOptimizerStatus, SolverError> {
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
@@ -233,7 +234,7 @@ pub fn solve(
         .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS))
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERATIONS)
-        .with_initial_penalty(INITIAL_PENALTY_PARAMETER)
+        .with_initial_penalty(c0.unwrap_or(INITIAL_PENALTY_PARAMETER))
         .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
         .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 

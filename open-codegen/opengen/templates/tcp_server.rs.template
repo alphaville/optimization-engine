@@ -32,6 +32,8 @@ struct ExecutionParameter {
     initial_guess: Option<Vec<f64>>,
     /// Initial Lagrange multipliers (can be null)
     initial_lagrange_multipliers: Option<Vec<f64>>,
+    /// Initial penalty parameter, c0
+    initial_penalty: Option<f64>,
 }
 
 /// Request from the client
@@ -145,7 +147,11 @@ fn execution_handler(
         return;
     }
     p.copy_from_slice(&parameter);
-    let status = solve(&p, cache, u, &execution_parameter.initial_lagrange_multipliers);
+    let status = solve(&p,
+                       cache,
+                       u,
+                       &execution_parameter.initial_lagrange_multipliers,
+                       &execution_parameter.initial_penalty);
     match status {
         Ok(ok_status) => {
             return_solution_to_client(ok_status, u, stream);

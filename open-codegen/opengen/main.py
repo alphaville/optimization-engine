@@ -6,7 +6,7 @@ u = cs.MX.sym("u", 5)                 # decision variable (nu = 5)
 p = cs.MX.sym("p", 2)                 # parameter (np = 2)
 
 
-f1 = cs.vertcat(1 - u[1],
+f1 = cs.vertcat(1 - 3*cs.cos(u[1]),
                 2*cs.sin(u[2]) - 0.1)
 f2 = u[3]
 
@@ -23,15 +23,16 @@ meta = og.config.OptimizerMeta()                \
     .with_authors(["P. Sopasakis"])             \
     .with_licence("CC4.0-By")                   \
     .with_optimizer_name("marietta")
+tcp_config = og.config.TcpServerConfiguration(bind_port=3301)
 build_config = og.config.BuildConfiguration()   \
     .with_build_directory("python_build")       \
     .with_build_mode("debug")                   \
-    .with_tcp_interface_config()
+    .with_tcp_interface_config(tcp_config)
 solver_config = og.config.SolverConfiguration()         \
             .with_lfbgs_memory(15)                      \
-            .with_tolerance(1e-6)                       \
-            .with_initial_tolerance(1e-3)               \
-            .with_delta_tolerance(1e-3)                 \
+            .with_tolerance(1e-4)                       \
+            .with_initial_tolerance(1e-4)               \
+            .with_delta_tolerance(1e-4)                 \
             .with_initial_penalty(15.0)                 \
             .with_penalty_weight_update_factor(10.0)    \
             .with_max_inner_iterations(155)             \
@@ -51,5 +52,9 @@ mng.start()
 
 pong = mng.ping()                 # check if the server is alive
 print(pong)
-print(mng.call(p=[1.0, 2.0]))
+
+print(mng.call(p=[1.0, 2.0],
+               initial_guess=[0.96, 1.047, 0.4668, 1.63e-05, 0.0003],
+               initial_y=[-2.53, 1.56],
+               initial_penalty=15000))
 mng.kill()
