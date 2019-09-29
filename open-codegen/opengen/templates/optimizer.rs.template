@@ -8,7 +8,6 @@
 use icasadi;
 {% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
-use optimization_engine::continuation::HomotopyCache;
 {% endif %}
 use optimization_engine::{constraints::*, panoc::*, alm::*, *};
 
@@ -62,7 +61,9 @@ pub const {{meta.optimizer_name|upper}}_N1: usize = {{problem.dim_constraints_au
 /// Number of penalty constraints
 pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_penalty() or 0}};
 
-{#- THIS WAY WE CAN INCLUDE ANOTHER TEMPLATE -#}
+
+// ---Export functionality from Rust to C/C++------------------------------------------------------------
+
 {% include "optimizer_cinterface.rs.template" %}
 
 

@@ -1,17 +1,19 @@
 {% if activate_clib_generation -%}
-/// Solver cache
+/// Solver cache (structure `{{meta.optimizer_name}}Cache`)
+///
 #[allow(non_camel_case_types)]
 pub struct {{meta.optimizer_name}}Cache {
-    cache: HomotopyCache,
+    cache: AlmCache,
 }
 
 impl {{meta.optimizer_name}}Cache {
-    pub fn new(cache: HomotopyCache) -> Self {
+    pub fn new(cache: AlmCache) -> Self {
         {{meta.optimizer_name}}Cache { cache }
     }
 }
 
 /// {{meta.optimizer_name}} version of ExitStatus
+/// Structure: `{{meta.optimizer_name}}ExitStatus`
 #[allow(non_camel_case_types)]
 #[repr(C)]
 pub enum {{meta.optimizer_name}}ExitStatus {
@@ -30,7 +32,9 @@ pub enum {{meta.optimizer_name}}ExitStatus {
     {{meta.optimizer_name}}NotConvergedNotFiniteComputation,
 }
 
-/// {{meta.optimizer_name}} version of HomotopySolverStatus
+/// {{meta.optimizer_name}} version of AlmOptimizerStatus
+/// Structure: `{{meta.optimizer_name}}SolverStatus`
+///
 #[repr(C)]
 pub struct {{meta.optimizer_name}}SolverStatus {
     /// Exit status
@@ -44,8 +48,6 @@ pub struct {{meta.optimizer_name}}SolverStatus {
     num_inner_iterations: c_ulong,
     /// Norm of the fixed-point residual of the the problem
     last_problem_norm_fpr: c_double,
-    /// Maximum constraint violation
-    max_constraint_violation: c_double,
     /// Total solve time
     solve_time_ns: c_ulonglong,
 }
@@ -79,7 +81,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
         std::slice::from_raw_parts(params as *const f64, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
     };
 
-    let status = solve(params,&mut instance.cache, u);
+    let status = solve(params,&mut instance.cache, u, &None, &None);
 
     match status {
         Ok(status) => {{meta.optimizer_name}}SolverStatus {
@@ -91,7 +93,6 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             num_outer_iterations: status.num_outer_iterations() as c_ulong,
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
             last_problem_norm_fpr: status.last_problem_norm_fpr(),
-            max_constraint_violation: status.max_constraint_violation(),
             solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
@@ -102,7 +103,6 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             num_outer_iterations: std::u64::MAX as c_ulong,
             num_inner_iterations: std::u64::MAX as c_ulong,
             last_problem_norm_fpr: std::f64::INFINITY,
-            max_constraint_violation: std::f64::INFINITY,
             solve_time_ns: std::u64::MAX as c_ulonglong,
         },
     }
