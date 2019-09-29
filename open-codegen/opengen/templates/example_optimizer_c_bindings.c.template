@@ -27,7 +27,7 @@ int main() {
     /* solve  */
     {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
 
-    /* solve again (use the same `cache` object */
+    /* solve again (use the same `cache` object) */
     init_penalty = 1000.0;
     p[0] = 2.5;
     {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
@@ -36,13 +36,23 @@ int main() {
     {{meta.optimizer_name}}_free(cache);
 
     /* print results */
+    printf("\n\n-------------------------------------------------\n");
+    printf("  Solution\n");
+    printf("-------------------------------------------------\n");
     for (i = 0; i < {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES; ++i) {
         printf("u[%d] = %g\n", i, u[i]);
     }
-    printf("exit status = %d\n", status.exit_status);
-    printf("iterations = %lu\n", status.num_inner_iterations);
-    printf("outer iterations = %lu\n", status.num_outer_iterations);
-    printf("solve time = %f ms\n", (double)status.solve_time_ns / 1000000.0);
+    printf("\n\n-------------------------------------------------\n");
+    printf("  Solver Statistics\n");
+    printf("-------------------------------------------------\n");
+    printf("exit status      : %d\n", status.exit_status);
+    printf("iterations       : %lu\n", status.num_inner_iterations);
+    printf("outer iterations : %lu\n", status.num_outer_iterations);
+    printf("solve time       : %f ms\n", (double)status.solve_time_ns / 1000000.0);
+    printf("penalty          : %f\n", status.penalty);
+    printf("||Dy||/c         : %f\n", status.delta_y_norm_over_c);
+    printf("||F2(u)||        : %f\n", status.f2_norm);
+    printf("||FRP||          : %f\n\n", status.last_problem_norm_fpr);
 
     return 0;
 }
