@@ -1,4 +1,6 @@
 {% if activate_clib_generation -%}
+// ---Export functionality from Rust to C/C++------------------------------------------------------------
+
 /// Solver cache (structure `{{meta.optimizer_name}}Cache`)
 ///
 #[allow(non_camel_case_types)]
@@ -50,6 +52,12 @@ pub struct {{meta.optimizer_name}}SolverStatus {
     last_problem_norm_fpr: c_double,
     /// Total solve time
     solve_time_ns: c_ulonglong,
+    /// Penalty value
+    penalty: c_double,
+    /// Norm of delta y divided by the penalty parameter
+    delta_y_norm_over_c: c_double,
+    /// Norm of F2(u)
+    f2_norm: c_double,
 }
 
 /// Allocate memory and setup the solver
@@ -64,25 +72,44 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     instance: *mut {{meta.optimizer_name}}Cache,
     u: *mut c_double,
     params: *const c_double,
+    y0: *const c_double,
+    c0: *const c_double,
 ) -> {{meta.optimizer_name}}SolverStatus {
+
     // Convert all pointers into the required data structures
     let instance: &mut {{meta.optimizer_name}}Cache = unsafe {
         assert!(!instance.is_null());
         &mut *instance
     };
 
-    let u = unsafe {
+    // "*mut c_double" to "&mut [f64]"
+    let u : &mut [f64] = unsafe {
         assert!(!u.is_null());
         std::slice::from_raw_parts_mut(u as *mut f64, {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES)
     };
 
-    let params = unsafe {
+    // "*const c_double" to "&[f64]"
+    let params : &[f64] = unsafe {
         assert!(!params.is_null());
         std::slice::from_raw_parts(params as *const f64, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
     };
 
-    let status = solve(params,&mut instance.cache, u, &None, &None);
+    let c0_option: Option<f64> = if c0.is_null() {
+        None::<f64>
+    } else {
+        Some(unsafe { *c0 })
+    };
 
+    let y0_option: Option<Vec<f64>> = if c0.is_null() {
+        None::<Vec<f64>>
+    } else {
+        Some(unsafe { std::slice::from_raw_parts(y0 as *const f64, {{meta.optimizer_name|upper}}_N1).to_vec() })
+    };
+
+    // Invoke `solve`
+    let status = solve(params,&mut instance.cache, u, &y0_option, &c0_option);
+
+    // Check solution status and cast it as `{{meta.optimizer_name}}SolverStatus`
     match status {
         Ok(status) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match status.exit_status() {
@@ -94,6 +121,9 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
             last_problem_norm_fpr: status.last_problem_norm_fpr(),
             solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
+            penalty: status.penalty() as c_double,
+            delta_y_norm_over_c: status.delta_y_norm_over_c() as c_double,
+            f2_norm: status.f2_norm() as c_double,
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
@@ -104,6 +134,9 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             num_inner_iterations: std::u64::MAX as c_ulong,
             last_problem_norm_fpr: std::f64::INFINITY,
             solve_time_ns: std::u64::MAX as c_ulonglong,
+            penalty: std::f64::INFINITY as c_double,
+            delta_y_norm_over_c: std::f64::INFINITY as c_double,
+            f2_norm: std::f64::INFINITY as c_double,
         },
     }
 }
