@@ -3,9 +3,10 @@
  *
  * Compile with:
  *
- * gcc example_optimizer.c -l:lib{{meta.optimizer_name}}.a \
- *  -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
- *  -o optimizer
+ * gcc -Wall -std=c99 -pedantic \
+    example_optimizer.c -l:lib{{meta.optimizer_name}}.a \
+    -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
+    -o optimizer
  *
  * Customise the following code
  *
@@ -16,18 +17,28 @@
 
 int main() {
     int i;
-    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {1.0};        // parameters
-    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  // initial guess
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {1.0};        /* parameters    */
+    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  /* initial guess */
     double init_penalty = 100.0;
 
+    /* obtain cache */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
+
+    /* solve  */
     {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
+
+    /* solve again (use the same `cache` object */
+    init_penalty = 1000.0;
+    p[0] = 2.5;
+    {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
+
+    /* free memory */
     {{meta.optimizer_name}}_free(cache);
 
+    /* print results */
     for (i = 0; i < {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES; ++i) {
         printf("u[%d] = %g\n", i, u[i]);
     }
-
     printf("exit status = %d\n", status.exit_status);
     printf("iterations = %lu\n", status.num_inner_iterations);
     printf("outer iterations = %lu\n", status.num_outer_iterations);
@@ -35,3 +46,4 @@ int main() {
 
     return 0;
 }
+
