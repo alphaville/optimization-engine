@@ -67,12 +67,17 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 }
 
 /// Run the solver on the input and parameters
+///
+/// Arguments:
+/// - `instance`: re-useable instance of AlmCache
+/// - `u`: (on entry) initial guess of solution, (on exit) solution
+/// - `params`:  static parameters
 #[no_mangle]
 pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     instance: *mut {{meta.optimizer_name}}Cache,
     u: *mut c_double,
     params: *const c_double,
-    y0: *const c_double,
+    y: *mut c_double,
     c0: *const c_double,
 ) -> {{meta.optimizer_name}}SolverStatus {
 
@@ -100,14 +105,21 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
         Some(unsafe { *c0 })
     };
 
-    let y0_option: Option<Vec<f64>> = if y0.is_null() {
+    let y_option: Option<Vec<f64>> = if y.is_null() {
         None::<Vec<f64>>
     } else {
-        Some(unsafe { std::slice::from_raw_parts(y0 as *const f64, {{meta.optimizer_name|upper}}_N1).to_vec() })
+        Some(unsafe { std::slice::from_raw_parts(y as *mut f64, {{meta.optimizer_name|upper}}_N1).to_vec() })
     };
 
     // Invoke `solve`
-    let status = solve(params,&mut instance.cache, u, &y0_option, &c0_option);
+    let status = solve(params,&mut instance.cache, u, &y_option, &c0_option);
+
+    if let Ok(st) = &status {
+        if let Some(y_result) = st.lagrange_multipliers() {
+            let slice_y = unsafe { std::slice::from_raw_parts_mut(y, {{meta.optimizer_name|upper}}_N1) };
+            slice_y.copy_from_slice(y_result);
+       }
+    }
 
     // Check solution status and cast it as `{{meta.optimizer_name}}SolverStatus`
     match status {
@@ -123,7 +135,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             solve_time_ns: status.solve_time().as_nanos() as c_ulonglong,
             penalty: status.penalty() as c_double,
             delta_y_norm_over_c: status.delta_y_norm_over_c() as c_double,
-            f2_norm: status.f2_norm() as c_double,
+            f2_norm: status.f2_norm() as c_double
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
@@ -136,7 +148,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             solve_time_ns: std::u64::MAX as c_ulonglong,
             penalty: std::f64::INFINITY as c_double,
             delta_y_norm_over_c: std::f64::INFINITY as c_double,
-            f2_norm: std::f64::INFINITY as c_double,
+            f2_norm: std::f64::INFINITY as c_double
         },
     }
 }

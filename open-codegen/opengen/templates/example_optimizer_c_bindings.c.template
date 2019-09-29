@@ -17,31 +17,31 @@
 
 int main() {
     int i;
-    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {1.0};        /* parameters    */
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};  /* parameters    */
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  /* initial guess */
-    double init_penalty = 100.0;
+    double init_penalty = 10.0;
+    double y[{{meta.optimizer_name|upper}}_N1] = {0.0};
 
     /* obtain cache */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
 
     /* solve  */
-    {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
-
-    /* solve again (use the same `cache` object) */
-    init_penalty = 1000.0;
-    p[0] = 2.5;
-    {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
-
-    /* free memory */
-    {{meta.optimizer_name}}_free(cache);
+    {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, y, &init_penalty);
 
     /* print results */
     printf("\n\n-------------------------------------------------\n");
     printf("  Solution\n");
     printf("-------------------------------------------------\n");
+
     for (i = 0; i < {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES; ++i) {
         printf("u[%d] = %g\n", i, u[i]);
     }
+
+    printf("\n");
+    for (i = -10; i < {{meta.optimizer_name|upper}}_N1+10; ++i) {
+        printf("y[%d] = %g\n", i, status.lagrange[i]);
+    }
+
     printf("\n\n-------------------------------------------------\n");
     printf("  Solver Statistics\n");
     printf("-------------------------------------------------\n");
@@ -53,6 +53,10 @@ int main() {
     printf("||Dy||/c         : %f\n", status.delta_y_norm_over_c);
     printf("||F2(u)||        : %f\n", status.f2_norm);
     printf("||FRP||          : %f\n\n", status.last_problem_norm_fpr);
+
+
+    /* free memory */
+    {{meta.optimizer_name}}_free(cache);
 
     return 0;
 }
