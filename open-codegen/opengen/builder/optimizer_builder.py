@@ -93,6 +93,9 @@ class OpEnOptimizerBuilder:
         command = ['cargo', 'build']
         if self.__build_config.build_mode.lower() == 'release':
             command.append('--release')
+
+        if self.__build_config.target_system is not None:
+            command.append('--target='+self.__build_config.target_system)
         return command
 
     def __target_dir(self):
@@ -482,13 +485,17 @@ class OpEnOptimizerBuilder:
                       DeprecationWarning)
         self.__build_config.with_tcp_interface_config(tcp_server_configuration)
 
-    def enable_c_bindings_generation(self):
-        """Generate C/C++ bindings together with statically and dynamically linkable libraries
-
-        """
-        warnings.warn("deprecated (use BuildConfiguration.with_build_c_bindings([True]/False) instead)",
-                      DeprecationWarning)
-        self.__build_config.with_build_c_bindings(True)
+    def __generate_c_bindings_example(self):
+        logging.info("Generating example_optimizer.c (C bindings example for your convenience)")
+        target_dir = self.__target_dir()
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('example_optimizer_c_bindings.c.template')
+        output_template = template.render(meta=self.__meta,
+                                          build_config=self.__build_config)
+        target_scr_lib_rs_path = os.path.join(target_dir, "example_optimizer.c")
+        with open(target_scr_lib_rs_path, "w") as fh:
+            fh.write(output_template)
 
     def build(self):
         """Generate code and build project
@@ -525,4 +532,7 @@ class OpEnOptimizerBuilder:
                 self.__generate_code_tcp_interface()
                 if not self.__generate_not_build:
                     self.__build_tcp_iface()
+
+        if self.__build_config.build_c_bindings:
+            self.__generate_c_bindings_example()
 

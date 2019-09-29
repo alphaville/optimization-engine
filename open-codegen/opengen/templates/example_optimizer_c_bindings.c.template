@@ -1,0 +1,37 @@
+/*
+ * File: example_optimizer.c
+ *
+ * Compile with:
+ *
+ * gcc example_optimizer.c -l:lib{{meta.optimizer_name}}.a \
+ *  -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
+ *  -o optimizer
+ *
+ * Customise the following code
+ *
+ */
+
+#include <stdio.h>
+#include "{{meta.optimizer_name}}_bindings.h"
+
+int main() {
+    int i;
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {1.0};        // parameters
+    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  // initial guess
+    double init_penalty = 100.0;
+
+    {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
+    {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, 0, &init_penalty);
+    {{meta.optimizer_name}}_free(cache);
+
+    for (i = 0; i < {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES; ++i) {
+        printf("u[%d] = %g\n", i, u[i]);
+    }
+
+    printf("exit status = %d\n", status.exit_status);
+    printf("iterations = %lu\n", status.num_inner_iterations);
+    printf("outer iterations = %lu\n", status.num_outer_iterations);
+    printf("solve time = %f ms\n", (double)status.solve_time_ns / 1000000.0);
+
+    return 0;
+}

@@ -100,7 +100,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
         Some(unsafe { *c0 })
     };
 
-    let y0_option: Option<Vec<f64>> = if c0.is_null() {
+    let y0_option: Option<Vec<f64>> = if y0.is_null() {
         None::<Vec<f64>>
     } else {
         Some(unsafe { std::slice::from_raw_parts(y0 as *const f64, {{meta.optimizer_name|upper}}_N1).to_vec() })

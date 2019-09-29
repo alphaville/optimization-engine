@@ -23,7 +23,7 @@ class BuildConfiguration:
         """
         random_string = ''.join(random.choice(string.ascii_letters) for i in range(20))
 
-        self.__target_system = 'default'
+        self.__target_system = None
         self.__build_mode = 'release'
         self.__id = random_string
         self.__cost_function_name = 'phi_' + random_string
@@ -107,8 +107,8 @@ class BuildConfiguration:
         return self
 
     def with_target_system(self, target_system):
-        """Not implemented yet"""
-        raise NotImplementedError
+        self.__target_system = target_system
+        return self
 
     def with_build_mode(self, build_mode):
         """Set the build mode (debug/release)
