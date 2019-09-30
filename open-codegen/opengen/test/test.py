@@ -225,6 +225,8 @@ class RustBuildTestCase(unittest.TestCase):
         response = mng.call(p=[2.0, 10.0])
         self.assertEqual("Converged", response["exit_status"])
 
+        mng.kill()
+
     # def test_link_2_c_libs(self):
     #     u = cs.SX.sym("u", 5)
     #     p = cs.SX.sym("p", 2)
@@ -321,6 +323,6 @@ class RustBuildTestCase(unittest.TestCase):
     #         exit(rc)
     #
 
-    
+
 if __name__ == '__main__':
     unittest.main()
