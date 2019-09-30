@@ -32,9 +32,7 @@ main() {
     cd opengen
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
-    
-    # --- temporarily commented out:
-    # python -W ignore test/test.py -v
+    python -W ignore test/test.py -v
 }
 
 main

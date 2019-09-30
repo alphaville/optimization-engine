@@ -49,7 +49,7 @@ class OptimizerTcpManager:
         logging.info("Starting TCP/IP server at %s:%d (in a detached thread)",
                      optimizer_details['tcp']['ip'],
                      optimizer_details['tcp']['port'])
-        command = ['cargo', 'run']
+        command = ['cargo', 'run', '-q']
         if optimizer_details['build']['build_mode'] == 'release':
             command.append('--release')
         tcp_iface_directory = os.path.join(self.__optimizer_path, "tcp_iface")

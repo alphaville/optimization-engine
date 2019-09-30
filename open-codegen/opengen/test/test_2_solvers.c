@@ -1,3 +1,6 @@
+/*
+ * Deprecated - to be removed in the future
+ */
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>

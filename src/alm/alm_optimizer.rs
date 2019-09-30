@@ -890,15 +890,26 @@ where
             0.0
         };
 
-        Ok(AlmOptimizerStatus::new(exit_status)
+        let status = AlmOptimizerStatus::new(exit_status)
             .with_solve_time(tic.elapsed())
             .with_inner_iterations(self.alm_cache.inner_iteration_count)
             .with_outer_iterations(num_outer_iterations)
-            .with_lagrange_multipliers(&self.alm_cache.y_plus.as_ref().unwrap_or(&Vec::new()))
             .with_last_problem_norm_fpr(self.alm_cache.last_inner_problem_norm_fpr)
             .with_delta_y_norm(self.alm_cache.delta_y_norm_plus)
             .with_f2_norm(self.alm_cache.f2_norm_plus)
-            .with_penalty(c))
+            .with_penalty(c);
+        if self.alm_problem.n1 > 0 {
+            let status = status.with_lagrange_multipliers(
+                &self
+                    .alm_cache
+                    .y_plus
+                    .as_ref()
+                    .expect("Although n1 > 0, there is no vector y (Lagrange multipliers)"),
+            );
+            Ok(status)
+        } else {
+            Ok(status)
+        }
     }
 }
 

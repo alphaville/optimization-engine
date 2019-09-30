@@ -92,7 +92,7 @@ fn return_solution_to_client(
     solution: &[f64],
     stream: &mut std::net::TcpStream,
 ) {
-    let empty_vec = [0.0];
+    let empty_vec : [f64; 0] = Default::default();
     let solution: OptimizerSolution = OptimizerSolution {
         exit_status: format!("{:?}", status.exit_status()),
         num_outer_iterations: status.num_outer_iterations(),
@@ -135,6 +135,16 @@ fn execution_handler(
                 return;
             }
             u.copy_from_slice(&u0);
+        }
+    }
+
+    // ----------------------------------------------------
+    // Check lagrange multipliers
+    // ----------------------------------------------------
+    if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
+        if y0.len() != {{meta.optimizer_name|upper}}_N1 {
+            write_error_message(stream, 1700, "wrong dimension of Langrange multipliers");
+            return;
         }
     }
 
