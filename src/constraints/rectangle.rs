@@ -15,18 +15,18 @@ impl<'a> Rectangle<'a> {
     /// Construct a new rectangle with given $x_{\min}$ and $x_{\max}$
     ///
     /// ## Arguments
-    /// 
+    ///
     /// - `xmin`
     /// - `xmin`
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// The method panics if:
-    /// 
+    ///
     /// - Both `xmin` and `xmax` are `None` (use `NoConstraints` instead)
-    /// - Both `xmin` and `xmax` have been provided, but they have incompatible 
+    /// - Both `xmin` and `xmax` have been provided, but they have incompatible
     ///   dimensions
-    /// 
+    ///
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
         assert!(xmin != None || xmax != None); // xmin or xmax must be Some
         assert!(

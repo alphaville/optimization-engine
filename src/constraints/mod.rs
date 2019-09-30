@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! Constraints and projections
 
 mod ball2;
@@ -21,9 +22,16 @@ pub use soc::SecondOrderCone;
 /// This trait defines an abstract function that allows to compute projections
 /// on the set
 pub trait Constraint {
-    /// Projection onto the set
+    /// Projection onto the set, that is,
     ///
-    /// The given vector `x` is updated with the projection on the set
+    /// $$
+    /// \Pi_C(v) = \mathrm{argmin}_{z\in C}\Vert{}z-v{}\Vert
+    /// $$
+    ///
+    /// ## Arguments
+    ///
+    /// - `x`: The given vector $x$ is updated with the projection on the set
+    ///
     fn project(&self, x: &mut [f64]);
 }
 

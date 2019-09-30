@@ -1,4 +1,4 @@
-//! Deprecated - use `alm` instead
+//! *Deprecated* - use `alm` instead
 //!
 //! Continuation/Homotopy methods for parametric optimization problems
 //!

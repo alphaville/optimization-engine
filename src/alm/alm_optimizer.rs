@@ -1415,5 +1415,4 @@ mod tests {
             "inner problem solution is wrong",
         );
     }
-
 }

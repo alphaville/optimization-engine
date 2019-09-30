@@ -5,6 +5,8 @@ use super::Constraint;
 pub struct NoConstraints {}
 
 impl NoConstraints {
+    /// Constructs new instance of `NoConstraints`
+    ///
     pub fn new() -> NoConstraints {
         NoConstraints {}
     }

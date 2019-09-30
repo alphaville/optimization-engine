@@ -1,13 +1,14 @@
 //!
-//! Estimates a local Lipschitz constant for a given function `F: R^n -> R^n`
+//! Estimates a local Lipschitz constant for a mapping
+//! $F: \mathbb{R}^n \to \mathbb{R}^n$
 //!
-//! Functions are provided at closures.
+//! Functions are provided as closures.
 //!
 //! # Method
 //!
 //! This function computes a numerical approximation of the norm of the directional
-//! derivative of a function `F` along a direction `h = max {delta, epsilon*u}`, where `delta`
-//! and `epsilon` are small numbers.
+//! derivative of a function $F$ along a direction $h = \max \\{\delta, \epsilon u\\}$,
+//! where $\delta$ and $\epsilon$ are small numbers.
 //!
 
 use crate::{matrix_operations, SolverError};
