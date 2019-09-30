@@ -8,19 +8,21 @@
     -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
     -o optimizer
  *
- * Customise the following code
- *
  */
 
 #include <stdio.h>
 #include "{{meta.optimizer_name}}_bindings.h"
 
+/*
+ * Feel free to customize the following code...
+ */
+
 int main() {
     int i;
-    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};  /* parameters    */
-    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  /* initial guess */
-    double init_penalty = 10.0;
-    double y[{{meta.optimizer_name|upper}}_N1] = {0.0};
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};  /* parameters             */
+    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  /* initial guess          */
+    double init_penalty = 15.0;                                            /* initial penalty        */
+    double y[{{meta.optimizer_name|upper}}_N1] = {0.0};                    /* initial lagrange mult. */
 
     /* obtain cache */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
@@ -38,7 +40,7 @@ int main() {
     }
 
     printf("\n");
-    for (i = -10; i < {{meta.optimizer_name|upper}}_N1+10; ++i) {
+    for (i = 0; i < {{meta.optimizer_name|upper}}_N1; ++i) {
         printf("y[%d] = %g\n", i, status.lagrange[i]);
     }
 
