@@ -92,7 +92,7 @@ fn return_solution_to_client(
     solution: &[f64],
     stream: &mut std::net::TcpStream,
 ) {
-    let empty_vec = [0.0];
+    let empty_vec : [f64; 0] = Default::default();
     let solution: OptimizerSolution = OptimizerSolution {
         exit_status: format!("{:?}", status.exit_status()),
         num_outer_iterations: status.num_outer_iterations(),
