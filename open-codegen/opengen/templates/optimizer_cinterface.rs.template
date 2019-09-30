@@ -62,7 +62,11 @@ pub struct {{meta.optimizer_name}}SolverStatus {
     /// Norm of F2(u)
     f2_norm: c_double,
     /// Lagrange multipliers
+    {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
     lagrange: [c_double; {{meta.optimizer_name|upper}}_N1]
+    {% else %}
+    lagrange: *const c_double
+    {% endif -%}
 }
 
 /// Allocate memory and setup the solver
@@ -152,11 +156,21 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             f2_norm: status.f2_norm() as c_double,
             lagrange: match status.lagrange_multipliers() {
                 Some(y) => {
+                {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
                     let mut y_array : [f64; {{meta.optimizer_name|upper}}_N1] = Default::default();
                     y_array.copy_from_slice(&y);
                     y_array
+                {% else %}
+                    0 as *const c_double
+                {% endif %}
                 },
-                None => {[0.0; {{meta.optimizer_name|upper}}_N1]}
+                None => {
+                {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
+                    [0.0; {{meta.optimizer_name|upper}}_N1]
+                {% else %}
+                    0 as *const c_double
+                {% endif -%}
+                }
             }
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
@@ -171,7 +185,9 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             penalty: std::f64::INFINITY as c_double,
             delta_y_norm_over_c: std::f64::INFINITY as c_double,
             f2_norm: std::f64::INFINITY as c_double,
-            lagrange: [0.0; {{meta.optimizer_name|upper}}_N1]
+            lagrange: {%- if problem.dim_constraints_aug_lagrangian() > 0 -%}
+                    [0.0; {{meta.optimizer_name|upper}}_N1]
+                    {%- else -%}0 as *const c_double{%- endif %}
         },
     }
 }

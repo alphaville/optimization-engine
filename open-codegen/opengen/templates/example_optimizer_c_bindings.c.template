@@ -19,16 +19,26 @@
 
 int main() {
     int i;
-    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};  /* parameters             */
-    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};  /* initial guess          */
-    double init_penalty = 15.0;                                            /* initial penalty        */
-    double y[{{meta.optimizer_name|upper}}_N1] = {0.0};                    /* initial lagrange mult. */
 
-    /* obtain cache */
+    /* parameters             */
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};
+
+    /* initial guess          */
+    double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};
+
+    /* initial penalty        */
+    double init_penalty = 15.0;
+
+{% if problem.dim_constraints_aug_lagrangian() > 0 %}
+    /* initial lagrange mult. */
+    double y[{{meta.optimizer_name|upper}}_N1] = {0.0};
+{% endif -%}
+
+    /* obtain cache           */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
 
-    /* solve  */
-    {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, y, &init_penalty);
+    /* solve                  */
+    {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, {% if problem.dim_constraints_aug_lagrangian() > 0 %}y{% else %}0{% endif %}, &init_penalty);
 
     /* print results */
     printf("\n\n-------------------------------------------------\n");

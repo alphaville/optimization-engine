@@ -492,7 +492,8 @@ class OpEnOptimizerBuilder:
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('example_optimizer_c_bindings.c.template')
         output_template = template.render(meta=self.__meta,
-                                          build_config=self.__build_config)
+                                          build_config=self.__build_config,
+                                          problem=self.__problem)
         target_scr_lib_rs_path = os.path.join(target_dir, "example_optimizer.c")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
