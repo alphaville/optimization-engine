@@ -90,7 +90,7 @@ class OpEnOptimizerBuilder:
         Cargo build command (possibly, with --release)
 
         """
-        command = ['cargo', 'build']
+        command = ['cargo', 'build', '-q']
         if self.__build_config.build_mode.lower() == 'release':
             command.append('--release')
 
@@ -506,7 +506,7 @@ class OpEnOptimizerBuilder:
             Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.INFO)
         self.__initialize()                      # initialize default value (if not provided)
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project

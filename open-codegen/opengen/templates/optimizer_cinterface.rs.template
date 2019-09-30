@@ -139,7 +139,6 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     // Invoke `solve`
     let status = solve(params,&mut instance.cache, u, &y0_option, &c0_option);
 
-    println!("status = {:#?}", status);
     // Check solution status and cast it as `{{meta.optimizer_name}}SolverStatus`
     match status {
         Ok(status) => {{meta.optimizer_name}}SolverStatus {

@@ -139,6 +139,16 @@ fn execution_handler(
     }
 
     // ----------------------------------------------------
+    // Check lagrange multipliers
+    // ----------------------------------------------------
+    if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
+        if y0.len() != {{meta.optimizer_name|upper}}_N1 {
+            write_error_message(stream, 1700, "wrong dimension of Langrange multipliers");
+            return;
+        }
+    }
+
+    // ----------------------------------------------------
     // Run solver
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
