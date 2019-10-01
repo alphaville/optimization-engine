@@ -31,11 +31,11 @@ impl SecondOrderCone {
     /// [Projection Algorithms and Monotone Operators](http://summit.sfu.ca/system/files/iritems1/7015/b18025766.pdf)
     /// (page 40).
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `alpha`: parameter $\alpha$
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the given parameter `alpha` is nonpositive.
     pub fn new(alpha: f64) -> SecondOrderCone {
@@ -47,12 +47,12 @@ impl SecondOrderCone {
 impl Constraint for SecondOrderCone {
     /// Project on the second-order cone (updates the given vector/slice)
     ///
-    /// ### Arguments
+    /// # Arguments
     ///
     /// - `x`: (in) vector to be projected on the current instance of a second-order
     ///   cone, (out) projection on the second-order cone
     ///
-    /// ### Panics
+    /// # Panics
     ///
     /// The methods panics is the length of `x` is less than 2.
     ///

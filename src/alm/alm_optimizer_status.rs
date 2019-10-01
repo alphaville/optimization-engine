@@ -37,16 +37,16 @@ impl AlmOptimizerStatus {
     /// Clients can then use getter methods to access the status of the
     /// algorithm (get statistics about the solving procedure etc)
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `exit_status`: Exit status of the algorithm
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// New instance of `AlmOptimizerStatus`. Use the setter methods below
     /// to specify the algorithm status details.
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -66,11 +66,11 @@ impl AlmOptimizerStatus {
 
     /// Setter method for the total solve time
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `duration`: total time duration to solve the problem
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -82,12 +82,12 @@ impl AlmOptimizerStatus {
     /// Setter method for the number of outer ALM/PM-type iterations
     ///
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `outer_iters`: number of outer iterations
     ///
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -98,11 +98,11 @@ impl AlmOptimizerStatus {
 
     /// Setter method for the total number of inner iterations
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `outer_iters`: total inner iteration count
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -113,12 +113,12 @@ impl AlmOptimizerStatus {
 
     /// Setter method for the vector of Lagrange multipliers at the solution
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `lagrange_multipliers`: vector of Lagrange multipliers (which is copied
     ///    into an internal field of `AlmOptimizerStatus`)
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic; it is the responsibility of the caller to provide a vector of
     /// Lagrange multipliers of correct length
@@ -134,7 +134,7 @@ impl AlmOptimizerStatus {
     /// Setter method for the penalty parameter
     ///
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the provided penalty parameter is negative
     ///
@@ -150,7 +150,7 @@ impl AlmOptimizerStatus {
     /// Setter method for the norm of the fixed-point residual of the last
     /// solved inner optimization problem (solved with PANOC)
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the provided norm of the fixed-point residual is
     /// negative
@@ -182,7 +182,7 @@ impl AlmOptimizerStatus {
 
     /// Exit status of solver
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     pub fn exit_status(&self) -> ExitStatus {
@@ -191,7 +191,7 @@ impl AlmOptimizerStatus {
 
     /// Number of outer iterations
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -201,7 +201,7 @@ impl AlmOptimizerStatus {
 
     /// Total count of inner iterations performed by `PANOCOptimizer`
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -215,7 +215,7 @@ impl AlmOptimizerStatus {
     /// the vector of Lagrange multipliers at the solution, or is `None` if
     /// the problem has no ALM-type constraints.
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -225,7 +225,7 @@ impl AlmOptimizerStatus {
 
     /// Norm of the fixed-point residual of the last inner problem
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -235,7 +235,7 @@ impl AlmOptimizerStatus {
 
     /// Total time to solve the problem (runtime of method `AlmOptimizer.solve()`)
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
@@ -245,7 +245,7 @@ impl AlmOptimizerStatus {
 
     /// Penalty parameter at the solution
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// Does not panic
     pub fn penalty(&self) -> f64 {

@@ -1,6 +1,33 @@
 #![deny(missing_docs)]
 //! Augmented Lagrangian and Penalty Methods
 //!
+//! A module that contains structures and implementations that allow
+//! to formulate parametric constrained nonconvex optimization problems
+//! in the form specified in [`AlmProblem`]
+//!
+//! Such problems can then be solved using [`AlmOptimizer`], which combines the
+//! augmented Lagrangian and the penalty method.
+//!
+//! The user needs to create an [`AlmCache`] object, which can then be passed to
+//! different instances of `AlmOptimizer`. An `AlmCache` allocates the necessary
+//! memory that the optimizer needs.
+//!
+//! Upon completion of its execution, `AlmOptimizer` returns information about
+//! the iterative procedure, such as the solution time, number of iterations,
+//! measures of accuracy and more, in the form of an [`AlmOptimizerStatus`]
+//!
+//! When using `AlmOptimizer`,  the user is expected to provide a modified cost
+//! function, `psi` (see [`AlmOptimizer`] for details). This should not be a problem
+//! for users that use Optimization Engine via its Python or MATLAB interfaces.
+//! Should the user need to use Optimization Engine in Rust, she can construct
+//! function `psi` using [`AlmFactory`]
+//!
+//! [`AlmProblem`]: struct.AlmProblem.html
+//! [`AlmOptimizer`]: struct.AlmOptimizer.html
+//! [`AlmCache`]: struct.AlmCache.html
+//! [`AlmOptimizerStatus`]: struct.AlmOptimizerStatus.html
+//! [`AlmFactory`]: struct.AlmFactory.html
+//!
 mod alm_cache;
 mod alm_factory;
 mod alm_optimizer;

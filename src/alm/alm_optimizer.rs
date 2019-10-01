@@ -39,7 +39,7 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 /// is a convex closed set on which we can easily compute projections.
 ///
 ///
-/// ## Numerical algorithm
+/// # Numerical algorithm
 ///
 ///
 /// Input:
@@ -70,7 +70,7 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 ///     - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$
 ///
 ///
-/// ## Theoretical solution guarantees  
+/// # Theoretical solution guarantees  
 /// The solver determines an $(\epsilon, \delta)$-approximate KKT point for the problem,
 /// that is, a pair $(u^\star, y^\star)$ which satisfies
 ///
@@ -182,7 +182,7 @@ where
 
     /// Create new instance of `AlmOptimizer`
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `alm_cache`: a reuseable instance of [`AlmCache`](./struct.AlmCache.html), which is borrowed by
     ///    `AlmOptimizer`
@@ -191,7 +191,7 @@ where
     ///    $C$, $U$ and $Y$)
     ///
     ///
-    /// ## Example
+    /// # Example
     ///
     /// ```rust
     /// use optimization_engine::{alm::*, SolverError, core::{panoc::*, constraints}};
@@ -268,15 +268,15 @@ where
 
     /// Setter method for the maximum number of outer iterations
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `max_outer_iterations`: maximum number of outer iterations
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified number of outer iterations is zero
     ///
@@ -293,15 +293,15 @@ where
     /// Setter method for the maximum number of iterations for the inner problems
     /// which are solved with PANOC (see `PANOCOptimizer`).
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `max_inner_iterations`: maximum number of inner iterations
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified number of inner iterations is zero
     ///
@@ -320,11 +320,11 @@ where
     /// If the maximum duration is not set, there is no upper bound on the time
     /// allowed for the ALM/PM optimizer to run
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `max_duration`: maximum allowed execution duration
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
@@ -335,15 +335,15 @@ where
 
     /// Set the delta tolerance
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `delta_tolerance`: tolerance $\delta > 0$
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified tolerance is not positive
     ///
@@ -355,15 +355,15 @@ where
 
     /// Set the epsilon tolerance
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `epsilon_tolerance`: tolerance $\epsilon > 0$
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified tolerance is not positive
     ///
@@ -382,15 +382,15 @@ where
     /// may be updated by multiplying it by a constant factor. This can be specified
     /// with this setter method. The default value is `5.0`.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `penalty_update_factor`: the penalty update factor
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the update factor is not larger than `1.0 + f64::EPSILON`
     ///
@@ -411,15 +411,15 @@ where
     /// of the algorithm by being multiplied with this update factor, which must be in
     /// the interval $(0, 1)$.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `inner_tolerance_update_factor`: the tolerance update factor
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified tolerance update factor is not in the
     /// interval from `f64::EPSILON` to `1.0 - f64::EPSILON`.
@@ -444,16 +444,16 @@ where
     /// where $\beta$ is the tolerance update factor and $\epsilon$ is the target
     /// tolerance for the inner problem.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `initial_inner_tolerance`: the initial value of the inner tolerance, that is,
     ///    the value $\espilon_0$
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified initial inner tolerance is less than the
     /// target tolerance. If you need to decrease the target tolerance, please use
@@ -479,15 +479,15 @@ where
     /// parameter if the progress has been sufficiently good with respect to the
     /// previous iteration.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `sufficient_decrease_coefficient`: the sufficient decrease coefficient
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified sufficient decrease coefficient is not
     /// in the range `(f64::EPSILON, 1.0 - f64::EPSILON)`
@@ -507,16 +507,16 @@ where
 
     /// Setter method for the initial vector of Lagrange multipliers, $y^0$
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]`) of
     ///             length equal to `n1`
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method will panic if the length of `y_init` is not equal to `n1`
     ///
@@ -537,15 +537,15 @@ where
 
     /// Setter method for the initial penalty parameter
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `c0`: initial value of the penalty parameter
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if the specified initial penalty parameter is not
     /// larger than `f64::EPSILON`
@@ -663,13 +663,13 @@ where
 
     /// Solve inner problem
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `u`: (on entry) current iterate, `u^nu`, (on exit) next iterate,
     ///   `u^{nu+1}` which is an epsilon-approximate solution of the inner problem
     /// - `xi`: vector `xi = (c, y)`
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Returns an instance of `Result<SolverStatus, SolverError>`, where `SolverStatus`
     /// is the solver status of the inner problem and `SolverError` is a potential
@@ -795,7 +795,7 @@ where
 
     /// Step of ALM algorithm
     ///
-    /// ## Description
+    /// # Description
     ///
     /// It involves the following actions:
     ///

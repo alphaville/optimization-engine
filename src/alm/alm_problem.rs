@@ -98,7 +98,7 @@ where
 {
     ///Constructs new instance of `AlmProblem`
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `constraints`: hard constraints, set $U$
     /// - `alm_set_c`: Set $C$ of ALM-specific constraints (convex, closed)
@@ -112,11 +112,11 @@ where
     /// - `n2`: range dimension of $F_2(u)$ (that is, `mapping_f2`)
     ///
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// Instance of `AlmProblem`
     ///
-    /// ## Example
+    /// # Example
     ///
     ///
     /// ```rust

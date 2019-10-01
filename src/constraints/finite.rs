@@ -15,12 +15,12 @@ impl FiniteSet {
     /// $x_i\in\mathbb{R}^n$
     ///
     ///
-    /// ### Parameters
+    /// # Parameters
     ///
     /// - data: vector of vectors (see example below)
     ///
     ///
-    /// ### Example
+    /// # Example
     ///
     /// ```
     /// use optimization_engine::constraints::*;
@@ -35,7 +35,7 @@ impl FiniteSet {
     /// ```
     ///
     ///
-    /// ### Panics
+    /// # Panics
     ///
     /// This method will panic if (i) the given vector of data is empty
     /// and (ii) if the given vectors have unequal dimensions.
@@ -60,12 +60,12 @@ impl<'a> Constraint for FiniteSet {
     /// element from the finite set.
     ///
     ///
-    /// ### Parameters
+    /// # Parameters
     ///
     /// - x: (input) given vector, (output) projection on finite set
     ///
     ///
-    /// ### Example
+    /// # Example
     ///
     /// ```
     /// use optimization_engine::constraints::*;
@@ -79,7 +79,7 @@ impl<'a> Constraint for FiniteSet {
     /// finite_set.project(&mut x); // compute projection
     /// ```
     ///
-    /// ### Panics
+    /// # Panics
     ///
     /// Does not panic
     ///
