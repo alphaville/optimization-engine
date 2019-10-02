@@ -101,14 +101,25 @@ class SolverConfiguration:
     # --------- SETTERS -----------------------------
 
     def with_sufficient_decrease_coefficient(self, sufficient_decrease_coefficient):
-        """Specify the sufficient decrease coefficient of the algorithm"""
+        """
+        Specify the sufficient decrease coefficient of the algorithm
+
+            :param sufficient_decrease_coefficient: sufficient decrease coefficient
+
+            :returns: The current object
+        """
         if sufficient_decrease_coefficient <= 0.0 or sufficient_decrease_coefficient >= 1.0:
             raise Exception("sufficient decrease coeff must be in (0,1)")
         self.__sufficient_decrease_coefficient = sufficient_decrease_coefficient
         return self
 
     def with_initial_penalty(self, initial_penalty):
-        """Initial penalty"""
+        """Initial penalty
+
+        :param initial_penalty: initial value of penalty
+
+        :returns: The current object
+        """
         if initial_penalty <= 0:
             raise Exception("Initial penalty must be >0")
 
@@ -118,11 +129,9 @@ class SolverConfiguration:
     def with_tolerance(self, tolerance):
         """Specify tolerance
 
-        Raises:
-            Exception: if tolerance <= 0
+        :raises: Exception: if tolerance <= 0
 
-        Returns:
-            The current object
+        :returns: The current object
         """
         if tolerance <= 0:
             raise Exception("The tolerance must be >0")
@@ -130,6 +139,13 @@ class SolverConfiguration:
         return self
 
     def with_initial_tolerance(self, initial_tolerance):
+        """
+        Specify the initial tolerance
+
+        :param initial_tolerance: initial tolerance
+
+        :returns: The current object
+        """
         if initial_tolerance <= 0:
             raise Exception("The initial tolerance must be >0")
         self.__initial_tolerance = float(initial_tolerance)
@@ -145,12 +161,10 @@ class SolverConfiguration:
     def with_lfbgs_memory(self, lbfgs_memory):
         """Specify L-BFGS memory
 
-        Assertions:
-            It is required that the L-BFGS memory is larger than or
-            equal to 2
+        :raises: It is required that the L-BFGS memory is larger than or
+        equal to 2, otherwise an Exception is raised
 
-        Returns:
-            Returns the current instance of SolverConfiguration
+        :returns: Returns the current instance of SolverConfiguration
         """
         if lbfgs_memory < 2:
             raise Exception("The L-BFGS memory must be at least equal to 2")
@@ -160,8 +174,9 @@ class SolverConfiguration:
     def with_max_inner_iterations(self, max_iters):
         """Maximum number of inner iterations
 
-        Returns:
-            The current object
+        :param max_iters: maximum number of iterations
+
+        :returns: The current object
         """
         if max_iters < 1:
             raise Exception("The maximum number of inner iterations must be at least equal to 1")
@@ -171,8 +186,10 @@ class SolverConfiguration:
     def with_delta_tolerance(self, constraints_tolerance):
         """Tolerance on constraint violation
 
-        Returns:
-            The current object
+        :param constraints_tolerance: tolerance delta (related to constraint
+        violation)
+
+        :return: the current object
         """
         if constraints_tolerance <= 0:
             raise Exception("The constraints tolerance must be strictly positive")
@@ -182,8 +199,7 @@ class SolverConfiguration:
     def with_max_outer_iterations(self, max_outer_iterations):
         """Maximum number of outer iterations
 
-        Returns:
-            The current object
+        :return: the current object
         """
         if max_outer_iterations < 1:
             raise Exception("The maximum number of outer iterations must be at least equal to 1")
@@ -196,14 +212,11 @@ class SolverConfiguration:
         At every outer iteration of the penalty method, the weights are
         multiplied by this factor.
 
-        Args:
-            penalty_weight_update_factor: penalty weight update factor
+        :param penalty_weight_update_factor: penalty weight update factor
 
-        Raises:
-            Exception: if the update factor is less than 1.0
+        :raises: Exception: if the update factor is less than 1.0
 
-        Returns:
-            The current object
+        :return: the current object
         """
         if penalty_weight_update_factor < 1.0:
             raise Exception("The penalty update factor needs to be >= 1")
@@ -213,14 +226,11 @@ class SolverConfiguration:
     def with_max_duration_micros(self, max_duration_micros):
         """Specify the maximum duration in microseconds (must be an integer)
 
-        Args:
-            max_duration_micros: maximum execution duration in microseconds (integer)
+        :param max_duration_micros: maximum execution duration in microseconds (integer)
 
-        Raises:
-            Exception: if <code>max_duration_micros</code> is less than 1
+        :raises: Exception: if <code>max_duration_micros</code> is less than 1
 
-        Returns:
-            The current object
+        :returns: The current object
         """
         if max_duration_micros < 1:
             raise Exception("The maximum duration (in microseconds) must be >= 1")
@@ -230,13 +240,11 @@ class SolverConfiguration:
     def with_cbfgs_parameters(self, alpha, epsilon, sy_epsilon):
         """Specify the CBFGS parameters alpha and epsilon
 
-        Args:
-            alpha: CBFGS parameter alpha
-            epsilon: CBFGS parameter epsilon
-            sy_epsilon: Tolerance on the s-y inner product
+        :param alpha: CBFGS parameter alpha
+        :param epsilon: CBFGS parameter epsilon
+        :param sy_epsilon: Tolerance on the s-y inner product
 
-        Returns:
-            The current object
+        :returns: the current object
         """
         if epsilon < 0.0:
             raise Exception("CBFGS parameter epsilon must be positive")
