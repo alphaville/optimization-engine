@@ -50,6 +50,7 @@ pub enum SolverError {
 
 pub mod alm;
 pub mod constraints;
+#[deprecated(since = "0.6.1-alpha.3", note = "Please use the `alm` module instead")]
 pub mod continuation;
 pub mod core;
 pub mod lipschitz_estimator;

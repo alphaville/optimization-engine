@@ -1,5 +1,4 @@
 from .constraint import Constraint
-import numpy as np
 import opengen.functions as fn
 
 

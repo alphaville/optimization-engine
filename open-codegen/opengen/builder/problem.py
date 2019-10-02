@@ -46,7 +46,7 @@ class Problem:
         # Penalty-type constraints: mapping F2(u, p)
         # Constraints: F1(u, p) = 0
         self.__penalty_mapping_f2 = None
-        # @deprecated - to be removed
+        # penalty function - default (and most commonly used): squared 2-norm
         self.__penalty_function = None
 
     # ---------- SETTERS -----------------------------------------------
@@ -94,18 +94,18 @@ class Problem:
         if penalty_function is None:
             # default penalty function: quadratic
             z = cs.SX.sym("z")
-            self.__penalty_function = cs.Function('g_penalty_function', [z], [z ** 2])
+            self.__penalty_function = cs.Function('g_penalty_function', [z], [cs.dot(z, z)])
         else:
             self.__penalty_function = penalty_function
         return self
 
     def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y):
         """
-        Constraints F1(u, p) in C
+        Constraints: F1(u, p) in C
 
-        :param mapping_f1:
-        :param set_c:
-        :param set_y:
+        :param mapping_f1: mapping of the form `F1: R^{n} x R^{p} --> R^{n1}`
+        :param set_c: a convex closed set C
+        :param set_y: a compact subset of C*, the convex conjugate of C
 
         :return: self
         """

@@ -4,13 +4,13 @@ use super::Constraint;
 /// A finite set, $X = \\{x_1, x_2, \ldots, x_n\\}\subseteq\mathbb{R}^n$, given vectors
 /// $x_i\in\mathbb{R}^n$
 ///
-pub struct FiniteSet {
+pub struct FiniteSet<'a> {
     /// The data is stored in a Vec-of-Vec datatype, that is, a vector
     /// of vectors
-    data: Vec<Vec<f64>>,
+    data: &'a [&'a [f64]],
 }
 
-impl FiniteSet {
+impl<'a> FiniteSet<'a> {
     /// Construct a finite set, $X = \\{x_1, x_2, \ldots, x_n\\}$, given vectors
     /// $x_i\in\mathbb{R}^n$
     ///
@@ -25,11 +25,11 @@ impl FiniteSet {
     /// ```
     /// use optimization_engine::constraints::*;
     ///
-    /// let data: Vec<Vec<f64>> = vec![
-    ///    vec![0.0, 0.0],
-    ///    vec![1.0, 1.0],
-    ///    vec![0.0, 1.0],
-    ///    vec![1.0, 0.0],
+    /// let data: &[&[f64]] = &[
+    ///    &[1.0, 1.0],
+    ///    &[0.0, 1.0],
+    ///    &[1.0, 0.0],
+    ///    &[0.0, 0.0],
     /// ];
     /// let finite_set = FiniteSet::new(data);
     /// ```
@@ -40,7 +40,7 @@ impl FiniteSet {
     /// This method will panic if (i) the given vector of data is empty
     /// and (ii) if the given vectors have unequal dimensions.
     ///
-    pub fn new(data: Vec<Vec<f64>>) -> Self {
+    pub fn new(data: &'a [&'a [f64]]) -> Self {
         // Do a sanity check...
         assert!(data.len() > 0, "empty data not allowed");
         let n = data[0].len();
@@ -51,7 +51,7 @@ impl FiniteSet {
     }
 }
 
-impl<'a> Constraint for FiniteSet {
+impl<'a> Constraint for FiniteSet<'a> {
     ///
     /// Projection on the current finite set
     ///
@@ -62,7 +62,7 @@ impl<'a> Constraint for FiniteSet {
     ///
     /// # Parameters
     ///
-    /// - x: (input) given vector, (output) projection on finite set
+    /// - `x`: (input) given vector, (output) projection on finite set
     ///
     ///
     /// # Example
@@ -70,9 +70,9 @@ impl<'a> Constraint for FiniteSet {
     /// ```
     /// use optimization_engine::constraints::*;
     ///
-    /// let data: Vec<Vec<f64>> = vec![
-    ///    vec![0.0, 0.0],
-    ///    vec![1.0, 1.0],
+    /// let data: &[&[f64]] = &[
+    ///    &[0.0, 0.0],
+    ///    &[1.0, 1.0],
     /// ];
     /// let finite_set = FiniteSet::new(data);
     /// let mut x = [0.7, 0.6];

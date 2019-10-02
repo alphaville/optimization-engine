@@ -5,27 +5,20 @@ use super::*;
 fn t_finite_set_inconsistent_dimensions() {
     let x1 = vec![1.0; 2];
     let x2 = vec![0.0; 3];
-    let mut data: Vec<Vec<f64>> = Vec::with_capacity(2);
-    data.push(x1);
-    data.push(x2);
+    let mut data: &[&[f64]] = &[&x1, &x2];
     let _f = FiniteSet::new(data);
 }
 
 #[test]
 #[should_panic]
 fn t_finite_set_empty_data() {
-    let mut _data: Vec<Vec<f64>> = Vec::new();
+    let mut _data: &[&[f64]] = &[];
     let _f = FiniteSet::new(_data);
 }
 
 #[test]
 fn t_finite_set() {
-    let data: Vec<Vec<f64>> = vec![
-        vec![0.0, 0.0],
-        vec![1.0, 1.0],
-        vec![0.0, 1.0],
-        vec![1.0, 0.0],
-    ];
+    let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0], &[0.0, 1.0], &[1.0, 0.0]];
     let finite_set = FiniteSet::new(data);
     let mut x = [0.7, 0.6];
     finite_set.project(&mut x);
@@ -338,7 +331,7 @@ fn t_second_order_cone_short_vector() {
 
 #[test]
 fn t_cartesian_product_dimension() {
-    let data: Vec<Vec<f64>> = vec![vec![0.0, 0.0], vec![1.0, 1.0]];
+    let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0]];
     let finite_set = FiniteSet::new(data);
     let ball = Ball2::new(None, 1.0);
     let no_constraints = NoConstraints::new();

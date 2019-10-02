@@ -29,7 +29,7 @@ class RustBuildTestCase(unittest.TestCase):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         f1 = cs.vertcat(1.5 * u[0] - u[1], u[2] - u[3])
-        set_c = og.constraints.BallInf([0.0, 0.1], 0.001)
+        set_c = og.constraints.Rectangle(xmin=[-0.01, -0.01], xmax=[0.02, 0.03])
         set_y = og.constraints.BallInf(None, 1e12)
         phi = og.functions.rosenbrock(u, p)  # cost function
         bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
@@ -80,7 +80,7 @@ class RustBuildTestCase(unittest.TestCase):
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
-        tcp_config = og.config.TcpServerConfiguration(bind_port=3302)
+        tcp_config = og.config.TcpServerConfiguration(bind_port=3303)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("plain")
         problem = og.builder.Problem(u, p, phi) \
