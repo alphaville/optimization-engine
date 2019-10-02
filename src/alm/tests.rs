@@ -305,18 +305,25 @@ fn t_alm_numeric_test_2() {
     println!("y = {:#?}", r.lagrange_multipliers());
 }
 
-fn mockito_f0(_u: &[f64], _xi: &[f64], _p: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    *cost = 0.0;
-    Ok(())
+// Badass implementation: (i) returning a Box-ed closure: that's how we can
+// return closures from a function, (ii) moving the context of the function
+// (using `move`), (iii) `param` should leave at least as long as the box
+fn make_mockito_f0<'a>(
+    c: f64,
+    param: &'a [f64],
+) -> Box<dyn Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError> + 'a> {
+    Box::new(
+        move |_u: &[f64], _xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            *cost = c + param[0];
+            Ok(())
+        },
+    )
 }
 
-fn mockito_jacobian(
-    _u: &[f64],
-    _xi: &[f64],
-    _p: &[f64],
-    _grad: &mut [f64],
-) -> Result<(), SolverError> {
-    Ok(())
+fn make_mockito_jacobian(
+    _param: &[f64],
+) -> Box<dyn Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>> {
+    Box::new(|_u: &[f64], _xi: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) })
 }
 
 #[test]
@@ -335,21 +342,16 @@ fn t_alm_numeric_test_repeat() {
 
         let parameter = [1.0, 2.0 * i as f64];
 
-        let f_ = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            mockito_f0(u, xi, &parameter, cost)
-        };
-
-        let jf_ = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-            mockito_jacobian(u, xi, &parameter, grad)
-        };
+        let f0 = make_mockito_f0(1.0, &parameter);
+        let jf = make_mockito_jacobian(&parameter);
 
         let set_c_b = Ball2::new(None, 1.0);
         let alm_problem = AlmProblem::new(
             bounds,
             Some(set_c_b),
             Some(set_y),
-            f_,
-            jf_,
+            f0,
+            jf,
             Some(mocks::mapping_f1_affine),
             Some(mapping_f2),
             n1,

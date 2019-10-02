@@ -1,5 +1,12 @@
 #![deny(missing_docs)]
 //! Constraints and projections
+//!
+//! This module defines the train [`Constraint`], which specifies an abstract
+//! projection method, and a collection of simple sets, such as norm-balls,
+//! finite sets, second-order cones and their Cartesian products.
+//!
+//!
+//! [`Constraint`]: trait.Constraint.html
 
 mod ball2;
 mod ballinf;
@@ -20,7 +27,7 @@ pub use soc::SecondOrderCone;
 /// A set which can be used as a constraint
 ///
 /// This trait defines an abstract function that allows to compute projections
-/// on the set
+/// on sets; this is implemented by a series of structures (see below for details)
 pub trait Constraint {
     /// Projection onto the set, that is,
     ///

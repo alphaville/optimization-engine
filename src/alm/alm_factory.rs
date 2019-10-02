@@ -10,7 +10,7 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 /// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
 /// and optionally $F_1$, $JF_1$, $C$ and $F_2$
 ///
-/// ## Types
+/// # Types
 ///
 /// - `Cost`: cost function $f:\mathbb{R}^{n_u} \to \mathbb{R}$ which is computed
 ///           by a function with signature:
@@ -121,9 +121,9 @@ where
 {
     /// Construct a new instance of `MockFactory`
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
-    /// ## Example
+    /// # Example
     ///
     /// ```rust
     /// use optimization_engine::{constraints::Ball2, alm::*, SolverError};
@@ -197,13 +197,13 @@ where
     /// we can compute projections and $c\in\mathbb{R}$ and $y\in\mathbb{R}^{n_1}$ are the
     /// penalty parameter and vector of Lagrange multipliers respectively.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `u`: vector $u$
     /// - `xi` is the vector $\xi = (c, y) \in \mathbb{R}^{n_1 + 1}$
     /// - `cost`: stores the value of $\psi(u; \xi)$ on exit
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
@@ -242,13 +242,13 @@ where
     ///
     /// where $t(u) = F_1(u) + c^{-1}y$.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `u`: vector $u$
     /// - `xi` is the vector $\xi = (c, y) \in \mathbb{R}^{n_1 + 1}$
     /// - `grad`: stores the value of $\nabla \psi(u; \xi)$ on exit
     ///
-    /// ## Returns
+    /// # Returns
     ///
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.

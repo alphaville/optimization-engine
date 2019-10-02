@@ -36,12 +36,12 @@ impl<'a> CartesianProduct<'a> {
     /// `x(0)` has length `n0`.
     ///
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `ni`: total length of vector `(x(0), ..., x(i))` (see example below)
     /// - `constraint`: constraint to be added implementation of trait `Constraint`
     ///
-    /// ## Example
+    /// # Example
     ///
     /// ```rust
     /// use optimization_engine::constraints::*;
@@ -61,7 +61,7 @@ impl<'a> CartesianProduct<'a> {
     /// cart_prod.add_constraint(idx2, &ball2);
     /// ```
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if `ni` is less than or equal to the previous
     /// dimension of the cartesian product. For example, the following
@@ -90,7 +90,7 @@ impl<'a> Constraint for CartesianProduct<'a> {
     ///
     /// The given vector `x` is updated with the projection on the set
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method will panic if the dimension of `x` is not equal to the
     /// dimension of the Cartesian product (see `dimension()`)

@@ -14,12 +14,12 @@ pub struct Rectangle<'a> {
 impl<'a> Rectangle<'a> {
     /// Construct a new rectangle with given $x_{\min}$ and $x_{\max}$
     ///
-    /// ## Arguments
+    /// # Arguments
     ///
     /// - `xmin`
     /// - `xmin`
     ///
-    /// ## Panics
+    /// # Panics
     ///
     /// The method panics if:
     ///
