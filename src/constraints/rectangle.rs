@@ -16,8 +16,14 @@ impl<'a> Rectangle<'a> {
     ///
     /// # Arguments
     ///
-    /// - `xmin`
-    /// - `xmin`
+    /// - `xmin`: minimum value of `x`
+    /// - `xmin`: maximum value of `x`
+    ///
+    /// # Note
+    ///
+    /// Rectangle does not copy `xmin` and `xmax` internally; it only keeps
+    /// a reference. You may set one of `xmin` and `xmax` to `None` (but not
+    /// both).
     ///
     /// # Panics
     ///
