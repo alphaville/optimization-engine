@@ -80,7 +80,7 @@ class RustBuildTestCase(unittest.TestCase):
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
-        tcp_config = og.config.TcpServerConfiguration(bind_port=3303)
+        tcp_config = og.config.TcpServerConfiguration(bind_port=4598)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("plain")
         problem = og.builder.Problem(u, p, phi) \
