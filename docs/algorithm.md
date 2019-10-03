@@ -199,9 +199,10 @@ the constraints, while inner problems are solved very fast using PANOC.
 
 ### Augmented Lagrangian Method
 
-Numerical algorithm
+The numerical algorithm which combines PANOC with the augmented Lagrangian and 
+the penalty method is presented below
 
-Input:
+**Inputs:**
 - $\epsilon, \delta > 0$ (tolerance),
 - $\nu_{\max}$ (maximum number of iterations),
 - $c_0 > 0$ (initial penalty parameter),  
@@ -212,7 +213,9 @@ Input:
 - $u^0 \in \mathbb{R}^n$ (initial guess)
 - $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers)
 - $Y \subseteq C^*$ (compact set)
+
 The ALM/PM algorithm performs the following iterations:
+
 - $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $u\gets{}u^0$, $t,z\gets{}0$
 - For $\nu=0,\ldots, \nu_{\max}$
     - $y \gets \Pi_Y(y)$
@@ -223,17 +226,16 @@ The ALM/PM algorithm performs the following iterations:
     - else if not ($\nu=0$ or ($z^+ \leq \theta z$ and $t^+ \leq \theta t$)), $c \gets \rho{}c$
     - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$
 
-Theoretical solution guarantees:
 
 The solver determines an $(\epsilon, \delta)$-approximate KKT point for the problem,
 that is, a pair $(u^\star, y^\star)$ which satisfies
 $$
 \begin{aligned}
-v {}\in{}& \partial_u L(u^\star, y^\star), \text{ with } \Vert v \Vert \leq \epsilon,
+v {}\in{} \partial_u L(u^\star, y^\star), \text{ with } \Vert v \Vert \leq \epsilon,
 \\\\
-w {}\in{}& \partial_y [-L](u^\star, y^\star), \text{ with } \Vert w \Vert \leq \delta,
+w {}\in{} \partial_y [-L](u^\star, y^\star), \text{ with } \Vert w \Vert \leq \delta,
 \\\\
-\Vert F_2(u^\star) \Vert {}\leq{}& \delta
+\Vert F_2(u^\star) \Vert {}\leq{} \delta,
 \end{aligned}
 $$
 where $L:\mathbb{R}^{n_u}\times\mathbb{R}^{n_1}{}\to{}\mathbb{R}$ is the associated

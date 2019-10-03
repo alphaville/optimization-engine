@@ -70,7 +70,7 @@ phi = og.functions.rosenbrock(u, p)   # cost function
 
 Next, we need to define the constraints. Support that 
 $U$ is a Euclidean ball with radius $r=1.5$ centered at 
-the origin, $U= \\{u \in \mathbb{R}^5 {}:{} \|u\| \leq r \\}$.
+the origin, $U= \\{u \in \mathbb{R}^5 {}:{} \Vert{}u\Vert {}\leq{} r \\}$.
 This is,
 
 ```python
@@ -84,15 +84,19 @@ the form
 \[U = \{u \in \mathbb{R}^{n_u} {}:{} u_{\min}
 \leq u \leq u_{\max} \}\]</div>
  
-using `og.constraints.Rectangle`. Set `U` is a simple set (typically
-a ball or a box). Opegen supports more general constraints of the 
-form $c(u; p) = 0$ and $c(u; p) \leq 0$ 
+using `og.constraints.Rectangle`. 
+
+Set `U` is a simple set (typically a ball or a box). 
+
+Opegen supports more general constraints of the 
+form $F_2(u, p) = 0$ and $F_2(u, p) \leq 0$ 
 (see [next section](#general-constraints)). 
 
 We may now define the optimization problem as follows:
 
 ```python
-problem = og.builder.Problem(u, p, phi).with_constraints(bounds)
+problem = og.builder.Problem(u, p, phi)  \
+        .with_constraints(bounds)
 ```
 
 ### Code generation
@@ -154,7 +158,7 @@ This will instruct opegen to store the generated optimizer in
 `release` (slow compilation, best performance). 
 
 There are some additional parameters one might be interested in
-such as `with_rebuild(True/False)` (whether to re-build the 
+such as `with_rebuild(True|False)` (whether to re-build the 
 optimizer from scratch - equivalent of clean+build). 
 
 Lastly, one needs to specify certain solver parameters; an 
@@ -287,8 +291,78 @@ $$\Vert F_1(u, p) \Vert \leq c$$
   taking $C = B_{\Vert\cdot\Vert}^{c}$, where $\Vert{}\cdot{}\Vert$ can be either
   the Euclidean norm or the infinity norm (that is, `Ball2` and `BallInf`)
 
+As an example, consider the constraints
 
+<div class="math">\[
+  \begin{split}
+    1.5u_1 {}={}& u_2  
+    \\
+    \sin(u_3 + \pi/5) {}={}& 0.5
+  \end{split}\]
+</div> 
 
+We select
+
+<div class="math">\[
+  F_1(u, p) = \begin{bmatrix}
+  1.5u_1 - u_2  
+    \\
+    \sin(u_3 + \pi/5) - 0.5
+  \end{bmatrix}\]
+</div> 
+
+and 
+
+$$
+C = \\{0\\}.
+$$
+
+We also need to provide a compact set $Y \subseteq C^*$; we select 
+
+$$Y = \\{y \in \mathbb{R}^{n_1}{}:{} \Vert y \Vert_{\infty} \leq 10^{12}\\}.$$
+
+Now, the problem formulation becomes
+
+```python
+f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.5)
+set_c = og.constraints.Zero()
+set_y = og.constraints.BallInf(None, 1e12)
+```
+
+and 
+
+```python
+problem = og.builder.Problem(u, p, phi)\
+    .with_aug_lagrangian_constraints(f1, set_c, set_y)\  
+    .with_constraints(bounds)
+```
+
+We can now generate a solver and solve the problem exactly as before.
+The solution is a pair $(u^\star, y^\star)$ given by
+
+```json
+{
+    "exit_status": "Converged",
+    "num_outer_iterations": 9,
+    "num_inner_iterations": 85,
+    "last_problem_norm_fpr": 8.879341428457282e-06,
+    "delta_y_norm_over_c": 7.147511762156759e-06,
+    "f2_norm": 0.0,
+    "solve_time_ms": 13.569209,
+    "penalty": 78125.0,
+    "solution": [
+        0.018786377508686856,
+        0.028186552233630396,
+        -0.10471801035932687,
+        0.02921323766336347,
+        0.0007963509453450717
+    ],
+    "lagrange_multipliers": [
+        0.7699528316368849,
+        14.491152879893193
+    ]
+}
+```
 ### Penalty Method
 
 Opengen can handle more general constraints of the form 
