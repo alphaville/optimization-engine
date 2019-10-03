@@ -124,6 +124,8 @@ fn make_constraints() -> impl Constraint {
     let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
     let bounds = NoConstraints::new();
+    {% elif 'Zero' == problem.constraints.__class__.__name__ -%}
+    let bounds = Zero::new();
     {% endif -%}
     bounds
 }
@@ -139,6 +141,8 @@ fn make_set_c() -> impl Constraint {
     let set_c = Rectangle::new(SET_C_XMIN, SET_C_XMAX);
     {% elif 'NoConstraints' == problem.alm_set_c.__class__.__name__ -%}
     let set_c = NoConstraints::new();
+    {% elif 'Zero' == problem.alm_set_c.__class__.__name__ -%}
+    let set_c = Zero::new();
     {% endif -%}
     set_c
 }
@@ -155,6 +159,8 @@ fn make_set_y() -> impl Constraint {
     let set_y = Rectangle::new(SET_Y_XMIN, SET_Y_XMAX);
     {% elif 'NoConstraints' == problem.alm_set_y.__class__.__name__ -%}
     let set_y = NoConstraints::new();
+    {% elif 'Zero' == problem.alm_set_y.__class__.__name__ -%}
+    let set_c = Zero::new();
     {% endif -%}
     set_y
 }

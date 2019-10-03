@@ -1,11 +1,25 @@
 use super::*;
 
 #[test]
+fn t_zero_set() {
+    let zero = Zero::new();
+    let mut x = [1.0, 2.0, 3.0];
+    let x_projection = [0.0; 3];
+    zero.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x_projection,
+        &x,
+        1e-12,
+        1e-12,
+        "wrong projection on zero set",
+    );
+}
+#[test]
 #[should_panic]
 fn t_finite_set_inconsistent_dimensions() {
     let x1 = vec![1.0; 2];
     let x2 = vec![0.0; 3];
-    let mut data: &[&[f64]] = &[&x1, &x2];
+    let data: &[&[f64]] = &[&x1, &x2];
     let _f = FiniteSet::new(data);
 }
 
