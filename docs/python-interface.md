@@ -11,7 +11,7 @@ We present `opengen`: a Python interface to Optimization
 Engine (OpEn), which facilitates the process of code generation
 of high-performance parametric optimizers. 
 
-<img src="/optimization-engine/img/open-functionality.jpg" alt="Opengen code generation" width="85%"/>
+<img src="/optimization-engine/img/open-functionality.jpg" alt="OpEn functionality; high level diagram" width="85%"/>
 
 
 ## About
@@ -22,30 +22,13 @@ designs the parametric optimization problem entirely in Python.
 The auto-generated code is then compiled in Rust can be used in any
 of the following ways:
 
-- Directly in Rust (you can include it in you Rust project as a dependency)
-- Over a TCP/IP interface based on JSON (which can be accessed easily from any programming language)
-- In Python (using the TCP/IP interface in the background)
-- In C or C++ (support will be released soon)
+- Directly in **Rust** (you can include it in you Rust project as a dependency)
+- Over a **TCP socket** based on JSON (which can be accessed easily from any programming language)
+- In **Python** (using the TCP/IP interface in the background)
+- In **C** or **C++** using auto-generated C/C++ bindings (header files and static or shared libraries)
 
-<img src="/optimization-engine/img/python-iface-workflow.jpg" alt="Opengen code generation" width="85%"/>
+<img src="/optimization-engine/img/python-interfaces.jpg" alt="Opengen code generation" width="95%"/>
 
-## Installation
-
-In order to install `opengen` you need:
-
-- [Python](https://www.python.org/) (tested against versions 2.7, 3.4 and 3.6)
-- [Rust 2018](https://www.rust-lang.org/tools/install) (tested with nightly, beta and stable)
-
-You may install `opengen` using `pip`; just open a terminal
-and type in:
-
-```
-pip install opengen
-```
-
-On some linux systems you may need to prepend `sudo`. We recommend
-that you use [virtualenv](https://virtualenv.pypa.io/en/latest/),
-but it is not necessary.
 
 ## Getting started
 
@@ -186,7 +169,7 @@ solver_config = og.config.SolverConfiguration()   \
 
 Method `.with_max_inner_iterations` is used to specify the 
 maximum number of iterations. We refer to it as "inner" iterations
-to distinguish from "outer" iterations in the [penalty method](https://en.wikipedia.org/wiki/Penalty_method)
+to distinguish from "outer" iterations in the [penalty method]
 (see below).
 
 We are now ready to call the code generator providing 
@@ -264,8 +247,52 @@ quantifies the solution quality  and the solution time in milliseconds
 
 ## General constraints
 
+OpEn can handle constraints of the general form 
+
+<div class="math">\[F_1(u, p) \in C,\tag{aLC}\]</div>
+
+where $F_1:\mathbb{R}^{n_u}\times \mathbb{R}^{n_p} \to\mathbb{R}^{n_1}$ is a smooth mapping and $C$ is
+a closed convex set. These constraints are handled with the [augmented Lagrangian 
+method] and are tagged <abbr title="augmented Lagrangian constraints">aLC</abbr>.
+
+OpEn can also handle constraints of the following form
+
+<div class="math">\[F_2(u, p) = 0,\tag{PC}\]</div>
+
+where $F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p} \to\mathbb{R}^{n_2}$,
+using the [penalty method]. These constraints will be referred to as <abbr title="penalty-type constraints">PC</abbr>. 
+
+In most cases, the user can encode constraints in either the form of 
+<abbr title="augmented Lagrangian constraints">aLC</abbr> or 
+<abbr title="penalty-type constraints">PC</abbr>.
+However, the augmented Lagrangian method typically leads to better performance.
+The user can also use both types of constraints simultaneously.
+
+### Augmented Lagrangian Method
+OpEn supports constraints of the <abbr title="augmented Lagrangian constraints">aLC</abbr> type.
+By choosing different sets $C$, the user can model a very wide range of constraints. For 
+example,
+
+- Equality constraints, $F_1(u, p) = 0$ can be described by taking $C= \\{0\\}$,
+  which corresponds to set `Zero` in Python
+- Element-wise constraints of the form 
+$$
+f_{\min} \leq F_1(u, p) \leq f_{\max},
+$$
+  can be described by taking $C$ to be a `Rectangle`. Note that some elements of $f_{\min}$
+  and $f_{\max}$ can be set to $-\infty$ and $+\infty$ respectively
+- Norm constraints of the form 
+$$\Vert F_1(u, p) \Vert \leq c$$ 
+  can be described by
+  taking $C = B_{\Vert\cdot\Vert}^{c}$, where $\Vert{}\cdot{}\Vert$ can be either
+  the Euclidean norm or the infinity norm (that is, `Ball2` and `BallInf`)
+
+
+
+### Penalty Method
+
 Opengen can handle more general constraints of the form 
-$c(u; p) = 0$ using the [penalty method](https://en.wikipedia.org/wiki/Penalty_method). 
+$F_2(u, p) = 0$ using the [penalty method]
 In particular, opengen can solve problems of the form 
 
 <div class="math">
@@ -273,14 +300,15 @@ In particular, opengen can solve problems of the form
 \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\
 \mathrm{subject\ to}\, &u \in U,
 \\ 
-&c(u; p) = 0,\end{split}\]</div> 
+&F_2(u, p) = 0,\end{split}\]</div> 
 
-where $c:\mathbb{R}^{n_u}\times \mathbb{R}^{n_p} \to \mathbb{R}^{n_c}$. 
+where $F_2:\mathbb{R}^{n_u}\times \mathbb{R}^{n_p} \to \mathbb{R}^{n_c}$. 
+
 This can be used to encode either equality or inequality constraints 
-of the form $\psi(u; p) \leq 0$ using 
+of the form $h(u, p) \leq 0$ using 
 
 <div class="math">
-\[c(u; p) = \max\{0, \psi(u; p)\}.\]</div>
+\[F_2(u, p) = \max\{0, h(u, p)\}.\]</div>
 
 As an example, consider again the problem of minimizing the 
 Rosenbrock function subject to the constraints
@@ -294,7 +322,7 @@ u_3 - u_4 + 0.1 {}\leq{}& 0.
 To that end, we define the constraints function
 
 <div class="math">
-\[c(u; p) = 
+\[F_2(u, p) = 
 \begin{bmatrix}
   1.5u_1 - u_2
   \\
@@ -305,15 +333,15 @@ It is now very easy to include this in out problem formulation.
 We first need to define function $c$:
 
 ```python
-c = cs.vertcat(1.5 * u[0] - u[1], 
-               cs.fmax(0.0, u[2] - u[3] + 0.1))
+f2 = cs.vertcat(1.5 * u[0] - u[1], 
+                cs.fmax(0.0, u[2] - u[3] + 0.1))
 ```
 
 and include it in the problem formulation:
 
 ```python
 problem = og.builder.Problem(u, p, phi)  \
-    .with_penalty_constraints(c)         \
+    .with_penalty_constraints(f2)        \
     .with_constraints(bounds)
 ```
 
@@ -355,3 +383,6 @@ The user may change the maximum constraint violation using
 ```python
 solver_config.with_constraints_tolerance(1e-6)
 ``` 
+
+[penalty method]: https://en.wikipedia.org/wiki/Penalty_method
+[augmented Lagrangian method]: https://en.wikipedia.org/wiki/Augmented_Lagrangian_method

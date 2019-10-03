@@ -1,6 +1,6 @@
 ---
 id: python-tcp-ip
-title: TCP/IP Socket Interface
+title: TCP Sockets
 ---
 
 As discussed [previously], one possible way of invoking an auto-generated parametric

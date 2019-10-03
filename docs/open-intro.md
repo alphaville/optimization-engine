@@ -7,7 +7,7 @@ sidebar_label: Introduction
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-## About Optimization Engine (OpEn)
+## What is Optimization Engine (OpEn)?
 
 Embedded optimization is of great importance in a wide range of engineering applications. For example, **model predictive control** is becoming all the more popular in highly dynamical systems with sampling times of a few milliseconds. 
 
@@ -35,26 +35,53 @@ Users can, for example, do their design entirely in Python and then use the **Op
 OpEn solves parametric nonconvex optimization problems of the form
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
-\mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
+\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\mathrm{subject\ to}\ \  &amp;u \in U\\
+&amp; F_1(u, p) \in C\\
+&amp; F_2(u, p) = 0\end{split}\]</div>
 
-where `u` is the vector decision variables of the problem and `p` is a parameter. Function `f` needs to be a sufficiently smooth ($C^{1,1}$) function and `U` needs to be a set on which we can compute projections. 
+where $u\in\mathbb{R}^{n_u}$ is the vector decision variables of the problem and 
+$p\in\mathbb{R}^{n_p}$ is a vector of parameters.
 
-The cost fuction, $f$, can be nonconvex and the set of constraints $U$ can be nonconvex too. 
+This is a very flexible problem formulation that allows the user to model a very broad 
+class of optimization problems.
 
-For example, $U$ can be sets such as  
+In particular,
+- $f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
+  Function $f$ can be nonconvex.
+- $U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
+  can compute projections. Examples, include norm balls, rectangles, 
+  finite sets and a lot more.
+- $F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a smooth mapping and 
+  $C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
+  distances. Examples, are: (i) the positive orthant, (ii) norm balls, and (iii)
+  second-order cones.
+- $F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a smooth mapping
 
-- $\\{0,1\\}$, $\\{0,1\\}^m$, $\\{1,\ldots,n\\}$ or 
-- $\\{0, 1\\}^m \times \mathcal{B}(u_0, r)$. 
+We will explain the difference between the constraints $F_1(u, p) \in C$ and 
+$F_2(u, p) = 0$ below.
 
-This way, OpEn can solve mixed-integer problems, but not to a global minimum. Nevertheless, OpEn is guaranteed to converge.
-
-Several problems, including nonlinear model predictive control, can be cast in the above form. 
-
-Note that OpEn solves the [optimality conditions](https://arxiv.org/pdf/1709.06487.pdf) of the given nonconvex problem. It can do so very fast, but it does not guarantee that the solution is globally optimal.
+The user provides the problem data and OpEn **generates code** for a parametric 
+optimizer where the user can pass a value $p$ and obtain a solution $u^\star$
+(more on that later).
 
 
-**Problems OpEn cannot solve:** OpEn solves the optimality conditions of given nonconvex optimization problems. It cannot guarantee that the solutions will be global (constraints will not be violated, though). 
+## What are some practical examples?
+
+OpEn can solve problems of the form $\mathbb{P}(p)$ given above. A few examples
+of problems that can be modelled this way are
+
+- Nonlinear optimal control problems with applications in nonlinear model 
+  predictive control (MPC) and MPC problems with nonconvex constraints (e.g., 
+  obstacle avoidance problems)
+- Nonlinear estimation formulations using nonlinear moving horizon estimation
+- Mixed integer problems
+- Nonconvex conic optimization problems
+- Bilinear problems and optimization problems with complementarity constraints
+
+
+**Note:** OpEn solves the optimality conditions of given nonconvex optimization problems. 
+It cannot guarantee that the solutions will be global. 
 
 ## What can OpEn do?
 **Optimization Engine** can be embedded on simple hardware devices and provide autonomy and reliability while it boosts the system's performance. 
@@ -92,6 +119,13 @@ The result is a simple, yet rapidly convergent algorithm, which is perfectly sui
 
 Find out more about PANOC in the [original publication](https://arxiv.org/pdf/1709.06487.pdf). See PANOC in action in obstacle avoidance scenarios in [this paper](https://core.ac.uk/download/pdf/153430972.pdf) and [this paper](https://arxiv.org/pdf/1812.04755.pdf).
 
+
+### Augmented Lagrangian and Penalty Methods
+
+
+
+
+
 ## The structure of OpEn
 **Optimization Engine** is a framework which comprises several components and layers.
 
@@ -101,15 +135,15 @@ A code generation tool will create Rust code which can be used for maximum effic
 
 **OpEn** comprises the following components:
 
-- In Rust:
-    - The `optimization-engine` crate
-    - Crate `icasadi` which can be used to interface C code
-- In MATLAB:
-    - A code generation toolbox
-    - An additional toolbox for MPC (and optimal control) applications
-- In Python:
-    - A code generation library
-    - An additional library for MPC (and optimal control) applications
+- In Rust: the [`optimization-engine`] crate (downloaded automatically when using the 
+  Python/MATLAB interfaces)
+- In [Python](./python-interface) and [MATLAB](./matlab-interface): 
+  code generation libraries and interfaces 
 
 ## Next steps
-First, you need to [install rust](./installation). Then, you can either learn how to use [OpEn in rust](./openrust), or how to generate and use parametric optimizers [from MATLAB](./matlab-interface) or [Python](./python-interface).
+First, you need to [install rust]. Then, you can either learn how to use [OpEn in rust]./openrust-basic, or how to generate and use parametric optimizers [from MATLAB](./matlab-interface) or [Python](./python-interface).
+
+
+[`optimization-engine`]: https://crates.io/crates/optimization_engine
+[install rust]: ./installation
+[OpEn in rust]: ./openrust-basic
