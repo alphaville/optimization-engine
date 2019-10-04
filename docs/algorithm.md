@@ -11,7 +11,7 @@ title: Algorithm
 Optimization Engine (OpEn) solves problems of the following form:
 
 <div class="math">
-\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
 \mathrm{subject\ to}\ \  &amp;u \in U\\
 &amp; F_1(u, p) \in C\\
 &amp; F_2(u, p) = 0\end{split}\]</div>
@@ -199,22 +199,45 @@ the constraints, while inner problems are solved very fast using PANOC.
 
 ### Augmented Lagrangian Method
 
-The numerical algorithm which combines PANOC with the augmented Lagrangian and 
-the penalty method is presented below
+Similar to the penalty method, the augmented Lagrangian method (ALM) is used to solve
+constrained optimization problems by performing an "outer" iterative procedure,
+at every iteration of which, we need to solve an "inner" optimization problem.
+<abbr title="Augmented Lagrangian Method">ALM</abbr> updates both a penalty parameter
+as well as a *vector* $y$, known as the vector of Lagrange multipliers.
 
-**Inputs:**
-- $\epsilon, \delta > 0$ (tolerance),
-- $\nu_{\max}$ (maximum number of iterations),
-- $c_0 > 0$ (initial penalty parameter),  
-- $\epsilon_0 > \epsilon$ (initial tolerance),
-- $\rho > 1$ (update factor for the penalty parameter)
-- $\beta \in (0, 1)$ (decrease factor for the inner tolerance)
-- $\theta \in (0, 1)$ (sufficient decrease coefficient)
-- $u^0 \in \mathbb{R}^n$ (initial guess)
-- $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers)
-- $Y \subseteq C^*$ (compact set)
+The inner optimization problems have the following form
 
-The ALM/PM algorithm performs the following iterations:
+<div class="math">
+\[
+    \mathbb{P}(p, c, y) {}:{} \operatorname*{Minimize}_{u {}\in{} U}\ \psi(u, p, c, y),
+\]</div>
+
+where 
+
+<div class="math">
+\[
+    \psi(u, p, c, y) = f(u, p) + \tfrac{c}{2}\left[\operatorname{dist}_C^2(F_1(u, p) + c^{-1}y) + \Vert F_2(u, p)\Vert^2 \right].
+\]</div>
+
+This problem can be solved using PANOC. 
+
+At every outer iteration, $\nu$, the vector of Lagrange multipliers is updated 
+according to
+
+<div class="math">
+\[
+    y^{\nu+1} {}={} y^{\nu} + c(F_1(u^{\nu}) - \Pi_C(F_1(u^{\nu}) + y^{\nu}/c_{\nu})),
+\]
+</div>
+
+where $u^{\nu}$ is an (approximate) solution of the inner problem, 
+$\mathbb{P}(p, c_{\nu}, y^{\nu})$, which is obtained using PANOC.
+
+
+
+**Inputs:** $\epsilon, \delta > 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 > 0$ (initial penalty parameter), $\epsilon_0 > \epsilon$ (initial tolerance), $\rho > 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq C^*$ (compact set)
+
+**Procedure:** The <abbr title="Augmented Lagrangian Method">ALM</abbr>/<abbr title="Penalty Method">PM</abbr> algorithm performs the following iterations:
 
 - $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $u\gets{}u^0$, $t,z\gets{}0$
 - For $\nu=0,\ldots, \nu_{\max}$
@@ -225,24 +248,3 @@ The ALM/PM algorithm performs the following iterations:
     - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(u, y^+)$
     - else if not ($\nu=0$ or ($z^+ \leq \theta z$ and $t^+ \leq \theta t$)), $c \gets \rho{}c$
     - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$
-
-
-The solver determines an $(\epsilon, \delta)$-approximate KKT point for the problem,
-that is, a pair $(u^\star, y^\star)$ which satisfies
-$$
-\begin{aligned}
-v {}\in{} \partial_u L(u^\star, y^\star), \text{ with } \Vert v \Vert \leq \epsilon,
-\\\\
-w {}\in{} \partial_y [-L](u^\star, y^\star), \text{ with } \Vert w \Vert \leq \delta,
-\\\\
-\Vert F_2(u^\star) \Vert {}\leq{} \delta,
-\end{aligned}
-$$
-where $L:\mathbb{R}^{n_u}\times\mathbb{R}^{n_1}{}\to{}\mathbb{R}$ is the associated
-Lagrangian function which is given by
-$$
-L(u, y) {}={} f(u) + y^\top F_1(u) + \delta_U(u) + \delta_{C^{\ast}}(y),
-$$
-for $u\in\mathbb{R}^{n_u}$, $y\in\mathbb{R}^{n_1}$, $C^{\ast}$ is the convex conjugate set
-of $C$ and $\delta_{U}$, $\delta_{C^{\ast}}$ are the indicator functions of $U$ and $C^{\ast}$
-respectively.

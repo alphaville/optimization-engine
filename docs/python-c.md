@@ -94,139 +94,47 @@ Note that `the_optimizer` is the name given to the optimizer in the Python codeg
 [*debug*]: /optimization-engine/docs/python-advanced#build-options
 [*release*]: /optimization-engine/docs/python-advanced#build-options
 
+**Matlab generation will come soon.**
 
 ## Bindings API
 
-The generated API has the following functions available (for complete definitions see the generated header files):
+The generated API has the following functions available (for complete definitions see the generated header files) for a solver entitled `example`:
 
 ```c
-/* Contents of */
-#pragma once
+/* Contents of header file: example_bindings.h */
 
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+#define EXAMPLE_N1 0
+#define EXAMPLE_N2 2
+#define EXAMPLE_NUM_DECISION_VARIABLES 5
+#define EXAMPLE_NUM_PARAMETERS 2
 
-#define {SOLVER-NAME}_N1 0
-#define {SOLVER-NAME}_N2 2
-#define {SOLVER-NAME}_NUM_DECISION_VARIABLES 5
-#define {SOLVER-NAME}_NUM_PARAMETERS 2
-
-/**
- * {solver_name} version of ExitStatus
- * Structure: `{solver_name}ExitStatus`
- */
 typedef enum {
-  /**
-   * The algorithm has converged
-   * All termination criteria are satisfied and the algorithm
-   * converged within the available time and number of iterations
-   */
-  {solver_name}Converged,
-  /**
-   * Failed to converge: the maximum number of iterations was reached
-   */
-  {solver_name}NotConvergedIterations,
-  /**
-   * Failed to converge: the maximum execution time was reached
-   */
-  {solver_name}NotConvergedOutOfTime,
-  /**
-   * If the gradient or cost function cannot be evaluated internally
-   */
-  {solver_name}NotConvergedCost,
-  /**
-   * Computation failed and NaN/Infinite value was obtained
-   */
-  {solver_name}NotConvergedNotFiniteComputation,
-} {solver_name}ExitStatus;
+  exampleConverged,
+  exampleNotConvergedIterations,
+  exampleNotConvergedOutOfTime,
+  exampleNotConvergedCost,
+  exampleNotConvergedNotFiniteComputation,
+} exampleExitStatus;
 
-/**
- * Solver cache (structure `{solver_name}Cache`)
- */
-typedef struct {solver_name}Cache {solver_name}Cache;
+typedef struct exampleCache exampleCache;
 
-/**
- * {solver_name} version of AlmOptimizerStatus
- * Structure: `{solver_name}SolverStatus`
- */
 typedef struct {
-  /**
-   * Exit status
-   */
-  {solver_name}ExitStatus exit_status;
-  /**
-   * Number of outer iterations
-   */
+  exampleExitStatus exit_status;
   unsigned long num_outer_iterations;
-  /**
-   * Total number of inner iterations
-   * This is the sum of the numbers of iterations of
-   * inner solvers
-   */
   unsigned long num_inner_iterations;
-  /**
-   * Norm of the fixed-point residual of the the problem
-   */
-  double last_problem_norm_fpr;
-  /**
-   * Total solve time
-   */
+  double last_problem_norm_fpr;  
   unsigned long long solve_time_ns;
-  /**
-   * Penalty value
-   */
   double penalty;
-  /**
-   * Norm of delta y divided by the penalty parameter
-   */
   double delta_y_norm_over_c;
-  /**
-   * Norm of F2(u)
-   */
   double f2_norm;
-  /**
-   * Lagrange multipliers
-   */
   const double *lagrange;
-} {solver_name}SolverStatus;
+} exampleSolverStatus;
 
-/**
- * Deallocate the solver's memory, which has been previously allocated
- * using `{solver_name}_new`
- */
-void {solver_name}_free({solver_name}Cache *instance);
+void example_free(exampleCache *instance);
 
-/**
- * Allocate memory and setup the solver
- */
-{solver_name}Cache *{solver_name}_new(void);
+exampleCache *example_new(void);
 
-/**
- * Solve the parametric optimization problem for a given parameter
- * 
- * 
- * Arguments:
- * - `instance`: re-useable instance of AlmCache, which should 
- *   be created using `{solver_name}_new` (and should be destroyed once 
- *   it is not needed using `{solver_name}_free`
- * - `u`: (on entry) initial guess of solution, (on exit) solution
- *   (length: `{SOLVER-NAME}_NUM_DECISION_VARIABLES`)
- * - `params`:  static parameters of the optimizer
- *   (length: `{SOLVER-NAME}_NUM_PARAMETERS`)
- * - `y0`: Initial guess of Lagrange multipliers (if `0`, the default will
- *   be used; length: `{SOLVER-NAME}_N1`)
- * - `c0`: Initial penalty parameter (provide `0` to use the default initial
- *   penalty parameter
- * 
- * 
- * Returns:
- * Instance of `{solver_name}SolverStatus`, with the solver status
- * (e.g., number of inner/outer iterations, measures of accuracy, 
- * solver time, and the array of Lagrange multipliers at the solution).
- */
-{solver_name}SolverStatus {solver_name}_solve({solver_name}Cache *instance,
+exampleSolverStatus example_solve(exampleCache *instance,
                                   double *u,
                                   const double *params,
                                   const double *y0,
@@ -278,19 +186,22 @@ int main() {
 When building and running an application based on the generated libraries it is good to know that GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
 
 ```console
-gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o optimizer
+gcc optimizer.c -l:libthe_optimizer.a \
+  -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
 Or using direct linking (this is the only thing that works with clang):
 
 ```console
-gcc optimizer.c ./target/release/libthe_optimizer.a -pthread -lm -ldl -o optimizer
+gcc optimizer.c ./target/release/libthe_optimizer.a \
+  -pthread -lm -ldl -o optimizer
 ```
 
 While the following can be used when using the shared library:
 
 ```console
-gcc optimizer.c -lthe_optimizer -L./target/release -pthread -lm -ldl -o optimizer
+gcc optimizer.c -lthe_optimizer \
+  -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
 ### Running
