@@ -122,6 +122,11 @@ fn make_constraints() -> impl Constraint {
     let bounds = BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
+    {% elif 'FiniteSet' == problem.constraints.__class__.__name__ -%}
+    let data: &[&[f64]] = &[
+    {% for point in problem.constraints.points %}&[{{point|join(', ')}}],{% endfor %}
+    ];
+    let bounds = FiniteSet::new(data);
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
     let bounds = NoConstraints::new();
     {% elif 'Zero' == problem.constraints.__class__.__name__ -%}
