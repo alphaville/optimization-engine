@@ -28,3 +28,10 @@ class CartesianProduct(Constraint):
 
     def project(self, u):
         raise NotImplementedError()
+
+    def is_convex(self):
+        flag = True
+        for c in self.__constraints:
+            flag &= c.is_convex()
+        return flag
+

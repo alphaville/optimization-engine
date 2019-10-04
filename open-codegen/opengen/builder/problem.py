@@ -93,6 +93,7 @@ class Problem:
 
         :return: self
         """
+        assert(set_c.is_convex(), "Set C must be convex")
         self.__alm_mapping_f1 = mapping_f1
         self.__alm_set_c = set_c
         self.__alm_set_y = set_y

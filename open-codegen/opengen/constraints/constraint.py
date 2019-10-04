@@ -6,3 +6,5 @@ class Constraint:
     def project(self, u):
         raise NotImplementedError("Method `project` is not implemented")
 
+    def is_convex(self):
+        return False

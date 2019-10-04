@@ -42,3 +42,6 @@ class FiniteSet(Constraint):
 
     def project(self, u):
         raise NotImplementedError()
+
+    def is_convex(self):
+        return False
