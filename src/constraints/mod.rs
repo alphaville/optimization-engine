@@ -42,6 +42,9 @@ pub trait Constraint {
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
     fn project(&self, x: &mut [f64]);
+
+    /// Returns true if and only if the set is convex
+    fn is_convex(&self) -> bool;
 }
 
 /* ---------------------------------------------------------------------------- */

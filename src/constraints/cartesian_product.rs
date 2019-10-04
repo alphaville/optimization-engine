@@ -105,4 +105,11 @@ impl<'a> Constraint for CartesianProduct<'a> {
                 j = i;
             });
     }
+
+    fn is_convex(&self) -> bool {
+        return self.constraints.iter().fold(true, |mut flag, cnstr| {
+            flag &= cnstr.is_convex();
+            flag
+        });
+    }
 }

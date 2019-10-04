@@ -16,4 +16,8 @@ impl Constraint for Zero {
     fn project(&self, x: &mut [f64]) {
         x.iter_mut().for_each(|xi| *xi = 0.0);
     }
+
+    fn is_convex(&self) -> bool {
+        true
+    }
 }

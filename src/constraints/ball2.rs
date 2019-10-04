@@ -41,4 +41,8 @@ impl<'a> Constraint for Ball2<'a> {
             }
         }
     }
+
+    fn is_convex(&self) -> bool {
+        return true;
+    }
 }

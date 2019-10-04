@@ -44,4 +44,4 @@ class FiniteSet(Constraint):
         raise NotImplementedError()
 
     def is_convex(self):
-        return False
+        return self.cardinality() == 1 and self.dimension() > 0

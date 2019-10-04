@@ -429,3 +429,32 @@ fn t_ball_inf_center() {
     ball_inf.project(&mut x);
     unit_test_utils::assert_nearly_equal_array(&[5.0, -6.0], &x, 1e-10, 1e-12, "centre");
 }
+
+#[test]
+fn t_is_convex() {
+    let ball_inf = BallInf::new(None, 1.5);
+    assert!(ball_inf.is_convex());
+
+    let ball_2 = Ball2::new(None, 1.0);
+    assert!(ball_2.is_convex());
+
+    let finite = FiniteSet::new(&[&[1.0, 2.0, 3.0]]);
+    assert!(finite.is_convex());
+
+    let finite_noncvx = FiniteSet::new(&[&[1.0, 2.0], &[3.0, 4.0]]);
+    assert!(!finite_noncvx.is_convex());
+
+    let soc = SecondOrderCone::new(2.0);
+    assert!(soc.is_convex());
+
+    let zero = Zero::new();
+    assert!(zero.is_convex());
+
+    let mut cartesian_product = CartesianProduct::new();
+    cartesian_product.add_constraint(4, &ball_2);
+    cartesian_product.add_constraint(6, &ball_inf);
+    assert!(cartesian_product.is_convex());
+
+    cartesian_product.add_constraint(10, &finite_noncvx);
+    assert!(!cartesian_product.is_convex());
+}

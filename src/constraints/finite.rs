@@ -95,4 +95,8 @@ impl<'a> Constraint for FiniteSet<'a> {
         }
         x.copy_from_slice(&self.data[idx]);
     }
+
+    fn is_convex(&self) -> bool {
+        self.data.len() == 1 && self.data[0].len() > 0
+    }
 }
