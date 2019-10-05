@@ -11,3 +11,6 @@ class NoConstraints(Constraint):
 
     def project(self, u):
         return u
+
+    def is_convex(self):
+        return True

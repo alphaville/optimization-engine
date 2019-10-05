@@ -1,60 +1,53 @@
-import opengen as og
 import casadi.casadi as cs
+import opengen as og
+import json
+
+u = cs.SX.sym("u", 5)                 # decision variable (nu = 5)
+p = cs.SX.sym("p", 2)                 # parameter (np = 2)
+phi = og.functions.rosenbrock(u, p)   # cost function
 
 
-u = cs.MX.sym("u", 5)                 # decision variable (nu = 5)
-p = cs.MX.sym("p", 2)                 # parameter (np = 2)
+f2 = cs.fmax(0.0, u[2] - u[3] + 0.1)
 
+f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.5)
+C = og.constraints.Zero()
+Y = og.constraints.BallInf(None, 1e12)
 
-f1 = cs.vertcat(1 - 3*cs.cos(u[1]),
-                2*cs.sin(u[2]) - 0.1)
-f2 = u[3]
+ball_inf = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1,2,4], [0, 5, -1]])
+ball_eucl = og.constraints.Ball2(None, 1.0)
+bounds = og.constraints.CartesianProduct(5, [2, 4], [ball_inf, ball_eucl])
 
-set_c = og.constraints.BallInf([0.1, 0.2], 0.6)
-set_y = og.constraints.Rectangle([-1e12, -1e12], [1e12, 1e12])
-phi = og.functions.rosenbrock(u, p)       # cost function
-bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
-problem = og.builder.Problem(u, p, phi)\
-    .with_constraints(bounds)\
-    .with_aug_lagrangian_constraints(f1, set_c, set_y) \
-    .with_penalty_constraints(f2)
+problem = og.builder.Problem(u, p, phi)         \
+    .with_constraints(bounds)                   \
+    .with_aug_lagrangian_constraints(f1, C, Y)
+
 meta = og.config.OptimizerMeta()                \
-    .with_version("0.1.0")                      \
-    .with_authors(["P. Sopasakis"])             \
+    .with_version("0.0.0")                      \
+    .with_authors(["P. Sopasakis", "E. Fresk"]) \
     .with_licence("CC4.0-By")                   \
-    .with_optimizer_name("marietta")
-tcp_config = og.config.TcpServerConfiguration(bind_port=3301)
-build_config = og.config.BuildConfiguration()   \
-    .with_build_directory("python_build")       \
-    .with_build_mode("debug")                   \
-    .with_tcp_interface_config(tcp_config)
-solver_config = og.config.SolverConfiguration()         \
-            .with_lfbgs_memory(15)                      \
-            .with_tolerance(1e-4)                       \
-            .with_initial_tolerance(1e-4)               \
-            .with_delta_tolerance(1e-4)                 \
-            .with_initial_penalty(15.0)                 \
-            .with_penalty_weight_update_factor(10.0)    \
-            .with_max_inner_iterations(155)             \
-            .with_max_duration_micros(1e8)              \
-            .with_max_outer_iterations(50)              \
-            .with_sufficient_decrease_coefficient(0.05) \
-            .with_cbfgs_parameters(1.5, 1e-10, 1e-12)
+    .with_optimizer_name("the_optimizer")
+
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory("python_build")      \
+    .with_build_mode("debug")                  \
+    .with_tcp_interface_config()
+
+solver_config = og.config.SolverConfiguration()   \
+            .with_tolerance(1e-5)                 \
+            .with_delta_tolerance(1e-5)
+
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           metadata=meta,
                                           build_configuration=build_config,
                                           solver_configuration=solver_config)
 builder.build()
 
-
-mng = og.tcp.OptimizerTcpManager('python_build/marietta')
+mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
 mng.start()
 
 pong = mng.ping()                 # check if the server is alive
 print(pong)
+solution = mng.call([1.0, 50.0])  # call the solver over TCP
+print(json.dumps(solution, indent=4, sort_keys=False))
 
-print(mng.call(p=[1.0, 2.0],
-               initial_guess=[0.96, 1.047, 0.4668, 1.63e-05, 0.0003],
-               initial_y=[-2.53, 1.56],
-               initial_penalty=15000))
 mng.kill()

@@ -13,6 +13,20 @@ class CartesianProduct(Constraint):
         self.__segments = segments
         self.__constraints = constraints
 
+    @property
+    def constraints(self):
+        return self.__constraints
+
+    @property
+    def segments(self):
+        return self.__segments
+
+    def segment_dimension(self, i):
+        if i == 0:
+            return self.__segments[0] + 1
+        else:
+            return self.__segments[i] - self.__segments[i-1]
+
     def distance_squared(self, u):
         squared_distance = 0.0
         num_segments = len(self.__segments)
@@ -28,3 +42,10 @@ class CartesianProduct(Constraint):
 
     def project(self, u):
         raise NotImplementedError()
+
+    def is_convex(self):
+        flag = True
+        for c in self.__constraints:
+            flag &= c.is_convex()
+        return flag
+

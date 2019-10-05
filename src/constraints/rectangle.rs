@@ -61,4 +61,8 @@ impl<'a> Constraint for Rectangle<'a> {
             });
         }
     }
+
+    fn is_convex(&self) -> bool {
+        true
+    }
 }

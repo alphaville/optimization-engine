@@ -85,3 +85,6 @@ class BallInf(Constraint):
     def project(self, u):
         # Computes projection on infinity Ball
         raise NotImplementedError("Method `project` is not implemented")
+
+    def is_convex(self):
+        return True

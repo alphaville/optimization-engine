@@ -1,11 +1,25 @@
 use super::*;
 
 #[test]
+fn t_zero_set() {
+    let zero = Zero::new();
+    let mut x = [1.0, 2.0, 3.0];
+    let x_projection = [0.0; 3];
+    zero.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x_projection,
+        &x,
+        1e-12,
+        1e-12,
+        "wrong projection on zero set",
+    );
+}
+#[test]
 #[should_panic]
 fn t_finite_set_inconsistent_dimensions() {
     let x1 = vec![1.0; 2];
     let x2 = vec![0.0; 3];
-    let mut data: &[&[f64]] = &[&x1, &x2];
+    let data: &[&[f64]] = &[&x1, &x2];
     let _f = FiniteSet::new(data);
 }
 
@@ -186,9 +200,9 @@ fn t_no_constraints() {
 fn t_cartesian_product_constraints_incoherent_indices() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &ball1);
-    cart_prod.add_constraint(2, &ball2);
+    let _cart_prod = CartesianProduct::new()
+        .add_constraint(3, ball1)
+        .add_constraint(2, ball2);
 }
 
 #[test]
@@ -196,9 +210,9 @@ fn t_cartesian_product_constraints_incoherent_indices() {
 fn t_cartesian_product_constraints_wrong_vector_dim() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &ball1);
-    cart_prod.add_constraint(10, &ball2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(3, ball1)
+        .add_constraint(10, ball2);
     let mut x = [0.0; 30];
     cart_prod.project(&mut x);
 }
@@ -211,9 +225,9 @@ fn t_cartesian_product_constraints() {
     let idx2 = 5;
     let ball1 = Ball2::new(None, radius1);
     let ball2 = Ball2::new(None, radius2);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(idx1, &ball1);
-    cart_prod.add_constraint(idx2, &ball2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(idx1, ball1)
+        .add_constraint(idx2, ball2);
     let mut x = [3.0, 4.0, 5.0, 2.0, 1.0];
     cart_prod.project(&mut x);
     let r1 = crate::matrix_operations::norm2(&x[0..idx1]);
@@ -239,10 +253,10 @@ fn t_cartesian_product_ball_and_rectangle() {
     let rectangle2 = Rectangle::new(Some(&xmin2), Some(&xmax2));
 
     /* Cartesian product */
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &rectangle1);
-    cart_prod.add_constraint(7, &ball);
-    cart_prod.add_constraint(9, &rectangle2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(3, rectangle1)
+        .add_constraint(7, ball)
+        .add_constraint(9, rectangle2);
 
     /* Projection */
     let mut x = [-10.0, 0.5, 10.0, 0.01, -0.01, 0.1, 10.0, -1.0, 1.0];
@@ -333,13 +347,14 @@ fn t_second_order_cone_short_vector() {
 fn t_cartesian_product_dimension() {
     let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0]];
     let finite_set = FiniteSet::new(data);
+    let finite_set_2 = finite_set;
     let ball = Ball2::new(None, 1.0);
     let no_constraints = NoConstraints::new();
-    let mut cartesian = CartesianProduct::new();
-    cartesian.add_constraint(2, &finite_set);
-    cartesian.add_constraint(4, &finite_set); // (again)
-    cartesian.add_constraint(7, &no_constraints);
-    cartesian.add_constraint(10, &ball);
+    let cartesian = CartesianProduct::new()
+        .add_constraint(2, finite_set)
+        .add_constraint(4, finite_set_2)
+        .add_constraint(7, no_constraints)
+        .add_constraint(10, ball);
     assert!(10 == cartesian.dimension());
 
     // let's do a projection to make sure this works
@@ -414,4 +429,33 @@ fn t_ball_inf_center() {
     let mut x = [5.0, -6.0];
     ball_inf.project(&mut x);
     unit_test_utils::assert_nearly_equal_array(&[5.0, -6.0], &x, 1e-10, 1e-12, "centre");
+}
+
+#[test]
+fn t_is_convex() {
+    let ball_inf = BallInf::new(None, 1.5);
+    assert!(ball_inf.is_convex());
+
+    let ball_2 = Ball2::new(None, 1.0);
+    assert!(ball_2.is_convex());
+
+    let finite = FiniteSet::new(&[&[1.0, 2.0, 3.0]]);
+    assert!(finite.is_convex());
+
+    let finite_noncvx = FiniteSet::new(&[&[1.0, 2.0], &[3.0, 4.0]]);
+    assert!(!finite_noncvx.is_convex());
+
+    let soc = SecondOrderCone::new(2.0);
+    assert!(soc.is_convex());
+
+    let zero = Zero::new();
+    assert!(zero.is_convex());
+
+    let cartesian_product = CartesianProduct::new()
+        .add_constraint(4, ball_2)
+        .add_constraint(6, ball_inf);
+    assert!(cartesian_product.is_convex());
+
+    let cartesian_product = cartesian_product.add_constraint(10, finite_noncvx);
+    assert!(!cartesian_product.is_convex());
 }

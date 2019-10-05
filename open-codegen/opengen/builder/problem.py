@@ -67,36 +67,20 @@ class Problem:
         self.__u_constraints = u_constraints
         return self
 
-    def with_penalty_constraints(self, penalty_constraints, penalty_function=None):
+    def with_penalty_constraints(self, penalty_constraints):
         """Constraints to for the penalty method
 
         Specify the constraints to be treated with the penalty method (that is,
-        function c(u; p)) and the penalty function, g. If no penalty function
-        is specified, the quadratic penalty will be used.
-
+        function F2(u; p))
 
         :param penalty_constraints: a function <code>c(u, p)</code>, of the decision
                 variable <code>u</code> and the parameter vector <code>p</code>, which
                 corresponds to the constraints <code>c(u, p)</code>
 
-        :param penalty_function: a function <code>g: R -> R</code>, used to define the
-                penalty in the penalty method; the default is <code>g(z) = z^2</code>.
-                You typically will not need to change this, but if you very much want to,
-                you need to provide an instance of <code>casadi.casadi.Function</code>
-                (not a CasADi symbol such as <code>SX</code>).
-
         :return: self
         """
-        if penalty_constraints is None:
-            pass
 
         self.__penalty_mapping_f2 = penalty_constraints
-        if penalty_function is None:
-            # default penalty function: quadratic
-            z = cs.SX.sym("z")
-            self.__penalty_function = cs.Function('g_penalty_function', [z], [cs.dot(z, z)])
-        else:
-            self.__penalty_function = penalty_function
         return self
 
     def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y):
@@ -109,6 +93,7 @@ class Problem:
 
         :return: self
         """
+        assert(set_c.is_convex(), "Set C must be convex")
         self.__alm_mapping_f1 = mapping_f1
         self.__alm_set_c = set_c
         self.__alm_set_y = set_y

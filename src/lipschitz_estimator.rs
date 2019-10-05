@@ -8,7 +8,7 @@
 //! # Method
 //!
 //! This method computes a numerical approximation of the norm of the directional
-//! derivative of a function $F\mathbb{R}^n \to \mathbb{R}^n$ at a point $u\in\mathbb{R}^n$
+//! derivative of a function $F:\mathbb{R}^n \to \mathbb{R}^n$ at a point $u\in\mathbb{R}^n$
 //! along a direction $h \in \mathbb{R}^n$ with $h_i = \max \\{\delta, \epsilon u_i\\}$,
 //! where $\delta$ and $\epsilon$ are given small numbers.
 //!

@@ -1,7 +1,7 @@
 #![deny(missing_docs)]
 //! Constraints and projections
 //!
-//! This module defines the train [`Constraint`], which specifies an abstract
+//! This module defines the trait [`Constraint`], which specifies an abstract
 //! projection method, and a collection of simple sets, such as norm-balls,
 //! finite sets, second-order cones and their Cartesian products.
 //!
@@ -15,6 +15,7 @@ mod finite;
 mod no_constraints;
 mod rectangle;
 mod soc;
+mod zero;
 
 pub use ball2::Ball2;
 pub use ballinf::BallInf;
@@ -23,6 +24,7 @@ pub use finite::FiniteSet;
 pub use no_constraints::NoConstraints;
 pub use rectangle::Rectangle;
 pub use soc::SecondOrderCone;
+pub use zero::Zero;
 
 /// A set which can be used as a constraint
 ///
@@ -40,6 +42,9 @@ pub trait Constraint {
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
     fn project(&self, x: &mut [f64]);
+
+    /// Returns true if and only if the set is convex
+    fn is_convex(&self) -> bool;
 }
 
 /* ---------------------------------------------------------------------------- */

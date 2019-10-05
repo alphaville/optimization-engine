@@ -73,4 +73,8 @@ impl Constraint for SecondOrderCone {
             x[n - 1] = beta;
         }
     }
+
+    fn is_convex(&self) -> bool {
+        true
+    }
 }

@@ -87,3 +87,6 @@ class Ball2(Constraint):
         #   Proj_B(u) = u / max{1, ||u||},
         # which avoids dividing by zero or defining the projections
         raise NotImplementedError()
+
+    def is_convex(self):
+        return True

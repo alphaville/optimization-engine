@@ -80,3 +80,5 @@ class SecondOrderCone(Constraint):
     def project(self, u):
         raise NotImplementedError()
 
+    def is_convex(self):
+        return True

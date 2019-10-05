@@ -53,4 +53,8 @@ impl<'a> Constraint for BallInf<'a> {
                 .for_each(|xi| *xi = xi.signum() * self.radius);
         }
     }
+
+    fn is_convex(&self) -> bool {
+        return true;
+    }
 }

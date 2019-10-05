@@ -57,15 +57,15 @@ const SMALL_EPSILON: f64 = std::f64::EPSILON;
 ///
 /// The ALM/PM algorithm performs the following iterations:
 ///
-/// - $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $x\gets{}x^0$, $t,z\gets{}0$
+/// - $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $u\gets{}u^0$, $t,z\gets{}0$
 /// - For $\nu=0,\ldots, \nu_{\max}$
 ///     - $y \gets \Pi_Y(y)$
-///     - $x \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem is
+///     - $u \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem is
 ///         solved with tolerance $\bar\epsilon$
 ///         (see [`AlmFactory`](./struct.AlmFactory.html) regarding how this is constructed)
 ///     - $y^+ \gets y + c(F_1(u) - \Pi_C(F_1(u) + y/c))$
 ///     - Define $z^+ \gets \Vert y^+ - y \Vert$ and $t^+ = \Vert F_2(u) \Vert$
-///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(x, y^+)$
+///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(u, y^+)$
 ///     - else if not ($\nu=0$ or ($z^+ \leq \theta z$ and $t^+ \leq \theta t$)), $c \gets \rho{}c$
 ///     - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$
 ///

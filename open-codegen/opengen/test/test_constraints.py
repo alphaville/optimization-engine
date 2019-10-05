@@ -238,9 +238,29 @@ class ConstraintsTestCase(unittest.TestCase):
                                         xmax=[1.0, inf, 10.0, 10.0])
         cartesian = og.constraints.CartesianProduct(9, [1, 4, 8], [ball_inf, ball_eucl, rect])
         u_sx = cs.SX.sym("u", 9, 1)
-        sqd_sx = cartesian.distance_squared(u_sx)
+        _sqd_sx = cartesian.distance_squared(u_sx)
         u_mx = cs.SX.sym("u", 9, 1)
-        sqd_mx = cartesian.distance_squared(u_mx)
+        _sqd_mx = cartesian.distance_squared(u_mx)
+
+    # -----------------------------------------------------------------------
+    # Cartesian product of constraints
+    # -----------------------------------------------------------------------
+    def test_finite_set_dim_card(self):
+        c = og.constraints.FiniteSet()
+        self.assertEqual(0, c.dimension())
+        self.assertEqual(0, c.cardinality())
+
+        c = og.constraints.FiniteSet([])
+        self.assertEqual(0, c.dimension())
+        self.assertEqual(0, c.cardinality())
+
+        c = og.constraints.FiniteSet([[1,2,3], [4,5,6]])
+        self.assertEqual(3, c.dimension())
+        self.assertEqual(2, c.cardinality())
+
+    def test_finite_set_fail(self):
+        with self.assertRaises(Exception) as __context:
+            og.constraints.FiniteSet([[1., 2.], [1., 2., 3.]])
 
 
 if __name__ == '__main__':

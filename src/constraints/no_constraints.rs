@@ -14,4 +14,8 @@ impl NoConstraints {
 
 impl Constraint for NoConstraints {
     fn project(&self, _x: &mut [f64]) {}
+
+    fn is_convex(&self) -> bool {
+        true
+    }
 }
