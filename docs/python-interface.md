@@ -68,29 +68,42 @@ p = cs.SX.sym("p", 2)                 # parameter (np = 2)
 phi = og.functions.rosenbrock(u, p)   # cost function
 ```
 
-Next, we need to define the constraints. Support that 
-$U$ is a Euclidean ball with radius $r=1.5$ centered at 
+Next, we need to define the constraints. **OpEn** supports the 
+following types of constraints:
+
+| Constraint         | Explanation                                    |
+|--------------------|------------------------------------------------|
+| `Ball2`            | Euclidean ball: `Ball2(None, r)` creates a Euclidean ball of radius `r` centered at the origin, and `Ball2(xc, r)` is a ball centered at point `xc` (list) |
+| `BallInf`          | Ball of infinity norm:`BallInf(None, r)` creates an infinity-norm ball of radius `r` centered at the origin, and `BallInf(xc, r)` is an infinity ball centered at point `xc` (list) |
+| `FiniteSet`        | Finite set, $\\{u^{(1)},\ldots,u^{(m)}\\}$; the set of point is provided as a list of lists, for example, `FiniteSet([[1,2],[2,3],[4,5]])`. The commonly used set of binary numbers, $\\{0, 1\\}$, is created with `FiniteSet([[0], [1]])`. |
+| `NoConstraints`    | No constraints - the whole $\mathbb{R}^{n}$| 
+| `Rectangle`        | Rectangle, $$R = \\{u \in \mathbb{R}^{n_u} {}:{} f_{\min} \leq u \leq f_{\max}\\},$$ for example, `Rectangle(fmin, fmax)` | 
+| `SecondOrderCone`  | Second-order aka "ice cream" aka "Lorenz" cone | 
+| `CartesianProduct` | Cartesian product of any of the above. In $\mathbb{R}^n$, a vector $x$ can segmented as $$x=(x_{(0)}, x_{(1)}, \ldots, x_{(s)}),$$ into $s$ segments, $x_{(i)}\in\mathbb{R}^{m_i}$. Consider the constraint $$x \in C \Leftrightarrow x_{(i)} \in C_i,$$ for all $i=1,\ldots, s$. For example, consider the vector $x = ({\color{blue}{x_0}}, {\color{blue}{x_1}}, {\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$; define the segments $$x_{(0)} = ({\color{blue}{x_0}}, {\color{blue}{x_1}}),\ x_{(1)} = ({\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$$ These can be identified by the indices `1` and `4` (last indices of segments). An example is given below.|
+ 
+Suppose that $U$ is a Euclidean ball with radius $r=1.5$ centered at 
 the origin, $U= \\{u \in \mathbb{R}^5 {}:{} \Vert{}u\Vert {}\leq{} r \\}$.
 This is,
 
 ```python
-bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
-``` 
+ball = og.constraints.Ball2(None, 1.5)  # ball centered at origin
+```
 
-Alternatively, you may choose `bounds` to be a box of 
-the form 
+Consider now the following rectangle
 
-<div class="math">
-\[U = \{u \in \mathbb{R}^{n_u} {}:{} u_{\min}
-\leq u \leq u_{\max} \}\]</div>
- 
-using `og.constraints.Rectangle`. 
+```python
+rect = og.constraints.Rectangle(xmin=[-1,-2,-3], xmax=[0, 10, -1])
+```
 
-Set `U` is a simple set (typically a ball or a box). 
+We can now construct the Cartesian product of these constraints. As discussed in 
+the above table, it is
 
-Opegen supports more general constraints of the 
-form $F_2(u, p) = 0$ and $F_2(u, p) \leq 0$ 
-(see [next section](#general-constraints)). 
+```
+# Segments: [0, 1], [2, 3, 4]
+segment_ids = [1, 4]
+dim = 5
+bounds = og.constraints.CartesianProduct(dim, segment_ids, [ball, rect])
+```
 
 We may now define the optimization problem as follows:
 
@@ -98,6 +111,9 @@ We may now define the optimization problem as follows:
 problem = og.builder.Problem(u, p, phi)  \
         .with_constraints(bounds)
 ```
+
+Opegen supports more general constraints of the form $F_2(u, p) = 0$ and $F_2(u, p) \leq 0$ 
+(see [next section](#general-constraints)). 
 
 ### Code generation
 
