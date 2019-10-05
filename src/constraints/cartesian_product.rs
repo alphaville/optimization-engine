@@ -2,13 +2,24 @@ use super::Constraint;
 
 /// Cartesian product of constraints
 ///
-/// Cartesian product of constraints, `C(0), C(1), ..., C(n-1)`, which is defined as a set
-/// `C = C(0) x C(1) x ... x C(n-1)`, for some integer `n>1`. Sets `C(i)` are structures which
+/// Cartesian product of constraints, $C_0, C_1, \ldots, C_{n-1}$,
+/// which is defined as a set
+///
+/// $$
+/// C = C_0 \times C_1 \times \ldots \times C_{n-1},
+/// $$
+///
+/// for some integer $n>1$. Sets $C_i$ are structures which
 /// implement the trait `Constraint`.
 ///
-/// In an n-dimensional space, a vector `x` is split in parts `x = (x(0), x(1), ..., x(n-1))`,
-/// where `x(i)` has dimension `n(i)`. The constraint `x in C` is interpreted as `x(i) in C(i)`
-/// for all `i=0,...,n-1`.
+/// In an $n$-dimensional space, a vector $x$ is split in parts
+///
+/// $$x = (x_0, x_1, ..., x_{n-1}),$$
+///
+/// where $x_i$ has dimension $n_i$.
+///
+/// The constraint $x \in C$ is interpreted as $x_i in C_i$
+/// for all $i=0,\ldots, n-1$.
 ///
 pub struct CartesianProduct<'a> {
     idx: Vec<usize>,

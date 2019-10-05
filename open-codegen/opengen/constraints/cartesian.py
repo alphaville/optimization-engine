@@ -21,6 +21,12 @@ class CartesianProduct(Constraint):
     def segments(self):
         return self.__segments
 
+    def segment_dimension(self, i):
+        if i == 0:
+            return self.__segments[0] + 1
+        else:
+            return self.__segments[i] - self.__segments[i-1]
+
     def distance_squared(self, u):
         squared_distance = 0.0
         num_segments = len(self.__segments)
