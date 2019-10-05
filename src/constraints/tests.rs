@@ -200,9 +200,9 @@ fn t_no_constraints() {
 fn t_cartesian_product_constraints_incoherent_indices() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &ball1);
-    cart_prod.add_constraint(2, &ball2);
+    let _cart_prod = CartesianProduct::new()
+        .add_constraint(3, &ball1)
+        .add_constraint(2, &ball2);
 }
 
 #[test]
@@ -210,9 +210,9 @@ fn t_cartesian_product_constraints_incoherent_indices() {
 fn t_cartesian_product_constraints_wrong_vector_dim() {
     let ball1 = Ball2::new(None, 1.0);
     let ball2 = Ball2::new(None, 0.5);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &ball1);
-    cart_prod.add_constraint(10, &ball2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(3, &ball1)
+        .add_constraint(10, &ball2);
     let mut x = [0.0; 30];
     cart_prod.project(&mut x);
 }
@@ -225,9 +225,9 @@ fn t_cartesian_product_constraints() {
     let idx2 = 5;
     let ball1 = Ball2::new(None, radius1);
     let ball2 = Ball2::new(None, radius2);
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(idx1, &ball1);
-    cart_prod.add_constraint(idx2, &ball2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(idx1, &ball1)
+        .add_constraint(idx2, &ball2);
     let mut x = [3.0, 4.0, 5.0, 2.0, 1.0];
     cart_prod.project(&mut x);
     let r1 = crate::matrix_operations::norm2(&x[0..idx1]);
@@ -253,10 +253,10 @@ fn t_cartesian_product_ball_and_rectangle() {
     let rectangle2 = Rectangle::new(Some(&xmin2), Some(&xmax2));
 
     /* Cartesian product */
-    let mut cart_prod = CartesianProduct::new();
-    cart_prod.add_constraint(3, &rectangle1);
-    cart_prod.add_constraint(7, &ball);
-    cart_prod.add_constraint(9, &rectangle2);
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(3, &rectangle1)
+        .add_constraint(7, &ball)
+        .add_constraint(9, &rectangle2);
 
     /* Projection */
     let mut x = [-10.0, 0.5, 10.0, 0.01, -0.01, 0.1, 10.0, -1.0, 1.0];
@@ -349,11 +349,11 @@ fn t_cartesian_product_dimension() {
     let finite_set = FiniteSet::new(data);
     let ball = Ball2::new(None, 1.0);
     let no_constraints = NoConstraints::new();
-    let mut cartesian = CartesianProduct::new();
-    cartesian.add_constraint(2, &finite_set);
-    cartesian.add_constraint(4, &finite_set); // (again)
-    cartesian.add_constraint(7, &no_constraints);
-    cartesian.add_constraint(10, &ball);
+    let cartesian = CartesianProduct::new()
+        .add_constraint(2, &finite_set)
+        .add_constraint(4, &finite_set)
+        .add_constraint(7, &no_constraints)
+        .add_constraint(10, &ball);
     assert!(10 == cartesian.dimension());
 
     // let's do a projection to make sure this works
@@ -450,11 +450,11 @@ fn t_is_convex() {
     let zero = Zero::new();
     assert!(zero.is_convex());
 
-    let mut cartesian_product = CartesianProduct::new();
-    cartesian_product.add_constraint(4, &ball_2);
-    cartesian_product.add_constraint(6, &ball_inf);
+    let cartesian_product = CartesianProduct::new()
+        .add_constraint(4, &ball_2)
+        .add_constraint(6, &ball_inf);
     assert!(cartesian_product.is_convex());
 
-    cartesian_product.add_constraint(10, &finite_noncvx);
+    let cartesian_product = cartesian_product.add_constraint(10, &finite_noncvx);
     assert!(!cartesian_product.is_convex());
 }
