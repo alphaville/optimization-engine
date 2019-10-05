@@ -12,7 +12,7 @@ use super::Constraint;
 ///
 pub struct CartesianProduct<'a> {
     idx: Vec<usize>,
-    constraints: Vec<&'a dyn Constraint>,
+    constraints: Vec<Box<dyn Constraint + 'a>>,
 }
 
 impl<'a> CartesianProduct<'a> {
@@ -41,6 +41,7 @@ impl<'a> CartesianProduct<'a> {
     /// - `ni`: total length of vector `(x(0), ..., x(i))` (see example below)
     /// - `constraint`: constraint to be added implementation of trait `Constraint`
     ///
+    ///
     /// # Returns
     ///
     /// Returns the current mutable and updated instance of the provided object
@@ -61,8 +62,8 @@ impl<'a> CartesianProduct<'a> {
     /// let ball1 = Ball2::new(None, 1.0);
     /// let ball2 = Ball2::new(None, 0.5);
     /// let mut cart_prod = CartesianProduct::new()
-    ///     .add_constraint(idx1, &ball1)
-    ///     .add_constraint(idx2, &ball2);
+    ///     .add_constraint(idx1, ball1)
+    ///     .add_constraint(idx2, ball2);
     /// ```
     ///
     /// # Panics
@@ -72,20 +73,20 @@ impl<'a> CartesianProduct<'a> {
     /// code will fail:
     ///
     /// ```compile_fail
-    /// let mut cart_prod = CartesianProduct::new();
-    /// cart_prod.add_constraint(7, &rectangle);     // OK, since 7  > 0
-    /// cart_prod.add_constraint(10, &ball1);        // OK, since 10 > 7
-    /// cart_prod.add_constraint(2, &ball3);         // 2 <= 10, so it will fail
+    /// let mut cart_prod = CartesianProduct::new()
+    ///     .add_constraint(7, &rectangle);     // OK, since 7  > 0
+    ///     .add_constraint(10, &ball1);        // OK, since 10 > 7
+    ///     .add_constraint(2, &ball3);         // 2 <= 10, so it will fail
     /// ```
     /// The method will panic if any of the associated projections panics.
     ///
-    pub fn add_constraint(mut self, ni: usize, constraint: &'a dyn Constraint) -> Self {
+    pub fn add_constraint(mut self, ni: usize, constraint: impl Constraint + 'a) -> Self {
         assert!(
             self.dimension() < ni,
             "provided index is smaller than or equal to previous index, or zero"
         );
         self.idx.push(ni);
-        self.constraints.push(constraint);
+        self.constraints.push(Box::new(constraint));
         self
     }
 }

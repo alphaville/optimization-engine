@@ -4,6 +4,7 @@ use super::Constraint;
 /// A finite set, $X = \\{x_1, x_2, \ldots, x_n\\}\subseteq\mathbb{R}^n$, given vectors
 /// $x_i\in\mathbb{R}^n$
 ///
+#[derive(Clone, Copy)]
 pub struct FiniteSet<'a> {
     /// The data is stored in a Vec-of-Vec datatype, that is, a vector
     /// of vectors

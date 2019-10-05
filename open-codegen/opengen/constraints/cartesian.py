@@ -13,6 +13,14 @@ class CartesianProduct(Constraint):
         self.__segments = segments
         self.__constraints = constraints
 
+    @property
+    def constraints(self):
+        return self.__constraints
+
+    @property
+    def segments(self):
+        return self.__segments
+
     def distance_squared(self, u):
         squared_distance = 0.0
         num_segments = len(self.__segments)
