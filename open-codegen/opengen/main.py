@@ -13,7 +13,7 @@ f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.5)
 C = og.constraints.Zero()
 Y = og.constraints.BallInf(None, 1e12)
 
-ball_inf = og.constraints.BallInf([1.0, 2.0, -3.0], 0.2)
+ball_inf = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1,2,4], [0, 5, -1]])
 ball_eucl = og.constraints.Ball2(None, 1.0)
 bounds = og.constraints.CartesianProduct(5, [2, 4], [ball_inf, ball_eucl])
 
