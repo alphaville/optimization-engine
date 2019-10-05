@@ -112,7 +112,7 @@ class ConstraintsTestCase(unittest.TestCase):
         rect = og.constraints.Rectangle([-1, -2], [4, -1])
         # some basic assertions
         self.assertListEqual([0, 1], rect.idx_bound_finite_all())
-        self.assert_(len(rect.idx_infinite_only_xmax()) == 0)
+        self.assertTrue(len(rect.idx_infinite_only_xmax()) == 0)
         self.assertTrue(len(rect.idx_infinite_only_xmin()) == 0)
         self.assertEqual(2, rect.dimension())
         # squared distance
@@ -243,7 +243,7 @@ class ConstraintsTestCase(unittest.TestCase):
         _sqd_mx = cartesian.distance_squared(u_mx)
 
     # -----------------------------------------------------------------------
-    # Cartesian product of constraints
+    # Finite Set
     # -----------------------------------------------------------------------
     def test_finite_set_dim_card(self):
         c = og.constraints.FiniteSet()
@@ -261,6 +261,16 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_finite_set_fail(self):
         with self.assertRaises(Exception) as __context:
             og.constraints.FiniteSet([[1., 2.], [1., 2., 3.]])
+
+    # -----------------------------------------------------------------------
+    # Set Y (from C)
+    # -----------------------------------------------------------------------
+
+    def test_y_from_c_rectangle(self):
+        xmin = [-1, 0, float('-inf'), 10]
+        c = og.constraints.Rectangle(xmin=xmin, xmax=None)
+        y_calc = og.constraints.SetYCalculator
+
 
 
 if __name__ == '__main__':
