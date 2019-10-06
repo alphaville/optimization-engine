@@ -11,14 +11,22 @@ OpEn is an open source project and welcomes contributions from the community.
 
 You can contribute in several ways:
 
-- Submit an [**issue**](https://github.com/alphaville/optimization-engine/issues) (feature request or bug report)
+- Submit an [**issue**](https://github.com/alphaville/optimization-engine/issues): 
+  consider submitting an issue if:
+  - You would like to report a [bug]; please, use the provided template for reporting 
+    bugs. It is essential to give information about your system (OS, OpEn version)
+    and outline a sequence of steps to reproduce the error. When possible, please
+    provide a [minimum working example]
+  - You would like to request a [new feature]; please use the provided template
+  - You would like to propose modifications in OpEn's documentation, such as
+    for some concepts to be better elucidated or a request for an additional example
 - Share with us a **success story** on [**Discord**](https://discord.gg/mfYpn4V)
 - Create a **pull request** (see below)
 
 or, show us your love:
 
 - Give us a [**star on gitub**](https://github.com/alphaville/optimization-engine)
-- Spread the word on [**Twitter**](https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Flocalhost%3A3000%2Foptimization-engine%2Fblog%2F2019%2F03%2F06%2Ftalk-to-us&ref_src=twsrc%5Etfw&text=Fast%20and%20accurate%20embedded%20nonconvex%20optimization%20with%20%23OptimizationEngine&tw_p=tweetbutton&url=http%3A%2F%2Flocalhost%3A3000%2Foptimization-engine%2Fblog%2F2019%2F03%2F06%2Ftalk-to-us&via=isToxic)
+- Spread the word on [**Twitter**]
 
 ![Star](https://media.giphy.com/media/ZxblqUVrPVmcqATkC4/giphy.gif)
 
@@ -41,12 +49,17 @@ You should, however, make sure that the same - or a very similar - issue is not 
 
 ## Contributing code or docs
 
-In order to contribute code or documentation, you need to [fork]() our github repository, make you modifications and submit a pull request. You should follow these rules:
+In order to contribute code or documentation, you need to [fork] our github repository, make you modifications and submit a pull request. You should follow these rules:
 
-- create one or more [issues on github](https://github.com/alphaville/optimization-engine/issues) that will be associated with your changes
+- create one or more [issues on github] that will be associated with your changes
 - take it from `master`: fork OpEn and create a branch on `master`
-- read the [style guide](#coding-style-guide) below (and write tests)
-- create a pull request
+
+```console
+git checkout -b fix/xyz master
+```
+
+- read the [style guide](#coding-style-guide) below (and write unit/integration tests)
+- create a pull request in which you need to explain the key changes
 
 ## Coding style guide
 
@@ -59,7 +72,7 @@ Things to keep in mind:
 
 ### Rust
 
-*General guidelines:* Read [this](https://rust-lang-nursery.github.io/api-guidelines/about.html)
+*General guidelines:* Read the Rust [API guidelines] and this [API checklist]
 
 *Naming convention:* We follow the [standard naming convention](https://rust-lang-nursery.github.io/api-guidelines/naming.html) of Rust.
 
@@ -89,8 +102,15 @@ When using Git, keep in mind the following guidelines:
 it will be promptly delegated to a reviewer and we will contact you 
 as soon as possible.
 
+Branch `master` is protected and all pull requests need to be reviewed by a person 
+other than their proposer before they can be merged into `master`.
+
 ## Versioning
-This project consists of independent modules: (i) the core Rust library, (ii) the MATLAB interface, (iii) the Python interface. Each module has a different version number (`vX.Y.Z`). There's only one rule that connects them: the first and second version numbers of all modules must be equal at all times. 
+This project consists of independent modules: 
+(i) the core Rust library, 
+(ii) the MATLAB interface, 
+(iii) the Python interface. 
+Each module has a different version number (`X.Y.Z`). 
 
 We use the **SemVer** standard - we quote from [semver.org](https://semver.org/):
 
@@ -131,3 +151,11 @@ you have done the following:
 [Cargo.toml]: https://github.com/alphaville/optimization-engine/blob/master/Cargo.toml    
 [setup.py]: https://github.com/alphaville/optimization-engine/blob/master/open-codegen/setup.py
 [release v0.4.0]: https://github.com/alphaville/optimization-engine/releases/tag/v0.4.0
+[bug]: https://github.com/alphaville/optimization-engine/issues/new?template=bug_report.md
+[issues on github]: https://github.com/alphaville/optimization-engine/issues
+[**Twitter**]: https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Falphaville.github.io%2Foptimization-engine&ref_src=twsrc%5Etfw&text=Fast%20and%20accurate%20embedded%20nonconvex%20optimization%20with%20%23OptimizationEngine&tw_p=tweetbutton&url=https%3A%2F%2Falphaville.github.io%2Foptimization-engine&via=isToxic
+[minimum working example]: https://en.wikipedia.org/wiki/Minimal_working_example
+[new feature]: https://github.com/alphaville/optimization-engine/issues/new?template=feature_request.md
+[fork]: https://github.com/alphaville/optimization-engine
+[API guidelines]: https://rust-lang-nursery.github.io/api-guidelines/about.html
+[API checklist]: https://rust-lang-nursery.github.io/api-guidelines/checklist.html

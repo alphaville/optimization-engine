@@ -11,20 +11,28 @@ title: Algorithm
 Optimization Engine (OpEn) solves problems of the following form:
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
-\mathrm{subject\ to} &amp;\ \ u \in U\\
-&amp;\ \ c(u; p) = 0\end{split}\]</div>
+\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
+\mathrm{subject\ to}\ \  &amp;u \in U\\
+&amp; F_1(u, p) \in C\\
+&amp; F_2(u, p) = 0\end{split}\]</div>
 
 Our blanket assumptions are:
 
-**A1.** Function $f({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}$ is continuously differentiable in $u$ with $L$-Lipschitz
-   gradient
+**A1.** Function $f({}\cdot{}, p):\mathbb{R}^{n_u}\to\mathbb{R}$ is continuously 
+differentiable in $u$ with $L$-Lipschitz gradient (which may depend on $p$)
 
-**A2.** $U\subseteq \mathbb{R}^n$ is a nonempty set on which we can compute projections (e.g., boxes, balls, discrete sets, etc)
+**A2.** $U\subseteq \mathbb{R}^n$ is a nonempty set on which we can compute
+projections (e.g., boxes, balls, discrete sets, etc); this set may possibly
+be nonconvex
 
-**A3.** Functions $c_i({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}$, for $i=1,\ldots, s$, are continuous
+**A3.** Mapping $F_1({}\cdot{}, p):\mathbb{R}^n\to\mathbb{R}^{n_1}$ has partial derivatives
+and $C$ is a closed, convex set from which we may compute distances, that is,
+<div class="math">
+\[\mathrm{dist}_C(z) = \inf_{y\in C}\Vert z - y \Vert \]</div>
 
-We shall first assume that $s=0$, i.e., there are no constraints of the form $c(u; p) {}={} 0$.
+**A4.** Mapping $F_2({}\cdot{}, p):\mathbb{R}^n\to\mathbb{R}^{n_2}$ has partial derivatives
+
+
 
 ## Simple constraints
 
@@ -105,7 +113,7 @@ Additionally, if $f\in C^2$, then FBE is $C^1$ with gradient $\nabla \varphi_\ga
 The FBE is constructed as follows: Function $f$ can be approximated at a point $u \in U$ by the (local) quadratic 
 upper bound:
 
-<div class="math">\[Q^f_\gamma(v; u) = f(u) + \nabla f(u)^\top (v-u) + \frac{1}{2\gamma}\|v-u\|_2^2.\]</div>
+<div class="math">\[Q^f_\gamma(v; u) = f(u) + \nabla f(u)^\top (v-u) + \tfrac{1}{2\gamma}\|v-u\|_2^2.\]</div>
 
 Then, the FBE is defined as 
 
@@ -149,38 +157,94 @@ Some facts about PANOC:
 
 ## General constraints
 
+### Penalty Method
+
 Let us now move on to problems with more general constraints of the general form
 
 <div class="math">
 \[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u)\\
 \mathrm{subject\ to} &amp;\ \ u \in U\\
-&amp;\ \ c(u) = 0\end{split}\]</div>
+&amp;\ \ F_2(u) = 0\end{split}\]</div>
 
-Equality constraints of the form $c(u) = 0$ can be used to accommodate inequality ones
+Equality constraints of the form $F_2(u) = 0$ can be used to accommodate inequality ones
 of the form
 
-<div class="math">\[\psi(u) \leq 0,\]</div>
+<div class="math">\[h(u) \leq 0,\]</div>
 
-by taking $c(u) = \max\\{0, \psi(u)\\}$.
+by taking $F_2(u) = \max\\{0, h(u)\\}$. Similarly, constraints of the form 
+
+<div class="math">\[\Phi(u) \in A,\]</div>
+
+where $\Phi:\mathbb{R}^{n_u}\to\mathbb{R}^{n_2}$ and $A\subseteq\mathbb{R}^{n_2}$, 
+can be encoded by $F_2(u) = \operatorname{dist}_A(\Phi(u))$.
 
 Although PANOC cannot solve the above problem directly, it can solve the following relaxed problem
 
 <div class="math">
-\[\begin{split}\mathbb{P}(\lambda) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u) + \lambda g(c(u))\\
+\[\begin{split}\mathbb{P}(\lambda) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u) + \tfrac{\lambda}{2} \Vert F_2(u) \Vert^2\\
 \mathrm{subject\ to} &amp;\ \ u \in U\end{split}\]</div>
 
-where $g$ is a **penalty function**, which needs to be chosen so that $g(c(u))$ is a continuously
-differentiable function with Lipschitz gradient. A typical (but not the only) choice for $g$
-is $g(v) = v^2$ (the user is free to choose any penalty function).
-
-Essentially, starting from an initial $\lambda_0>1$, we solve $\mathbb{P}(\lambda_\nu)$,
-we update $\lambda_{\nu+1} = \beta \lambda_nu$, for some $\beta > 1$, and we then solve
+Starting from an initial $\lambda_0 > 1$, we solve $\mathbb{P}(\lambda_\nu)$,
+we update $\lambda_{\nu+1} = \rho \lambda_{\nu}$, for some $\rho > 1$, and we then solve
 $\mathbb{P}(\lambda_{\nu+1})$ using the previous optimal solution, $u_\nu^\star$, as an 
-initial guess.
+initial guess. We call $\rho$ the **penalty update coefficient**.
 
-This procedure stops once $\\|c(u_\nu^\star)\\|_\infty {}<{} \epsilon_p$ for some 
-tolerance $\epsilon_p > 0$. Tolerance $\epsilon_p$ controls the infeasibility of the 
+This procedure stops once $\\|F_2(u^\nu)\\|_\infty {}<{} \delta$ for some 
+tolerance $\delta > 0$. Tolerance $\delta$ controls the infeasibility of the 
 solution.
 
 Typically, few such outer iterations are required to achive a reasonable satisfaction of 
-the constraints, which inner problems are solved very fast using PANOC.
+the constraints, while inner problems are solved very fast using PANOC.
+
+
+### Augmented Lagrangian Method
+
+Similar to the penalty method, the augmented Lagrangian method (ALM) is used to solve
+constrained optimization problems by performing an "outer" iterative procedure,
+at every iteration of which, we need to solve an "inner" optimization problem.
+<abbr title="Augmented Lagrangian Method">ALM</abbr> updates both a penalty parameter
+as well as a *vector* $y$, known as the vector of Lagrange multipliers.
+
+The inner optimization problems have the following form
+
+<div class="math">
+\[
+    \mathbb{P}(p, c, y) {}:{} \operatorname*{Minimize}_{u {}\in{} U}\ \psi(u, p, c, y),
+\]</div>
+
+where 
+
+<div class="math">
+\[
+    \psi(u, p, c, y) = f(u, p) + \tfrac{c}{2}\left[\operatorname{dist}_C^2(F_1(u, p) + c^{-1}y) + \Vert F_2(u, p)\Vert^2 \right].
+\]</div>
+
+This problem can be solved using PANOC. 
+
+At every outer iteration, $\nu$, the vector of Lagrange multipliers is updated 
+according to
+
+<div class="math">
+\[
+    y^{\nu+1} {}={} y^{\nu} + c(F_1(u^{\nu}) - \Pi_C(F_1(u^{\nu}) + y^{\nu}/c_{\nu})),
+\]
+</div>
+
+where $u^{\nu}$ is an (approximate) solution of the inner problem, 
+$\mathbb{P}(p, c_{\nu}, y^{\nu})$, which is obtained using PANOC.
+
+
+
+**Inputs:** $\epsilon, \delta > 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 > 0$ (initial penalty parameter), $\epsilon_0 > \epsilon$ (initial tolerance), $\rho > 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq C^*$ (compact set)
+
+**Procedure:** The <abbr title="Augmented Lagrangian Method">ALM</abbr>/<abbr title="Penalty Method">PM</abbr> algorithm performs the following iterations:
+
+- $\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $u\gets{}u^0$, $t,z\gets{}0$
+- For $\nu=0,\ldots, \nu_{\max}$
+    - $y \gets \Pi_Y(y)$
+    - $u \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem         solved with tolerance $\bar\epsilon$
+    - $y^+ \gets y + c(F_1(u) - \Pi_C(F_1(u) + y/c))$
+    - Define $z^+ \gets \Vert y^+ - y \Vert$ and $t^+ = \Vert F_2(u) \Vert$
+    - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(u, y^+)$
+    - else if not ($\nu=0$ or ($z^+ \leq \theta z$ and $t^+ \leq \theta t$)), $c \gets \rho{}c$
+    - $\bar\epsilon \gets \max\\{\epsilon, \beta\bar{\epsilon}\\}$

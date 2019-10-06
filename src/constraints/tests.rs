@@ -350,7 +350,7 @@ fn t_cartesian_product_dimension() {
     let finite_set_2 = finite_set;
     let ball = Ball2::new(None, 1.0);
     let no_constraints = NoConstraints::new();
-    let cartesian = CartesianProduct::new()
+    let cartesian = CartesianProduct::new_with_capacity(4)
         .add_constraint(2, finite_set)
         .add_constraint(4, finite_set_2)
         .add_constraint(7, no_constraints)

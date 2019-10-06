@@ -29,9 +29,33 @@ pub struct CartesianProduct<'a> {
 impl<'a> CartesianProduct<'a> {
     /// Construct new instance of Cartesian product of constraints
     ///
+    /// # Note
+    ///
+    /// The use of `new_with_capacity` should be preferred over this method,
+    /// when possible (provided you have an estimate of the number of sets
+    /// your Cartesian product will consist of).
+    ///
     pub fn new() -> Self {
         CartesianProduct {
             idx: Vec::new(),
+            constraints: Vec::new(),
+        }
+    }
+
+    /// Constructs a new instance of Cartesian product with a given capacity
+    ///
+    /// # Arguments
+    ///
+    /// - `num_sets`: number of sets; this is used to allocate initial memory
+    ///   (via `Vec::with_capacity`).
+    ///
+    /// # Returns
+    ///
+    /// New instance of `CartesianProduct`
+    ///
+    pub fn new_with_capacity(num_sets: usize) -> Self {
+        CartesianProduct {
+            idx: Vec::with_capacity(num_sets),
             constraints: Vec::new(),
         }
     }

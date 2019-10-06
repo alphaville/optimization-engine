@@ -1,13 +1,10 @@
-import casadi.casadi as cs
-import numpy as np
-from .constraint import Constraint
-import opengen.functions as fn
+from . import constraint
 from typing import List
 
 
-class CartesianProduct(Constraint):
+class CartesianProduct(constraint.Constraint):
 
-    def __init__(self, dimension: int, segments: List[int], constraints: List[Constraint]):
+    def __init__(self, dimension: int, segments: List[int], constraints: List[constraint.Constraint]):
         # TODO: Check whether input arguments are valid (types, ranges, etc)
         self.__dimension = dimension
         self.__segments = segments

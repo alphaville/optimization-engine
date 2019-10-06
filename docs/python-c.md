@@ -98,24 +98,47 @@ Note that `the_optimizer` is the name given to the optimizer in the Python codeg
 
 ## Bindings API
 
-The generated API has the following functions available (for complete definitions see the generated header files):
+The generated API has the following functions available (for complete definitions see the generated header files) for a solver entitled `example`:
 
 ```c
-// More definitions ...
+/* Contents of header file: example_bindings.h */
 
-#define {optimizer-name}_NUM_DECISION_VARIABLES 5
-#define {optimizer-name}_NUM_PARAMETERS 2
+#define EXAMPLE_N1 0
+#define EXAMPLE_N2 2
+#define EXAMPLE_NUM_DECISION_VARIABLES 5
+#define EXAMPLE_NUM_PARAMETERS 2
 
-// Allocate memory and setup the solver
-{optimizer-name}Cache *{optimizer-name}_new(void);
+typedef enum {
+  exampleConverged,
+  exampleNotConvergedIterations,
+  exampleNotConvergedOutOfTime,
+  exampleNotConvergedCost,
+  exampleNotConvergedNotFiniteComputation,
+} exampleExitStatus;
 
-// Deallocate the solver's memory
-void {optimizer-name}_free({optimizer-name}Cache *instance);
+typedef struct exampleCache exampleCache;
 
-// Run the solver on the input and parameters
-{optimizer-name}Status {optimizer-name}_solve({optimizer-name}Cache *instance,
-                                              double *u,
-                                              const double *params);
+typedef struct {
+  exampleExitStatus exit_status;
+  unsigned long num_outer_iterations;
+  unsigned long num_inner_iterations;
+  double last_problem_norm_fpr;  
+  unsigned long long solve_time_ns;
+  double penalty;
+  double delta_y_norm_over_c;
+  double f2_norm;
+  const double *lagrange;
+} exampleSolverStatus;
+
+void example_free(exampleCache *instance);
+
+exampleCache *example_new(void);
+
+exampleSolverStatus example_solve(exampleCache *instance,
+                                  double *u,
+                                  const double *params,
+                                  const double *y0,
+                                  const double *c0);
 ```
 
 This is designed to follow a new-use-free pattern. 
@@ -163,19 +186,22 @@ int main() {
 When building and running an application based on the generated libraries it is good to know that GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
 
 ```console
-gcc optimizer.c -l:libthe_optimizer.a -L./target/release -pthread -lm -ldl -o optimizer
+gcc optimizer.c -l:libthe_optimizer.a \
+  -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
 Or using direct linking (this is the only thing that works with clang):
 
 ```console
-gcc optimizer.c ./target/release/libthe_optimizer.a -pthread -lm -ldl -o optimizer
+gcc optimizer.c ./target/release/libthe_optimizer.a \
+  -pthread -lm -ldl -o optimizer
 ```
 
 While the following can be used when using the shared library:
 
 ```console
-gcc optimizer.c -lthe_optimizer -L./target/release -pthread -lm -ldl -o optimizer
+gcc optimizer.c -lthe_optimizer \
+  -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
 ### Running

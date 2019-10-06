@@ -1,7 +1,10 @@
 ---
 id: python-tcp-ip
-title: TCP/IP Socket Interface
+title: TCP Sockets
 ---
+
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 As discussed [previously], one possible way of invoking an auto-generated parametric
 optimizer is over a TCP/IP socket. 
@@ -70,28 +73,51 @@ which will return the following JSON document
 
 ```json
 {
-  "exit_status": "Converged",
-  "num_outer_iterations": 1,
-  "num_inner_iterations": 15,
-  "last_problem_norm_fpr": 0.000053258819596141074,
-  "max_constraint_violation": 0.0,
-  "solve_time_ms": 1.016792,
-  "solution": [
-    0.9790942942294071,
-    0.955734452549382,
-    0.9113348829947056,
-    0.8292339534219697,
-    0.6804702314295598
-  ]
+    "exit_status": "Converged",
+    "num_outer_iterations": 9,
+    "num_inner_iterations": 85,
+    "last_problem_norm_fpr": 8.879341428457282e-06,
+    "delta_y_norm_over_c": 7.147511762156759e-06,
+    "f2_norm": 0.0,
+    "solve_time_ms": 13.569209,
+    "penalty": 78125.0,
+    "solution": [
+        0.018786377508686856,
+        0.028186552233630396,
+        -0.10471801035932687,
+        0.02921323766336347,
+        0.0007963509453450717
+    ],
+    "lagrange_multipliers": [
+        0.7699528316368849,
+        14.491152879893193
+    ]
 }
 ```
+
+On success, the response from the TCP server is a JSON document with the 
+following fields:
+
+| Response JSON Field       | Explanation                                 |
+|---------------------------|---------------------------------------------|
+| `exit_status`             | Exit status; can be (i) `Converged` or (ii) `NotConvergedIterations`, if the maximum number of iterations was reached, therefore, the algorithm did not converge up to the specified tolerances, or (iii) `NotConvergedOutOfTime`, if the solver did not have enough time to converge |
+| `num_outer_iterations`    | Number of outer iterations   |
+| `num_inner_iterations`    | Total number of inner iterations (for all inner problems)    |
+| `last_problem_norm_fpr`   | Norm of the fixed-point residual of the last inner problem; this is a measure of the solution quality of the inner problem      |
+| `delta_y_norm_over_c`     | Euclidean norm of $c^{-1}(y^+-y)$, which is equal to the distance between $F_1(u, p)$ and $C$ at the solution   |
+| `f2_norm`                 | Euclidean norm of $F_2(u, p)$ at the solution|
+| `solve_time_ms`           | Total execution time in milliseconds |
+| `penalty`                 | Last value of the penalty parameter |
+| `solution`                | Solution | 
+| `lagrange_multipliers`    | Vector of Lagrange multipliers (if $n_1 > 0$) or an empty vector, otherwise | 
 
 If we call the solver again, it will use the previous solution as an initial 
 guess. The client may override this behaviour and provide a different initial
 guess:
 
 ```
-echo '{"Run":{"parameter":[1.0,10.0],"initial_guess":[0.0,5.0,...]}}'\
+$ echo '{ "Run" : {"parameter" : [1.0,10.0], \
+                   "initial_guess" : [0.0, 5.0, ...]}}' \
 | nc localhost 4598
 ```
 
@@ -124,6 +150,7 @@ The following errors may be returned to the client
 |-----------|---------------------------------------------|
 | 1000      | Invalid request: Malformed or invalid JSON  |
 | 1600      | Initial guess has incompatible dimensions   |
+| 1700      | Wrong dimension of Langrange multipliers    |
 | 2000      | Problem solution failed (solver error)      |
 | 3003      | Vector `parameter` has wrong length         |
 

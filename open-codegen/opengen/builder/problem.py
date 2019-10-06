@@ -1,4 +1,5 @@
 import casadi.casadi as cs
+from .set_y_calculator import SetYCalculator
 
 
 class Problem:
@@ -83,7 +84,7 @@ class Problem:
         self.__penalty_mapping_f2 = penalty_constraints
         return self
 
-    def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y):
+    def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y=None):
         """
         Constraints: F1(u, p) in C
 
@@ -93,10 +94,17 @@ class Problem:
 
         :return: self
         """
-        assert(set_c.is_convex(), "Set C must be convex")
+        if not set_c.is_convex():
+            raise Exception("Set C must be convex")
+
         self.__alm_mapping_f1 = mapping_f1
         self.__alm_set_c = set_c
-        self.__alm_set_y = set_y
+        if set_y is not None:
+            self.__alm_set_y = set_y
+        else:
+            # Y not provided
+            c = SetYCalculator(set_c)
+            self.__alm_set_y = c.obtain()
         return self
 
     # ---------- DIMENSIONS --------------------------------------------
