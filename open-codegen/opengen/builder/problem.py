@@ -1,5 +1,6 @@
 import casadi.casadi as cs
-from ..constraints.set_y_calculator import SetYCalculator
+from .set_y_calculator import SetYCalculator
+
 
 class Problem:
     """Definition of an optimization problem
@@ -93,7 +94,9 @@ class Problem:
 
         :return: self
         """
-        assert(set_c.is_convex(), "Set C must be convex")
+        if not set_c.is_convex():
+            raise Exception("Set C must be convex")
+
         self.__alm_mapping_f1 = mapping_f1
         self.__alm_set_c = set_c
         if set_y is not None:

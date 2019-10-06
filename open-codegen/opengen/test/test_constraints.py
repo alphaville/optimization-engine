@@ -1,6 +1,6 @@
+import opengen as og
 import unittest
 import casadi.casadi as cs
-import opengen as og
 import numpy as np
 import math
 
@@ -265,12 +265,6 @@ class ConstraintsTestCase(unittest.TestCase):
     # -----------------------------------------------------------------------
     # Set Y (from C)
     # -----------------------------------------------------------------------
-
-    def test_y_from_c_rectangle(self):
-        xmin = [-1, 0, float('-inf'), 10]
-        c = og.constraints.Rectangle(xmin=xmin, xmax=None)
-        y_calc = og.constraints.SetYCalculator
-
 
 
 if __name__ == '__main__':

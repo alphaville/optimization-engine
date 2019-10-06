@@ -1,4 +1,4 @@
-from .rectangle import *
+from ..constraints.rectangle import *
 
 
 class SetYCalculator:
@@ -9,14 +9,6 @@ class SetYCalculator:
         self.__set_c = set_c
 
     def __obtain_y_with_c_rectangle(self):
-        # C = {x: xmin <= x <= xmax} and
-        # Y = {y: ymin <= y <= ymax}, with
-        #
-        # ymin_i = [ -M, if umin_i > -inf
-        #          [  0, otherwise
-        #
-        # ymax_i = [ M, if umax_i < inf
-        #          [ 0, otherwise
         c = self.__set_c
         xmin = c.xmin
         xmax = c.xmax
@@ -30,7 +22,7 @@ class SetYCalculator:
         if xmin is None:
             ymin = [0.0] * n
         else:
-            ymin = [-SetYCalculator.LARGE_NUM] * n
+            ymin = [-1e12] * n
             for i in range(n):
                 if xmin[i] == float('-inf'):
                     ymin[i] = 0.0
@@ -38,7 +30,7 @@ class SetYCalculator:
         if xmax is None:
             ymax = [0.0] * n
         else:
-            ymax = [SetYCalculator.LARGE_NUM] * n
+            ymax = [1e12] * n
             for i in range(n):
                 if xmax[i] == float('inf'):
                     ymax[i] = 0.0

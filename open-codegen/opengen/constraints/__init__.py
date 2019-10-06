@@ -7,4 +7,3 @@ from .no_constraints import *
 from .cartesian import *
 from .zero import *
 from .finite_set import *
-from .set_y_calculator import *
