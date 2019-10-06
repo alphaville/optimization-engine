@@ -18,19 +18,19 @@ Optimization Engine (OpEn) solves problems of the following form:
 
 Our blanket assumptions are:
 
-**A1.** Function $f({}\cdot{}; p):\mathbb{R}^{n_u}\to\mathbb{R}$ is continuously 
+**A1.** Function $f({}\cdot{}, p):\mathbb{R}^{n_u}\to\mathbb{R}$ is continuously 
 differentiable in $u$ with $L$-Lipschitz gradient (which may depend on $p$)
 
 **A2.** $U\subseteq \mathbb{R}^n$ is a nonempty set on which we can compute
 projections (e.g., boxes, balls, discrete sets, etc); this set may possibly
 be nonconvex
 
-**A3.** Mapping $F_1({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}^{n_1}$ has partial derivatives
+**A3.** Mapping $F_1({}\cdot{}, p):\mathbb{R}^n\to\mathbb{R}^{n_1}$ has partial derivatives
 and $C$ is a closed, convex set from which we may compute distances, that is,
 <div class="math">
 \[\mathrm{dist}_C(z) = \inf_{y\in C}\Vert z - y \Vert \]</div>
 
-**A4.** Mapping $F_2({}\cdot{}; p):\mathbb{R}^n\to\mathbb{R}^{n_2}$ has partial derivatives
+**A4.** Mapping $F_2({}\cdot{}, p):\mathbb{R}^n\to\mathbb{R}^{n_2}$ has partial derivatives
 
 
 

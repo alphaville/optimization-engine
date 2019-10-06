@@ -100,7 +100,7 @@ following fields:
 
 | Response JSON Field       | Explanation                                 |
 |---------------------------|---------------------------------------------|
-| `exit_status`             | Exit status  |
+| `exit_status`             | Exit status; can be (i) `Converged` or (ii) `NotConvergedIterations`, if the maximum number of iterations was reached, therefore, the algorithm did not converge up to the specified tolerances, or (iii) `NotConvergedOutOfTime`, if the solver did not have enough time to converge |
 | `num_outer_iterations`    | Number of outer iterations   |
 | `num_inner_iterations`    | Total number of inner iterations (for all inner problems)    |
 | `last_problem_norm_fpr`   | Norm of the fixed-point residual of the last inner problem; this is a measure of the solution quality of the inner problem      |
@@ -116,7 +116,8 @@ guess. The client may override this behaviour and provide a different initial
 guess:
 
 ```
-echo '{"Run":{"parameter":[1.0,10.0],"initial_guess":[0.0,5.0,...]}}'\
+$ echo '{ "Run" : {"parameter" : [1.0,10.0], \
+                   "initial_guess" : [0.0, 5.0, ...]}}' \
 | nc localhost 4598
 ```
 

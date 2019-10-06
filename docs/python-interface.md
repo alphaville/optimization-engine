@@ -82,7 +82,10 @@ following types of constraints:
 | `CartesianProduct` | Cartesian product of any of the above. In $\mathbb{R}^n$, a vector $x$ can segmented as $$x=(x_{(0)}, x_{(1)}, \ldots, x_{(s)}),$$ into $s$ segments, $x_{(i)}\in\mathbb{R}^{m_i}$. Consider the constraint $$x \in C \Leftrightarrow x_{(i)} \in C_i,$$ for all $i=1,\ldots, s$. For example, consider the vector $x = ({\color{blue}{x_0}}, {\color{blue}{x_1}}, {\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$; define the segments $$x_{(0)} = ({\color{blue}{x_0}}, {\color{blue}{x_1}}),\ x_{(1)} = ({\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$$ These can be identified by the indices `1` and `4` (last indices of segments). An example is given below.|
  
 Suppose that $U$ is a Euclidean ball with radius $r=1.5$ centered at 
-the origin, $U= \\{u \in \mathbb{R}^5 {}:{} \Vert{}u\Vert {}\leq{} r \\}$.
+the origin, 
+
+$$B^r_{\scriptsize \Vert{}\cdot{}\Vert_2}= \\{u \in \mathbb{R}^2 {}:{} \Vert{}u\Vert {}\leq{} r \\}.$$
+
 This is,
 
 ```python
@@ -98,7 +101,7 @@ rect = og.constraints.Rectangle(xmin=[-1,-2,-3], xmax=[0, 10, -1])
 We can now construct the Cartesian product of these constraints. As discussed in 
 the above table, it is
 
-```
+```python
 # Segments: [0, 1], [2, 3, 4]
 segment_ids = [1, 4]
 dim = 5
