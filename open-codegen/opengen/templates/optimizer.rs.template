@@ -72,8 +72,16 @@ const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is 
 /// Constraints: Radius of Ball
 const CONSTRAINTS_BALL_RADIUS : f64 = {{problem.constraints.radius}};
 {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
-const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[{{problem.constraints.xmin|join(', ')}}]){% else %}None{% endif %};
-const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not none %}Some(&[{{problem.constraints.xmax|join(', ')}}]){% else %}None{% endif %};
+const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[
+{%- for xmini in problem.constraints.xmin -%}
+{%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+{%- endfor -%}
+]){% else %}None{% endif %};
+const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not none %}Some(&[
+{%- for xmaxi in problem.constraints.xmax -%}
+{%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+{%- endfor -%}
+]){% else %}None{% endif %};
 {% endif %}
 
 
@@ -87,8 +95,16 @@ const SET_C_BALL_XC: Option<&[f64]> = {% if problem.alm_set_c.center is not none
 /// Constraints: Radius of Euclidean Ball
 const SET_C_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
 {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
-const SET_C_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[{{problem.alm_set_c.xmin|join(', ')}}]){% else %}None{% endif %};
-const SET_C_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[{{problem.alm_set_c.xmax|join(', ')}}]){% else %}None{% endif %};
+const SET_C_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[
+{%- for xmini in problem.alm_set_c.xmin -%}
+{%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+{%- endfor -%}
+]){% else %}None{% endif %};
+const SET_C_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[
+{%- for xmaxi in problem.alm_set_c.xmax -%}
+{%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+{%- endfor -%}
+]){% else %}None{% endif %};
 {% endif %}
 {% endif %}
 
