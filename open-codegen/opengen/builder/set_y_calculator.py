@@ -1,5 +1,5 @@
 from ..constraints.rectangle import *
-
+from ..constraints.ball_inf import *
 
 class SetYCalculator:
 
@@ -7,6 +7,9 @@ class SetYCalculator:
 
     def __init__(self, set_c):
         self.__set_c = set_c
+
+    def __obtain_y_with_c_compact(self):
+        return BallInf(None, SetYCalculator.LARGE_NUM)
 
     def __obtain_y_with_c_rectangle(self):
         c = self.__set_c
@@ -22,7 +25,7 @@ class SetYCalculator:
         if xmin is None:
             ymin = [0.0] * n
         else:
-            ymin = [-1e12] * n
+            ymin = [-SetYCalculator.LARGE_NUM] * n
             for i in range(n):
                 if xmin[i] == float('-inf'):
                     ymin[i] = 0.0
@@ -30,7 +33,7 @@ class SetYCalculator:
         if xmax is None:
             ymax = [0.0] * n
         else:
-            ymax = [1e12] * n
+            ymax = [SetYCalculator.LARGE_NUM] * n
             for i in range(n):
                 if xmax[i] == float('inf'):
                     ymax[i] = 0.0
@@ -40,5 +43,7 @@ class SetYCalculator:
     def obtain(self):
         if isinstance(self.__set_c, Rectangle):
             return self.__obtain_y_with_c_rectangle()
+        elif self.__set_c.is_compact():
+            return self.__obtain_y_with_c_compact()
         else:
             raise NotImplementedError()

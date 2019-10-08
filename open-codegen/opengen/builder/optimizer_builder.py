@@ -365,7 +365,8 @@ class OpEnOptimizerBuilder:
                                           meta=self.__meta,
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
-                                          activate_clib_generation=self.__build_config.build_c_bindings)
+                                          activate_clib_generation=self.__build_config.build_c_bindings,
+                                          float=float)
         target_source_path = os.path.join(target_dir, "src")
         target_scr_lib_rs_path = os.path.join(target_source_path, "lib.rs")
         make_dir_if_not_exists(target_source_path)
