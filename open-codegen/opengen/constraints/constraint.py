@@ -8,3 +8,6 @@ class Constraint:
 
     def is_convex(self):
         return False
+
+    def is_compact(self):
+        return False

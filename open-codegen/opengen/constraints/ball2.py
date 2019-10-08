@@ -90,3 +90,6 @@ class Ball2(Constraint):
 
     def is_convex(self):
         return True
+
+    def is_compact(self):
+        return True

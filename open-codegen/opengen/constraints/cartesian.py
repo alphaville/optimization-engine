@@ -46,3 +46,8 @@ class CartesianProduct(constraint.Constraint):
             flag &= c.is_convex()
         return flag
 
+    def is_compact(self):
+        for set_i in self.__constraints:
+            if not set_i.is_compact():
+                return False
+        return True

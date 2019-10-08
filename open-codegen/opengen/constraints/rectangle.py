@@ -135,3 +135,18 @@ class Rectangle(Constraint):
 
     def is_convex(self):
         return True
+
+    def is_compact(self):
+        if self.__xmin is None:
+            return False
+
+        if self.__xmax is None:
+            return False
+
+        for i in range(len(self.__xmin)):
+            if self.__xmin[i] == float('-inf'):
+                return False
+
+        for i in range(len(self.__xmax)):
+            if self.__xmax[i] == float('inf'):
+                return False

@@ -45,3 +45,6 @@ class FiniteSet(Constraint):
 
     def is_convex(self):
         return self.cardinality() == 1 and self.dimension() > 0
+
+    def is_compact(self):
+        return True

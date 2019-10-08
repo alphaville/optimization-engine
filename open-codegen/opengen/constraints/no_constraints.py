@@ -14,3 +14,6 @@ class NoConstraints(Constraint):
 
     def is_convex(self):
         return True
+
+    def is_compact(self):
+        return False
