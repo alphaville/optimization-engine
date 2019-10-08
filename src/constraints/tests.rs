@@ -91,6 +91,24 @@ fn t_rectangle_bounded() {
 }
 
 #[test]
+fn t_rectangle_infinite_bounds() {
+    let xmin = [-1.0, 2.0, std::f64::NEG_INFINITY];
+    let xmax = [1.0, std::f64::INFINITY, 5.0];
+    let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
+    let mut x = [-2.0, 3.0, 1.0];
+
+    rectangle.project(&mut x);
+
+    unit_test_utils::assert_nearly_equal_array(
+        &[-1.0, 3.0, 1.0],
+        &x,
+        1e-8,
+        1e-8,
+        "projection on unbounded rectangle",
+    );
+}
+
+#[test]
 #[should_panic]
 fn t_rectangle_incompatible_dims() {
     let xmin = vec![1.0; 5];
