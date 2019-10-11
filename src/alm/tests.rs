@@ -200,28 +200,28 @@ fn t_alm_numeric_test_1() {
 
     let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
         .with_delta_tolerance(1e-4)
-        .with_max_outer_iterations(10)
+        .with_max_outer_iterations(30)
         .with_epsilon_tolerance(1e-5)
         .with_initial_inner_tolerance(1e-2)
         .with_inner_tolerance_update_factor(0.5)
         .with_initial_penalty(1.0)
-        .with_penalty_update_factor(5.0)
-        .with_sufficient_decrease_coefficient(0.05)
+        .with_penalty_update_factor(1.2)
+        .with_sufficient_decrease_coefficient(0.1)
         .with_initial_lagrange_multipliers(&vec![5.0; n1]);
 
     let mut u = vec![0.0; nx];
     let solver_result = alm_optimizer.solve(&mut u);
     assert!(solver_result.is_ok());
     let r = solver_result.unwrap();
+    println!("r = {:#?}", r);
+    println!("y* = {:#?}", r.lagrange_multipliers());
+    println!("time = {:?}", r.solve_time());
     assert_eq!(ExitStatus::Converged, r.exit_status());
-    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 10);
+    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 30);
     assert!(r.last_problem_norm_fpr() < tolerance);
 
     let mut f1res = vec![0.0; 2];
     assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
-    println!("r = {:#?}", r);
-    println!("y* = {:#?}", r.lagrange_multipliers());
-    println!("time = {:?}", r.solve_time());
 }
 
 fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {

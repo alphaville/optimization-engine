@@ -869,6 +869,7 @@ where
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
 
+        let mut do_continue: bool = true;
         for _outer_iters in 1..=self.max_outer_iterations {
             if let Some(max_duration) = self.max_duration {
                 let available_time_left = max_duration.checked_sub(tic.elapsed());
@@ -879,9 +880,14 @@ where
                 }
             }
             num_outer_iterations += 1;
-            if !self.step(u)? {
+            do_continue = self.step(u)?;
+            if !do_continue {
                 break;
             }
+        }
+
+        if num_outer_iterations == self.max_outer_iterations && do_continue {
+            exit_status = ExitStatus::NotConvergedIterations;
         }
 
         let c = if let Some(xi) = &self.alm_cache.xi {

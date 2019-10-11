@@ -92,7 +92,6 @@ pub struct AlmFactory<
 }
 
 impl<
-        'a,
         MappingF1,
         JacobianMappingF1Trans,
         MappingF2,
