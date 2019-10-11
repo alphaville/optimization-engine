@@ -1,5 +1,6 @@
 use super::Constraint;
 
+#[derive(Clone, Copy)]
 ///
 /// A rectangle, $R = \\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$
 ///

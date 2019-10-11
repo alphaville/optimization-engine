@@ -1,6 +1,7 @@
 use super::Constraint;
 use crate::matrix_operations;
 
+#[derive(Clone, Copy)]
 ///
 /// A second-order cone (SOC)
 ///

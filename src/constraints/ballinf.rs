@@ -1,5 +1,6 @@
 use super::Constraint;
 
+#[derive(Copy, Clone)]
 /// An infinity ball defined as $B_\infty^r = \\{x\in\mathbb{R}^n {}:{} \Vert{}x{}\Vert_{\infty} \leq r\\}$,
 /// where $\Vert{}\cdot{}\Vert_{\infty}$ is the infinity norm. The infinity ball centered at a point
 /// $x_c$ is defined as $B_\infty^{x_c,r} = \\{x\in\mathbb{R}^n {}:{} \Vert{}x-x_c{}\Vert_{\infty} \leq r\\}$.
