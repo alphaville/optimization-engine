@@ -1,3 +1,10 @@
+//! # PANOC Example 2
+//!
+//! This example shows how to minimize the [Rosenbrock function] subject to constraints,
+//! in a loop using a common cache object.
+//!
+//! [Rosenbrock function]: https://en.wikipedia.org/wiki/Rosenbrock_function
+//!
 use optimization_engine::{panoc::*, *};
 
 fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
