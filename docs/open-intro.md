@@ -35,7 +35,7 @@ Users can, for example, do their design entirely in Python and then use the **Op
 OpEn solves parametric nonconvex optimization problems of the form
 
 <div class="math">
-\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
 \mathrm{subject\ to}\ \  &amp;u \in U\\
 &amp; F_1(u, p) \in C\\
 &amp; F_2(u, p) = 0\end{split}\]</div>
@@ -122,6 +122,15 @@ Find out more about PANOC in the [original publication](https://arxiv.org/pdf/17
 
 ### Augmented Lagrangian and Penalty Methods
 
+PANOC can solve problems that involve a smooth cost function, $f(u,p)$ and simple
+constraints of the form $u\in U$, where $U$ is a set on which we can compute
+projections. In order to solve problems with more complex constraints such as 
+$F_1(u, p)\in C$ or $F_2(u, p) = 0$, we resort to the augmented Lagrangian and 
+penalty methods respectively.
+
+Essentially, PANOC solves a simple "inner problem", while it is wrapped in an outer loop
+which takes care of the satisfaction of these constraints. For technical details, the 
+reader may refer to [this page](./algorithm).
 
 
 

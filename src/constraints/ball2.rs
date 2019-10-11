@@ -1,5 +1,6 @@
 use super::Constraint;
 
+#[derive(Copy, Clone)]
 /// A Eucledian ball, that is, a set given by $B_2^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert \leq r\\}$
 /// or a Euclidean ball centered at a point $x_c$, that is, $B_2^{x_c, r} = \\{x \in \mathbb{R}^n {}:{} \Vert{}x-x_c{}\Vert \leq r\\}$
 pub struct Ball2<'a> {

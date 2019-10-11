@@ -131,7 +131,7 @@ in most cases
   with the same name
 - Build configuration: build options such as the path where the 
   generated optimizer should be stored and the build mode
-  (debug or release)
+  (`debug` or `release`)
 - Solver configuration: solver-specific parameters such as the 
   tolerance, L-BFGS memory length and more
 
@@ -467,7 +467,7 @@ satisfies
 
 <div class="math">
 \[
-\|c(u^\star; p)\|_{\infty}\leq 7.66\cdot 10^{-5}.
+\|c(u^\star, p)\|_{\infty}\leq 7.66\cdot 10^{-5}.
 \]
 </div>
 

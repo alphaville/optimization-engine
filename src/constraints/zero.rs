@@ -1,5 +1,6 @@
 use super::Constraint;
 
+#[derive(Clone, Copy)]
 /// Set Zero, $\\{0\\}$
 pub struct Zero {}
 

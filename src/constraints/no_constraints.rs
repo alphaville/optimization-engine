@@ -1,7 +1,7 @@
 use super::Constraint;
 
 /// The whole space, no constraints
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub struct NoConstraints {}
 
 impl NoConstraints {
