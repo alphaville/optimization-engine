@@ -89,7 +89,7 @@ This documentation is generated with Docusaurus - read a detailed guide [here](h
 - All docs are in `docs/`
 - Blog entries are in `website/blog/`
 
-To start the website locally (at [http://localhost:3000](http://localhost:3000)) change directory to `website` and run `yarn start`. To update the website, execute `./publish.sh` (you need to be a collaborator on github).
+To start the website locally (at [http://localhost:3000/optimization-engine](http://localhost:3000/optimization-engine)) change directory to `website` and run `yarn start`. To update the website, execute `./publish.sh` (you need to be a collaborator on github).
 
 ## Using Git
 When using Git, keep in mind the following guidelines:
