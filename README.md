@@ -23,6 +23,9 @@
   <a href="https://github.com/alphaville/optimization-engine/blob/master/LICENSE-APACHE">
     <img alt="Apache v2 license" src="https://img.shields.io/badge/License-Apache%20v2-blue.svg">
   </a>
+</p>
+
+<p align="center">
   <a href="https://gitter.im/alphaville/optimization-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
     <img alt="Gitter" src="https://badges.gitter.im/alphaville/optimization-engine.svg">
   </a>
@@ -43,7 +46,6 @@ Optimization Engine (OpEn) is a solver for embedded nonconvex optimization.
 - Numerical algorithm written in Rust
 - Provably safe memory management
 - Ideal for nonlinear MPC applications (e.g., autonomous navigation)
-
 
 ## Demos
 
@@ -68,6 +70,14 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 
 ![Autonomous Aerial Vehicle](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
 
+
+## Parametric Problems
+
+**OpEn** can solve nonconvex parametric optimization problems of the general form
+
+<img src="https://latex.codecogs.com/svg.latex?\Large\begin{align*}\operatorname*{Minimize}_{u\in%20U}&f(u,p)\\\text{subject%20to:%20}&F_1(u,%20p)%20\in%20C\\&F_2(u,p)=0\end{align*}"/>
+
+where *f* is a smooth cost, *U* is a simple - possibly nonconvex - set, *F<sub>1</sub>* and *F<sub>2</sub>* are nonlinear smooth mappings and *C* is a convex set.
 
 ## Getting started
 
