@@ -9,17 +9,16 @@ phi = og.functions.rosenbrock(u, p)   # cost function
 
 f2 = cs.fmax(0.0, u[2] - u[3] + 0.1)
 
-f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.5)
-C = og.constraints.Zero()
-Y = og.constraints.BallInf(None, 1e12)
+f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.2)
+C = og.constraints.Ball2(None, 1.0)
 
-ball_inf = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1,2,4], [0, 5, -1]])
-ball_eucl = og.constraints.Ball2(None, 1.0)
-bounds = og.constraints.CartesianProduct(5, [2, 4], [ball_inf, ball_eucl])
+UA = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1, 2, 4], [0, 5, -1]])
+UB = og.constraints.Ball2(None, 1.0)
+U = og.constraints.CartesianProduct(5, [2, 4], [UA, UB])
 
 problem = og.builder.Problem(u, p, phi)         \
-    .with_constraints(bounds)                   \
-    .with_aug_lagrangian_constraints(f1, C, Y)
+    .with_constraints(U)                        \
+    .with_aug_lagrangian_constraints(f1, C)
 
 meta = og.config.OptimizerMeta()                \
     .with_version("0.0.0")                      \
@@ -34,7 +33,12 @@ build_config = og.config.BuildConfiguration()  \
 
 solver_config = og.config.SolverConfiguration()   \
             .with_tolerance(1e-5)                 \
-            .with_delta_tolerance(1e-5)
+            .with_initial_penalty(1000)           \
+            .with_initial_tolerance(1e-5)         \
+            .with_max_outer_iterations(30)        \
+            .with_delta_tolerance(1e-4)           \
+            .with_penalty_weight_update_factor(2) \
+            .with_sufficient_decrease_coefficient(0.5)
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           metadata=meta,
