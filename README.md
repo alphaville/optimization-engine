@@ -57,7 +57,7 @@ Code generation? Piece of cake!
 
 You can use the [MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface) or [Python interface](https://alphaville.github.io/optimization-engine/docs/python-interface) of OpEn to generate Rust code for your parametric optimizer.
 
-This can then be called directly, using Rust, or, it can be consumed as a service over a [UDP socket](https://alphaville.github.io/optimization-engine/docs/udp-sockets).
+This can then be called directly, using Rust, or, it can be consumed as a service over a socket.
 
 ![Code generation](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/115ba54c2ad0.gif "Easy Code Generation")
 
@@ -75,9 +75,72 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 
 **OpEn** can solve nonconvex parametric optimization problems of the general form
 
-<img src="https://latex.codecogs.com/svg.latex?\Large\begin{align*}\operatorname*{Minimize}_{u\in%20U}&f(u,p)\\\text{subject%20to:%20}&F_1(u,%20p)%20\in%20C\\&F_2(u,p)=0\end{align*}"/>
+<img src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\operatorname*{Minimize}_{u\in%20U}&f(u,p)\\\text{subject%20to:%20}&F_1(u,%20p)%20\in%20C\\&F_2(u,p)=0\end{align*}"/>
 
 where *f* is a smooth cost, *U* is a simple - possibly nonconvex - set, *F<sub>1</sub>* and *F<sub>2</sub>* are nonlinear smooth mappings and *C* is a convex set.
+
+## Code Generation Example
+
+Code generation in **Python** in just a few lines of code (read the [docs](https://alphaville.github.io/optimization-engine/docs/python-examples) for details)
+
+```python
+import opengen as og
+import casadi.casadi as cs
+
+# Define variables
+# ------------------------------------
+u = cs.SX.sym("u", 5)
+p = cs.SX.sym("p", 2)
+
+# Define cost function and constraints
+# ------------------------------------
+phi = og.functions.rosenbrock(u, p)
+f2 = cs.vertcat(1.5 * u[0] - u[1],
+                cs.fmax(0.0, u[2] - u[3] + 0.1))
+bounds = og.constraints.Ball2(None, 1.5)
+problem = og.builder.Problem(u, p, phi) \
+    .with_penalty_constraints(f2)       \
+    .with_constraints(bounds)
+    
+# Configuration and code generation
+# ------------------------------------
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory("python_test_build") \
+    .with_tcp_interface_config()
+meta = og.config.OptimizerMeta()
+solver_config = og.config.SolverConfiguration()    \
+    .with_tolerance(1e-5)                          \
+    .with_constraints_tolerance(1e-4)
+builder = og.builder.OpEnOptimizerBuilder(problem, meta,
+                                          build_config, solver_config)
+builder.build()
+```
+
+Code generation in a few lines of **MATLAB** code (read the [docs](https://alphaville.github.io/optimization-engine/docs/matlab-interface) for details)
+
+```matlab
+% Define variables
+% ------------------------------------
+u = casadi.SX.sym('u', 5);
+p = casadi.SX.sym('p', 2);
+
+% Define cost function and constraints
+% ------------------------------------
+phi = rosenbrock(u, p);
+f2 = [1.5*u(1) - u(2);
+      max(0, u(3)-u(4)+0.1)];
+
+bounds = OpEnConstraints.make_ball_at_origin(5.0);
+
+opEnBuilder = OpEnOptimizerBuilder()...
+    .with_problem(u, p, phi, bounds)...
+    .with_build_name('penalty_new')...
+    .with_fpr_tolerance(1e-5)...
+    .with_constraints_as_penalties(f2);
+
+opEnOptimizer = opEnBuilder.build();
+```
+
 
 ## Getting started
 
