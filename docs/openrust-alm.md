@@ -16,13 +16,14 @@ and its gradient. Suppose that
 $$f(u) = \tfrac{1}{2}\Vert{}u\Vert^2 + u_1+u_2+u_3$$
 The function and its gradient, 
 $$
-\nabla f = u + 1_{3}
+\nabla f(u) = u + 1_{3}
 $$
 
 ```rust
 // Smooth cost function
 pub fn f(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    *cost = 0.5 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+    *cost = 0.5 * matrix_operations::norm2_squared(u) 
+              + matrix_operations::sum(u);
     Ok(())
 }
 ```
@@ -210,6 +211,10 @@ $$
 
 Lastly, we see that `delta_y_norm` is equal to `0.0000038`; this is equal to 
 the norm-distance of $F_1(u)$ from $C$. We see that this is indeed below $\delta=10^{-5}$.
+
+## Examples
+
+See [`alm_pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/alm_pm.rs).
 
 [`AlmOptimizer`]: https://docs.rs/optimization_engine/*/optimization_engine/alm/struct.AlmOptimizer.html
 [`AlmFactory`]: https://docs.rs/optimization_engine/*/optimization_engine/alm/struct.AlmFactory.html

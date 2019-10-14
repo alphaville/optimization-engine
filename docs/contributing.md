@@ -4,7 +4,7 @@ sidebar_label: Contributing
 title: Contributing to OpEn
 ---
 
-## Contributing 
+## How can I contribute to OpEn?
 Thank you for considering contributing to Optimization Engine (OpEn)!
 
 OpEn is an open source project and welcomes contributions from the community.
@@ -12,7 +12,9 @@ OpEn is an open source project and welcomes contributions from the community.
 You can contribute in several ways:
 
 - Submit an [**issue**](https://github.com/alphaville/optimization-engine/issues): 
-  consider submitting an issue if:
+  Often bugs will go unnoticed by the core development team and certain 
+  use cases and user needs will have evaded our attention. 
+  Consider submitting an issue if:
   - You would like to report a [bug]; please, use the provided template for reporting 
     bugs. It is essential to give information about your system (OS, OpEn version)
     and outline a sequence of steps to reproduce the error. When possible, please

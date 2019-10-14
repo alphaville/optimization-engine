@@ -342,6 +342,11 @@ a maximum time duration, after which the solver stops. If it fails to converge b
 the imposition of a maximum allowed duration, the exit status will be 
 [`ExitStatus::NotConvergedOutOfTime`].
 
+## Examples
+
+- [`panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex1.rs)
+- [`panoc_ex2.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex2.rs)
+
 <!-- Links -->
 
 [`Constraint`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/trait.Constraint.html

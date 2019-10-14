@@ -2,8 +2,7 @@
   "docs": {
     "OpEn Guide": [
       "open-intro",
-      "installation",
-      "algorithm"
+      "installation"
     ],
     "Python": [
       "python-interface",
@@ -21,6 +20,7 @@
       "openrust-alm"
     ],
     "Extras": [
+      "algorithm",
       "faq",
       "contributing"
     ]

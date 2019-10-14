@@ -72,7 +72,7 @@ where
     /// Specify the tolerance $\epsilon$ related to the AKKT condition
     ///
     /// $$
-    /// \|\gamma^{-1}(u-u^+) + \nabla f(u) - \nabla f(u^+)\| \leq \epsilon
+    /// \Vert{}\gamma^{-1}(u-u^+) + \nabla f(u) - \nabla f(u^+){}\Vert \leq \epsilon
     /// $$
     ///
     /// ## Arguments

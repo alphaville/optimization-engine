@@ -38,7 +38,7 @@ Here we will demonstrate how to use `opengen` to generate a
 parametric optimizer
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
 \mathrm{subject\ to} &amp;\ \ u \in U\end{split}\]</div>
 
 The first step is to import `opengen` and 

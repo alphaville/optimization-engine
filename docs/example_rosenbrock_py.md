@@ -22,6 +22,9 @@ it and experiment. The problem we need to solve is:
 
 The parameter vector is $p=(a, b)$.
 
+<!--DOCUSAURUS_CODE_TABS-->
+
+<!--Python-->
 ```python
 import opengen as og
 import casadi.casadi as cs
@@ -61,3 +64,39 @@ print(solution)
 
 mng.kill()
 ```
+
+<!--MATLAB-->
+```matlab
+% Define variables
+% ------------------------------------
+u = casadi.SX.sym('u', 5);
+p = casadi.SX.sym('p', 2);
+
+% Define cost function and constraints
+% ------------------------------------
+phi = rosenbrock(u, p);
+f2 = [1.5*u(1) - u(2);
+      max(0, u(3)-u(4)+0.1)];
+
+bounds = OpEnConstraints.make_ball_at_origin(5.0);
+
+opEnBuilder = OpEnOptimizerBuilder()...
+    .with_problem(u, p, phi, bounds)...
+    .with_build_name('penalty_new')...
+    .with_fpr_tolerance(1e-5)...
+    .with_constraints_as_penalties(f2);
+
+opEnOptimizer = opEnBuilder.build();
+
+% Consume
+% ------------------------------------
+clc;
+opEnOptimizer.run();
+opEnOptimizer.connect();
+out = opEnOptimizer.consume([0.5,2])
+out = opEnOptimizer.consume([0.5,2])
+opEnOptimizer.stop();
+
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
