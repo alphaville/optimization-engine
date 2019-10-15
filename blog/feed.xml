@@ -4,7 +4,7 @@
         <title>Optimization Engine Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
-        <lastBuildDate>Mon, 03 Jun 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 14 Oct 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,13 @@
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</copyright>
+        <item>
+            <title><![CDATA[Augmented Lagrangian Method: New Releases!]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html</guid>
+            <pubDate>Mon, 14 Oct 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[  <p><strong>OpEn</strong> can now solve problems of the very general form</p> <div class="math"> \[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\ \mathrm{subject\ to}\ \ &amp;u \in U\\ &amp; F_1(u, p) \in C\\ &amp; F_2(u, p) = 0\end{...</div>]]></description>
+        </item>
         <item>
             <title><![CDATA[Python interface]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</link>

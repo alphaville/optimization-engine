@@ -2,12 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>Optimization Engine Blog</title>
-    <updated>2019-06-03T06:00:00Z</updated>
+    <updated>2019-10-14T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest Optimization Engine news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</logo>
     <rights>Copyright © 2019 Pantelis Sopasakis and Emil Fresk</rights>
+    <entry>
+        <title type="html"><![CDATA[Augmented Lagrangian Method: New Releases!]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html">
+        </link>
+        <updated>2019-10-14T06:00:00Z</updated>
+        <summary type="html"><![CDATA[  <p><strong>OpEn</strong> can now solve problems of the very general form</p> <div class="math"> \[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\ \mathrm{subject\ to}\ \ &amp;u \in U\\ &amp; F_1(u, p) \in C\\ &amp; F_2(u, p) = 0\end{...</div>]]></summary>
+        <author>
+            <name>Pantelis Sopasakis</name>
+            <uri>http://twitter.com/isToxic</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Python interface]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</id>
