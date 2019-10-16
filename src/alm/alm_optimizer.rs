@@ -15,6 +15,10 @@ const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
 const SMALL_EPSILON: f64 = std::f64::EPSILON;
 
+struct InnerProblemStatus {
+    do_continue: bool,
+    inner_problem_converged: bool,
+}
 /// Implements the ALM/PM method
 ///
 /// `AlmOptimizer` solves the problem
@@ -810,7 +814,8 @@ where
     /// - Shrinks the inner tolerance and
     /// - Updates the ALM cache
     ///
-    fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
+    fn step(&mut self, u: &mut [f64]) -> Result<InnerProblemStatus, SolverError> {
+        let mut has_converged = false;
         // Project y on Y
         self.project_on_set_y();
 
@@ -821,6 +826,7 @@ where
             let inner_iters = status.iterations();
             self.alm_cache.last_inner_problem_norm_fpr = status.norm_fpr();
             self.alm_cache.inner_iteration_count += inner_iters;
+            has_converged = status.has_converged();
         })?;
 
         // TODO: Check whether the inner problem has converged; set a limit on
@@ -838,7 +844,10 @@ where
         if self.is_exit_criterion_satisfied() {
             // Do not continue the outer iteration
             // An (epsilon, delta)-AKKT point has been found
-            return Ok(false);
+            return Ok(InnerProblemStatus {
+                do_continue: false,
+                inner_problem_converged: has_converged,
+            });
         } else if !self.is_penalty_stall_criterion() {
             self.update_penalty_parameter();
         }
@@ -850,7 +859,10 @@ where
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
 
-        return Ok(true); // `true` means do continue the outer iterations
+        return Ok(InnerProblemStatus {
+            do_continue: true,
+            inner_problem_converged: has_converged,
+        }); // `true` means do continue the outer iterations
     }
 
     /* ---------------------------------------------------------------------------- */
@@ -872,6 +884,10 @@ where
             .set_akkt_tolerance(self.epsilon_inner_initial);
 
         let mut do_continue: bool = true;
+        let mut inner = InnerProblemStatus {
+            do_continue: false,
+            inner_problem_converged: false,
+        };
         for _outer_iters in 1..=self.max_outer_iterations {
             if let Some(max_duration) = self.max_duration {
                 let available_time_left = max_duration.checked_sub(tic.elapsed());
@@ -882,12 +898,20 @@ where
                 }
             }
             num_outer_iterations += 1;
-            do_continue = self.step(u)?;
+            inner = self.step(u)?;
+            do_continue = inner.do_continue;
             if !do_continue {
                 break;
             }
         }
 
+        // TODO: !!!!!DOCUMENTATION!!!!
+        if exit_status == ExitStatus::Converged && !inner.inner_problem_converged {
+            exit_status = ExitStatus::NotConvergedIterations;
+        }
+        // after outer loop: if the maximum number of outer iterations was reached
+        // and the last invocation to self.step() suggests that the outer loop should
+        // continue, this means that the solver reached the max num of outer iterations
         if num_outer_iterations == self.max_outer_iterations && do_continue {
             exit_status = ExitStatus::NotConvergedIterations;
         }
