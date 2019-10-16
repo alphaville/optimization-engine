@@ -4,6 +4,9 @@ title: Frequently Asked Questions
 sidebar_label: FAQ
 ---
 
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 ### 1. Do I need to be able to program in Rust?
 
 No. Although the core solver is written in Rust, you can
@@ -23,19 +26,18 @@ the solver over a TCP socket (supported by all modern
 programming languages).
   
 ### 2. Can OpEn find the global optimum?
-No. 
-
-OpEn does not offer any guarantees that the solution it returns is a global optimum.
+No. OpEn does not offer any guarantees that the solution it returns is a global optimum.
 
 ### 3. Can OpEn solve mixed integer problems?
 Yes. OpEn solves parametric problems of the form
 
-```text
-Minimize f(u; p)
-subj. to: u in U(p)
-```
+<div class="math">
+\[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
+\mathrm{subject\ to}\ \  &amp;u \in U\\
+&amp; F_1(u, p) \in C\\
+&amp; F_2(u, p) = 0\end{split}\]</div>
 
-Set `U(p)` can be a finite or binary set (on which it is easy to project).
+Set $U$ can be a finite or binary set (on which it is easy to compute projections).  
 
 ### 4. Can OpEn solve multi-objective problems?
 No.
@@ -48,39 +50,47 @@ Long story short... if you need very high performance, you should experiment wit
 ### 6. How can I cite OpEn?
 Please, cite the original PANOC paper as follows:
 ```bibtex
-@inconference{panoc2017,
+@inproceedings{panoc2017,
   author = "Stella, L. and Themelis, A. and Sopasakis, P. and Patrinos, P.",
   title     = "A simple and efficient algorithm for
                nonlinear model predictive control",
   booktitle = "56th IEEE Conference on Decision and Control (CDC)",
   year      = "2017",
-  pages     = "1939-1944"
+  month     = "Dec",
+  pages     = "1939-1944",
+  doi       = "10.1109/CDC.2017.8263933"
 }
 ```
 
 You may also cite the following papers where we use PANOC in lab experiments - first, for obstacle avoidance on an autonomous ground vehicle carrying a trailer:
 
 ```bibtex
-@inconference{agv2018,
+@inproceedings{agv2018,
   author = "Sathya, A. and Sopasakis, P. and Van Parys, R. and Themelis, A. 
             and Pipeleers, G. and Patrinos, P.",
   title     = "Embedded nonlinear model predictive control for 
                obstacle avoidance using PANOC",
   booktitle = "IEEE European Control Conference (ECC)",
   year      = "2018",
+  month     = "June",
+  pages     = "1523-1528",
+  doi       = "10.23919/ECC.2018.8550253"
 }
 ```
 
 and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
 
 ```bibtex
-@inconference{mav2019,
+@inproceedings{mav2019,
   author = "Small, E. and Sopasakis, P. and Fresk, E.
         and Patrinos, P. and Nikolakopoulos, G.",
   title     = "Aerial navigation in obstructed environments with
                embedded nonlinear model predictive control",
   booktitle = "IEEE European Control Conference (ECC)",
-  year      = "2019"
+  year      = "2019",
+  month     = "June",
+  pages     = "3556-3563",
+  doi       = "10.23919/ECC.2019.8796236"
 }
 ```
 
@@ -89,7 +99,7 @@ Yes. We have tested the code on Linux (Trusty, Precise
 and Xenial), OSX Darwin and Windows x32 adn x64
 using Travis CI and Appveyor reprectively. We have 
 also cross-compiled the Rust solver and tested it 
-on a Raspberry Pi v2.
+on a Raspberry Pi v2 (ARM v6 processor).
 
 ### 8. I have a question; whom should I address it to?
 You can reach us on Discord and Gitter. 

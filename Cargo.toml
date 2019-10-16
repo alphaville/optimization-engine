@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.5.1-beta"
+version = "0.6.0"
 
 edition = "2018"
 
@@ -65,6 +65,12 @@ exclude = [
     "open-codegen/*",
     "website/*",
 ]
+
+# --------------------------------------------------------------------------
+# D.O.C.S
+# --------------------------------------------------------------------------
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
 
 
 # --------------------------------------------------------------------------
@@ -105,3 +111,5 @@ travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
 
 # Actively maintained badge
 maintenance = { status = "actively-developed" }
+
+

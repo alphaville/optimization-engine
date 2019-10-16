@@ -2,7 +2,7 @@
 /// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
 /// Generated at: {{timestamp_created}}
 ///
-use optimization_engine::continuation::{HomotopyCache, HomotopySolverStatus};
+use optimization_engine::alm::*;
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -30,6 +30,10 @@ struct ExecutionParameter {
     parameter: Vec<f64>,
     /// Initial guess (can be null)
     initial_guess: Option<Vec<f64>>,
+    /// Initial Lagrange multipliers (can be null)
+    initial_lagrange_multipliers: Option<Vec<f64>>,
+    /// Initial penalty parameter, c0
+    initial_penalty: Option<f64>,
 }
 
 /// Request from the client
@@ -50,9 +54,12 @@ struct OptimizerSolution<'a> {
     num_outer_iterations: usize,
     num_inner_iterations: usize,
     last_problem_norm_fpr: f64,
-    max_constraint_violation: f64,
+    delta_y_norm_over_c: f64,
+    f2_norm: f64,
     solve_time_ms: f64,
+    penalty: f64,
     solution: &'a [f64],
+    lagrange_multipliers: &'a [f64],
 }
 
 fn pong(stream: &mut std::net::TcpStream, code: i32) {
@@ -81,18 +88,23 @@ fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &
 /// Serializes the solution and solution status and returns it
 /// to the client
 fn return_solution_to_client(
-    status: HomotopySolverStatus,
+    status: AlmOptimizerStatus,
     solution: &[f64],
     stream: &mut std::net::TcpStream,
 ) {
+    let empty_vec : [f64; 0] = Default::default();
     let solution: OptimizerSolution = OptimizerSolution {
         exit_status: format!("{:?}", status.exit_status()),
         num_outer_iterations: status.num_outer_iterations(),
         num_inner_iterations: status.num_inner_iterations(),
         last_problem_norm_fpr: status.last_problem_norm_fpr(),
-        max_constraint_violation: status.max_constraint_violation(),
+        delta_y_norm_over_c: status.delta_y_norm_over_c(),
+        f2_norm: status.f2_norm(),
+        penalty: status.penalty(),
+        lagrange_multipliers: if let Some(y) = &status.lagrange_multipliers() { y } else { &empty_vec },
         solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
         solution: solution,
+
     };
     let solution_json = serde_json::to_string_pretty(&solution).unwrap();
     stream
@@ -102,7 +114,7 @@ fn return_solution_to_client(
 
 /// Handles an execution request
 fn execution_handler(
-    cache: &mut HomotopyCache,
+    cache: &mut AlmCache,
     execution_parameter: &ExecutionParameter,
     u: &mut [f64],
     p: &mut [f64],
@@ -127,6 +139,16 @@ fn execution_handler(
     }
 
     // ----------------------------------------------------
+    // Check lagrange multipliers
+    // ----------------------------------------------------
+    if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
+        if y0.len() != {{meta.optimizer_name|upper}}_N1 {
+            write_error_message(stream, 1700, "wrong dimension of Langrange multipliers");
+            return;
+        }
+    }
+
+    // ----------------------------------------------------
     // Run solver
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
@@ -135,7 +157,11 @@ fn execution_handler(
         return;
     }
     p.copy_from_slice(&parameter);
-    let status = solve(&p, cache, u);
+    let status = solve(&p,
+                       cache,
+                       u,
+                       &execution_parameter.initial_lagrange_multipliers,
+                       &execution_parameter.initial_penalty);
     match status {
         Ok(ok_status) => {
             return_solution_to_client(ok_status, u, stream);
@@ -174,9 +200,13 @@ fn run_server() {
         trace!("Received new request");
         match received_request {
             Ok(request_content) => match request_content {
-                ClientRequest::Run(param) => {
+                ClientRequest::Run(execution_param) => {
                     trace!("Running solver");
-                    execution_handler(&mut cache, &param, &mut u, &mut p, &mut stream);
+                    execution_handler(&mut cache,
+                                      &execution_param,
+                                      &mut u,
+                                      &mut p,
+                                      &mut stream);
                 }
                 ClientRequest::Kill(_) => {
                     info!("Quitting on request");

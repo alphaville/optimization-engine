@@ -6,6 +6,14 @@ title: MATLAB
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+<font color="blue"><b>IMPORTANT NOTE:</b> IN OpEn version 0.6.0 we have added support 
+for the augmented Lagrangian and penalty methods; this is not available through the 
+MATLAB interface at the moment. We would advise that the users use [`opengen`] in Python
+instead. The MATLAB interface will be updated soon - [stay tuned]</font>
+
+[`opengen`]: ./python-interface
+[stay tuned]: https://twitter.com/isToxic
+
 ## About the MATLAB interface
 If you haven't done so already, you first need to [install the MATLAB interface](./installation#matlab-interface).
 

@@ -40,10 +40,16 @@ where
     CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
     ConstraintType: constraints::Constraint,
 {
+    /// Constructs a new instance of `FBSOptimizer`
+    ///
+    /// ## Arguments
+    ///
+    /// - `problem`: problem definition
+    /// - `cache`: instance of `FBSCache`
     pub fn new(
         problem: Problem<'a, GradientType, ConstraintType, CostType>,
         cache: &'a mut FBSCache,
-    ) -> FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
+    ) -> Self {
         FBSOptimizer {
             fbs_engine: FBSEngine::new(problem, cache),
             max_iter: MAX_ITER,

@@ -1,15 +1,22 @@
 use super::Constraint;
 use crate::matrix_operations;
 
+#[derive(Clone, Copy)]
 ///
 /// A second-order cone (SOC)
 ///
-/// A set of the form `{ x=(y, t) : ||t|| <= a*t}`, where `a` is a positive
-/// scalar.
+/// A set of the form
+///
+/// $$
+/// C_{\alpha} = \\{x=(y, t) \in \mathbb{R}^{n+1}: t\in\mathbb{R}, \Vert{}y\Vert \leq \alpha{}t\\},
+/// $$
+///
+/// where $\alpha$ is a positive scalar.
 ///
 /// Projections on the second-order cone are computed as in H.H. Bauschke's
 /// 1996 doctoral dissertation: Projection Algorithms and Monotone Operators
 /// (p. 40, Theorem 3.3.6).
+///
 pub struct SecondOrderCone {
     alpha: f64,
 }
@@ -17,14 +24,19 @@ pub struct SecondOrderCone {
 impl SecondOrderCone {
     /// Construct a new instance of SecondOrderCone with parameter `alpha`
     ///
-    /// A second-order cone with parameter alpha is the set `C = {x=(y, t): ||y|| <= alpha*t}`,
-    /// where `alpha` is a positive parameter,
+    /// A second-order cone with parameter alpha is the set
+    /// $C_\alpha = \\{x=(y, t) \in \mathbb{R}^{n+1}: t\in\mathbb{R}, \Vert{}y\Vert \leq \alpha t\\}$,
+    /// where $\alpha$ is a positive parameter,
     /// and projections are computed according to Theorem 3.3.6 in H.H. Bauschke's 1996 doctoral
     /// dissertation:
     /// [Projection Algorithms and Monotone Operators](http://summit.sfu.ca/system/files/iritems1/7015/b18025766.pdf)
     /// (page 40).
     ///
-    /// ### Panics
+    /// # Arguments
+    ///
+    /// - `alpha`: parameter $\alpha$
+    ///
+    /// # Panics
     ///
     /// The method panics if the given parameter `alpha` is nonpositive.
     pub fn new(alpha: f64) -> SecondOrderCone {
@@ -36,12 +48,12 @@ impl SecondOrderCone {
 impl Constraint for SecondOrderCone {
     /// Project on the second-order cone (updates the given vector/slice)
     ///
-    /// ### Arguments
+    /// # Arguments
     ///
     /// - `x`: (in) vector to be projected on the current instance of a second-order
     ///   cone, (out) projection on the second-order cone
     ///
-    /// ### Panics
+    /// # Panics
     ///
     /// The methods panics is the length of `x` is less than 2.
     ///
@@ -61,5 +73,9 @@ impl Constraint for SecondOrderCone {
                 .for_each(|v| *v *= self.alpha * beta / norm_z);
             x[n - 1] = beta;
         }
+    }
+
+    fn is_convex(&self) -> bool {
+        true
     }
 }

@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+* New support for C-to-Rust interface via bindgen
+* Generation of example C code for C-to-Rust interface
+
+### Changed
+
+* Homotopy module in Rust is annotated as deprecated
+
+
+
+## [v0.6.1-alpha.2] - 2019-09-7
+
 ### Fixed
 
 * TCP server: Malformed error JSON is now fixed
@@ -19,15 +32,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Introduced C interface to CasADi-generated C functions
+* Rust and Python implementations of joint ALM/PM algorithms
+* Rust docs for augmented Lagrangian method (ALM)
+* Release of crate version `0.6.1-alpha.1` and `0.6.1-alpha.2`
+* Introduced `#![allow(dead_code)]` in ALM implementation
 * New AKKT-compliant termination criterion
 * Tolerance relaxation in penalty method
 * Finite sets supported in Rust
 * Rust/Python: setting CBFGS parameters
 * Second-order cones supported in Rust
+* Rust docs: support for equations with KaTeX
+
+### Changed
+
+* Updated README
+
 
 ### Removed
 
 * Support for Python <3.6 (deprecated)
+* Module `continuation` is going to become obsolete
 
 <!-- ---------------------
       v0.5.0
@@ -87,6 +112,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * An error in the Matlab codegen which made it inoperable
 
+### Added
+
+* Support for compiling for different targets
 
 
 <!-- ---------------------
@@ -112,7 +140,8 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...master
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...dev/alm/main
+[v0.6.1-alpha.2]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...v0.6.1-alpha.2
 [v0.5.0]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/alphaville/optimization-engine/compare/v0.3.0...v0.3.1

@@ -57,12 +57,7 @@ where
         parametric_cost: ParametricCostType,
         penalty_function: ParametricPenaltyFunctionType,
         num_penalty_constraints: usize,
-    ) -> HomotopyProblem<
-        ParametricPenaltyFunctionType,
-        ParametricGradientType,
-        ConstraintType,
-        ParametricCostType,
-    > {
+    ) -> Self {
         HomotopyProblem {
             constraints,
             parametric_gradient,

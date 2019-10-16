@@ -28,7 +28,7 @@ impl HomotopyCache {
     ///
     /// ## Arguments
     ///
-    /// - `idx`: indes of the vector c(u; p) on which continuation should be
+    /// - `idx`: index of the vector c(u; p) on which continuation should be
     ///   applied
     /// - `from`: starting value
     /// - `to`: target value

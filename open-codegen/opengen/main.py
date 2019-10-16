@@ -1,142 +1,57 @@
-# import opengen as og
-# import casadi.casadi as cs
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-
-import opengen as og
 import casadi.casadi as cs
+import opengen as og
+import json
 
-# Build parametric optimizer
-# ------------------------------------
-u = cs.SX.sym("u", 5)
-p = cs.SX.sym("p", 2)
-phi = og.functions.rosenbrock(u, p)
-problem = og.builder.Problem(u, p, phi)
-build_config = og.config.BuildConfiguration() \
-    .with_build_directory("python_test_build") \
-    .with_build_mode("debug").with_rebuild(False)
-meta = og.config.OptimizerMeta() \
-    .with_optimizer_name("my_optimizer")
-builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-                                          build_config) \
-    .with_verbosity_level(1)
-builder.enable_c_bindings_generation()
+u = cs.SX.sym("u", 5)                 # decision variable (nu = 5)
+p = cs.SX.sym("p", 2)                 # parameter (np = 2)
+phi = og.functions.rosenbrock(u, p)   # cost function
+
+
+f2 = cs.fmax(0.0, u[2] - u[3] + 0.1)
+
+f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.2)
+C = og.constraints.Ball2(None, 1.0)
+
+UA = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1, 2, 4], [0, 5, -1]])
+UB = og.constraints.Ball2(None, 1.0)
+U = og.constraints.CartesianProduct(5, [2, 4], [UA, UB])
+
+problem = og.builder.Problem(u, p, phi)         \
+    .with_constraints(U)                        \
+    .with_aug_lagrangian_constraints(f1, C)
+
+meta = og.config.OptimizerMeta()                \
+    .with_version("0.0.0")                      \
+    .with_authors(["P. Sopasakis", "E. Fresk"]) \
+    .with_licence("CC4.0-By")                   \
+    .with_optimizer_name("the_optimizer")
+
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory("python_build")      \
+    .with_build_mode("debug")                  \
+    .with_tcp_interface_config()
+
+solver_config = og.config.SolverConfiguration()   \
+            .with_tolerance(1e-5)                 \
+            .with_initial_penalty(1000)           \
+            .with_initial_tolerance(1e-5)         \
+            .with_max_outer_iterations(30)        \
+            .with_delta_tolerance(1e-4)           \
+            .with_penalty_weight_update_factor(2) \
+            .with_sufficient_decrease_coefficient(0.5)
+
+builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          metadata=meta,
+                                          build_configuration=build_config,
+                                          solver_configuration=solver_config)
 builder.build()
 
-# # ---------------------------------------------------------------------------
-# # Use TCP server
-# # ---------------------------------------------------------------------------
-# mng = og.tcp.OptimizerTcpManager('python_test_build/my_optimizer')
-# mng.start()
-#
-# x_init = [10.0, 1.0]
-# mng.ping()
-# solution = mng.call(x_init)
-# print(solution['exit_status'])
-# print(solution['solve_time_ms'])
-# mng.kill()
+mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
+mng.start()
 
-# ---------------------------------------------------------------------------
-# Build parametric optimizer
-# ---------------------------------------------------------------------------
-# (nu, nx, N) = (2, 3, 60)
-# L = 0.5
-# ts = 0.05
-# (xref , yref, thetaref) = (2, 2, 0)
-# (q, qtheta, r, qN, qthetaN) = (10, 0.1, 1, 200, 2)
-#
-# u = cs.SX.sym('u', nu*N)
-# z0 = cs.SX.sym('z0', nx)
-#
-# (x, y, theta) = (z0[0], z0[1], z0[2])
-# cost = 0
-# c = 0
-# for t in range(0, N):
-#     cost += q * ((x - xref)**2 + (y - yref)**2) + qtheta * (theta - thetaref)**2
-#     u_t = u[t*nu:(t+1)*nu]
-#     theta_dot = (1/L) * (u_t[1] * cs.cos(theta) - u_t[0] * cs.sin(theta))
-#     cost += r * cs.dot(u_t, u_t)
-#     x += ts * (u_t[0] + L * cs.sin(theta) * theta_dot)
-#     y += ts * (u_t[1] - L * cs.cos(theta) * theta_dot)
-#     c += cs.fmax(0, 1 - x**2 - y**2)
-#     theta += ts * theta_dot
-#
-# cost = cost + qN*((x-xref)**2 + (y-yref)**2) + qthetaN*(theta-thetaref)**2
-#
-# umin = [-5.0] * (nu*N)
-# umax = [5.0] * (nu*N)
-# bounds = og.constraints.Rectangle(umin, umax)
-#
-# problem = og.builder.Problem(u, z0, cost).with_constraints(bounds).with_penalty_constraints(c)
-# build_config = og.config.BuildConfiguration() \
-#     .with_build_directory(".python_test_build") \
-#     .with_build_mode("release")
-# meta = og.config.OptimizerMeta() \
-#     .with_optimizer_name("navigation")
-# solver_config = og.config.SolverConfiguration().with_tolerance(1e-4)\
-#     .with_constraints_tolerance(1e-2) \
-#     .with_max_outer_iterations(5)     \
-#     .with_penalty_weight_update_factor(10.0)\
-#     .with_initial_penalty_weights(100.0)
-# builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-#                                           build_config, solver_config) \
-#     .with_verbosity_level(1)
-# builder.enable_c_bindings_generation()
-# builder.enable_tcp_interface()
-# builder.build()
+pong = mng.ping()                 # check if the server is alive
+print(pong)
+solution = mng.call([1.0, 50.0])  # call the solver over TCP
+print(json.dumps(solution, indent=4, sort_keys=False))
 
-
-
-#
-# # ---------------------------------------------------------------------------
-# # Plot solution
-# # ---------------------------------------------------------------------------
-# time = np.arange(0, ts*N, ts)
-# u_star = solution['solution']
-# ux = u_star[0:nu*N:2]
-# uy = u_star[1:nu*N:2]
-#
-# plt.subplot(211)
-# plt.plot(time, ux, '-o')
-# plt.ylabel('u_x')
-# plt.subplot(212)
-# plt.plot(time, uy, '-o')
-# plt.ylabel('u_y')
-# plt.xlabel('Time')
-# plt.show()
-#
-# # ---------------------------------------------------------------------------
-# # Plot trajectory
-# # ---------------------------------------------------------------------------
-# x_states = [0.0] * (nx*(N+2))
-# x_states[0:nx+1] = x_init
-# for t in range(0, N):
-#     u_t = u_star[t*nu:(t+1)*nu]
-#
-#     x = x_states[t * nx]
-#     y = x_states[t * nx + 1]
-#     theta = x_states[t * nx + 2]
-#
-#     theta_dot = (1/L) * (u_t[1] * np.cos(theta) - u_t[0] * np.sin(theta))
-#
-#     x_states[(t + 1) * nx] = x + ts * (u_t[0] + L * np.sin(theta) * theta_dot)
-#     x_states[(t + 1) * nx + 1] = y + ts * (u_t[1] - L * np.cos(theta) * theta_dot)
-#     x_states[(t + 1) * nx + 2] = theta + ts * theta_dot
-#
-# xx = x_states[0:nx*N:nx]
-# xy = x_states[1:nx*N:nx]
-#
-# print(x_states)
-# print(xx)
-#
-# t = np.arange(0, 6.4, 0.1)
-# x_circ = np.sin(t)
-# y_circ = np.cos(t)
-# plt.plot(x_circ, y_circ, 'r-')
-#
-# plt.plot(xx, xy, '-o')
-# plt.ylabel('y')
-# plt.xlabel('x')
-# plt.show()
-#
+mng.kill()

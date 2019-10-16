@@ -1,6 +1,6 @@
 //! # PANOC Example 1
 //!
-//! This example shows how to solve an optimization problem based on the [Rosenbrock function].
+//! This example shows how to minimize the [Rosenbrock function] subject to constraints.
 //!
 //! [Rosenbrock function]: https://en.wikipedia.org/wiki/Rosenbrock_function
 

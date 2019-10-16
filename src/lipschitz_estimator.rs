@@ -1,17 +1,48 @@
+#![deny(missing_docs)]
 //!
-//! Estimates a local Lipschitz constant for a given function `F: R^n -> R^n`
+//! Estimates a local Lipschitz constant for a mapping
+//! $F: \mathbb{R}^n \to \mathbb{R}^n$
 //!
-//! Functions are provided at closures.
+//! Functions are provided as closures.
 //!
 //! # Method
 //!
-//! This function computes a numerical approximation of the norm of the directional
-//! derivative of a function `F` along a direction `h = max {delta, epsilon*u}`, where `delta`
-//! and `epsilon` are small numbers.
+//! This method computes a numerical approximation of the norm of the directional
+//! derivative of a function $F:\mathbb{R}^n \to \mathbb{R}^n$ at a point $u\in\mathbb{R}^n$
+//! along a direction $h \in \mathbb{R}^n$ with $h_i = \max \\{\delta, \epsilon u_i\\}$,
+//! where $\delta$ and $\epsilon$ are given small numbers.
+//!
+//! The estimated (local) Lipschitz constant is
+//!
+//! $$
+//! L_F(u) = \frac{\Vert{}F(u + h) - F(u){}\Vert}{\Vert{}h{}\Vert}
+//! $$
+//!
+//! # Example
+//!
+//! ```
+//! use optimization_engine::{SolverError, lipschitz_estimator::LipschitzEstimator};
+//!
+//! pub fn F(u: &[f64], g: &mut [f64]) -> Result<(), SolverError> {
+//!     g[0] = 3.0 * u[0];
+//!     g[1] = 2.0 * u[1];
+//!     g[2] = 4.5;
+//!     Ok(())
+//! }
+//!
+//! let mut u: [f64; 3] = [1.0, 2.0, 3.0];
+//! let mut function_value = [0.0; 3];
+//! let mut lip_estimator = LipschitzEstimator::new(&mut u, &F, &mut function_value);
+//! let lip = lip_estimator.estimate_local_lipschitz();
+//! ```
 //!
 
 use crate::{matrix_operations, SolverError};
 
+const DEFAULT_DELTA: f64 = 1e-6;
+const DEFAULT_EPSILON: f64 = 1e-6;
+
+/// Structure for the computation of estimates of the Lipschitz constant of mappings
 pub struct LipschitzEstimator<'a, F>
 where
     F: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
@@ -40,17 +71,22 @@ where
 {
     /// Creates a new instance of this structure
     ///
-    /// Input arguments:
+    /// # Arguments
     ///
     /// - `u_` On entry: point where the Lipschitz constant is estimated,
     ///    On exit: the provided slice is modified (this is why it is a mutable
     ///    reference). The value of `u_` at exit is slightly perturbed. If you need
     ///    to keep the original value of `u_`, you need to make a copy of the variable
-    ///    before you provide it to this function.
+    ///    before you provide it to this method.
     /// - `f_` given closure
     /// - `function_value_` externally allocated memory which on exit stores the
     ///    value of the given function at `u_`, that is `f_(u_)`
-
+    ///
+    /// # Returns
+    ///
+    /// New instance of `LipschitzEstimator`
+    ///
+    ///
     pub fn new(
         u_: &'a mut [f64],
         f_: &'a F,
@@ -62,16 +98,20 @@ where
             workspace: vec![0.0_f64; n],
             function_value_at_u: function_value_,
             function: f_,
-            epsilon_lip: 1e-6,
-            delta_lip: 1e-6,
+            epsilon_lip: DEFAULT_EPSILON,
+            delta_lip: DEFAULT_DELTA,
         }
     }
 
     ///
     /// A setter method for `delta`
     ///
+    /// # Arguments
+    ///
+    /// - `delta`: parameter delta (the default value is `1e-6`)
+    ///
     /// # Panics
-    /// The function will panic if `delta` is non positive
+    /// The method will panic if `delta` is non positive
     ///
     pub fn with_delta(mut self, delta: f64) -> Self {
         assert!(delta > 0.0);
@@ -82,8 +122,12 @@ where
     ///
     /// A setter method for `epsilon`
     ///
+    /// # Arguments
+    ///
+    /// - `epsilon`: parameter epsilon  (the default value is `1e-6`)
+    ///
     /// # Panics
-    /// The function will panic if `epsilon` is non positive
+    /// The method will panic if `epsilon` is non positive
     ///
     pub fn with_epsilon(mut self, epsilon: f64) -> Self {
         assert!(epsilon > 0.0);
@@ -108,7 +152,7 @@ where
     ///
     /// Functions are closures of type `F` as shown here.
     ///
-    /// Output arguments:
+    /// # Returns
     ///
     /// - estimate of local Lipschitz constant (at point `u`)
     ///
@@ -165,7 +209,7 @@ where
         // workspace = F(u + h)
         (self.function)(self.u_decision_var, &mut self.workspace)?;
 
-        // workspace = F(u + h) - F(u, p)
+        // workspace = F(u + h) - F(u)
         self.workspace
             .iter_mut()
             .zip(self.function_value_at_u.iter())

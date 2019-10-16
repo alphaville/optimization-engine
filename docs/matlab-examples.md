@@ -7,6 +7,14 @@ title: Examples
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 
+<font color="blue"><b>IMPORTANT NOTE:</b> IN OpEn version 0.6.0 we have added support 
+for the augmented Lagrangian and penalty methods; this is not available through the 
+MATLAB interface at the moment. We would advise that the users use [`opengen`] in Python
+instead. The MATLAB interface will be updated soon - [stay tuned]</font>
+
+[`opengen`]: ./python-interface
+[stay tuned]: https://twitter.com/isToxic
+
 ## Navigation
 
 ### Problem statement

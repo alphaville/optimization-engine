@@ -1,4 +1,5 @@
-import re
+import re # regular expressions
+
 
 class OptimizerMeta:
     """Metadata of auto-generated parametric optimizer
@@ -18,14 +19,12 @@ class OptimizerMeta:
                  optimizer_authors=['John Smith']):
         """Constructor of OptimizerMeta
 
-        Args:
-            optimizer_name:     optimizer name (default: <code>"open_optimizer"</code>)
-            optimizer_version:  version (default: <code>"0.0.0"</code>)
-            optimizer_licence:  licence name or URL (default: <code>"MIT"</code>)
-            optimizer_authors:  list of authors, as list of strings (default: <code>["John Smith"]</code>)
+        :param optimizer_name:     optimizer name (default: `open_optimizer`)
+        :param optimizer_version:  version (default: `0.0.0`)
+        :param optimizer_licence:  licence name or URL (default: `MIT`)
+        :param optimizer_authors:  list of authors, as list of strings (default: `["John Smith"]`)
 
-        Returns:
-            New instance of OptimizerMeta
+        :returns: The current instance of OptimizerMeta
 
         Examples:
             >>> import opengen as og
@@ -46,11 +45,9 @@ class OptimizerMeta:
 
         Specify the version of the auto-generated optimizer.
 
-        Args:
-            optimizer_version: version of auto-generated optimizer
+        :param optimizer_version: version of auto-generated optimizer
 
-        Returns:
-            The current instance of OptimizerMeta
+        :returns: The current instance of OptimizerMeta
         """
         self.__optimizer_version = optimizer_version
         return self
@@ -58,11 +55,9 @@ class OptimizerMeta:
     def with_authors(self, optimizer_authors):
         """Specify list of authors
 
-        Args:
-            optimizer_authors: list of authors
+        :param optimizer_authors: list of authors
 
-        Returns:
-            The current instance of OptimizerMeta
+        :returns: The current instance of OptimizerMeta
         """
         self.__optimizer_author_list = optimizer_authors
         return self
@@ -70,15 +65,13 @@ class OptimizerMeta:
     def with_optimizer_name(self, optimizer_name):
         """Specify the name of the optimizer
 
-        Args:
-            optimizer_name: name of build, may only contain letters,
-            numbers and underscores, and may not start with a number
+        :param optimizer_name: name of build, may only contain letters,
+        numbers and underscores, and may not start with a number
 
-        Returns:
-            The current instance of OptimizerMeta
+        :returns: The current instance of OptimizerMeta
         """
 
-        if re.match("^[a-zA-Z_]+[\w]*$", optimizer_name):
+        if re.match(r"^[a-zA-Z_]+[\w]*$", optimizer_name):
             self.__optimizer_name = optimizer_name
             return self
         else:
@@ -87,11 +80,9 @@ class OptimizerMeta:
     def with_licence(self, optimizer_licence):
         """Specify licence of auto-generated code
 
-        Args:
-            optimizer_licence: licence name (e.g., MIT) or licence URL
+        :param optimizer_licence: licence name (e.g., MIT) or licence URL
 
-        Returns:
-            The current instance of OptimizerMeta
+        :returns: The current instance of OptimizerMeta
         """
         self.__optimizer_licence = optimizer_licence
         return self

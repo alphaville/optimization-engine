@@ -6,7 +6,13 @@ title: Homotopy method
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+
+<font color="red"><b>DEPRECATION NOTE:</b> Since version `0.6.1-alpha.3`, this functionality 
+is <b>deprecated</b> and has been <b>superseded</b> by `alm`. It is due to be completely removed in a 
+future release.</font>
+
 ![Rust Programming](/optimization-engine/img/rust1.jpeg)
+
 
 ## Problem statement
 

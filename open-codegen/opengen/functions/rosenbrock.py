@@ -1,11 +1,11 @@
-import casadi.casadi as cs
+from opengen.functions.is_symbolic import *
 
 
 def rosenbrock(u_, p_):
     """Rosenbrock functions with parameters <code>p = [a, b]</code>"""
-    if not isinstance(p_, cs.SX) or p_.size()[0] != 2:
+    if not is_symbolic(p_) or p_.size()[0] != 2:
         raise Exception('illegal parameter p_ (must be SX of size (2,1))')
-    if not isinstance(u_, cs.SX):
+    if not is_symbolic(u_):
         raise Exception('illegal parameter u_ (must be SX)')
     nu = u_.size()[0]
     a = p_[0]

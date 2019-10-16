@@ -2,8 +2,7 @@
   "docs": {
     "OpEn Guide": [
       "open-intro",
-      "installation",
-      "algorithm"
+      "installation"
     ],
     "Python": [
       "python-interface",
@@ -14,16 +13,23 @@
     ],
     "MATLAB": [
       "matlab-interface",
-      "udp-sockets",
       "matlab-examples"
     ],
     "Rust": [
       "openrust-basic",
-      "openrust-homotopy"
+      "openrust-alm"
     ],
     "Extras": [
+      "algorithm",
       "faq",
       "contributing"
+    ]
+  },
+  "examples": {
+    "Python": [
+      "example_rosenbrock_py",
+      "example_navigation_py",
+      "example_estimation_py"
     ]
   },
   "docs-other": {

@@ -12,7 +12,7 @@ title: Basic usage
 **OpEn** can solve problems of the form:
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
 \mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
 where $f$ is a $C^{1,1}$ function (continuously diff/ble with Lipschitz-continuous gradient) and $U$ is a set on which we may project.
@@ -59,9 +59,16 @@ let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
 Constraints implement the namesake trait, [`Constraint`]. Implementations of [`Constraint`] implement the method `project` which computes projections on the set of constraints. This way, users can implement their own constraints. **OpEn** comes with the following implementations of [`Constraint`]:
 
 
-- Euclidean balls ([`Ball2`]), $U= \\{u\in\mathbb{R}^n : \|u\|_2 \leq r\\}$
-- Rectangles ([`Rectangle`]), $U= \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$
-- No Constraints ([`NoConstraints`]), $U = \mathbb{R}^n$
+| Constraint           | Explanation                                          |
+|----------------------|------------------------------------------------------|
+| [`Ball2`]            | $U= \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$         |
+| [`BallInf`]          | $U= \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$         |
+| [`Rectangle`]        | $U= \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
+| [`NoConstraints`]    | $U = \mathbb{R}^n$                                   |
+| [`FiniteSet`]        | $U = \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
+| [`SecondOrderCone`]  | $U = \\{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\\}$ |
+| [`Zero`]             | $U = \\{0\\}$                                        |
+| [`CartesianProduct`] | Cartesian products of any of the above               |
 
 These are the most common constraints in practice.
 
@@ -109,7 +116,7 @@ let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache)
     .with_max_iter(max_iters);
 ```
 
-We may then call the solver using the method `solve` providing an initial guess:
+We may then call the solver using the method [`solve`] providing an initial guess:
 
 ```rust
 let status = panoc.solve(&mut u).unwrap();
@@ -117,7 +124,7 @@ let status = panoc.solve(&mut u).unwrap();
 
 This will return the solver status (if it is successful) and will update `u` with the solution.
 
-**Note:** The algorithm may, in general, return an error (instance of `SolverError`), this is
+**Note:** The algorithm may, in general, return an error (instance of [`SolverError`]), this is
 why the caller function should not use `unwrap` directly, but should rather check whether the
 solver returned an error. The error can be propagated upstream using `let status = panoc.solve(&mut u)?;`.
 
@@ -130,11 +137,11 @@ The minimization of the [Rosenbrock function](https://en.wikipedia.org/wiki/Rose
 is a challenging problem in optimization. 
 The Rosenbrock function in two dimensions with parameters $a$ and $b$ is defined as follows:
 
-<div class="math">\[f(u; a, b) = (a - u_1)^2 + b(u_2 - u_1^2)^2,\]</div>
+<div class="math">\[f(u, a, b) = (a - u_1)^2 + b(u_2 - u_1^2)^2,\]</div>
 
 with gradient
 
-<div class="math">\[\nabla f(u; a, b) = \begin{bmatrix}
+<div class="math">\[\nabla f(u, a, b) = \begin{bmatrix}
 2 (u_1-a) - 4bu_1(u_2 - u_1^2)
 \\
 2b(u_2 - u_1^2)
@@ -203,7 +210,7 @@ This example can be found in [`examples/panoc_ex1.rs`](https://github.com/alphav
 In embedded applications, we typically need to solve parametric problems, that is, problems of the form
 
 <div class="math">
-\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u; p)\\
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\
 \mathrm{subject\ to} &amp;\ \ u \in U(p)\end{split}\]</div>
 
 where $u$ is the decision variable and $p$ is a parameter.
@@ -335,10 +342,20 @@ a maximum time duration, after which the solver stops. If it fails to converge b
 the imposition of a maximum allowed duration, the exit status will be 
 [`ExitStatus::NotConvergedOutOfTime`].
 
+## Examples
+
+- [`panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex1.rs)
+- [`panoc_ex2.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex2.rs)
+
 <!-- Links -->
 
 [`Constraint`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/trait.Constraint.html
 [`Ball2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html
+[`BallInf`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html
+[`Zero`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html
+[`FiniteSet`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html
+[`CartesianProduct`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.CartesianProduct.html
+[`SecondOrderCone`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.SecondOrderCone.html
 [`Rectangle`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Rectangle.html
 [`NoConstraints`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.NoConstraints.html
 [`SolverError`]: https://docs.rs/optimization_engine/*/optimization_engine/enum.SolverError.html
@@ -350,3 +367,4 @@ the imposition of a maximum allowed duration, the exit status will be
 [`with_max_duration`]: https://docs.rs/optimization_engine/*/optimization_engine/core/panoc/struct.PANOCOptimizer.html#method.with_max_duration
 [exit status]: https://docs.rs/optimization_engine/*/optimization_engine/core/enum.ExitStatus.html
 [`ExitStatus::NotConvergedOutOfTime`]: https://docs.rs/optimization_engine/*/optimization_engine/core/enum.ExitStatus.html#variant.NotConvergedOutOfTime
+[`solve`]: https://docs.rs/optimization_engine/*/optimization_engine/core/trait.Optimizer.html#tymethod.solve

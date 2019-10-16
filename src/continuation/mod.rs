@@ -1,3 +1,5 @@
+//! *Deprecated* - use `alm` instead
+//!
 //! Continuation/Homotopy methods for parametric optimization problems
 //!
 //! Consider a parametric optimization problem of the general form
@@ -60,5 +62,5 @@ pub enum ContinuationMode {
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+//mod tests;

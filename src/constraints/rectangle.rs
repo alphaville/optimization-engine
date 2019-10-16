@@ -1,17 +1,39 @@
 use super::Constraint;
 
+#[derive(Clone, Copy)]
 ///
-/// A rectangle
+/// A rectangle, $R = \\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$
 ///
-/// A set of the form `{x : xmin <= x <= xmax}`, where `<=` is meant in the
-/// element-wise sense and either of `xmin` and `xmax` can be equal to infinity.
+/// A set of the form $\\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$,
+/// where $\leq$ is meant in the element-wise sense and either of $x_{\min}$ and $x_{\max}$ can
+/// be equal to infinity.
 pub struct Rectangle<'a> {
     xmin: Option<&'a [f64]>,
     xmax: Option<&'a [f64]>,
 }
 
 impl<'a> Rectangle<'a> {
-    /// Construct a new rectangle with given `xmin` and `xmax`
+    /// Construct a new rectangle with given $x_{\min}$ and $x_{\max}$
+    ///
+    /// # Arguments
+    ///
+    /// - `xmin`: minimum value of `x`
+    /// - `xmin`: maximum value of `x`
+    ///
+    /// # Note
+    ///
+    /// Rectangle does not copy `xmin` and `xmax` internally; it only keeps
+    /// a reference. You may set one of `xmin` and `xmax` to `None` (but not
+    /// both).
+    ///
+    /// # Panics
+    ///
+    /// The method panics if:
+    ///
+    /// - Both `xmin` and `xmax` are `None` (use `NoConstraints` instead)
+    /// - Both `xmin` and `xmax` have been provided, but they have incompatible
+    ///   dimensions
+    ///
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Rectangle<'a> {
         assert!(xmin != None || xmax != None); // xmin or xmax must be Some
         assert!(
@@ -39,5 +61,9 @@ impl<'a> Constraint for Rectangle<'a> {
                 };
             });
         }
+    }
+
+    fn is_convex(&self) -> bool {
+        true
     }
 }
