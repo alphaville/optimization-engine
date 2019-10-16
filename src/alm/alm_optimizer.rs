@@ -713,7 +713,9 @@ where
                 alm_cache
                     .available_time
                     .unwrap_or(std::time::Duration::from_secs(std::u64::MAX)),
-            );
+            )
+            // Set the maximum number of inner iterations
+            .with_max_iter(self.max_inner_iterations);
         // this method returns the result of .solve:
         inner_solver.solve(u)
     }

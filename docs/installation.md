@@ -68,5 +68,5 @@ To use **OpEn** in your Rust project, add the following in your project's `Cargo
 optimization_engine = "*"
 ```
 
-You may replace the asterisk with some particular version (e.g., `optimization_engine = "0.2.0"`).
+You may replace the asterisk with some particular version (e.g., `optimization_engine = "0.6.0"`).
 **OpEn** is available on [crates.io](https://crates.io/crates/optimization_engine).

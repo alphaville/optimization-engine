@@ -22,6 +22,7 @@ import opengen as og
 ```
 
 In order to build the auto-generated code, you need the 
-Rust compiler. This is still work in progress. Further
-documentation will be provided soon.
+Rust compiler.
 
+For detailed documentation, please refer to 
+[OpEn's website](https://alphaville.github.io/optimization-engine/).

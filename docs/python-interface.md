@@ -167,7 +167,7 @@ plan to use the optimizer on an embedded device.
 *Note.* You may configure the TCP parameters of the server by providing 
 to `.with_tcp_interface_config()` a `TcpServerConfiguration` object. 
 By default, the server will bind on `127.0.0.1` and will listen for 
-requests at port `4598`. See the [advanced options] for details.
+requests at port `8333`. See the [advanced options] for details.
 
 [advanced options]: /optimization-engine/docs/python-advanced#tcp-ip-options
 
