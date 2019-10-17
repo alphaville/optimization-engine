@@ -15,10 +15,26 @@ const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
 const SMALL_EPSILON: f64 = std::f64::EPSILON;
 
+/// Internal/private structure used by method AlmOptimizer.step
+/// to return some minimal information about the inner problem
 struct InnerProblemStatus {
-    do_continue: bool,
+    /// whether the outer solver should continue iterating
+    /// This is `true` if and only if the an (epsilon,delta)-AKKT
+    /// point has not been found so far
+    outer_continue_iterating: bool,
+    /// whether the inner optimization problem has converged
     inner_problem_converged: bool,
 }
+
+impl InnerProblemStatus {
+    fn new(outer_continue_iterating: bool, inner_problem_converged: bool) -> Self {
+        InnerProblemStatus {
+            outer_continue_iterating,
+            inner_problem_converged,
+        }
+    }
+}
+
 /// Implements the ALM/PM method
 ///
 /// `AlmOptimizer` solves the problem
@@ -844,10 +860,7 @@ where
         if self.is_exit_criterion_satisfied() {
             // Do not continue the outer iteration
             // An (epsilon, delta)-AKKT point has been found
-            return Ok(InnerProblemStatus {
-                do_continue: false,
-                inner_problem_converged: has_converged,
-            });
+            return Ok(InnerProblemStatus::new(false, has_converged));
         } else if !self.is_penalty_stall_criterion() {
             self.update_penalty_parameter();
         }
@@ -859,10 +872,7 @@ where
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
 
-        return Ok(InnerProblemStatus {
-            do_continue: true,
-            inner_problem_converged: has_converged,
-        }); // `true` means do continue the outer iterations
+        return Ok(InnerProblemStatus::new(true, has_converged)); // `true` means do continue the outer iterations
     }
 
     /* ---------------------------------------------------------------------------- */
@@ -885,7 +895,7 @@ where
 
         let mut do_continue: bool = true;
         let mut inner = InnerProblemStatus {
-            do_continue: false,
+            outer_continue_iterating: false,
             inner_problem_converged: false,
         };
         for _outer_iters in 1..=self.max_outer_iterations {
@@ -899,14 +909,16 @@ where
             }
             num_outer_iterations += 1;
             inner = self.step(u)?;
-            do_continue = inner.do_continue;
+            do_continue = inner.outer_continue_iterating;
             if !do_continue {
                 break;
             }
         }
 
-        // TODO: !!!!!DOCUMENTATION!!!!
-        if exit_status == ExitStatus::Converged && !inner.inner_problem_converged {
+        // after outer loop: if the outer loop has terminated, and it was no interrupted
+        // because it ran out of time, then we should check whether the last inner
+        // problem was successfully solved; if not, we should return `NotConvergedIterations`
+        if exit_status != ExitStatus::NotConvergedOutOfTime && !inner.inner_problem_converged {
             exit_status = ExitStatus::NotConvergedIterations;
         }
         // after outer loop: if the maximum number of outer iterations was reached
@@ -916,6 +928,7 @@ where
             exit_status = ExitStatus::NotConvergedIterations;
         }
 
+        // obtain the penalty parameter
         let c = if let Some(xi) = &self.alm_cache.xi {
             xi[0]
         } else {
