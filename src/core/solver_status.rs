@@ -9,7 +9,7 @@ use std::time;
 /// This structure contais information about the solver status. Instances of
 /// `SolverStatus` are returned by optimizers.
 ///
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct SolverStatus {
     /// exit status of the algorithm
     exit_status: ExitStatus,
