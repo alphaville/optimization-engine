@@ -124,6 +124,7 @@ class RustBuildTestCase(unittest.TestCase):
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpPlain()
+        cls.setUpOnlyParametricF2()
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
