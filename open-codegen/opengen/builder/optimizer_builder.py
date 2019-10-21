@@ -532,8 +532,7 @@ class OpEnOptimizerBuilder:
             if self.__build_config.tcp_interface_config is not None:
                 logging.info("Generating TCP/IP server")
                 self.__generate_code_tcp_interface()
-                if not self.__generate_not_build:
-                    self.__build_tcp_iface()
+                self.__build_tcp_iface()
 
         if self.__build_config.build_c_bindings:
             self.__generate_c_bindings_example()
