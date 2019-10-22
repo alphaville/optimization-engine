@@ -22,31 +22,31 @@
 /*
  * Cost sizes
  */
-#define COST_SZ_ARG {{ cost.sz_arg() }}
-#define COST_SZ_IW {{ cost.sz_iw() }}
-#define COST_SZ_W {{ cost.sz_w() }}
-#define COST_SZ_RES {{ cost.sz_res() }}
+#define COST_SZ_ARG_{{ meta.optimizer_name | upper}} {{ cost.sz_arg() }}
+#define COST_SZ_IW_{{ meta.optimizer_name | upper}} {{ cost.sz_iw() }}
+#define COST_SZ_W_{{ meta.optimizer_name | upper}} {{ cost.sz_w() }}
+#define COST_SZ_RES_{{ meta.optimizer_name | upper}} {{ cost.sz_res() }}
 
 /*
  * Gradient sizes
  */
-#define GRAD_SZ_ARG {{ grad.sz_arg() }}
-#define GRAD_SZ_IW {{ grad.sz_iw() }}
-#define GRAD_SZ_W {{ grad.sz_w() }}
-#define GRAD_SZ_RES {{ grad.sz_res() }}
+#define GRAD_SZ_ARG_{{ meta.optimizer_name | upper}} {{ grad.sz_arg() }}
+#define GRAD_SZ_IW_{{ meta.optimizer_name | upper}} {{ grad.sz_iw() }}
+#define GRAD_SZ_W_{{ meta.optimizer_name | upper}} {{ grad.sz_w() }}
+#define GRAD_SZ_RES_{{ meta.optimizer_name | upper}} {{ grad.sz_res() }}
 
 /*
  * F1 sizes
  */
-#define F1_SZ_ARG {{ f1.sz_arg() }}
-#define F1_SZ_IW {{ f1.sz_iw() }}
-#define F1_SZ_W {{ f1.sz_w() }}
-#define F1_SZ_RES {{ f1.sz_res() }}
+#define F1_SZ_ARG_{{ meta.optimizer_name | upper}} {{ f1.sz_arg() }}
+#define F1_SZ_IW_{{ meta.optimizer_name | upper}} {{ f1.sz_iw() }}
+#define F1_SZ_W_{{ meta.optimizer_name | upper}} {{ f1.sz_w() }}
+#define F1_SZ_RES_{{ meta.optimizer_name | upper}} {{ f1.sz_res() }}
 
 /*
  * F2 sizes
  */
-#define F2_SZ_ARG {{ f2.sz_arg() }}
-#define F2_SZ_IW {{ f2.sz_iw() }}
-#define F2_SZ_W {{ f2.sz_w() }}
-#define F2_SZ_RES {{ f2.sz_res() }}
+#define F2_SZ_ARG_{{ meta.optimizer_name | upper}} {{ f2.sz_arg() }}
+#define F2_SZ_IW_{{ meta.optimizer_name | upper}} {{ f2.sz_iw() }}
+#define F2_SZ_W_{{ meta.optimizer_name | upper}} {{ f2.sz_w() }}
+#define F2_SZ_RES_{{ meta.optimizer_name | upper}} {{ f2.sz_res() }}
