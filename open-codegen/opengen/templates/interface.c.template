@@ -194,7 +194,9 @@ static casadi_real **result_space_f2 = NULL;
  * that is, uxip_space = [u, xi, p]
  *
  * 0        NU-1      NU          NU+NXI-1   NU+NX          NU+NXI+NP-1
- * |----u-----|       |-----xi--------|       |------p-----------|
+ * |--- u ----|       |---- xi -------|       |----- p ----------|
+ * |                                                             |
+ * |------------------- uxip_space ------------------------------|
  */
 static casadi_real uxip_space[NU+NXI+NP];
 
@@ -258,9 +260,20 @@ int grad_cost_function(const casadi_real** arg, casadi_real** res) {
 /* ------MAPPING F1------------------------------------------------------------- */
 
 int mapping_f1_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[F1_SZ_ARG] = {uxip_space, uxip_space + NU};
+    /* Array of pointers to where (u, p) are stored */
+    const casadi_real* args__[F1_SZ_ARG] = {uxip_space,              /* :u     */
+                                            uxip_space + NU + NXI};  /* :p     */
+    /* Copy given data to variable `uxip_space` */
     copy_args_into_up_space(arg);
+    /*
+     * The result should be written in result_space_f1
+     * (memory has been allocated - see beginning of this file)
+     */
     result_space_f1[0] = res[0];
+    /*
+     * Call auto-generated function {{build_config.alm_mapping_f1_function_name}}
+     * Implemented in: icasadi/extern/auto_casadi_mapping_f1.c
+     */
     return {{build_config.alm_mapping_f1_function_name}}(
         args__,
         result_space_f1,
@@ -273,9 +286,20 @@ int mapping_f1_function(const casadi_real** arg, casadi_real** res) {
 /* ------MAPPING F2------------------------------------------------------------- */
 
 int mapping_f2_function(const casadi_real** arg, casadi_real** res) {
-    const casadi_real* args__[F2_SZ_ARG] = {uxip_space, uxip_space + NU};
+    /* Array of pointers to where (u, p) are stored */
+    const casadi_real* args__[F2_SZ_ARG] = {uxip_space,              /* :u     */
+                                            uxip_space + NU + NXI};  /* :p     */
+    /* Copy given data to variable `uxip_space` */
     copy_args_into_up_space(arg);
+    /*
+     * The result should be written in result_space_f2
+     * (memory has been allocated - see beginning of this file)
+     */
     result_space_f2[0] = res[0];
+    /*
+     * Call auto-generated function {{build_config.constraint_penalty_function_name}}
+     * Implemented in: icasadi/extern/auto_casadi_mapping_f2.c
+     */
     return {{build_config.constraint_penalty_function_name}}(
         args__,
         result_space_f2,

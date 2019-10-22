@@ -30,14 +30,13 @@ class RustBuildTestCase(unittest.TestCase):
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         f1 = cs.vertcat(1.5 * u[0] - u[1], u[2] - u[3])
         set_c = og.constraints.Rectangle(xmin=[-0.01, -0.01], xmax=[0.02, 0.03])
-        set_y = og.constraints.BallInf(None, 1e12)
         phi = og.functions.rosenbrock(u, p)  # cost function
         bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
         tcp_config = og.config.TcpServerConfiguration(bind_port=3301)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("only_f1")
         problem = og.builder.Problem(u, p, phi) \
-            .with_aug_lagrangian_constraints(f1, set_c, set_y) \
+            .with_aug_lagrangian_constraints(f1, set_c) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
@@ -97,10 +96,35 @@ class RustBuildTestCase(unittest.TestCase):
             .build()
 
     @classmethod
+    def setUpOnlyParametricF2(cls):
+        u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
+        p = cs.MX.sym("p", 3)  # parameter (np = 3)
+        f2 = u[0] - p[2]
+        phi = og.functions.rosenbrock(u, cs.vertcat(p[0], p[1]))  # cost function
+        bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
+        tcp_config = og.config.TcpServerConfiguration(bind_port=4599)
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("parametric_f2")
+        problem = og.builder.Problem(u, p, phi) \
+            .with_penalty_constraints(f2) \
+            .with_constraints(bounds)
+        build_config = og.config.BuildConfiguration() \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode("debug") \
+            .with_tcp_interface_config(tcp_interface_config=tcp_config) \
+            .with_build_c_bindings()
+        solver_config = og.config.SolverConfiguration() \
+            .with_tolerance(1e-6) \
+            .with_initial_tolerance(1e-4) \
+            .with_delta_tolerance(1e-5)
+        og.builder.OpEnOptimizerBuilder(problem, meta, build_config, solver_config).build()
+
+    @classmethod
     def setUpClass(cls):
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpPlain()
+        cls.setUpOnlyParametricF2()
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -224,6 +248,20 @@ class RustBuildTestCase(unittest.TestCase):
         # Regular call
         response = mng.call(p=[2.0, 10.0])
         self.assertEqual("Converged", response["exit_status"])
+
+        mng.kill()
+
+    def test_rust_build_parametric_f2(self):
+        # introduced to tackle issue #123
+        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/parametric_f2')
+        mng.start()
+        pong = mng.ping()  # check if the server is alive
+        self.assertEqual(1, pong["Pong"])
+
+        # Regular call
+        response = mng.call(p=[1.0, 1.0, 0.5])
+        self.assertEqual("Converged", response["exit_status"])
+        self.assertTrue(response["f2_norm"] < 1e-4)
 
         mng.kill()
 
