@@ -48,7 +48,9 @@ meta = og.config.OptimizerMeta()                   \
     .with_optimizer_name("tcp_enabled_optimizer")
 solver_config = og.config.SolverConfiguration()    \
     .with_tolerance(1e-5)                          \
-    .with_constraints_tolerance(1e-4)
+    .with_delta_tolerance(1e-4)                    \
+    .with_initial_penalty(1e3)                     \
+    .with_penalty_weight_update_factor(5)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
                                           build_config, solver_config)
 builder.build()
@@ -67,6 +69,7 @@ mng.kill()
 
 <!--MATLAB-->
 ```matlab
+% NOTE: The MATLAB API is currently unstable and very likely to change
 % Define variables
 % ------------------------------------
 u = casadi.SX.sym('u', 5);

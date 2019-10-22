@@ -29,7 +29,10 @@
     "Python": [
       "example_rosenbrock_py",
       "example_navigation_py",
-      "example_estimation_py"
+      "example_estimation_py",
+      "example_bnp_py",
+      "example_tanks_py",
+      "example_invpend_py"
     ]
   },
   "docs-other": {
