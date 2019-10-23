@@ -18,7 +18,8 @@ publish=false
 
 
 [dependencies]
-optimization_engine = "{{open_version or '0.6.0'}}"
+optimization_engine = "{{open_version or '0.6.1'}}"
+
 icasadi = {path = "./icasadi/"}
 {% if activate_clib_generation -%}
 libc = "0.2.0"

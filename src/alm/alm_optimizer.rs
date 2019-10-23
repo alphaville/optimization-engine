@@ -15,6 +15,26 @@ const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
 const SMALL_EPSILON: f64 = std::f64::EPSILON;
 
+/// Internal/private structure used by method AlmOptimizer.step
+/// to return some minimal information about the inner problem
+struct InnerProblemStatus {
+    /// whether the outer solver should continue iterating
+    /// This is `true` if and only if the an (epsilon,delta)-AKKT
+    /// point has not been found so far
+    outer_continue_iterating: bool,
+    /// status of the inner optimization problem
+    inner_problem_exit_status: ExitStatus,
+}
+
+impl InnerProblemStatus {
+    fn new(outer_continue_iterating: bool, inner_problem_exit_status: ExitStatus) -> Self {
+        InnerProblemStatus {
+            outer_continue_iterating,
+            inner_problem_exit_status,
+        }
+    }
+}
+
 /// Implements the ALM/PM method
 ///
 /// `AlmOptimizer` solves the problem
@@ -810,7 +830,11 @@ where
     /// - Shrinks the inner tolerance and
     /// - Updates the ALM cache
     ///
-    fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError> {
+    fn step(&mut self, u: &mut [f64]) -> Result<InnerProblemStatus, SolverError> {
+        // store the exit status of the inner problem in this problem
+        // (we'll need to return it within `InnerProblemStatus`)
+        let mut inner_exit_status: ExitStatus = ExitStatus::Converged;
+
         // Project y on Y
         self.project_on_set_y();
 
@@ -821,10 +845,11 @@ where
             let inner_iters = status.iterations();
             self.alm_cache.last_inner_problem_norm_fpr = status.norm_fpr();
             self.alm_cache.inner_iteration_count += inner_iters;
+            inner_exit_status = status.exit_status();
         })?;
 
         // TODO: Check whether the inner problem has converged; set a limit on
-        // FPR above which the outer loop cannot reduce the error
+        // FPR above which the outer loop cannot reduce the error? (not sure how)
 
         // Update Lagrange multipliers:
         // y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]
@@ -838,7 +863,7 @@ where
         if self.is_exit_criterion_satisfied() {
             // Do not continue the outer iteration
             // An (epsilon, delta)-AKKT point has been found
-            return Ok(false);
+            return Ok(InnerProblemStatus::new(false, inner_exit_status));
         } else if !self.is_penalty_stall_criterion() {
             self.update_penalty_parameter();
         }
@@ -850,7 +875,7 @@ where
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
 
-        return Ok(true); // `true` means do continue the outer iterations
+        return Ok(InnerProblemStatus::new(true, inner_exit_status)); // `true` means do continue the outer iterations
     }
 
     /* ---------------------------------------------------------------------------- */
@@ -871,27 +896,45 @@ where
             .panoc_cache
             .set_akkt_tolerance(self.epsilon_inner_initial);
 
-        let mut do_continue: bool = true;
+        let mut inner = InnerProblemStatus::new(false, ExitStatus::Converged);
         for _outer_iters in 1..=self.max_outer_iterations {
             if let Some(max_duration) = self.max_duration {
                 let available_time_left = max_duration.checked_sub(tic.elapsed());
                 self.alm_cache.available_time = available_time_left;
                 if available_time_left.is_none() {
-                    exit_status = ExitStatus::NotConvergedOutOfTime; // no time left!
+                    // no time left for outer iterations!
+                    exit_status = ExitStatus::NotConvergedOutOfTime;
                     break;
                 }
             }
             num_outer_iterations += 1;
-            do_continue = self.step(u)?;
-            if !do_continue {
+            inner = self.step(u)?;
+            if inner.inner_problem_exit_status == ExitStatus::NotConvergedOutOfTime {
+                // the inner problem solver says there was no time left
+                exit_status = ExitStatus::NotConvergedOutOfTime;
+                break;
+            }
+            if !inner.outer_continue_iterating {
                 break;
             }
         }
 
-        if num_outer_iterations == self.max_outer_iterations && do_continue {
+        // after outer loop: if the outer loop has terminated, and it was no interrupted
+        // because it ran out of time, then the final exit status should be the exit
+        // status of the last inner problem (the last inner problem determines the success
+        // or failure of the overall computation)
+        if exit_status != ExitStatus::NotConvergedOutOfTime {
+            exit_status = inner.inner_problem_exit_status;
+        }
+
+        // after outer loop: if the maximum number of outer iterations was reached
+        // and the last invocation to self.step() suggests that the outer loop should
+        // continue, this means that the solver reached the max num of OUTER iterations
+        if num_outer_iterations == self.max_outer_iterations && inner.outer_continue_iterating {
             exit_status = ExitStatus::NotConvergedIterations;
         }
 
+        // obtain the penalty parameter
         let c = if let Some(xi) = &self.alm_cache.xi {
             xi[0]
         } else {
