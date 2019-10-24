@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! FBS Algorithm
 //!
 use crate::{

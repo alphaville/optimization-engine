@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use super::Constraint;
 use crate::matrix_operations;
 

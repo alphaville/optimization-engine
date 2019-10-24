@@ -1,3 +1,4 @@
+#![deny(missing_docs)] 
 use crate::panoc::PANOCCache;
 
 const DEFAULT_INITIAL_PENALTY: f64 = 10.0;

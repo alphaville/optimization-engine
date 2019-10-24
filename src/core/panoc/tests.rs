@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::core::panoc::panoc_engine::PANOCEngine;
 use crate::core::panoc::*;
 use crate::core::*;

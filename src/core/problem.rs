@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! An optimization problem
 //!
 //! This struct defines an optimization problem in terms of its cost function

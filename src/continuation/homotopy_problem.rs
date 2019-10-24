@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::{constraints, SolverError};
 
 /// Homotopy problem definition

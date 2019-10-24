@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use super::super::*;
 use super::*;
 use crate::constraints;

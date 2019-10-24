@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 const DEFAULT_SY_EPSILON: f64 = 1e-10;
 const DEFAULT_CBFGS_EPSILON: f64 = 1e-8;
 const DEFAULT_CBFGS_ALPHA: f64 = 1.0;

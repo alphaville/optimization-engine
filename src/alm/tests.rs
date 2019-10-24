@@ -1,3 +1,4 @@
+#![deny(missing_docs)] 
 use crate::{
     alm::*,
     core::{constraints::*, panoc::*, ExitStatus},

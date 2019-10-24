@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! # matrix_operations
 //!
 //! Simple algebraic operations used by Optimization Engine

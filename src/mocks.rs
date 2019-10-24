@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::{matrix_operations, SolverError};
 
 pub const SOLUTION_A: [f64; 2] = [-0.14895971825577, 0.13345786727339];

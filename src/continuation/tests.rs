@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::continuation;
 use crate::core::constraints::Ball2;
 use crate::core::panoc::*;

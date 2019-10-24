@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! *Deprecated* - use `alm` instead
 //!
 //! Continuation/Homotopy methods for parametric optimization problems

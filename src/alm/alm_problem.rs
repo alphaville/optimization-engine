@@ -1,3 +1,4 @@
+#![deny(missing_docs)] 
 use crate::{constraints::Constraint, SolverError};
 
 /// Definition of optimization problem to be solved with `AlmOptimizer`. The optimization

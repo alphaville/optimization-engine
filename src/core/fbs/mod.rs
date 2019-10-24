@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+
 //! Forward-Backward Splitting algorithm
 //!
 //! ## About

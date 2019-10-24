@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::{continuation::ContinuationMode, panoc::*};
 
 #[derive(Debug)]

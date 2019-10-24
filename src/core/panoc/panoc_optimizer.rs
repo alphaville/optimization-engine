@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! PANOC optimizer
 //!
 use crate::{

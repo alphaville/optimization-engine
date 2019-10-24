@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! Status of the result of a solver (number of iterations, etc)
 //!
 //!

@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::{constraints::*, core::fbs::*, core::*};
 use std::num::NonZeroUsize;
 

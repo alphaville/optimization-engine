@@ -5,6 +5,7 @@
 /*        prepares psi and d_psi, which can be used to define an AlmOptimizer   */
 /* ---------------------------------------------------------------------------- */
 
+#![deny(missing_docs)]
 use crate::{constraints::Constraint, matrix_operations, SolverError};
 
 /// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,

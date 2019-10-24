@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use super::Constraint;
 
 /// Cartesian product of constraints

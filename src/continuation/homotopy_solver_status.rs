@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use crate::core::ExitStatus;
 /// Solver status of the homotopy method
 ///
