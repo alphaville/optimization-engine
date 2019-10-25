@@ -2,7 +2,7 @@ import unittest
 import casadi.casadi as cs
 import opengen as og
 import subprocess
-
+import logging as lg
 
 class RustBuildTestCase(unittest.TestCase):
 
@@ -121,6 +121,7 @@ class RustBuildTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        lg.basicConfig(level=lg.INFO)
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpPlain()

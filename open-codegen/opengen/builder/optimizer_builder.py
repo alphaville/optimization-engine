@@ -50,7 +50,7 @@ class OpEnOptimizerBuilder:
         self.__build_config = build_configuration
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
-        self.__verbosity_level = 0
+        self.__logger = logging.getLogger('opengen.builder.OpEnOptimizerBuilder')
 
     def with_verbosity_level(self, verbosity_level):
         """Specify the verbosity level
@@ -59,7 +59,13 @@ class OpEnOptimizerBuilder:
 
         :returns: Current builder object
         """
-        self.__verbosity_level = verbosity_level
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(verbosity_level)
+        c_format = logging.Formatter('[%(levelname)s] %(message)s')
+        stream_handler.setFormatter(c_format)
+        self.__logger.setLevel(verbosity_level)
+        self.__logger.addHandler(stream_handler)
+
         return self
 
     def with_problem(self, problem):
@@ -127,7 +133,7 @@ class OpEnOptimizerBuilder:
         Runs `cargo init` in that folder
 
         """
-        logging.info("Creating necessary folders")
+        self.__logger.info("Creating necessary folders")
 
         # Create target directory if it does not exist
         target_dir = self.__target_dir()
@@ -144,7 +150,7 @@ class OpEnOptimizerBuilder:
         Copy 'icasadi' folder and its contents into target directory
 
         """
-        logging.info("Copying icasadi interface to target directory")
+        self.__logger.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self.__icasadi_target_dir()
         if not os.path.exists(target_icasadi_dir):
@@ -160,7 +166,7 @@ class OpEnOptimizerBuilder:
         Generates the C interface file interface.c
 
         """
-        logging.info("Generating intercafe.c (C interface)")
+        self.__logger.info("Generating intercafe.c (C interface)")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('interface.c.template')
@@ -179,7 +185,7 @@ class OpEnOptimizerBuilder:
 
         Generates src/lib.rs
         """
-        logging.info("Generating icasadi Rust library file")
+        self.__logger.info("Generating icasadi Rust library file")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('icasadi_lib.rs.template')
@@ -197,7 +203,7 @@ class OpEnOptimizerBuilder:
         Generates Cargo.toml for generated project
 
         """
-        logging.info("Generating Cargo.toml for target optimizer")
+        self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -220,7 +226,7 @@ class OpEnOptimizerBuilder:
         :param f1: mapping F1  (cs.Function)
         :param f2: mapping F2  (cs.Function)
         """
-        logging.info("Generating casadi_memory.h")
+        self.__logger.info("Generating casadi_memory.h")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
         template = env.get_template('casadi_memory.h.template')
@@ -240,7 +246,7 @@ class OpEnOptimizerBuilder:
 
         :return: cs.Function objects: psi_fun, grad_psi_fun
         """
-        logging.info("Defining function psi(u, xi, p) and its gradient")
+        self.__logger.info("Defining function psi(u, xi, p) and its gradient")
         problem = self.__problem
         bconfig = self.__build_config
         u = problem.decision_variables
@@ -276,7 +282,7 @@ class OpEnOptimizerBuilder:
         return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
-        logging.info("Defining function F1(u, p)")
+        self.__logger.info("Defining function F1(u, p)")
         problem = self.__problem
         u = problem.decision_variables
         p = problem.parameter_variables
@@ -294,7 +300,7 @@ class OpEnOptimizerBuilder:
         return alm_mapping_f1_fun
 
     def __construct_mapping_f2_function(self) -> cs.Function:
-        logging.info("Defining function F2(u, p)")
+        self.__logger.info("Defining function F2(u, p)")
         problem = self.__problem
         u = problem.decision_variables
         p = problem.parameter_variables
@@ -313,14 +319,14 @@ class OpEnOptimizerBuilder:
 
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
-        logging.info("Defining CasADi functions and generating C code")
+        self.__logger.info("Defining CasADi functions and generating C code")
         bconfig = self.__build_config
 
         # -----------------------------------------------------------------------
         psi_fun, grad_psi_fun = self.__construct_function_psi()
         cost_file_name = bconfig.cost_function_name + ".c"
         grad_file_name = bconfig.grad_function_name + ".c"
-        logging.info("Function psi and its gradient (C code)")
+        self.__logger.info("Function psi and its gradient (C code)")
         psi_fun.generate(cost_file_name)
         grad_psi_fun.generate(grad_file_name)
         icasadi_extern_dir = os.path.join(self.__icasadi_target_dir(), "extern")
@@ -330,7 +336,7 @@ class OpEnOptimizerBuilder:
         # -----------------------------------------------------------------------
         mapping_f1_fun = self.__construct_mapping_f1_function()
         f1_file_name = bconfig.alm_mapping_f1_function_name + ".c"
-        logging.info("Mapping F1 (C code)")
+        self.__logger.info("Mapping F1 (C code)")
         mapping_f1_fun.generate(f1_file_name)
         # Move auto-generated file to target folder
         shutil.move(f1_file_name,
@@ -339,7 +345,7 @@ class OpEnOptimizerBuilder:
         # -----------------------------------------------------------------------
         mapping_f2_fun = self.__construct_mapping_f2_function()
         f2_file_name = bconfig.constraint_penalty_function_name + ".c"
-        logging.info("Mapping F2 (C code)")
+        self.__logger.info("Mapping F2 (C code)")
         mapping_f2_fun.generate(f2_file_name)
         # Move auto-generated file to target folder
         shutil.move(f2_file_name,
@@ -356,7 +362,7 @@ class OpEnOptimizerBuilder:
         p.wait()
 
     def __generate_main_project_code(self):
-        logging.info("Generating main code for target optimizer (lib.rs)")
+        self.__logger.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -374,7 +380,7 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_build_rs(self):
-        logging.info("Generating build.rs for target optimizer")
+        self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -394,7 +400,7 @@ class OpEnOptimizerBuilder:
             raise Exception('Rust build failed')
 
     def __build_tcp_iface(self):
-        logging.info("Building the TCP interface")
+        self.__logger.info("Building the TCP interface")
         target_dir = os.path.abspath(self.__target_dir())
         tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
         command = self.__make_build_command()
@@ -404,14 +410,14 @@ class OpEnOptimizerBuilder:
             raise Exception('Rust build of TCP interface failed')
 
     def __initialize(self):
-        logging.info("Initialising builder")
+        self.__logger.info("Initialising builder")
 
     def __check_user_provided_parameters(self):
-        logging.info("Checking user parameters")
+        self.__logger.info("Checking user parameters")
 
     def __generate_code_tcp_interface(self):
-        logging.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
-        logging.info("TCP server will bind at %s:%d",
+        self.__logger.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
+        self.__logger.info("TCP server will bind at %s:%d",
                      self.__build_config.tcp_interface_config.bind_ip,
                      self.__build_config.tcp_interface_config.bind_port)
         target_dir = self.__target_dir()
@@ -441,7 +447,7 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
     def __generate_yaml_data_file(self):
-        logging.info("Generating YAML configuration file")
+        self.__logger.info("Generating YAML configuration file")
         tcp_config = self.__build_config.tcp_interface_config
         metadata = self.__meta
         build_config = self.__build_config
@@ -487,7 +493,7 @@ class OpEnOptimizerBuilder:
         self.__build_config.with_tcp_interface_config(tcp_server_configuration)
 
     def __generate_c_bindings_example(self):
-        logging.info("Generating example_optimizer.c (C bindings example for your convenience)")
+        self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader)
@@ -507,7 +513,6 @@ class OpEnOptimizerBuilder:
             Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
-        logging.basicConfig(level=logging.INFO)
         self.__initialize()                      # initialize default value (if not provided)
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project
@@ -526,11 +531,11 @@ class OpEnOptimizerBuilder:
         self.__generate_yaml_data_file()         # create YAML file with metadata
 
         if not self.__generate_not_build:
-            logging.info("Building optimizer")
+            self.__logger.info("Building optimizer")
             self.__build_optimizer()             # build overall project
 
             if self.__build_config.tcp_interface_config is not None:
-                logging.info("Generating TCP/IP server")
+                self.__logger.info("Generating TCP/IP server")
                 self.__generate_code_tcp_interface()
                 self.__build_tcp_iface()
 
