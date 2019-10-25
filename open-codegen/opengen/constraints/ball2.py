@@ -12,7 +12,7 @@ class Ball2(Constraint):
 
     """
 
-    def __init__(self, center, radius: float):
+    def __init__(self, center=None, radius: float = 1.0):
         """Constructor for a Euclidean ball constraint
 
         Args:

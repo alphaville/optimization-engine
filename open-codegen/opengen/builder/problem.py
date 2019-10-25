@@ -1,5 +1,6 @@
 import casadi.casadi as cs
 from .set_y_calculator import SetYCalculator
+from ..constraints.no_constraints import NoConstraints
 
 
 class Problem:
@@ -36,7 +37,7 @@ class Problem:
         # Cost function: f(u, p)
         self.__cost = cost
         # Constraints on u: u in U
-        self.__u_constraints = None
+        self.__u_constraints = NoConstraints()
         # ALM-type constraints: mapping F1(u, p)
         self.__alm_mapping_f1 = None
         # ALM-type constraints: set C

@@ -10,7 +10,7 @@ class BallInf(Constraint):
     Centered inf-ball around given point
     """
 
-    def __init__(self, center, radius: float):
+    def __init__(self, center=None, radius: float = 0.0):
         """Constructor for an infinity ball constraint
 
         Args:
