@@ -775,17 +775,24 @@ where
         // Check whether the penalty parameter should not be updated
         // This is if iteration = 0, or there has been a sufficient
         // decrease in infeasibility
-        if cache.iteration == 0
-            || ((problem.n1 > 0
-                && cache.delta_y_norm_plus
-                    <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON)
-                && (problem.n2 > 0
-                    && cache.f2_norm_plus
-                        <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON))
-        {
+        if cache.iteration == 0 {
             return true;
         }
-        false
+        let is_alm = problem.n1 > 0;
+        let is_pm = problem.n2 > 0;
+        let criterion_alm = cache.delta_y_norm_plus
+            <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON;
+        let criterion_pm =
+            cache.f2_norm_plus <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON;
+        if is_alm && !is_pm {
+            return criterion_alm;
+        } else if !is_alm && is_pm {
+            return criterion_pm;
+        } else if is_alm && is_pm {
+            return criterion_alm && criterion_pm;
+        }
+
+        return false;
     }
 
     fn update_penalty_parameter(&mut self) {
@@ -1416,6 +1423,56 @@ mod tests {
 
         alm_optimizer.alm_cache.delta_y_norm = 100.0;
         alm_optimizer.alm_cache.delta_y_norm_plus = 10.0;
+        alm_optimizer.alm_cache.f2_norm = 200000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+        println!("cache = {:#?}", alm_optimizer.alm_cache);
+    }
+
+    #[test]
+    fn t_is_penalty_stall_criterion_alm() {
+        // --- ONLY ALM (n1 > 0, n2 = 0)
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 1, 0, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_sufficient_decrease_coefficient(0.1);
+
+        // should stall because iteration = 0
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.iteration = 4;
+        assert!(!alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.delta_y_norm = 100.0;
+        alm_optimizer.alm_cache.delta_y_norm_plus = 10.0;
+        alm_optimizer.alm_cache.f2_norm = 0.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 0.0;
+
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+        println!("cache = {:#?}", alm_optimizer.alm_cache);
+    }
+
+    #[test]
+    fn t_is_penalty_stall_criterion_pm() {
+        // -- ONLY PM (n1 = 0, n2 > 0)
+        let (tolerance, nx, n1, n2, lbfgs_mem) = (1e-8, 10, 0, 1, 3);
+        let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+        let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+        let alm_problem = make_dummy_alm_problem(n1, n2);
+        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+            .with_sufficient_decrease_coefficient(0.1);
+
+        // should stall because iteration = 0
+        assert!(alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.iteration = 4;
+        assert!(!alm_optimizer.is_penalty_stall_criterion());
+
+        alm_optimizer.alm_cache.delta_y_norm = 0.0;
+        alm_optimizer.alm_cache.delta_y_norm_plus = 0.0;
         alm_optimizer.alm_cache.f2_norm = 200000.0;
         alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
 
