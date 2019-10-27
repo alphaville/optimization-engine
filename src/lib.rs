@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 //! **Optimization Engine** is a framework for **fast** and **accurate** embedded nonconvex optimization.
 //!
 //! # About Optimization Engine
