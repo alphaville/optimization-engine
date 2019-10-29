@@ -32,7 +32,7 @@ int main() {
 {% if problem.dim_constraints_aug_lagrangian() > 0 %}
     /* initial lagrange mult. */
     double y[{{meta.optimizer_name|upper}}_N1] = {0.0};
-{% endif -%}
+{%- endif %}
 
     /* obtain cache           */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
