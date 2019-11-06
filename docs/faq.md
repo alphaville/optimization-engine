@@ -44,7 +44,7 @@ Yes. OpEn solves parametric problems of the form
 &amp; F_1(u, p) \in C\\
 &amp; F_2(u, p) = 0\end{split}\]</div>
 
-Set $U$ can be a finite or binary set (on which it is easy to compute projections).  
+Set $U$ can be a finite or binary set (on which it is easy to compute projections).
 
 ### 4. Can OpEn solve multi-objective problems?
 No.

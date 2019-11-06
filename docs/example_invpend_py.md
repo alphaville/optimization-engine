@@ -9,6 +9,8 @@ title: Inverted Pendulum
 
 ## Problem statement
 
+This example is **incomplete** and will be updated soon.
+
 ### Before we start
 
 We will need to import the following libraries in Python:
