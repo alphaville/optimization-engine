@@ -28,3 +28,6 @@ class SolverResponse:
     def get(self):
         """Returns response."""
         return self.response
+
+    def get_dict(self):
+        return self.response.__dict__
