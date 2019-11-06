@@ -85,14 +85,14 @@ bounds = og.constraints.Rectangle(umin, umax)
 problem = og.builder.Problem(u, z0, cost).with_constraints(bounds)
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("python_test_build") \
-    .with_build_mode("debug")
+    .with_build_mode("debug")                  \
+    .with_tcp_interface_config()
 meta = og.config.OptimizerMeta()       \
     .with_optimizer_name("navigation")
 solver_config = og.config.SolverConfiguration().with_tolerance(1e-5)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
                                           build_config, solver_config) \
     .with_verbosity_level(1)
-builder.enable_tcp_interface()
 builder.build()
 
 
