@@ -7,6 +7,13 @@ sidebar_label: FAQ
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+<script>
+  ((window.gitter = {}).chat = {}).options = {
+    room: 'alphaville/optimization-engine'
+  };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+
 ### 1. Do I need to be able to program in Rust?
 
 No. Although the core solver is written in Rust, you can
