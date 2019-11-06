@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Tandem tanks · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Tandem tanks · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_rosenbrock_py">Rosenbrock Function</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_navigation_py">Navigation of ground vehicle</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_estimation_py">Nonlinear State Estimation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_bnp_py">Ball and Plate</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/example_tanks_py">Tandem tanks</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_invpend_py">Inverted Pendulum</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Tandem tanks</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<h2><a class="anchor" aria-hidden="true" id="problem-statement"></a><a href="#problem-statement" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Problem statement</h2>
+<h3><a class="anchor" aria-hidden="true" id="before-we-start"></a><a href="#before-we-start" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Before we start</h3>
+<p>We will need to import the following libraries in Python:</p>
+<pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
+<span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
+<span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt
+<span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="system-dynamics"></a><a href="#system-dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>System dynamics</h3>
+<p>Consider the following system of tandem tanks</p>
+<p><img src="/optimization-engine/img/i_tanks.png" alt="Ball and Plate System"></p>
+<p>the tanks have cross-section areas $A_1$ and $A_2$, they store a liquid of density
+$\rho$ which can flow between the two tanks through a short pipe of cross-section
+area $a_1$. The liquid outflows from the second tank through an orifice of area
+$a_2$. The level of liquid in the two tanks, $h_1$ and $h_2$ is governed by the
+differential equations</p>
+<div class="math">
+\[
+\begin{align}
+\dot{h}_1 {}={}& \tfrac{1}{\rho A_1} F_{\mathrm{in}} - \tfrac{a_1}{A_1}\sqrt{2g(h_1 - h_2)}
+\\
+\dot{h}_2 {}={}& \tfrac{a_1}{A_1}\sqrt{2g(h_1 - h_2)} - a_2\sqrt{2gh_2}
+\end{align}
+\]
+</div>
+<p>so long as $h_1 &gt; h_2$.</p>
+<p>This is a continuous-time dynamical system of the form</p>
+<div class="math">
+\[
+\dot{x} = f(x, u),
+\]
+</div>
+where $x=(h_1, h_2)$ is the system state and $u=F_{\mathrm{in}}$ is the manipulated variable.
+The system parameters are 
+<pre><code class="hljs css language-python">a1 = <span class="hljs-number">10</span>*<span class="hljs-number">1e-4</span>
+a2 = <span class="hljs-number">10</span>*<span class="hljs-number">1.5e-4</span>
+A1 = <span class="hljs-number">2.5</span>
+A2 = <span class="hljs-number">0.1</span>
+rho = <span class="hljs-number">998</span>
+g = <span class="hljs-number">9.8044</span>
+sampling_time = <span class="hljs-number">15</span>
+nx = <span class="hljs-number">2</span>
+</code></pre>
+<p>and the continuous-time system dynamics is</p>
+<pre><code class="hljs css language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dynamics_ct</span><span class="hljs-params">(x, u)</span>:</span>
+    h1 = x[<span class="hljs-number">0</span>]
+    h2 = x[<span class="hljs-number">1</span>]
+    dx1 = u/(rho * A1) - (a1 / A1) * cs.sqrt(<span class="hljs-number">2</span> * g * (h1 - h2))
+    dx2 = (a1 * cs.sqrt(<span class="hljs-number">2</span> * g * (h1 - h2)) - a2 * cs.sqrt(h2))/A2
+    <span class="hljs-keyword">return</span> [dx1, dx2]
+</code></pre>
+<p>We may discretize the system dynamics using, for example, the Euler discretization
+with sampling time $T_s$, that is, the discrete-time dynamics can be approximated
+by</p>
+<div class="math">
+\[
+x_{t+1} = x_t + T_s f(x_t, u_t).
+\]
+</div>
+<p>Let us write a little Python function for the discrete-time dynamics of the system</p>
+<pre><code class="hljs css language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dynamics_dt</span><span class="hljs-params">(x, u)</span>:</span>
+    dx = dynamics_ct(x, u)
+    <span class="hljs-keyword">return</span> [x[i] + sampling_time * dx[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(nx)]
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="nonlinear-mpc-problem"></a><a href="#nonlinear-mpc-problem" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nonlinear MPC problem</h3>
+<p>We shall construct a nonlinear MPC controller that drives the ball to the reference
+position $x_1^{\mathrm{ref}}=0$, i.e., at the reference state $x^{\mathrm{ref}}=(0,0,0,0)$
+with input reference $u^{\mathrm{ref}}=0$.</p>
+<p>To that end, let us define a state cost function $\ell(x, u)$ and a terminal cost
+function $\ell_N(x)$ as follows</p>
+<div class="math">
+\[
+\begin{align}
+\ell(x, u) {}={}& \sum_{i=1}^{4}q_ix_i^2 + ru^2
+\\
+\ell_N(x) {}={}& \sum_{i=1}^{4}q_i^N x_i^2
+\end{align}
+\]
+</div>
+<p>In particular, let</p>
+<pre><code class="hljs css language-python">q1 = <span class="hljs-number">1</span>
+q2 = <span class="hljs-number">1</span>
+qF = <span class="hljs-number">0.5</span>
+
+qN1 = <span class="hljs-number">50</span>
+qN2 = <span class="hljs-number">50</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">stage_cost</span><span class="hljs-params">(x, u)</span>:</span>
+    h1 = x[<span class="hljs-number">0</span>]
+    h2 = x[<span class="hljs-number">1</span>]
+    <span class="hljs-keyword">return</span> q1 * (h1 - h1_ref)**<span class="hljs-number">2</span> + q2 * (h2 - h2_ref)**<span class="hljs-number">2</span> + qF * (u - F_ref)**<span class="hljs-number">2</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">terminal_cost</span><span class="hljs-params">(x)</span>:</span>
+    h1 = x[<span class="hljs-number">0</span>]
+    h2 = x[<span class="hljs-number">1</span>]
+    <span class="hljs-keyword">return</span> qN1 * (h1 - h1_ref)**<span class="hljs-number">2</span> + qN2 * (h2 - h2_ref)**<span class="hljs-number">2</span>
+</code></pre>
+<p>The total cost function of the model predictive controller, along a prediction
+horizon $N$ will be</p>
+<div class="math">
+\[
+V(x_0, u_0, \ldots, u_{N-1}) = \sum_{t=0}^{N-1}\ell(x_t, u_t) + \ell_N(x_N)
+\]
+</div>
+<p>where $x_0$ is the given current state and $x_{t+1} = x_t + T_sf(x_t, u_t)$ as
+discussed above.</p>
+<pre><code class="hljs css language-python">u_seq = cs.MX.sym(<span class="hljs-string">"u"</span>, N)  <span class="hljs-comment"># sequence of all u's</span>
+x0 = cs.MX.sym(<span class="hljs-string">"x0"</span>, nx)   <span class="hljs-comment"># initial state</span>
+
+x_t = x0
+total_cost = <span class="hljs-number">0</span>
+<span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> range(<span class="hljs-number">0</span>, N):
+    total_cost += stage_cost(x_t, u_seq[t])  <span class="hljs-comment"># update cost</span>
+    x_t = dynamics_dt(x_t, u_seq[t])         <span class="hljs-comment"># update state</span>
+
+total_cost += terminal_cost(x_t)  <span class="hljs-comment"># terminal cost</span>
+</code></pre>
+<p>Lastly, we will impose the following input constraints</p>
+<div class="math">
+\[
+8 \leq u_t \leq 11
+\]
+</div>
+<p>for all $t=0,\ldots,N-1$. For that purpose, we shall define the following set</p>
+<pre><code class="hljs css language-python">U = og.constraints.Rectangle([<span class="hljs-number">8</span>]*N, [<span class="hljs-number">11</span>]*N)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation</h3>
+<p>We may now specify the problem and generate code</p>
+<pre><code class="hljs css language-python">problem = og.builder.Problem(u_seq, x0, total_cost)  \
+            .with_constraints(U)
+
+build_config = og.config.BuildConfiguration()  \
+    .with_build_directory(<span class="hljs-string">"python_build"</span>)      \
+    .with_tcp_interface_config()
+
+meta = og.config.OptimizerMeta().with_optimizer_name(<span class="hljs-string">"ball_and_plate"</span>)
+
+solver_config = og.config.SolverConfiguration()\
+    .with_tolerance(<span class="hljs-number">1e-6</span>)\
+    .with_initial_tolerance(<span class="hljs-number">1e-6</span>)
+
+builder = og.builder.OpEnOptimizerBuilder(problem, meta,
+                                          build_config, solver_config)
+builder.build()
+</code></pre>
+<p>This will generate a solver in Rust as well as a <a href="./python-tcp-ip">TCP server</a> that will
+listen for requests at <code>localhost:8333</code> (this <a href="python-advanced#tcp-ip-interface">can be configured</a>).</p>
+<h2><a class="anchor" aria-hidden="true" id="simulations"></a><a href="#simulations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simulations</h2>
+<h3><a class="anchor" aria-hidden="true" id="closed-loop-trajectories"></a><a href="#closed-loop-trajectories" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Closed-loop trajectories</h3>
+<p>We can now easily call the auto-generated solver through its TCP socket
+in a few lines of code:</p>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Create a TCP connection manager</span>
+mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">"python_build/ball_and_plate"</span>)
+
+<span class="hljs-comment"># Start the TCP server</span>
+mng.start()
+
+<span class="hljs-comment"># Run simulations</span>
+x_state_0 = [<span class="hljs-number">0.1</span>, <span class="hljs-number">-0.05</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0.0</span>]
+simulation_steps = <span class="hljs-number">2000</span>
+
+state_sequence = x_state_0
+input_sequence = []
+
+x = x_state_0
+initial_guess = <span class="hljs-literal">None</span>
+<span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> range(simulation_steps):
+    solver_status = mng.call(x, initial_guess)
+    us = solver_status[<span class="hljs-string">'solution'</span>]
+    u = us[<span class="hljs-number">0</span>]
+    initial_guess = us[<span class="hljs-number">1</span>:] + [us[N<span class="hljs-number">-1</span>]]
+    x_next = dynamics_dt(x, u)
+    state_sequence += x_next
+    input_sequence += [u]
+    x = x_next
+
+<span class="hljs-comment"># Thanks TCP server; we won't be needing you any more</span>
+mng.kill()
+</code></pre>
+<p>We may now plot the closed-loop trajectories using <code>matplotlib</code> as follows</p>
+<pre><code class="hljs css language-python">time = np.arange(<span class="hljs-number">0</span>, sampling_time*simulation_steps, sampling_time)
+
+plt.plot(time, state_sequence[<span class="hljs-number">0</span>:<span class="hljs-number">4</span>*simulation_steps:<span class="hljs-number">4</span>], <span class="hljs-string">'-'</span>, label=<span class="hljs-string">"position"</span>)
+plt.plot(time, state_sequence[<span class="hljs-number">2</span>:<span class="hljs-number">4</span>*simulation_steps:<span class="hljs-number">4</span>], <span class="hljs-string">'-'</span>, label=<span class="hljs-string">"angle"</span>)
+plt.grid()
+plt.ylabel(<span class="hljs-string">'states'</span>)
+plt.xlabel(<span class="hljs-string">'Time'</span>)
+plt.legend(bbox_to_anchor=(<span class="hljs-number">0.7</span>, <span class="hljs-number">0.85</span>), loc=<span class="hljs-string">'upper left'</span>, borderaxespad=<span class="hljs-number">0.</span>)
+plt.show()
+</code></pre>
+<p><img src="/optimization-engine/img/tanks_1.png" alt="Closed-loop simulation: states">
+<img src="/optimization-engine/img/tanks_2.png" alt="Closed-loop simulation: input"></p>
+<h3><a class="anchor" aria-hidden="true" id="solver-statistics"></a><a href="#solver-statistics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solver statistics</h3>
+<p>In the above simulations, the average solution time is <strong>134us</strong> and the maximum time is <strong>1.77ms</strong>.
+We ran a second set of simulations with double the original prediction horizon,
+namely $N=240$, and the average solution time increased to <strong>343us</strong> and the maximum time was
+<strong>1.44ms</strong>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_bnp_py"><span class="arrow-prev">← </span><span>Ball and Plate</span></a><a class="docs-next button" href="/optimization-engine/docs/example_invpend_py"><span>Inverted Pendulum</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#problem-statement">Problem statement</a><ul class="toc-headings"><li><a href="#before-we-start">Before we start</a></li><li><a href="#system-dynamics">System dynamics</a></li><li><a href="#nonlinear-mpc-problem">Nonlinear MPC problem</a></li><li><a href="#code-generation">Code generation</a></li></ul></li><li><a href="#simulations">Simulations</a><ul class="toc-headings"><li><a href="#closed-loop-trajectories">Closed-loop trajectories</a></li><li><a href="#solver-statistics">Solver statistics</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
