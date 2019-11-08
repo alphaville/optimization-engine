@@ -31,3 +31,6 @@ class SolverResponse:
 
     def get_dict(self):
         return self.response.__dict__
+
+    def __getitem__(self, key):
+        return getattr(self.response, key)
