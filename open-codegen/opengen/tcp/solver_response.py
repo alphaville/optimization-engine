@@ -13,24 +13,17 @@ class SolverResponse:
             New instance of <code>SolverResponse</code>
         """
         if 'Error' in d.values():
-            self.response = SolverError(d)
+            self.__response = SolverError(d)
         else:
-            self.response = SolverStatus(d)
+            self.__response = SolverStatus(d)
 
     def is_ok(self):
         """Determines if response is OK."""
-        return isinstance(self.response, SolverStatus)
-
-    def is_err(self):
-        """Determines if response is an error."""
-        return isinstance(self.response, SolverError)
+        return isinstance(self.__response, SolverStatus)
 
     def get(self):
         """Returns response."""
-        return self.response
-
-    def get_dict(self):
-        return self.response.__dict__
+        return self.__response
 
     def __getitem__(self, key):
-        return getattr(self.response, key)
+        return getattr(self.__response, key)
