@@ -15,17 +15,14 @@ class SolverError:
             setattr(self, attribute_name, v)
 
     @property
-    def type(self):
-        """
-        Returns value at key __type
-        :return: "Error"
-        """
-        return self.__dict__["__type"]
-
-    @property
     def code(self):
         """
-        Returns value at key __code
+        Returns error codes:
+        1000: Invalid request: Malformed or invalid JSON
+        1600: Initial guess has incomplete dimensions
+        1700: Wrong dimension of Lagrange multipliers
+        2000: Problem solution failed (solver error)
+        3003: Parameter vector has wrong length
         :return: Error code
         """
         return self.__dict__["__code"]
@@ -33,7 +30,7 @@ class SolverError:
     @property
     def message(self):
         """
-        Returns value at key __message
-        :return: Error message matching the code
+        Returns an appropriate error message matching the error code
+        :return: Error message
         """
         return self.__dict__["__message"]

@@ -17,7 +17,15 @@ class SolverStatus:
     @property
     def exit_status(self):
         """
-        Returns value at key __exit_status
+        Returns:
+        Converged if the solver has converged
+
+        NotConvergedIterations if the maximum number of outer or total inner
+        iterations was reached
+
+        NotConvergedOutOfTime if the solver did not have enough time to
+        converge
+
         :return: The exit status of the solver
         """
         return self.__dict__["__exit_status"]
@@ -25,7 +33,7 @@ class SolverStatus:
     @property
     def num_outer_iterations(self):
         """
-        Returns value at key __num_outer_iterations
+        Returns the number of outer (ALM/PM) iterations of the algorithm
         :return: The number of outer iterations
         """
         return self.__dict__["__num_outer_iterations"]
@@ -33,7 +41,7 @@ class SolverStatus:
     @property
     def num_inner_iterations(self):
         """
-        Returns value at key __num_inner_iterations
+        Returns the total number of inner iterations for all inner problems
         :return: The total number of inner iterations
         """
         return self.__dict__["__num_inner_iterations"]
@@ -41,23 +49,24 @@ class SolverStatus:
     @property
     def last_problem_norm_fpr(self):
         """
-        Returns value at key __last_problem_norm_fpr
-        :return: Norm of the fixed-point residual of the last inner problem
+        Returns the infinity norm of the fixed-point residual of the last
+        inner optimization problem
+        :return: inf-norm of the FPR of the last inner problem
         """
         return self.__dict__["__last_problem_norm_fpr"]
 
     @property
-    def delta_y_norm_over_c(self):
+    def f1_infeasibility(self):
         """
-        Returns value at key __delta_y_norm_over_c
-        :return: Distance between f1(u,p) and C at the solution
+        Returns the distance between F1(u,p) and C at the solution, a measure
+        of the infeasibility of the constraint F1(u,p) in C
+        :return: Infeasibility of the constraint F1(u,p) in C
         """
         return self.__dict__["__delta_y_norm_over_c"]
 
     @property
     def f2_norm(self):
         """
-        Returns value at key __f2_norm
         :return: Euclidean norm of f2(u,p) at the solution
         """
         return self.__dict__["__f2_norm"]
@@ -65,7 +74,6 @@ class SolverStatus:
     @property
     def solve_time_ms(self):
         """
-        Returns value at key __solve_time_ms
         :return: Total execution time in milliseconds
         """
         return self.__dict__["__solve_time_ms"]
@@ -73,7 +81,6 @@ class SolverStatus:
     @property
     def penalty(self):
         """
-        Returns value at key __penalty
         :return: Last value of the penalty parameter
         """
         return self.__dict__["__penalty"]
@@ -81,7 +88,6 @@ class SolverStatus:
     @property
     def solution(self):
         """
-        Returns value at key __solution
         :return: Solution vector
         """
         return self.__dict__["__solution"]
@@ -89,7 +95,6 @@ class SolverStatus:
     @property
     def lagrange_multipliers(self):
         """
-        Returns value at key __lagrange_multipliers
         :return: Vector of Lagrange multipliers
         """
         return self.__dict__["__lagrange_multipliers"]
