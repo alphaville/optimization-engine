@@ -197,15 +197,15 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual(2, response["num_outer_iterations"])
 
         response = mng.call(p=[2.0, 10.0, 50.0])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(3003, response["code"])
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(1600, response["code"])
 
         response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(1700, response["code"])
 
         mng.kill()
@@ -227,15 +227,15 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual(1, response["num_outer_iterations"])
 
         response = mng.call(p=[2.0, 10.0, 50.0])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(3003, response["code"])
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(1600, response["code"])
 
         response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
-        self.assertEqual(True, isinstance(response, SolverError))
+        self.assertEqual(True, isinstance(response, og.tcp.SolverError))
         self.assertEqual(1700, response["code"])
 
         mng.kill()
