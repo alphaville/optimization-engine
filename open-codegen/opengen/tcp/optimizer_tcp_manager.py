@@ -8,7 +8,7 @@ import time
 import math
 from threading import Thread
 from retry import retry
-
+from .solver_response import SolverResponse
 
 class OptimizerTcpManager:
     """Client for TCP interface of parametric optimizers
@@ -165,4 +165,4 @@ class OptimizerTcpManager:
 
         run_message += '}}'
         data = self.__send_receive_data(run_message, buffer_len, max_data_size)
-        return json.loads(data)
+        return SolverResponse(json.loads(data))
