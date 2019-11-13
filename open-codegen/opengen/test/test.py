@@ -203,7 +203,7 @@ class RustBuildTestCase(unittest.TestCase):
         status = response.get()
         self.assertFalse(response.is_ok())
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(3003, response.code)
+        self.assertEqual(3003, status.code)
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
         self.assertFalse(response.is_ok())
