@@ -119,29 +119,24 @@ class OptimizerTcpManager:
              initial_y=None,
              initial_penalty=None,
              buffer_len=4096,
-             max_data_size=1048576):
+             max_data_size=1048576) -> SolverResponse:
         """Calls the server
 
         Consumes the parametric optimizer by providing a parameter vector
         and, optionally, an initial guess
 
         Args:
-             p: vector of parameters (vector of float)
-             initial_guess: initial guess vector (vector of float)
+             p: vector of parameters (list of float)
+             initial_guess: initial guess vector (list of float)
+             initial_y: initial vector of Lagrange multipliers (list of float)
+             initial_penalty: initial penalty parameter (float)
              buffer_len: buffer length used to read the server response
              (default value: 4096)
              max_data_size: maximum data size that is expected to be
              received from the TCP server (default value: 1048576)
 
         Returns:
-            Dictionary with the following keys:
-                exit_status: exit status (string)
-                num_outer_iterations: number of outer iterations
-                num_inner_iterations: total number of inner iterations
-                last_problem_norm_fpr: norm of FPR of last inner problem
-                max_constraint_violation:  inf-norm of c(u; p)
-                solve_time_ms: solve time in ms
-                solution: solution vector
+            Instance of SolverResponse
 
         """
         # Make request

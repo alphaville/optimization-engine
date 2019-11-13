@@ -4,6 +4,7 @@ import opengen as og
 import subprocess
 import logging as lg
 
+
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
@@ -194,20 +195,27 @@ class RustBuildTestCase(unittest.TestCase):
                             initial_guess=response["solution"],
                             initial_y=response["lagrange_multipliers"],
                             initial_penalty=response["penalty"])
-        self.assertEqual(2, response["num_outer_iterations"])
+        self.assertTrue(response.is_ok())
+        status = response.get()
+        self.assertEqual(2, status.num_outer_iterations)
 
         response = mng.call(p=[2.0, 10.0, 50.0])
         status = response.get()
+        self.assertFalse(response.is_ok())
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(3003, response["code"])
+        self.assertEqual(3003, response.code)
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
+        self.assertFalse(response.is_ok())
+        status = response.get()
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1600, response["code"])
+        self.assertEqual(1600, status.code)
 
         response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
+        status = response.get()
+        self.assertFalse(response.is_ok())
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1700, response["code"])
+        self.assertEqual(1700, status.code)
 
         mng.kill()
 
@@ -219,26 +227,34 @@ class RustBuildTestCase(unittest.TestCase):
 
         # Regular call
         response = mng.call(p=[2.0, 10.0])
-        self.assertEqual("Converged", response["exit_status"])
+        status = response.get()
+        self.assertEqual("Converged", status.exit_status)
 
         # Call with initial params, initial y and initial penalty param
         response = mng.call(p=[2.0, 10.0],
                             initial_guess=response["solution"],
                             initial_penalty=response["penalty"])
-        self.assertEqual(1, response["num_outer_iterations"])
+        self.assertTrue(response.is_ok())
+        status = response.get()
+        self.assertEqual(1, status.num_outer_iterations)
 
         response = mng.call(p=[2.0, 10.0, 50.0])
+        self.assertFalse(response.is_ok())
         status = response.get()
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(3003, response["code"])
+        self.assertEqual(3003, status.code)
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
+        self.assertFalse(response.is_ok())
+        status = response.get()
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1600, response["code"])
+        self.assertEqual(1600, status.code)
 
         response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
+        self.assertFalse(response.is_ok())
+        status = response.get()
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1700, response["code"])
+        self.assertEqual(1700, status.code)
 
         mng.kill()
 
@@ -250,7 +266,9 @@ class RustBuildTestCase(unittest.TestCase):
 
         # Regular call
         response = mng.call(p=[2.0, 10.0])
-        self.assertEqual("Converged", response["exit_status"])
+        self.assertTrue(response.is_ok())
+        status = response.get()
+        self.assertEqual("Converged", status.exit_status)
 
         mng.kill()
 
@@ -263,8 +281,10 @@ class RustBuildTestCase(unittest.TestCase):
 
         # Regular call
         response = mng.call(p=[1.0, 1.0, 0.5])
-        self.assertEqual("Converged", response["exit_status"])
-        self.assertTrue(response["f2_norm"] < 1e-4)
+        self.assertTrue(response.is_ok())
+        status = response.get()
+        self.assertEqual("Converged", status.exit_status)
+        self.assertTrue(status.f2_norm < 1e-4)
 
         mng.kill()
 

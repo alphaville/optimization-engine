@@ -1,6 +1,7 @@
 from .solver_status import SolverStatus
 from .solver_error import SolverError
 
+
 class SolverResponse:
     """Stores a solver response of type SolverStatus or SolverError."""
     def __init__(self, d):
@@ -22,7 +23,12 @@ class SolverResponse:
         return isinstance(self.__response, SolverStatus)
 
     def get(self):
-        """Returns response."""
+        """
+        Returns response, which is an instance of SolverStatus,
+        if the call was successful, or an instance of SolverError
+        otherwise. It is recommended that you use is_ok() to check
+        whether the call has succeeded first
+        """
         return self.__response
 
     def __getitem__(self, key):
