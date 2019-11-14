@@ -52,14 +52,19 @@ In particular,
 - $U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
   can compute projections. Examples, include norm balls, rectangles, 
   finite sets and a lot more.
-- $F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a smooth mapping and 
-  $C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
+- $F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping 
+  with Lipschitz-continuous Jacobian matrix which is bounded on $U$
+- $C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
   distances. Examples, are: (i) the positive orthant, (ii) norm balls, and (iii)
   second-order cones.
-- $F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a smooth mapping
+- $F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a mapping
+  such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function 
+  with Lipschitz-continuous gradient
 
 We will explain the difference between the constraints $F_1(u, p) \in C$ and 
-$F_2(u, p) = 0$ below.
+$F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using 
+**augmented Lagrangian updates**, while the constraint $F_2(u, p) = 0$ will be 
+imposed using the **quadratic penalty method**.
 
 The user provides the problem data and OpEn **generates code** for a parametric 
 optimizer where the user can pass a value $p$ and obtain a solution $u^\star$
