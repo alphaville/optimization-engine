@@ -163,7 +163,7 @@ fn make_constraints() -> impl Constraint {
             let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
             let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
             {% elif 'Rectangle' == set_i.__class__.__name__ -%}
-            let xmin_{{loop.index}} :Option<&[f64]> === {% if set_i.xmin is not none %}Some(&[
+            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
             {%- for xmini in set_i.xmin -%}
             {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
             {%- endfor -%}
