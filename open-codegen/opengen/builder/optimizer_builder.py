@@ -275,7 +275,7 @@ class OpEnOptimizerBuilder:
         if n2 > 0:
             psi += xi[0] * cs.dot(f2, f2) / 2
 
-        jac_psi = cs.jacobian(psi, u)
+        jac_psi = cs.gradient(psi, u)
 
         psi_fun = cs.Function(bconfig.cost_function_name, [u, xi, p], [psi])
         grad_psi_fun = cs.Function(bconfig.grad_function_name, [u, xi, p], [jac_psi])
