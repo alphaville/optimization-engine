@@ -83,16 +83,19 @@ umax = [3.0] * (nu*N)
 bounds = og.constraints.Rectangle(umin, umax)
 
 problem = og.builder.Problem(u, z0, cost).with_constraints(bounds)
-build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("python_test_build") \
-    .with_build_mode("debug")
-meta = og.config.OptimizerMeta()       \
+build_config = og.config.BuildConfiguration()\
+    .with_build_directory("python_test_build")\
+    .with_build_mode("debug")\
+    .with_tcp_interface_config()
+meta = og.config.OptimizerMeta()\
     .with_optimizer_name("navigation")
-solver_config = og.config.SolverConfiguration().with_tolerance(1e-5)
-builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-                                          build_config, solver_config) \
+solver_config = og.config.SolverConfiguration()\
+    .with_tolerance(1e-5)
+builder = og.builder.OpEnOptimizerBuilder(problem, 
+                                          meta,
+                                          build_config, 
+                                          solver_config) \
     .with_verbosity_level(1)
-builder.enable_tcp_interface()
 builder.build()
 
 
@@ -194,16 +197,17 @@ for t in range(0, N):
 ```
 
 It makes sense to customize the solver parameters, especially
-the allowed violation of the constraints (`with_constraints_tolerance`),
+the allowed violation of the constraints (`with_delta_tolerance`),
 the update factor for the penalty weights (`with_penalty_weight_update_factor`)
 and the initial weights (`with_initial_penalty_weights`):
  
 ```python
-solver_config = og.config.SolverConfiguration()  \
-    .with_tolerance(1e-4)                        \
-    .with_max_outer_iterations(5)                \
-    .with_constraints_tolerance(1e-2)            \
-    .with_penalty_weight_update_factor(10.0)     \
+solver_config = og.config.SolverConfiguration()\
+    .with_tolerance(1e-4)\
+    .with_initial_tolerance(1e-4)\
+    .with_max_outer_iterations(5)\
+    .with_delta_tolerance(1e-2)\
+    .with_penalty_weight_update_factor(10.0)\
     .with_initial_penalty_weights(100.0)
 ```
 

@@ -195,11 +195,10 @@ for i in range(Tsim-1):
 problem = og.builder.Problem(X_hat, Y, V)
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("python_test_build") \
-    .with_build_mode("release")
+    .with_tcp_interface_config()
 meta = og.config.OptimizerMeta()               \
     .with_optimizer_name("estimator")
 builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
-builder.enable_tcp_interface()
 builder.build()
 ```
 

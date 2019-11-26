@@ -7,6 +7,13 @@ sidebar_label: FAQ
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+<script>
+  ((window.gitter = {}).chat = {}).options = {
+    room: 'alphaville/optimization-engine'
+  };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+
 ### 1. Do I need to be able to program in Rust?
 
 No. Although the core solver is written in Rust, you can
@@ -37,7 +44,7 @@ Yes. OpEn solves parametric problems of the form
 &amp; F_1(u, p) \in C\\
 &amp; F_2(u, p) = 0\end{split}\]</div>
 
-Set $U$ can be a finite or binary set (on which it is easy to compute projections).  
+Set $U$ can be a finite or binary set (on which it is easy to compute projections).
 
 ### 4. Can OpEn solve multi-objective problems?
 No.

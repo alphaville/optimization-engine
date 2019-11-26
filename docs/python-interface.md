@@ -207,66 +207,6 @@ builder.build()
 ```
 
 
-### Calling the optimizer
-
-Provided you have generated code using `.with_tcp_interface_config()`,
-you will be able to call it from Python.
-
-All you need to do is create an instance of `OptimizerTcpManager`
-providing the path to your optimizer.
-
-The typical steps involved in calling an optimizer over its
-TPC/IP interface are:
-
-- Start the server (starts in a separate thread and runs as 
-  a sub-process in the background)
-- Consume it
-- Stop it
-
-The following code snippet should be self explanatory
-
-```python
-mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
-mng.start()
-
-pong = mng.ping()                 # check if the server is alive
-print(pong)
-solution = mng.call([1.0, 50.0])  # call the solver over TCP
-print(solution)
-
-mng.kill()
-```
-
-The ping will return the dictionary `{"Pong":1}` and `solution`
-is also a dictionary containing the solution and other useful
-solver information:
-
-```json
-{
-  "exit_status": "Converged", 
-  "num_outer_iterations": 1, 
-  "num_inner_iterations": 28, 
-  "last_problem_norm_fpr": 6.415335992359856e-06, 
-  "max_constraint_violation": 0.0, 
-  "solve_time_ms": 4.39725, 
-  "solution": [
-    0.9064858741205364, 
-    0.8255064578408071, 
-    0.6864317421667316, 
-    0.4750545892829331, 
-    0.22352733342511494 ]
-}
-```
-
-Alongside the solution vector (`solution`), the solver returns 
-other useful information such as the solution status (`Converged`),
-the total number of iterations (`num_inner_iterations`), the norm
-of the fixed-point residual (`last_problem_norm_fpr`) which 
-quantifies the solution quality  and the solution time in milliseconds
-(`solve_time_ms`). The parameters `num_outer_iterations` and 
-`max_constraint_violation` will be elucidated in the next section.
-
-
 
 ## General constraints
 
@@ -479,3 +419,79 @@ solver_config.with_constraints_tolerance(1e-6)
 
 [penalty method]: https://en.wikipedia.org/wiki/Penalty_method
 [augmented Lagrangian method]: https://en.wikipedia.org/wiki/Augmented_Lagrangian_method
+
+
+## Calling the optimizer locally
+
+Provided you have generated code using `.with_tcp_interface_config()`,
+you will be able to call it from Python.
+
+All you need to do is create an instance of `OptimizerTcpManager`
+providing the path to your optimizer.
+
+The typical steps involved in calling an optimizer over its
+TPC/IP interface are:
+
+- Start the server (starts in a separate thread and runs as 
+  a sub-process in the background)
+- Consume it
+- Stop it
+
+The following code snippet should be self explanatory
+
+```python
+mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
+mng.start()
+
+pong = mng.ping()                 # check if the server is alive
+print(pong)
+response = mng.call([1.0, 50.0])  # call the solver over TCP
+
+
+if response.is_ok():
+    # Solver returned a solution
+    solution_data = response.get()
+    u_star = solution_data.solution
+    exit_status = solution_data.exit_status
+    solver_time = solution_data.solve_time_ms
+else:
+    # Invocation failed - an error report is returned
+    solver_error = response.get()
+    error_code = solver_error.code
+    error_msg = solver_error.message
+
+
+mng.kill()
+```
+
+The ping will return the dictionary `{"Pong" : 1}`. This is to check 
+whether the server is alive. 
+
+As shown above, we then call the optimizer (over a TCP socket) and we 
+provide the value of its parameter vector (here, `[1.0, 50.0]`). 
+The solver returns a response object of type `SolverResponse` which is equipped
+with the following methods:
+
+| Method          | Explanation                                 |
+|-----------------|---------------------------------------------|
+| `is_ok()`         | Whether the request was successful (`True`/`False`); |
+| `get()`           | Obtain a `SolverStatus` object if the request is successful (i.e., if `is_ok()` returns `True`) and an instance of `SolverError` otherwise |
+
+
+If the TCP request is successful, method `get()` returns a `SolverStatus`, which is an object with the following properties:
+
+
+| Property                 | Explanation                                 |
+|--------------------------|---------------------------------------------|
+| `exit_status`             | Exit status; can be (i) `Converged` or (ii) `NotConvergedIterations`, if the maximum number of iterations was reached, therefore, the algorithm did not converge up to the specified tolerances, or (iii) `NotConvergedOutOfTime`, if the solver did not have enough time to converge |
+| `num_outer_iterations`    | Number of outer iterations   |
+| `num_inner_iterations`    | Total number of inner iterations (for all inner problems)    |
+| `last_problem_norm_fpr`   | Norm of the fixed-point residual of the last inner problem; this is a measure of the solution quality of the inner problem      |
+| `f1_infeasibility`       | Euclidean norm of $c^{-1}(y^+-y)$, which is equal to the distance between $F_1(u, p)$ and $C$ at the solution   |
+| `f2_norm`                 | Euclidean norm of $F_2(u, p)$ at the solution|
+| `solve_time_ms`           | Total execution time in milliseconds |
+| `penalty`                 | Last value of the penalty parameter |
+| `solution`                | Solution | 
+| `lagrange_multipliers`    | Vector of Lagrange multipliers (if $n_1 > 0$) or an empty vector, otherwise |
+
+If, instead, the request is unsuccessful (e.g., if the wrong number of parameters is provided), a `SolverError` is returned by `get()`. This is an error report: an object with two properties: the error `code` and the error `message`.
