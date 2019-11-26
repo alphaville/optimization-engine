@@ -12,14 +12,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+* Bug in codegen for Cartesian products (PR #147)
+* Removed the use of `Default` in Rust (does not work for large slices)
+
+
 ### Added
 
 * New support for C-to-Rust interface via bindgen
 * Generation of example C code for C-to-Rust interface
+* Additional Python examples on web page
+* Chat button in web page (for gitter)
 
 ### Changed
 
 * Homotopy module in Rust is annotated as deprecated
+* TCP server response is cast into Python objects (PR #144)
+* Auto-generated code links to most recent crate, unless overriden
+
 
 
 
