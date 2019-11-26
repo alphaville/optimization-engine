@@ -163,8 +163,16 @@ fn make_constraints() -> impl Constraint {
             let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
             let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
             {% elif 'Rectangle' == set_i.__class__.__name__ -%}
-            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[{{set_i.xmin|join(', ')}}]){% else %}None{% endif %};
-            let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[{{set_i.xmax|join(', ')}}]){% else %}None{% endif %};
+            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
+            {%- for xmini in set_i.xmin -%}
+            {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+            {%- endfor -%}
+            ]){% else %}None{% endif %};
+            let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
+            {%- for xmaxi in set_i.xmax -%}
+            {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+            {%- endfor -%}
+            ]){% else %}None{% endif %};
             let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
             let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
             {% elif 'FiniteSet' == set_i.__class__.__name__ -%}
@@ -211,8 +219,16 @@ fn make_set_c() -> impl Constraint {
             let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
             let set_c = set_c.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
             {% elif 'Rectangle' == set_i.__class__.__name__ -%}
-            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[{{set_i.xmin|join(', ')}}]){% else %}None{% endif %};
-            let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[{{set_i.xmax|join(', ')}}]){% else %}None{% endif %};
+            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
+            {%- for xmini in set_i.xmin -%}
+            {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+            {%- endfor -%}
+            ]){% else %}None{% endif %};
+            let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
+            {%- for xmaxi in set_i.xmax -%}
+            {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+            {%- endfor -%}
+            ]){% else %}None{% endif %};
             let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
             let set_c = set_c.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
             {% elif 'FiniteSet' == set_i.__class__.__name__ -%}
