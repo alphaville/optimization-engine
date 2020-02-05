@@ -155,6 +155,24 @@ for i in range(Tsim-1):
     v = np.random.normal(0, 1, 3)
     x_data[(i+1)*nx:(i+2)*nx] = dynamics(x_data[i*nx:(i+1)*nx]) + 0.02*w
     y_data[(i+1)*nx:(i+2)*nx] = output(x_data[(i+1)*nx:(i+2)*nx]) + 0.1*v
+
+time = np.arange(0, ts*Tsim, ts)
+
+y_1 = y_data[0:ny*Tsim:ny]
+y_2 = y_data[1:ny*Tsim:ny]
+y_3 = y_data[2:ny*Tsim:ny]
+
+plt.subplot(311)
+plt.plot(time, y_1, '-')
+plt.ylabel('y_1')
+plt.subplot(312)
+plt.plot(time, y_2, '-')
+plt.ylabel('y_2')
+plt.subplot(313)
+plt.plot(time, y_3, '-')
+plt.ylabel('y_3')
+plt.xlabel('Time')
+plt.show()
 ```    
 The output data are plotted below:
 
@@ -200,6 +218,30 @@ meta = og.config.OptimizerMeta()               \
     .with_optimizer_name("estimator")
 builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
 builder.build()
+
+# Use TCP server
+# ------------------------------------
+mng = og.tcp.OptimizerTcpManager('python_test_build/estimator')
+mng.start()
+
+mng.ping()
+solution = mng.call(y_data)
+mng.kill()
+
+# Plot solution
+x_star = solution['solution']
+x_1_star = x_star[0:nx*Tsim:nx]
+x_2_star = x_star[1:nx*Tsim:nx]
+x_3_star = x_star[2:nx*Tsim:nx]
+x_1 = x_data[0:nx*Tsim:nx]
+x_2 = x_data[1:nx*Tsim:nx]
+x_3 = x_data[2:nx*Tsim:nx]
+
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.plot(x_1_star,x_2_star,x_3_star)
+ax.plot(x_1,x_2,x_3, '--')
+plt.show()
 ```
 
 This will generate a parametric optimizer for problem $\mathbb{P}(\mathbf{y})$
