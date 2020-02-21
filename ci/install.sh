@@ -5,7 +5,7 @@ main() {
         rustup target add $TARGET
     fi
     sudo pip install --upgrade pip
-    sudo pip install virtualenv --upgrade
+    sudo pip install virtualenv --upgrade --ignore-installed six
 }
 
 main
