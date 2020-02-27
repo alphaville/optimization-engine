@@ -25,7 +25,7 @@ class BuildConfiguration:
         random_string = ''.join(random.choice(string.ascii_letters) for _i in range(20))
 
         self.__target_system = None
-        self.__build_mode = 'release'
+        self.__build_mode = BuildConfiguration.RELEASE_MODE
         self.__id = random_string
         self.__cost_function_name = 'phi_' + random_string
         self.__grad_cost_function_name = 'grad_phi_' + random_string
