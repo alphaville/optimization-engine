@@ -10,6 +10,9 @@ class BuildConfiguration:
 
     """
 
+    DEBUG_MODE = "debug"
+    RELEASE_MODE = "release"
+
     def __init__(self, build_dir="."):
         """
         Construct an instance of BuildConfiguration
@@ -33,6 +36,7 @@ class BuildConfiguration:
         self.__open_version = None
         self.__build_c_bindings = False
         self.__tcp_interface_config = None
+        self.__local_path = None
 
     # ---------- GETTERS ---------------------------------------------
 
@@ -88,6 +92,10 @@ class BuildConfiguration:
         preferred version of OpEn with `with_open_version`
         """
         return self.__open_version
+
+    @property
+    def local_path(self):
+        return self.__local_path
 
     @property
     def build_c_bindings(self):
@@ -153,15 +161,22 @@ class BuildConfiguration:
         self.__build_dir = build_dir
         return self
 
-    def with_open_version(self, open_version):
+    def with_open_version(self, open_version="*", local_path=None):
         """
         Specify the version of OpEn to link to
 
-        :param: OpEn version
+        :param open_version: version of OpEn (in case you want to
+        compile with an older version of OpEn; if not, the latest
+        version of OpEn will be used)
+
+        :param local_path: you can compile using a local version
+        of OpEn. In that case, you need to provide the full absolute
+        path to that local OpEn directory.
 
         :return: current instance of BuildConfiguration
         """
         self.__open_version = open_version
+        self.__local_path = local_path
         return self
 
     def with_build_c_bindings(self, build_c_bindings=True):

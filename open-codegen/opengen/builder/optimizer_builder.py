@@ -210,7 +210,7 @@ class OpEnOptimizerBuilder:
         template = env.get_template('optimizer_cargo.toml.template')
         output_template = template.render(
             meta=self.__meta,
-            open_version=self.__build_config.open_version,
+            build_config=self.__build_config,
             activate_tcp_server=self.__build_config.tcp_interface_config is not None,
             activate_clib_generation=self.__build_config.build_c_bindings)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
@@ -418,8 +418,8 @@ class OpEnOptimizerBuilder:
     def __generate_code_tcp_interface(self):
         self.__logger.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
         self.__logger.info("TCP server will bind at %s:%d",
-                     self.__build_config.tcp_interface_config.bind_ip,
-                     self.__build_config.tcp_interface_config.bind_port)
+                           self.__build_config.tcp_interface_config.bind_ip,
+                           self.__build_config.tcp_interface_config.bind_port)
         target_dir = self.__target_dir()
         tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
@@ -441,7 +441,9 @@ class OpEnOptimizerBuilder:
 
         # generate Cargo.toml for tcp_iface
         template = env.get_template('tcp_server_cargo.toml.template')
-        output_template = template.render(meta=self.__meta, timestamp_created=datetime.datetime.now())
+        output_template = template.render(meta=self.__meta,
+                                          build_config=self.__build_config,
+                                          timestamp_created=datetime.datetime.now())
         target_scr_lib_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
