@@ -18,7 +18,11 @@ publish=false
 
 
 [dependencies]
-optimization_engine = "{{open_version or '*'}}"
+{% if build_config.local_path is not none -%}
+optimization_engine = {path = "{{build_config.local_path}}"}
+{% else -%}
+optimization_engine = "{{build_config.open_version or '*'}}"
+{% endif %}
 
 icasadi = {path = "./icasadi/"}
 {% if activate_clib_generation -%}
