@@ -4,6 +4,13 @@ title: OpEn Installation
 sidebar_label: Installation
 ---
 
+<script>
+  ((window.gitter = {}).chat = {}).options = {
+    room: 'alphaville/optimization-engine'
+  };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+
 ## OpEn Requirements: Rust and clang
 
 Before you start, you need to install

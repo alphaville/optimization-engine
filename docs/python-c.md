@@ -12,38 +12,26 @@ When using any of the tools to auto-generate a solver it is directly supported t
 
 ## Generating bindings
 
-Generating bindings is as adding `with_build_c_bindings()` to your build configuration. 
+Generating bindings is as easy as adding `with_build_c_bindings()` to your build configuration. 
 Here is a full example configuration for creating a solver. We will create an optimizer 
-for the Rosenbrock function with equality and bound constraints on the decision variables:
+for the [Rosenbrock function](example_rosenbrock_py) with equality and bound constraints on the decision variables:
 
 ```python
 import casadi.casadi as cs
 import opengen as og
 
-#
-# Problem definition
-#
+u = cs.SX.sym("u", 5)  # Decision variabels
+p = cs.SX.sym("p", 2)  # Parameters
 
-# Decision variabels
-u = cs.SX.sym("u", 5)
-
-# Parameters
-p = cs.SX.sym("p", 2)
-
-# Cost function
-phi = og.functions.rosenbrock(u, p)
+phi = og.functions.rosenbrock(u, p)  # Cost function
 
 # Equality constraints: 1.5 * u[0] = u[1] and u[2] = u[3]
 # Can also be inequality constratins using max{c(u, p), 0}, where c(u, p) < 0.
 c = cs.vertcat(1.5*u[0] - u[1], u[2] - u[3])
 
 # Bounds constraints on u
-umin = [-2.0, -2.0, -2.0, -2.0, -2.0]
-umax = [ 2.0,  2.0,  2.0,  2.0,  2.0]
-
-#
-# Set up the solver
-#
+umin = [-2.0] * 5  # shorthand notation
+umax = [ 2.0] * 5
 
 # Bounds on u: (umin <= u <= umax)
 bounds = og.constraints.Rectangle(umin, umax)
@@ -57,14 +45,12 @@ problem = og.builder.Problem(u, p, phi)                 \
 meta = og.config.OptimizerMeta()                        \
     .with_version("1.0.0")                              \
     .with_authors(["P. Sopasakis", "E. Fresk"])         \
-    .with_licence("CC4.0-By")                           \
     .with_optimizer_name("the_optimizer")
 
 # Lets build in release mode with C bindings
 build_config = og.config.BuildConfiguration()           \
-    .with_rebuild(True)                                 \
     .with_build_mode("release")                         \
-    .with_build_c_bindings()            # <- The important setting
+    .with_build_c_bindings()            # <--- The important setting
 
 # Solver settings
 solver_config = og.config.SolverConfiguration()         \
@@ -98,7 +84,9 @@ Note that `the_optimizer` is the name given to the optimizer in the Python codeg
 
 ## Bindings API
 
-The generated API has the following functions available (for complete definitions see the generated header files) for a solver entitled `example`:
+The generated API has the following functions available 
+(for complete definitions see the generated header files) for 
+a solver entitled "example":
 
 ```c
 /* Contents of header file: example_bindings.h */
@@ -152,55 +140,83 @@ Finally, when done with the solver, use `{optimizer-name}_free` to release the m
 
 ## Using the bindings in an app
 
-To use the generated solver in C, the following C code can directly be used to interface to the generated solver:
+Suppose that you have compiled your optimizer using the option
+`with_build_c_bindings()` and you have generated C/C++ bindings.
+OpEn will generate an example C file that you can use as a starting point
+to build your application. This example file is stored in the directory
+containing all other files of your optimizer and is called `example_optimizer.c`.
+The auto-generated example has the following form:
 
 ```c
-// File: the_optimizer/optimizer.c
+/* File: the_optimizer/example_optimizer.c  */
 
 #include <stdio.h>
-#include "the_optimizer_bindings.h"
+#include "example_bindings.h"
 
 int main() {
-	double p[THE_OPTIMIZER_NUM_PARAMETERS] = {1.0, 10.0};  // parameter
-	double u[THE_OPTIMIZER_NUM_DECISION_VARIABLES] = {0};  // initial guess
+	double p[EXAMPLE_NUM_PARAMETERS] = {1.0, 10.0};  // parameter
+	double u[EXAMPLE_NUM_DECISION_VARIABLES] = {0};  // initial guess
 
-	the_optimizerCache *cache = the_optimizer_new();
-	the_optimizerSolverStatus status = the_optimizer_solve(cache, u, p);
-	the_optimizer_free(cache);
+	exampleCache *cache = example_new();
+	exampleSolverStatus status = example_solve(cache, u, p);
+	example_free(cache);
 
-	for (int i = 0; i < THE_OPTIMIZER_NUM_DECISION_VARIABLES; ++i) {
+	for (int i = 0; i < EXAMPLE_NUM_DECISION_VARIABLES; ++i) {
 		printf("u[%d] = %g\n", i, u[i]);
 	}
 
 	printf("exit status = %d\n", status.exit_status);
 	printf("iterations = %lu\n", status.num_inner_iterations);
 	printf("outer iterations = %lu\n", status.num_outer_iterations);
-	printf("solve time = %f ms\n", (double)status.solve_time_ns / 1000000.0);
+	printf("solve time = %f ms\n", (double)status.solve_time_ns / 1e6);
 
 	return 0;
 }
 ```
 
-### Compiling and linking
 
-When building and running an application based on the generated libraries it is good to know that GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:
+
+### Compiling and linking
+#### Using cmake 
+To compile your C program you need to link to the auto-generated
+C bindings (see [next section](#compile-your-own-code)). 
+However, OpEn generates automatically a `CMakeLists.txt` file
+to facilitate the compilation/linking procedure. To build the
+auto-generated example run
 
 ```console
-gcc optimizer.c -l:libthe_optimizer.a \
+cmake .
+make
+```
+
+once you build your optimizer you can run the executable (`optimizer`)
+with 
+
+```console
+make run
+```
+
+#### Compile your own code 
+When building and running an application based on the generated libraries 
+it is good to know that GCC is a bit temperamental when linking libraries,
+so when linking the static library the following can be used as reference:
+
+```console
+gcc example_optimizer.c -l:libthe_optimizer.a \
   -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
 Or using direct linking (this is the only thing that works with clang):
 
 ```console
-gcc optimizer.c ./target/release/libthe_optimizer.a \
+gcc example_optimizer.c ./target/release/libthe_optimizer.a \
   -pthread -lm -ldl -o optimizer
 ```
 
 While the following can be used when using the shared library:
 
 ```console
-gcc optimizer.c -lthe_optimizer \
+gcc example_optimizer.c -lthe_optimizer \
   -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
@@ -211,7 +227,9 @@ Which will solve the problem and output the following when run:
 ```console
 # When linking with static lib
 ./optimizer
+```
 
+```console
 # When linking with dynamic lib
 LD_LIBRARY_PATH=./target/release ./optimizer
 

@@ -62,7 +62,7 @@ A complete list of solver options is given in the following table
 | `with_sufficient_decrease_coefficient` | Sufficient decrease coeff. (for skipping penalty update) |
 | `with_max_duration_micros`             | Maximum duration of execution in micros     |
 | `with_cbfgs_parameters`                | CBFGS parameters                            |
-| `with_lfbgs_memory`                    | LBFGS memory                                | 
+| `with_lbfgs_memory`                    | LBFGS memory                                | 
 | `with_inner_tolerance_update_factor`   | Update factor for the inner tolerance       | 
 
 ## Build options
@@ -74,13 +74,15 @@ Building in "release" mode takes slightly longer to compile, but
 can lead to a significant speed-up. To do so, use the option
 
 ```python
-build_config.with_build_mode("debug")
+build_config.with_build_mode(
+    og.config.BuildConfiguration.DEBUG_MODE)
 ```
 
 οr 
 
 ```python
-build_config.with_build_mode("release")
+build_config.with_build_mode(
+    og.config.BuildConfiguration.RELEASE_MODE)
 ```
 
 You can either compile for your own system, or cross-compile for a 
@@ -108,8 +110,9 @@ Note that you need to install the necessary target first.
 | `with_target_system`          | Target system                               |
 | `with_build_c_bindings`       | Enalbe generation of C/C++ bindings         |
 | `with_rebuild`                | Whether to do a clean build                 |
-| `with_open_version`           | Use a certain version of OpEn               |
+| `with_open_version`           | Use a certain version of OpEn (see [all versions]), e.g., `with_open_version("0.6.0")`, or a local version of OpEn (this is useful when you want to download the latest version of OpEn from github). You can do so using `with_open_version(local_path="/path/to/open/")`. |
 
+[all versions]: https://crates.io/crates/optimization_engine/versions
 
 ## TCP/IP interface 
 

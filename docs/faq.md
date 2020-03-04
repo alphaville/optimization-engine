@@ -55,51 +55,7 @@ A value between 3 and 20 should suffice, although the performance is not too sen
 Long story short... if you need very high performance, you should experiment with it. Otherwise, stick with any value between 3 and 20.
 
 ### 6. How can I cite OpEn?
-Please, cite the original PANOC paper as follows:
-```bibtex
-@inproceedings{panoc2017,
-  author = "Stella, L. and Themelis, A. and Sopasakis, P. and Patrinos, P.",
-  title     = "A simple and efficient algorithm for
-               nonlinear model predictive control",
-  booktitle = "56th IEEE Conference on Decision and Control (CDC)",
-  year      = "2017",
-  month     = "Dec",
-  pages     = "1939-1944",
-  doi       = "10.1109/CDC.2017.8263933"
-}
-```
-
-You may also cite the following papers where we use PANOC in lab experiments - first, for obstacle avoidance on an autonomous ground vehicle carrying a trailer:
-
-```bibtex
-@inproceedings{agv2018,
-  author = "Sathya, A. and Sopasakis, P. and Van Parys, R. and Themelis, A. 
-            and Pipeleers, G. and Patrinos, P.",
-  title     = "Embedded nonlinear model predictive control for 
-               obstacle avoidance using PANOC",
-  booktitle = "IEEE European Control Conference (ECC)",
-  year      = "2018",
-  month     = "June",
-  pages     = "1523-1528",
-  doi       = "10.23919/ECC.2018.8550253"
-}
-```
-
-and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
-
-```bibtex
-@inproceedings{mav2019,
-  author = "Small, E. and Sopasakis, P. and Fresk, E.
-        and Patrinos, P. and Nikolakopoulos, G.",
-  title     = "Aerial navigation in obstructed environments with
-               embedded nonlinear model predictive control",
-  booktitle = "IEEE European Control Conference (ECC)",
-  year      = "2019",
-  month     = "June",
-  pages     = "3556-3563",
-  doi       = "10.23919/ECC.2019.8796236"
-}
-```
+See [this page](cite_open)
 
 ### 7. Does it work on all operating systems?
 Yes. We have tested the code on Linux (Trusty, Precise 
