@@ -12,7 +12,7 @@ class RustBuildTestCase(unittest.TestCase):
     @classmethod
     def solverConfig(cls):
         solver_config = og.config.SolverConfiguration() \
-            .with_lfbgs_memory(15) \
+            .with_lbfgs_memory(15) \
             .with_tolerance(1e-4) \
             .with_initial_tolerance(1e-4) \
             .with_delta_tolerance(1e-4) \
@@ -174,7 +174,7 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_solver_config_wrong_lbfgs_memory(self):
         with self.assertRaises(Exception) as __context:
-            og.config.SolverConfiguration().with_lfbgs_memory(1)
+            og.config.SolverConfiguration().with_lbfgs_memory(1)
 
     def test_solver_config_wrong_max_inner_iterations(self):
         with self.assertRaises(Exception) as __context:

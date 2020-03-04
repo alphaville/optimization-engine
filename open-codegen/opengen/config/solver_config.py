@@ -158,7 +158,7 @@ class SolverConfiguration:
         self.__inner_tolerance_update_factor = float(inner_tol_update_factor)
         return self
 
-    def with_lfbgs_memory(self, lbfgs_memory):
+    def with_lbfgs_memory(self, lbfgs_memory):
         """Specify L-BFGS memory
 
         :raises: It is required that the L-BFGS memory is larger than or
