@@ -16,21 +16,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug in codegen for Cartesian products (PR #147)
 * Removed the use of `Default` in Rust (does not work for large slices)
-
+* Python: fixed typo in method `with_lfbgs_memory`
 
 ### Added
 
 * New support for C-to-Rust interface via bindgen
 * Generation of example C code for C-to-Rust interface
+* CMakeLists for auto-generated example in C
 * Additional Python examples on web page
 * Chat button in web page (for gitter)
+* Added option `local_path` in `with_open_version`
 
 ### Changed
 
 * Homotopy module in Rust is annotated as deprecated
 * TCP server response is cast into Python objects (PR #144)
 * Auto-generated code links to most recent crate, unless overriden
-
+* Changed `jacobian` to `gradient` in Python
 
 
 
