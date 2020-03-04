@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>C/C++ Bindings · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="C/C++ Bindings · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">MATLAB</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Rust</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">Advanced Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>C/C++ Bindings · Optimization Engine</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="C/C++ Bindings · Optimization Engine"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/index.html"/><meta property="og:description" content="&lt;script type=&quot;text/x-mathjax-config&quot;&gt;MathJax.Hub.Config({tex2jax: {inlineMath: [[&#x27;$&#x27;,&#x27;$&#x27;], [&#x27;\\(&#x27;,&#x27;\\)&#x27;]]}});&lt;/script&gt;"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="Optimization Engine Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="Optimization Engine Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine"/><h2 class="headerTitleWithLogo">Optimization Engine</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">OpEn Guide</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Python</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">MATLAB</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Rust</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">Advanced Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Extras</h3><ul class=""><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/cite_open">Cite OpEn</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
             var coll = document.getElementsByClassName('collapsible');
             var checkActiveCategory = true;
             for (var i = 0; i < coll.length; i++) {
@@ -52,36 +52,24 @@
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <p>When using any of the tools to auto-generate a solver it is directly supported to also generate C/C++ bindings for integrating the solver from any language which supports a C or C++ application binary interface (<a href="https://en.wikipedia.org/wiki/Application_binary_interface">ABI</a>). This is a powerful feature when packaging a solver for distribution, or including it into a larger project.</p>
 <h2><a class="anchor" aria-hidden="true" id="generating-bindings"></a><a href="#generating-bindings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating bindings</h2>
-<p>Generating bindings is as adding <code>with_build_c_bindings()</code> to your build configuration.
+<p>Generating bindings is as easy as adding <code>with_build_c_bindings()</code> to your build configuration.
 Here is a full example configuration for creating a solver. We will create an optimizer
-for the Rosenbrock function with equality and bound constraints on the decision variables:</p>
+for the <a href="example_rosenbrock_py">Rosenbrock function</a> with equality and bound constraints on the decision variables:</p>
 <pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
 <span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
 
-<span class="hljs-comment">#</span>
-<span class="hljs-comment"># Problem definition</span>
-<span class="hljs-comment">#</span>
+u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)  <span class="hljs-comment"># Decision variabels</span>
+p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)  <span class="hljs-comment"># Parameters</span>
 
-<span class="hljs-comment"># Decision variabels</span>
-u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)
-
-<span class="hljs-comment"># Parameters</span>
-p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)
-
-<span class="hljs-comment"># Cost function</span>
-phi = og.functions.rosenbrock(u, p)
+phi = og.functions.rosenbrock(u, p)  <span class="hljs-comment"># Cost function</span>
 
 <span class="hljs-comment"># Equality constraints: 1.5 * u[0] = u[1] and u[2] = u[3]</span>
 <span class="hljs-comment"># Can also be inequality constratins using max{c(u, p), 0}, where c(u, p) &lt; 0.</span>
 c = cs.vertcat(<span class="hljs-number">1.5</span>*u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>], u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>])
 
 <span class="hljs-comment"># Bounds constraints on u</span>
-umin = [<span class="hljs-number">-2.0</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">-2.0</span>]
-umax = [ <span class="hljs-number">2.0</span>,  <span class="hljs-number">2.0</span>,  <span class="hljs-number">2.0</span>,  <span class="hljs-number">2.0</span>,  <span class="hljs-number">2.0</span>]
-
-<span class="hljs-comment">#</span>
-<span class="hljs-comment"># Set up the solver</span>
-<span class="hljs-comment">#</span>
+umin = [<span class="hljs-number">-2.0</span>] * <span class="hljs-number">5</span>  <span class="hljs-comment"># shorthand notation</span>
+umax = [ <span class="hljs-number">2.0</span>] * <span class="hljs-number">5</span>
 
 <span class="hljs-comment"># Bounds on u: (umin &lt;= u &lt;= umax)</span>
 bounds = og.constraints.Rectangle(umin, umax)
@@ -95,14 +83,12 @@ problem = og.builder.Problem(u, p, phi)                 \
 meta = og.config.OptimizerMeta()                        \
     .with_version(<span class="hljs-string">"1.0.0"</span>)                              \
     .with_authors([<span class="hljs-string">"P. Sopasakis"</span>, <span class="hljs-string">"E. Fresk"</span>])         \
-    .with_licence(<span class="hljs-string">"CC4.0-By"</span>)                           \
     .with_optimizer_name(<span class="hljs-string">"the_optimizer"</span>)
 
 <span class="hljs-comment"># Lets build in release mode with C bindings</span>
 build_config = og.config.BuildConfiguration()           \
-    .with_rebuild(<span class="hljs-literal">True</span>)                                 \
     .with_build_mode(<span class="hljs-string">"release"</span>)                         \
-    .with_build_c_bindings()            <span class="hljs-comment"># &lt;- The important setting</span>
+    .with_build_c_bindings()            <span class="hljs-comment"># &lt;--- The important setting</span>
 
 <span class="hljs-comment"># Solver settings</span>
 solver_config = og.config.SolverConfiguration()         \
@@ -129,7 +115,9 @@ In particular</p>
 <p>Note that <code>the_optimizer</code> is the name given to the optimizer in the Python codegen above.</p>
 <p><strong>Matlab generation will come soon.</strong></p>
 <h2><a class="anchor" aria-hidden="true" id="bindings-api"></a><a href="#bindings-api" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Bindings API</h2>
-<p>The generated API has the following functions available (for complete definitions see the generated header files) for a solver entitled <code>example</code>:</p>
+<p>The generated API has the following functions available
+(for complete definitions see the generated header files) for
+a solver entitled &quot;example&quot;:</p>
 <pre><code class="hljs css language-c"><span class="hljs-comment">/* Contents of header file: example_bindings.h */</span>
 
 <span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> EXAMPLE_N1 0</span>
@@ -174,51 +162,72 @@ In particular</p>
 <p>Parameter <code>u</code> is the starting guess and also the return of the decision variables and <code>params</code> is the array of static parameters. The size of <code>u</code> and <code>params</code> are <code>{optimizer-name}_NUM_DECISION_VARIABLES</code> and <code>{optimizer-name}_NUM_PARAMETERS</code> respectively.</p>
 <p>Finally, when done with the solver, use <code>{optimizer-name}_free</code> to release the memory allocated by <code>{optimizer-name}_new</code>.</p>
 <h2><a class="anchor" aria-hidden="true" id="using-the-bindings-in-an-app"></a><a href="#using-the-bindings-in-an-app" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using the bindings in an app</h2>
-<p>To use the generated solver in C, the following C code can directly be used to interface to the generated solver:</p>
-<pre><code class="hljs css language-c"><span class="hljs-comment">// File: the_optimizer/optimizer.c</span>
+<p>Suppose that you have compiled your optimizer using the option
+<code>with_build_c_bindings()</code> and you have generated C/C++ bindings.
+OpEn will generate an example C file that you can use as a starting point
+to build your application. This example file is stored in the directory
+containing all other files of your optimizer and is called <code>example_optimizer.c</code>.
+The auto-generated example has the following form:</p>
+<pre><code class="hljs css language-c"><span class="hljs-comment">/* File: the_optimizer/example_optimizer.c  */</span>
 
 <span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"the_optimizer_bindings.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"example_bindings.h"</span></span>
 
 <span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
-    <span class="hljs-keyword">double</span> p[THE_OPTIMIZER_NUM_PARAMETERS] = {<span class="hljs-number">1.0</span>, <span class="hljs-number">10.0</span>};  <span class="hljs-comment">// parameter</span>
-    <span class="hljs-keyword">double</span> u[THE_OPTIMIZER_NUM_DECISION_VARIABLES] = {<span class="hljs-number">0</span>};  <span class="hljs-comment">// initial guess</span>
+    <span class="hljs-keyword">double</span> p[EXAMPLE_NUM_PARAMETERS] = {<span class="hljs-number">1.0</span>, <span class="hljs-number">10.0</span>};  <span class="hljs-comment">// parameter</span>
+    <span class="hljs-keyword">double</span> u[EXAMPLE_NUM_DECISION_VARIABLES] = {<span class="hljs-number">0</span>};  <span class="hljs-comment">// initial guess</span>
 
-    the_optimizerCache *cache = the_optimizer_new();
-    the_optimizerSolverStatus status = the_optimizer_solve(cache, u, p);
-    the_optimizer_free(cache);
+    exampleCache *cache = example_new();
+    exampleSolverStatus status = example_solve(cache, u, p);
+    example_free(cache);
 
-    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; THE_OPTIMIZER_NUM_DECISION_VARIABLES; ++i) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; EXAMPLE_NUM_DECISION_VARIABLES; ++i) {
         <span class="hljs-built_in">printf</span>(<span class="hljs-string">"u[%d] = %g\n"</span>, i, u[i]);
     }
 
     <span class="hljs-built_in">printf</span>(<span class="hljs-string">"exit status = %d\n"</span>, status.exit_status);
     <span class="hljs-built_in">printf</span>(<span class="hljs-string">"iterations = %lu\n"</span>, status.num_inner_iterations);
     <span class="hljs-built_in">printf</span>(<span class="hljs-string">"outer iterations = %lu\n"</span>, status.num_outer_iterations);
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"solve time = %f ms\n"</span>, (<span class="hljs-keyword">double</span>)status.solve_time_ns / <span class="hljs-number">1000000.0</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"solve time = %f ms\n"</span>, (<span class="hljs-keyword">double</span>)status.solve_time_ns / <span class="hljs-number">1e6</span>);
 
     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="compiling-and-linking"></a><a href="#compiling-and-linking" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Compiling and linking</h3>
-<p>When building and running an application based on the generated libraries it is good to know that GCC is a bit temperamental when linking libraries, so when linking the static library the following can be used as reference:</p>
-<pre><code class="hljs css language-console">gcc optimizer.c -l:libthe_optimizer.a \
+<h4><a class="anchor" aria-hidden="true" id="using-cmake"></a><a href="#using-cmake" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using cmake</h4>
+<p>To compile your C program you need to link to the auto-generated
+C bindings (see <a href="#compile-your-own-code">next section</a>).
+However, OpEn generates automatically a <code>CMakeLists.txt</code> file
+to facilitate the compilation/linking procedure. To build the
+auto-generated example run</p>
+<pre><code class="hljs css language-console">cmake .
+make
+</code></pre>
+<p>once you build your optimizer you can run the executable (<code>optimizer</code>)
+with</p>
+<pre><code class="hljs css language-console">make run
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="compile-your-own-code"></a><a href="#compile-your-own-code" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Compile your own code</h4>
+<p>When building and running an application based on the generated libraries
+it is good to know that GCC is a bit temperamental when linking libraries,
+so when linking the static library the following can be used as reference:</p>
+<pre><code class="hljs css language-console">gcc example_optimizer.c -l:libthe_optimizer.a \
   -L./target/release -pthread -lm -ldl -o optimizer
 </code></pre>
 <p>Or using direct linking (this is the only thing that works with clang):</p>
-<pre><code class="hljs css language-console">gcc optimizer.c ./target/release/libthe_optimizer.a \
+<pre><code class="hljs css language-console">gcc example_optimizer.c ./target/release/libthe_optimizer.a \
   -pthread -lm -ldl -o optimizer
 </code></pre>
 <p>While the following can be used when using the shared library:</p>
-<pre><code class="hljs css language-console">gcc optimizer.c -lthe_optimizer \
+<pre><code class="hljs css language-console">gcc example_optimizer.c -lthe_optimizer \
   -L./target/release -pthread -lm -ldl -o optimizer
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="running"></a><a href="#running" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Running</h3>
 <p>Which will solve the problem and output the following when run:</p>
 <pre><code class="hljs css language-console"><span class="hljs-meta">#</span><span class="bash"> When linking with static lib</span>
 ./optimizer
-<span class="hljs-meta">
-#</span><span class="bash"> When linking with dynamic lib</span>
+</code></pre>
+<pre><code class="hljs css language-console"><span class="hljs-meta">#</span><span class="bash"> When linking with dynamic lib</span>
 LD_LIBRARY_PATH=./target/release ./optimizer
 
 u[0] = 0.654738
@@ -231,4 +240,4 @@ iterations = 69
 outer iterations = 5
 solve time = 0.140401 ms
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-advanced"><span class="arrow-prev">← </span><span>Advanced options</span></a><a class="docs-next button" href="/optimization-engine/docs/python-tcp-ip"><span>TCP Sockets</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#generating-bindings">Generating bindings</a></li><li><a href="#bindings-api">Bindings API</a></li><li><a href="#using-the-bindings-in-an-app">Using the bindings in an app</a><ul class="toc-headings"><li><a href="#compiling-and-linking">Compiling and linking</a></li><li><a href="#running">Running</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-advanced"><span class="arrow-prev">← </span><span>Advanced options</span></a><a class="docs-next button" href="/optimization-engine/docs/python-tcp-ip"><span>TCP Sockets</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#generating-bindings">Generating bindings</a></li><li><a href="#bindings-api">Bindings API</a></li><li><a href="#using-the-bindings-in-an-app">Using the bindings in an app</a><ul class="toc-headings"><li><a href="#compiling-and-linking">Compiling and linking</a></li><li><a href="#running">Running</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2020 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>

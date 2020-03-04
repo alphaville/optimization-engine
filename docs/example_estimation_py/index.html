@@ -173,6 +173,24 @@ y_data[<span class="hljs-number">0</span>:nx] = output(x_data[<span class="hljs-
     v = np.random.normal(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>)
     x_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx] = dynamics(x_data[i*nx:(i+<span class="hljs-number">1</span>)*nx]) + <span class="hljs-number">0.02</span>*w
     y_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx] = output(x_data[(i+<span class="hljs-number">1</span>)*nx:(i+<span class="hljs-number">2</span>)*nx]) + <span class="hljs-number">0.1</span>*v
+
+time = np.arange(<span class="hljs-number">0</span>, ts*Tsim, ts)
+
+y_1 = y_data[<span class="hljs-number">0</span>:ny*Tsim:ny]
+y_2 = y_data[<span class="hljs-number">1</span>:ny*Tsim:ny]
+y_3 = y_data[<span class="hljs-number">2</span>:ny*Tsim:ny]
+
+plt.subplot(<span class="hljs-number">311</span>)
+plt.plot(time, y_1, <span class="hljs-string">'-'</span>)
+plt.ylabel(<span class="hljs-string">'y_1'</span>)
+plt.subplot(<span class="hljs-number">312</span>)
+plt.plot(time, y_2, <span class="hljs-string">'-'</span>)
+plt.ylabel(<span class="hljs-string">'y_2'</span>)
+plt.subplot(<span class="hljs-number">313</span>)
+plt.plot(time, y_3, <span class="hljs-string">'-'</span>)
+plt.ylabel(<span class="hljs-string">'y_3'</span>)
+plt.xlabel(<span class="hljs-string">'Time'</span>)
+plt.show()
 </code></pre>
 <p>The output data are plotted below:</p>
 <p><img src="/optimization-engine/img/python_estimation_data.png" alt="System output data"></p>
@@ -213,6 +231,30 @@ meta = og.config.OptimizerMeta()               \
     .with_optimizer_name(<span class="hljs-string">"estimator"</span>)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
 builder.build()
+
+<span class="hljs-comment"># Use TCP server</span>
+<span class="hljs-comment"># ------------------------------------</span>
+mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_test_build/estimator'</span>)
+mng.start()
+
+mng.ping()
+solution = mng.call(y_data)
+mng.kill()
+
+<span class="hljs-comment"># Plot solution</span>
+x_star = solution[<span class="hljs-string">'solution'</span>]
+x_1_star = x_star[<span class="hljs-number">0</span>:nx*Tsim:nx]
+x_2_star = x_star[<span class="hljs-number">1</span>:nx*Tsim:nx]
+x_3_star = x_star[<span class="hljs-number">2</span>:nx*Tsim:nx]
+x_1 = x_data[<span class="hljs-number">0</span>:nx*Tsim:nx]
+x_2 = x_data[<span class="hljs-number">1</span>:nx*Tsim:nx]
+x_3 = x_data[<span class="hljs-number">2</span>:nx*Tsim:nx]
+
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.plot(x_1_star,x_2_star,x_3_star)
+ax.plot(x_1,x_2,x_3, <span class="hljs-string">'--'</span>)
+plt.show()
 </code></pre>
 <p>This will generate a parametric optimizer for problem $\mathbb{P}(\mathbf{y})$
 shown above that takes the system output, $\mathbf{y}$, and returns an estimate
@@ -220,4 +262,4 @@ of the system state.</p>
 <p>Such an estimation for the above randomly-generated data is shown below. The
 optimization problem was solved in 2.73 milliseconds (in 65 iterations).</p>
 <p><img src="/optimization-engine/img/python_estimation.png" alt="State estimates"></p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_navigation_py"><span class="arrow-prev">← </span><span>Navigation of ground vehicle</span></a><a class="docs-next button" href="/optimization-engine/docs/example_bnp_py"><span>Ball and Plate</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2019 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_navigation_py"><span class="arrow-prev">← </span><span>Navigation of ground vehicle</span></a><a class="docs-next button" href="/optimization-engine/docs/example_bnp_py"><span>Ball and Plate</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/docusaurus2.svg" alt="Optimization Engine" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine">GitHub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2020 Pantelis Sopasakis and Emil Fresk</section></footer></div></body></html>

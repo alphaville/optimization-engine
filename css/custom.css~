@@ -107,6 +107,7 @@ header.postHeader:empty + article h1 {
 .fixedHeaderContainer header .headerTitleWithLogo {
   color: white;
   display: block !important;
+  z-index: 100;
 }
 
 .navigationSlider .slidingNav ul.nav-site a {
@@ -123,12 +124,6 @@ header.postHeader:empty + article h1 {
 }
 
 
-.navigationSlider .slidingNav ul a[href*='github']::before {
-  content: '';
-  width: 32px;
-  height: 32px;
-  background: url('/img/github-brands.svg');
-}
 
 .nav-footer .copyright,
 .nav-footer .sitemap a {
