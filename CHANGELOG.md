@@ -5,12 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+Note: This is the main Changelog file for the Rust solver. The Changelog file for the Python interface (`opengen`) can be found in [/open-codegen/CHANGELOG.md](open-codegen/CHANGELOG.md)
+
 
 <!-- ---------------------
       Unreleased
      --------------------- -->
 
 ## [Unreleased]
+
+
+### Fixed
+
+### Added
+
+### Changed
+
+
+
+## [v0.6.2] - 2019-10-29
 
 ### Fixed
 
@@ -33,8 +46,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * TCP server response is cast into Python objects (PR #144)
 * Auto-generated code links to most recent crate, unless overriden
 * Changed `jacobian` to `gradient` in Python
-
-
 
 ## [v0.6.1-alpha.2] - 2019-09-7
 
@@ -153,7 +164,8 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...dev/alm/main
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master
+[v0.6.2]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...v0.6.2
 [v0.6.1-alpha.2]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...v0.6.1-alpha.2
 [v0.5.0]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/alphaville/optimization-engine/compare/v0.3.1...v0.4.0
