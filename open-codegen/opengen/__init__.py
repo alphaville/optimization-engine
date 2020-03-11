@@ -4,3 +4,4 @@ import opengen.config
 import opengen.functions
 import opengen.constraints
 import opengen.tcp
+import opengen.sym
