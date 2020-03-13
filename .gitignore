@@ -8,9 +8,12 @@ target/
 *.egg-info
 *.pyc
 open-codegen/opengen/icasadi/extern/Makefile
+open-codegen/virt
+open-codegen/opengen/data
 
 # Python tests create this folder:
 open-codegen/opengen/.python_test_build/
+open-codegen/opengen/test/.python_test_build/
 
 # Haphazard files:
 __main.rs
