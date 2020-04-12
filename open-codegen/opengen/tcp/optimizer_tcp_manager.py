@@ -10,6 +10,7 @@ from threading import Thread
 from retry import retry
 from .solver_response import SolverResponse
 
+
 class OptimizerTcpManager:
     """Client for TCP interface of parametric optimizers
 
@@ -52,7 +53,8 @@ class OptimizerTcpManager:
         command = ['cargo', 'run', '-q']
         if optimizer_details['build']['build_mode'] == 'release':
             command.append('--release')
-        tcp_iface_directory = os.path.join(self.__optimizer_path, "tcp_iface")
+        tcp_dir_name = "tcp_iface_" + optimizer_details['meta']['optimizer_name']
+        tcp_iface_directory = os.path.join(self.__optimizer_path, tcp_dir_name)
         p = subprocess.Popen(command, cwd=tcp_iface_directory)
         p.wait()
 

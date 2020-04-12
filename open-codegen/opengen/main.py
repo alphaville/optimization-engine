@@ -1,6 +1,5 @@
 import casadi.casadi as cs
 import opengen as og
-import json
 
 u = cs.SX.sym("u", 5)                 # decision variable (nu = 5)
 p = cs.SX.sym("p", 2)                 # parameter (np = 2)

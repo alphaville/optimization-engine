@@ -11,7 +11,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Fixed
 
-* Fixed issue #159: project-specific `icasadi` dependency
+* Project-specific `icasadi` dependency
+* Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
 ### Added
@@ -21,4 +22,4 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Removed
 
 
-[0.4.1]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master
+[0.4.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.4.1...master
