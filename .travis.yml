@@ -30,7 +30,7 @@ matrix:
 
 
     # ------------------------------------------------------
-    # Linux Trusty distributions, Python 3.6 and 2.7
+    # Linux Trusty distribution, Python 3.6 and 2.7
     # Stable Rust
     # ------------------------------------------------------
     #
@@ -67,8 +67,7 @@ matrix:
       env:
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.7.5
-      rust: stable
-      # Note: Python 3.6 is available by default
+      rust: stable      
       python: "3.7.5"
 
 
