@@ -1,10 +1,10 @@
 set -euxo pipefail
 
 main() {
-#    if [ $TARGET != x86_64-unknown-linux-gnu ]; then
-#	rustup toolchain remove stable && rustup toolchain install stable
-#        rustup target add $TARGET
-#    fi
+    if [ $TARGET != x86_64-unknown-linux-gnu ]; then
+	rustup toolchain remove stable && rustup toolchain install stable
+        rustup target add $TARGET
+    fi
     sudo pip install --upgrade pip
     sudo pip install virtualenv --upgrade --ignore-installed six
 }
