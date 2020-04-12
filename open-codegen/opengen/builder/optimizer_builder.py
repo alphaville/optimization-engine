@@ -122,10 +122,11 @@ class OpEnOptimizerBuilder:
         Returns icasadi target directory (instance of os.path)
 
         """
+        icasadi_target_dir_name = "icasadi_" + self.__meta.optimizer_name
         return os.path.abspath(
             os.path.join(
                 self.__build_config.build_dir,
-                self.__meta.optimizer_name, "icasadi"))
+                self.__meta.optimizer_name, icasadi_target_dir_name))
 
     def __prepare_target_project(self):
         """Creates folder structure
@@ -161,6 +162,18 @@ class OpEnOptimizerBuilder:
                         target_icasadi_dir,
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
+
+    def __generate_icasadi_cargo_toml(self):
+        self.__logger.info("Generating icasadi's Cargo.toml")
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('icasadi_cargo.toml.template')
+        output_template = template.render(meta=self.__meta)
+        icallocator_path = os.path.abspath(
+            os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
+        with open(icallocator_path, "w") as fh:
+            fh.write(output_template)
+        pass
 
     def __generate_icasadi_c_interface(self):
         """
@@ -531,6 +544,7 @@ class OpEnOptimizerBuilder:
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
+        self.__generate_icasadi_cargo_toml()     # generate icasadi's Cargo.toml file
         self.__generate_cargo_toml()             # generate Cargo.toml using template
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files:

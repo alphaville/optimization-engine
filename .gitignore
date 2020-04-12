@@ -8,6 +8,10 @@ target/
 *.egg-info
 *.pyc
 open-codegen/opengen/icasadi/extern/Makefile
+virt
+data
+my_optimizers
+.python_test_build
 
 # Python tests create this folder:
 open-codegen/opengen/.python_test_build/

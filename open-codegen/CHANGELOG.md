@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
-## [Unreleased]
+## [0.4.1]
 
 ### Fixed
+
+* Fixed issue #159: project-specific `icasadi` dependency
+* Fixed `lbfgs` typo
 
 ### Added
 
@@ -18,4 +21,4 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Removed
 
 
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master
+[0.4.1]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master

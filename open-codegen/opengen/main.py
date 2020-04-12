@@ -27,7 +27,7 @@ meta = og.config.OptimizerMeta()                \
     .with_optimizer_name("the_optimizer")
 
 build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("python_build")      \
+    .with_build_directory("my_optimizers")      \
     .with_build_mode("debug")                  \
     .with_tcp_interface_config()
 
@@ -46,12 +46,12 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           solver_configuration=solver_config)
 builder.build()
 
-mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
+mng = og.tcp.OptimizerTcpManager('my_optimizers/the_optimizer')
 mng.start()
 
 pong = mng.ping()                 # check if the server is alive
 print(pong)
 solution = mng.call([1.0, 50.0])  # call the solver over TCP
-print(json.dumps(solution, indent=4, sort_keys=False))
+print(solution.get().solution)
 
 mng.kill()
