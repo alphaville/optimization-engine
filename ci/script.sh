@@ -10,9 +10,6 @@ main() {
     # Run Python tests
     # ------------------------------------
 
-    # NOTE: Temporarily deactivated
-    #       TODO: Re-enable later
-
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
