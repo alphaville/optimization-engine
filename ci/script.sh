@@ -4,8 +4,7 @@ set -euxo pipefail
 main() {
     # Run Rust tests
     # ------------------------------------
-    cargo test   #  --target $TARGET
-
+    cargo test
 
 
     # Run Python tests
