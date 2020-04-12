@@ -21,7 +21,3 @@ pb.add_constraint(u[[4, 7]], d)
 
 print(pb.decision_variables)
 
-# pb.set_cost_function(f)
-
-# pb.add_constraint(u, ogc.Ball2())
-# print(f)
