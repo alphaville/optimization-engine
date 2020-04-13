@@ -4,15 +4,11 @@ set -euxo pipefail
 main() {
     # Run Rust tests
     # ------------------------------------
-    cargo test --target $TARGET
-
+    cargo test
 
 
     # Run Python tests
     # ------------------------------------
-
-    # NOTE: Temporarily deactivated
-    #       TODO: Re-enable later
 
     # Create virtual environment
     cd open-codegen

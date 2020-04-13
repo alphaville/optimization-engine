@@ -15,6 +15,8 @@ _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
+_TCP_IFACE_PREFIX = 'tcp_iface_'
+_ICASADI_PREFIX = 'icasadi_'
 
 
 def make_dir_if_not_exists(directory):
@@ -122,10 +124,11 @@ class OpEnOptimizerBuilder:
         Returns icasadi target directory (instance of os.path)
 
         """
+        icasadi_target_dir_name = _ICASADI_PREFIX + self.__meta.optimizer_name
         return os.path.abspath(
             os.path.join(
                 self.__build_config.build_dir,
-                self.__meta.optimizer_name, "icasadi"))
+                self.__meta.optimizer_name, icasadi_target_dir_name))
 
     def __prepare_target_project(self):
         """Creates folder structure
@@ -161,6 +164,21 @@ class OpEnOptimizerBuilder:
                         target_icasadi_dir,
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
+
+    def __generate_icasadi_cargo_toml(self):
+        """
+        Generate icasadi's Cargo.toml file
+        """
+        self.__logger.info("Generating icasadi's Cargo.toml")
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        template = env.get_template('icasadi_cargo.toml.template')
+        output_template = template.render(meta=self.__meta)
+        icallocator_path = os.path.abspath(
+            os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
+        with open(icallocator_path, "w") as fh:
+            fh.write(output_template)
+        pass
 
     def __generate_icasadi_c_interface(self):
         """
@@ -355,13 +373,6 @@ class OpEnOptimizerBuilder:
         self.__generate_memory_code(psi_fun, grad_psi_fun,
                                     mapping_f1_fun, mapping_f2_fun)
 
-    # TODO: it seems that the following method is never used
-    def __build_icasadi(self):
-        icasadi_dir = self.__icasadi_target_dir()
-        command = self.__make_build_command()
-        p = subprocess.Popen(command, cwd=icasadi_dir)
-        p.wait()
-
     def __generate_main_project_code(self):
         self.__logger.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
@@ -403,7 +414,9 @@ class OpEnOptimizerBuilder:
     def __build_tcp_iface(self):
         self.__logger.info("Building the TCP interface")
         target_dir = os.path.abspath(self.__target_dir())
-        tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
+        optimizer_name = self.__meta.optimizer_name
+        tcp_iface_dir_name = _TCP_IFACE_PREFIX + optimizer_name
+        tcp_iface_dir = os.path.join(target_dir, tcp_iface_dir_name)
         command = self.__make_build_command()
         p = subprocess.Popen(command, cwd=tcp_iface_dir)
         process_completion = p.wait()
@@ -422,7 +435,8 @@ class OpEnOptimizerBuilder:
                            self.__build_config.tcp_interface_config.bind_ip,
                            self.__build_config.tcp_interface_config.bind_port)
         target_dir = self.__target_dir()
-        tcp_iface_dir = os.path.join(target_dir, "tcp_iface")
+        tcp_iface_dir_name = _TCP_IFACE_PREFIX + self.__meta.optimizer_name
+        tcp_iface_dir = os.path.join(target_dir, tcp_iface_dir_name)
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
 
         # make tcp_iface/ and tcp_iface/src
@@ -531,6 +545,7 @@ class OpEnOptimizerBuilder:
         self.__check_user_provided_parameters()  # check the provided parameters
         self.__prepare_target_project()          # create folders; init cargo project
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
+        self.__generate_icasadi_cargo_toml()     # generate icasadi's Cargo.toml file
         self.__generate_cargo_toml()             # generate Cargo.toml using template
         self.__generate_icasadi_lib()            # generate icasadi lib.rs
         self.__generate_casadi_code()            # generate all necessary CasADi C files:

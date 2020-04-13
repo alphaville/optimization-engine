@@ -5,7 +5,7 @@
 // Generated at: {{timestamp_created}}
 //
 
-use icasadi;
+use icasadi_{{meta.optimizer_name}};
 {% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
 {% endif %}
@@ -292,20 +292,20 @@ pub fn solve(
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
     let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        icasadi::cost(&u, &xi, &p, cost);
+        icasadi_{{meta.optimizer_name}}::cost(&u, &xi, &p, cost);
         Ok(())
     };
     let grad_psi = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        icasadi::grad(&u, &xi, &p, grad);
+        icasadi_{{meta.optimizer_name}}::grad(&u, &xi, &p, grad);
         Ok(())
     };
     {% if problem.dim_constraints_aug_lagrangian() > 0 %}
     let f1 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi::mapping_f1(&u, &p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f1(&u, &p, res);
         Ok(())
     };{% endif %}
     {% if problem.dim_constraints_penalty() %}let f2 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi::mapping_f2(&u, &p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f2(&u, &p, res);
         Ok(())
     };{% endif -%}
     let bounds = make_constraints();

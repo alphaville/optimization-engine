@@ -24,7 +24,7 @@ optimization_engine = {path = "{{build_config.local_path}}"}
 optimization_engine = "{{build_config.open_version or '*'}}"
 {% endif %}
 
-icasadi = {path = "./icasadi/"}
+icasadi_{{meta.optimizer_name}} = {path = "./icasadi_{{meta.optimizer_name}}/"}
 {% if activate_clib_generation -%}
 libc = "0.2.0"
 
