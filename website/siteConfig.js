@@ -14,14 +14,14 @@ const users = [
     caption: 'alphaville',
     // You will need to prepend the image path with your baseUrl
     // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-    image: '/optimization-engine/img/docusaurus2.svg',
+    image: '/optimization-engine/img/box.png',
     infoLink: 'https://alphaville.github.io',
     pinned: true,
   },
 ];
 
 const siteConfig = {
-  title: 'Optimization Engine', // Title for your website.
+  title: 'OpEn', // Title for your website.
   tagline: 'Fast and Accurate Nonconvex Optimization',
   url: 'https://alphaville.github.io', // Your website URL
   baseUrl: '/optimization-engine/', // Base URL for your project */
@@ -49,8 +49,8 @@ const siteConfig = {
   users,
 
   /* path to images for header/footer */
-  headerIcon: 'img/docusaurus2.svg',
-  footerIcon: 'img/docusaurus2.svg',
+  headerIcon: 'img/box.png',
+  footerIcon: 'img/box.png',
   favicon: 'img/favicon.png',
 
   /* Colors for website */
@@ -109,6 +109,9 @@ const siteConfig = {
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
   repoUrl: 'https://github.com/alphaville/optimization-engine',
+
+  docsSideNavCollapsible: true,
 };
 
 module.exports = siteConfig;
+

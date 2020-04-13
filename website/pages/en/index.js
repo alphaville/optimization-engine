@@ -53,13 +53,15 @@ const Logo = props => (
 const ProjectTitle = () => (
   <React.Fragment>
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <img src={"img/docusaurus2.svg"} alt="OpEn logo" width={100} height={100} />
+      <img src={"img/box.png"} alt="OpEn logo" width={100} height={100} />
       <h1 className="projectTitle">{siteConfig.title}</h1>
     </div>
-
     <h2 style={{ marginTop: "0.5em" }}>
-      Fast &amp; Accurate Embedded Optimization
+      Optimization Engine
     </h2>
+    <p>
+      Fast &amp; Accurate Embedded Optimization<br/> for next-generation Robotics and Autonomous Systems
+    </p>
   </React.Fragment>
 );
 
@@ -103,7 +105,7 @@ const FeaturesTop = props => (
   <Block layout="threeColumn" className="featureBlock">
     {[
       {
-        content: "All numerical routines are written in **Rust** -- a **fast** and **safe** programming language, which is ideal for embedded applications.",
+        content: "All numerical routines are written in **Rust**: a **fast** and **safe** programming language, which is ideal for embedded applications.",
         image: imgUrl("microchip.svg"),
         imageAlign: 'top',
         title: "Embeddable"
@@ -122,7 +124,6 @@ const FeaturesTop = props => (
       }
     ]}
   </Block>
-
 );
 
 const FeaturesTopTwo = props => (
@@ -151,6 +152,90 @@ const FeaturesTopTwo = props => (
 
 );
 
+const AboutOpen = props => (
+  <Block className="aboutBlock">
+    {[
+      {
+        content: "<div style='text-align:left'><p><b>Design &amp; Deploy</b> your high-performance embedded optimizer in no time... <ul><li>Formulate your problem in Python or MATLAB</li><li>Build an optimizer (Rust)</li><li>Consume it over a TCP interface or</li><li>Call it in C/C++ (and ROS), or Rust</li></ul></p> Focus on your design, not numerical optimization!</div>",
+        image: imgUrl("about-open.png"),
+        imageAlign: 'left',
+        title: "Embedded Optimization Made Easy"
+      }
+    ]}
+  </Block>
+
+);
+
+const ModelPredictiveControl = props => (
+  <Block className="mpcBlock">
+    {[
+      {
+        content: "<div style='text-align:left'><p><b>Model Predictive Control</b> (MPC) is a powerful optimization-based control methodology.</div>",
+        image: imgUrl("mpc56.png"),
+        imageAlign: 'left',
+        title: "Model Predictive Control"
+      }
+    ]}
+  </Block>
+
+);
+
+const MovingHorizonEstimation = props => (
+  <Block className="mpcBlock">
+    {[
+      {
+        content: "<div style='text-align:left'><p><b>Moving Horizon Estimation</b> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems.</div>",
+        image: imgUrl("mhe.png"),
+        imageAlign: 'left',
+        title: "Moving Horizon Estimation"
+      }
+    ]}
+  </Block>
+
+);
+
+
+const SuperFastBlock = props => (
+  <Block className="mpcBlock">
+    {[
+      {
+        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications.</div>",
+        image: imgUrl("openbenchmark.png"),
+        imageAlign: 'left',
+        title: "Blazingly Fast"
+      }
+    ]}
+  </Block>
+
+);
+
+
+
+const pre = '```';
+const codeExample = `${pre}python
+import opengen as og
+import casadi.casadi as cs
+
+u = cs.SX.sym("u", 5)                     # -- decision variables
+p = cs.SX.sym("p", 2)                     # -- parameters
+phi = og.functions.rosenbrock(u, p)       # -- cost
+c = 1.5 * cs.cos(u[0]) - u[1]             # -- constraints
+bounds = og.constraints.Ball2(None, 1.5)  # -- bounds on u
+problem = og.builder.Problem(u, p, phi) \\
+    .with_penalty_constraints(c) \\
+    .with_constraints(bounds)             # -- construct problem
+build_config = og.config.BuildConfiguration()  \\
+    .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)  \\
+    .with_tcp_interface_config()          # -- build configuration
+meta = og.config.OptimizerMeta()  \\
+    .with_optimizer_name("my_optimizer")
+solver_config = og.config.SolverConfiguration()  \\
+    .with_tolerance(1e-5)
+builder = og.builder.OpEnOptimizerBuilder(problem, meta,
+                                          build_config, 
+                                          solver_config)
+builder.build()
+    `;
 
 class Index extends React.Component {
   render() {
@@ -160,12 +245,24 @@ class Index extends React.Component {
       <div>
         <HomeSplash language={language} />
         <div className="mainContainer">
+          <AboutOpen />
           <div className="productShowcaseSection">
             <Container background="light">
               <FeaturesTop />
               <FeaturesTopTwo />
-            </Container>
+            </Container>                    
           </div>
+          <Container>
+              <SuperFastBlock />
+              <ModelPredictiveControl />
+              <MovingHorizonEstimation />
+          </Container>
+          <Container>
+	      <h2>Easy Code Generation</h2>
+              <p>Code generation in just a few lines of Python code (see <a href="ocs/python-examples">list of examples</a>).</p>
+              <MarkdownBlock>{codeExample}</MarkdownBlock>
+          </Container>
+
         </div>
       </div>
     );
