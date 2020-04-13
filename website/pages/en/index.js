@@ -247,6 +247,12 @@ class Index extends React.Component {
         <div className="mainContainer">
           <AboutOpen />
           <div className="productShowcaseSection">
+              <div>
+                  <h3>Easy Code Generation</h3>
+                  <p>You can install OpEn in Python using <code>pip</code> (read the <a href="docs/installation">installation instructions</a>) and generate your first optimizer in a few minutes!</p>
+                  <img src="img/open-promo.gif"/>
+                  <p/>
+              </div>
             <Container background="light">
               <FeaturesTop />
               <FeaturesTopTwo />
@@ -257,12 +263,6 @@ class Index extends React.Component {
               <ModelPredictiveControl />
               <MovingHorizonEstimation />
           </Container>
-          <Container>
-	      <h2>Easy Code Generation</h2>
-              <p>Code generation in just a few lines of Python code (see <a href="ocs/python-examples">list of examples</a>).</p>
-              <MarkdownBlock>{codeExample}</MarkdownBlock>
-          </Container>
-
         </div>
       </div>
     );

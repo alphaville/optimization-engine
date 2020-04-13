@@ -1,6 +1,7 @@
 ---
 id: example_rosenbrock_py
 title: Rosenbrock Function
+description: Minimization of the Rosenbrock function using OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

@@ -1,6 +1,7 @@
 ---
 id: example_navigation_py
 title: Navigation of ground vehicle
+description: Nonlinear model predictive control with OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

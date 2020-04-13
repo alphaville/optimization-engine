@@ -2,6 +2,7 @@
 id: faq
 title: Frequently Asked Questions
 sidebar_label: FAQ
+description: Frequently asked questions (FAQ) about OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

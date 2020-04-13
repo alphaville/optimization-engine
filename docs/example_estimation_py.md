@@ -1,6 +1,7 @@
 ---
 id: example_estimation_py
 title: Nonlinear State Estimation
+description: Nonlinear optimization-based estimation, Moving Horizon Estimation with OpEn
 ---
 
 

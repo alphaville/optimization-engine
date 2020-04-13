@@ -1,6 +1,7 @@
 ---
 id: openrust-alm
 title: Advanced Rust
+description: OpEn in Rust and the augmented Lagrangian method
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

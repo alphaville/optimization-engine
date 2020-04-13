@@ -2,6 +2,7 @@
 id: open-intro
 title: Optimization Engine
 sidebar_label: Introduction
+description: Introduction to OpEn and its capabilities for fast embedded optimization
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
