@@ -1,6 +1,7 @@
 ---
 id: example_bnp_py
 title: Ball and Plate
+description: Nonlinear model predictive control of a ball-and-plate system
 ---
 
 

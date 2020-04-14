@@ -1,6 +1,7 @@
 ---
 id: example-nav
 title: Navigation
+description: Nonlinear MPC for navigation with OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -97,7 +98,7 @@ z0 = casadi.SX.sym('z0', nx);
 x = z0(1); y = z0(2); theta = z0(3);
 cost = 0;
 for t = 1:nu:nu*N
-    cost = cost + q*((x-xref)^2 + (y-yref)^2) + qtheta*(theta-thetaref)^2;  
+    cost = cost + q*((x-xref)^2 + (y-yref)^2) + qtheta*(theta-thetaref)^2;
     u_t = u(t:t+1);
     theta_dot = (1/L)*(u_t(2)*cos(theta) - u_t(1)*sin(theta));
     cost = cost + r*(u_t'*u_t);
@@ -235,9 +236,9 @@ cost = 0;
 % Obstacle (disc centered at `zobs` with radius `c`)
 c = 0.4; zobs = [0.7; 0.5];
 
-for t = 1:nu:nu*N    
+for t = 1:nu:nu*N
     z = [x; y];
-    cost = cost + q*norm(z-zref) + qtheta*(theta-thetaref)^2;        
+    cost = cost + q*norm(z-zref) + qtheta*(theta-thetaref)^2;
     cost = cost + h_penalty * max(c^2 - norm(z-zobs)^2, 0)^2;
     u_t = u(t:t+1);
     theta_dot = (1/L)*(u_t(2)*cos(theta) - u_t(1)*sin(theta));

@@ -1,6 +1,7 @@
 ---
 id: python-examples
 title: Examples
+description: List of OpEn examples in Python
 ---
 
 <table style="border: 0px">

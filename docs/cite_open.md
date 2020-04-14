@@ -2,6 +2,7 @@
 id: cite_open
 title: Cite OpEn
 sidebar_label: Cite OpEn
+description: How to cite OpEn
 ---
 
 <script>

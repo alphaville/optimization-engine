@@ -1,6 +1,7 @@
 ---
 id: python-interface
 title: Opengen basics
+description: Introduction to opengen: OpEn's Python interface
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

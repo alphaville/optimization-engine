@@ -2,6 +2,7 @@
 id: contributing
 sidebar_label: Contributing
 title: Contributing to OpEn
+description: How do I contribute to OpEn
 ---
 
 ## How can I contribute to OpEn?
