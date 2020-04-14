@@ -104,8 +104,9 @@ header.postHeader:empty + article h1 {
   fill: currentColor;
 }
 
+.fixedHeaderContainer {  z-index: 100; }
 .fixedHeaderContainer header .headerTitleWithLogo {
-  color: white;
+  color: yellow;
   display: block !important;
   z-index: 100;
 }
@@ -164,6 +165,16 @@ header.postHeader:empty + article h1 {
   max-height: 60px;
 }
 
+.mpcBlock  {
+  text-align: left;
+  margin-top: 35px;
+}
+
+.aboutBlock  {
+  text-align: left;
+  margin-bottom: 35px;
+}
+
 .featureBlock .blockContent > div p {
   text-align: left;
 }
@@ -189,6 +200,38 @@ header.postHeader:empty + article h1 {
 .container .wrapper .alignLeft h2 {
   margin-top: 10px;
   margin-bottom: 5px;
+}
+
+.content.row {
+  display: flex;
+  flex-direction: row;
+  margin: 60px auto;
+}
+
+.content .col {
+  flex-basis: 0;
+  flex-grow: 1;
+  padding: 10px 20px;
+  align-self: center;
+}
+
+.col h3 {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+
+.col h4 {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.8em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.col p {
+  opacity: 0.7;
 }
 
 @media only screen and (max-device-width: 480px) {

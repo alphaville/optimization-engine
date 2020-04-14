@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
     <channel>
-        <title>Optimization Engine Blog</title>
+        <title>OpEn Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
-        <description>The best place to stay up-to-date with the latest Optimization Engine news and events.</description>
+        <description>The best place to stay up-to-date with the latest OpEn news and events.</description>
         <lastBuildDate>Mon, 14 Oct 2019 06:00:00 GMT</lastBuildDate>
-        <docs>http://blogs.law.harvard.edu/tech/rss</docs>
-        <generator>Feed for Node.js</generator>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
         <image>
-            <title>Optimization Engine Blog</title>
-            <url>https://alphaville.github.io/optimization-engine/img/docusaurus2.svg</url>
+            <title>OpEn Blog</title>
+            <url>https://alphaville.github.io/optimization-engine/img/box.png</url>
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2020 Pantelis Sopasakis and Emil Fresk</copyright>
