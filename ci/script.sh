@@ -31,11 +31,17 @@ normal_test() {
     python -W ignore test/test.py -v
 }
 
+test_docker() {
+    cd docker
+    docker image build -t alphaville/open .
+}
+
 main() {
     if [ $DO_DOCKER -eq 0 ]; then
         echo "DO_DOCKER is zero"
     else
-        echo "DO_DOCKER is set to $DO_DOCKER";
+        echo "Building Docker image";
+        test_docker()
     fi
 }
 
