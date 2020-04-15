@@ -32,8 +32,8 @@ normal_test() {
 }
 
 main() {
-    if [ -z $DO_DOCKER ]; then
-        echo "DO_DOCKER is unset"
+    if [ $DO_DOCKER -eq 0 ]; then
+        echo "DO_DOCKER is zero"
     else
         echo "DO_DOCKER is set to $DO_DOCKER";
     fi
