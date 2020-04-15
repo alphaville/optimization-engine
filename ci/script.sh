@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euxo pipefail
 
-normal_test() {
+regular_test() {
     # Run Rust tests
     # ------------------------------------
     cargo test
@@ -38,7 +38,8 @@ test_docker() {
 
 main() {
     if [ $DO_DOCKER -eq 0 ]; then
-        echo "DO_DOCKER is zero"
+        echo "Running regular tests"
+        regular_test
     else
         echo "Building Docker image"
         test_docker
