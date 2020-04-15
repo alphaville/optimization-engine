@@ -32,9 +32,11 @@ normal_test() {
 }
 
 main() {
-    if [[ -v DO_DOCKER ]]
+    if [ -v ${DO_DOCKER+set} ]
     then
-        echo 'testing!'
+        echo 'DO_DOCKER is set'
+    else
+        echo 'DO_DOCKER is not set'
     fi
 }
 

@@ -10,7 +10,7 @@ matrix:
 
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 1: Xenial + Stable Rust + Python 3.6
+    # [Job 1A] Xenial + Stable Rust + Python 3.6
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: xenial
@@ -29,14 +29,15 @@ matrix:
       python: "3.6"
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 1B: Xenial + Stable Rust + Python 3.6
+    # [Job 1B] Xenial, Test Docker
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: xenial
       services:
         - docker      
       env:
-        - DO_DOCKER=1
+        - DOCKER=1
+
 
 
 
