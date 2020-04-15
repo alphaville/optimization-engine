@@ -32,11 +32,10 @@ normal_test() {
 }
 
 main() {
-    if [ -v ${DO_DOCKER+set} ]
-    then
-        echo 'DO_DOCKER is set'
+    if [ -z ${DO_DOCKER+x} ]; then
+        echo "DO_DOCKER is unset"
     else
-        echo 'DO_DOCKER is not set'
+        echo "DO_DOCKER is set to $DO_DOCKER";
     fi
 }
 

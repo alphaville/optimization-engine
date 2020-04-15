@@ -1,7 +1,8 @@
 set -euxo pipefail
 
 main() {
-    if [ -v ${DO_DOCKER+set} ]
+    # If DO_DOCKER is unset, install necessary stuff for testing
+    if [ -z ${DO_DOCKER+x} ]; then
     then
         rustup toolchain remove stable && rustup toolchain install stable
         sudo pip install --upgrade pip
