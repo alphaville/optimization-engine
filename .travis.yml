@@ -25,7 +25,7 @@ matrix:
       env:
         - TARGET=x86_64-unknown-linux-gnu
         - PYTHON_VERSION=3.6
-        - DOCKER=0
+        - DO_DOCKER=0
       rust: stable
       python: "3.6"
 
@@ -37,7 +37,7 @@ matrix:
       services:
         - docker      
       env:
-        - DOCKER=1
+        - DO_DOCKER=1
 
 
 
@@ -64,7 +64,7 @@ matrix:
       env:
         - TARGET=x86_64-unknown-linux-gnu
         - PYTHON_VERSION=3.6
-        - DOCKER=0
+        - DO_DOCKER=0
       rust: stable
       python: "3.6"
 
@@ -81,7 +81,7 @@ matrix:
       env:
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.7.5
-        - DOCKER=0
+        - DO_DOCKER=0
       rust: stable
       python: "3.7.5"
 
