@@ -40,8 +40,8 @@ main() {
     if [ $DO_DOCKER -eq 0 ]; then
         echo "DO_DOCKER is zero"
     else
-        echo "Building Docker image";
-        test_docker()
+        echo "Building Docker image"
+        test_docker
     fi
 }
 
