@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euxo pipefail
 
-main() {
+normal_test() {
     # Run Rust tests
     # ------------------------------------
     cargo test
@@ -29,6 +29,13 @@ main() {
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
+}
+
+main() {
+    if [ -z "$DO_DOCKER" ]
+    then
+        echo 'testing!'
+    fi
 }
 
 main

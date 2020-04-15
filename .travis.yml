@@ -28,6 +28,17 @@ matrix:
       rust: stable
       python: "3.6"
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Job 1B: Xenial + Stable Rust + Python 3.6
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    - os: linux
+      dist: xenial
+      services:
+        - docker      
+      env:
+        - DO_DOCKER=1
+
+
 
     # ------------------------------------------------------
     # Linux Trusty distribution, Python 3.6 and 2.7
@@ -67,7 +78,7 @@ matrix:
       env:
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.7.5
-      rust: stable      
+      rust: stable
       python: "3.7.5"
 
 
