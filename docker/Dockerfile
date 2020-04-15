@@ -24,6 +24,8 @@ LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
 
 WORKDIR /open
 
+COPY example.ipynb /open/
+
 RUN "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf"
 RUN apt-get update -y \
     && apt-get -y --no-install-recommends install \
@@ -39,7 +41,7 @@ RUN apt-get update -y \
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-RUN apt-get -y --no-install-recommends install libpython3-dev && pip3 install wheel
+RUN pip3 install wheel
 RUN pip3 install opengen
 
 CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
