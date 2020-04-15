@@ -8,13 +8,11 @@
 # -------- Run Instructions ----------------------------------------------------
 # Run the docker image and start a terminal to access it by running:
 #
-# $ docker run -p 8888:8888 alphaville/open:0.1
+# $ docker run -p 8888:8888 -it alphaville/open
 #
-# You will then be able to access your Jupyter Notebook at
-#  http://localhost:8888/
+# You will be able to access your Jupyter Notebook at http://localhost:8888/
+# without a password. To set a password, read the documentation.
 #
-# ***IMPORTANT***
-# The password is: open
 # ------------------------------------------------------------------------------
 
 FROM debian
@@ -26,34 +24,34 @@ LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
 
 WORKDIR /open
 
+# Example Python notebook
 COPY example.ipynb /open/
 
-RUN "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf"
-RUN apt-get update -y \
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# These commands are groupped into a separate RUN to faciliate
+# caching; it is unlikely that any of the following will change
+# in future versions of this docker image
+RUN "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf"  \
+    && apt-get update -y \
     && apt-get -y --no-install-recommends install \
         build-essential \
         curl \
         jupyter-notebook  \
         python3 \
         python3-pip \
-        python3-setuptools
+        python3-setuptools  \
+    &&  curl https://sh.rustup.rs -sSf | bash -s -- -y  \
+    &&  pip3 install wheel  \ 
+    &&  pip3 install opengen
 
-# Get Rust
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install necessary Python libraries
-RUN pip3 install wheel    # If we don't install wheel first, pyyaml
-                          # complains
-RUN pip3 install opengen  # our library
-
-# Configure Jupyter Notebook: set password (it is: open)
-RUN jupyter notebook --generate-config  \
-    && echo "c.NotebookApp.password='sha1:b983859a4bae:fb295c0c9b656bc2bdeffa359d8585f5cc3c2ac5'">>/root/.jupyter/jupyter_notebook_config.py
-
-# Run the following command every time this docker image 
+# Run the following command every time this docker image
 # is executed
-CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
+COPY start_jupyter_notebook.sh /
+RUN ["chmod", "+x", "/start_jupyter_notebook.sh"]
+ENTRYPOINT ["/start_jupyter_notebook.sh"]
+CMD ["/start_jupyter_notebook.sh"]
 
 
 

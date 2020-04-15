@@ -1,8 +1,6 @@
 # OpEn Jupyter Notebook
 
-Hmm.. that [OpEn](https://alphaville.github.io/optimization-engine/) framework looks really cool, but I'm too lazy to spend 2 minutes (!) to [install](https://alphaville.github.io/optimization-engine/docs/installation) it!
-
-Is there a way to try it quickly?!
+Hmm.. that [OpEn](https://alphaville.github.io/optimization-engine/) framework looks really cool, but I'm too lazy to spend two minutes to [install](https://alphaville.github.io/optimization-engine/docs/installation) it!
 
 ## TaDa...
 
@@ -15,12 +13,30 @@ docker pull alphaville/open
 and then run it with
 
 ```console
-docker run -p 8888:8888 alphaville/open
+docker run -p 8888:8888 -it alphaville/open
 ```
 
 ## What it does
 
-It start a Jupyter Notebook at [localhost:8888](http://localhost:8888). 
+It starts a Jupyter Notebook at [localhost:8888](http://localhost:8888) without a password.
 
-The password is **open**.
+## Set a password
+
+To set up a password for your Python Notebook:
+
+- [Hash your password](https://jupyter-notebook.readthedocs.io/en/stable/public_server.html#hashed-pw)
+- Run your docker image with:
+
+```
+docker run -e JUPYTER_NOTEBOOK_PASSWORD=... -p 8888:8888 -it alphaville/open
+```
+
+For example, let's say you want to set the password **open**. Then do
+
+```
+docker run   \
+  -e JUPYTER_NOTEBOOK_PASSWORD=sha1:898ca689bf37:2ee883bfd6ffe82a749a86e37964700bd06a2ff9  \
+  -p 8888:8888 -it alphaville/open
+```
+
 
