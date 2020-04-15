@@ -32,7 +32,7 @@ normal_test() {
 }
 
 main() {
-    if [ -z ${DO_DOCKER+false} ]
+    if [ -n "${DO_DOCKER+set}" ]
     then
         echo 'testing!'
     fi
