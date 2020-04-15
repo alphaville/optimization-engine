@@ -32,7 +32,7 @@ normal_test() {
 }
 
 main() {
-    if [ -z ${DO_DOCKER+x} ]; then
+    if [[ -z ${DO_DOCKER+x} ]]; then
         echo "DO_DOCKER is unset"
     else
         echo "DO_DOCKER is set to $DO_DOCKER";
