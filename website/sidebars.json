@@ -19,6 +19,9 @@
       "openrust-basic",
       "openrust-alm"
     ],
+    "Docker": [
+      "docker"
+    ],
     "Extras": [
       "algorithm",
       "faq",

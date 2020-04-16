@@ -130,7 +130,7 @@ const FeaturesTopTwo = props => (
   <Block layout="threeColumn" className="featureBlock">
     {[
       {
-        content: "**OpEn** is **seriously** easy to use! You can call if from Rust, MATLAB, Python and other programming languages - even over the Internet!",
+        content: "**OpEn** is **seriously** easy to use! You can call if from Rust, MATLAB, Python and other programming languages - even over the Internet! A <a href='/optimization-engine/docs/docker'>Docker Image</a> is available!",
         image: imgUrl("happy.png"),
         imageAlign: 'top',
         title: "User Friendly"
@@ -142,7 +142,7 @@ const FeaturesTopTwo = props => (
         title: "Community"
       },
       {
-        content: "**Well documented** with lots of examples.",
+        content: "**Well documented** with lots of examples. Among 10% best documented open-source Rust projects according to <a href='https://www.openhub.net/p/optimization-engine/factoids#FactoidCommentsVeryHigh'>openhub</a>.",
         image: imgUrl("saturn.png"),
         imageAlign: 'top',
         title: "Documented"
@@ -170,9 +170,7 @@ const ModelPredictiveControl = props => (
   <Block className="mpcBlock">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Model Predictive Control</b> (MPC) is a powerful optimization-based control methodology.</div>",
-        image: imgUrl("mpc56.png"),
-        imageAlign: 'left',
+        content: "<div style='text-align:left'><p><b>Model Predictive Control</b> (MPC) is a powerful optimization-based control methodology.</div><img width=500 src='img/mpc56.png'/>",
         title: "Model Predictive Control"
       }
     ]}
@@ -181,12 +179,10 @@ const ModelPredictiveControl = props => (
 );
 
 const MovingHorizonEstimation = props => (
-  <Block className="mpcBlock">
+  <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Moving Horizon Estimation</b> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems.</div>",
-        image: imgUrl("mhe.png"),
-        imageAlign: 'left',
+        content: "<div style='text-align:left'><p><b>Moving Horizon Estimation</b> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems.</div><img width=500 src='img/mhe.png'/>",
         title: "Moving Horizon Estimation"
       }
     ]}
@@ -196,12 +192,10 @@ const MovingHorizonEstimation = props => (
 
 
 const SuperFastBlock = props => (
-  <Block className="mpcBlock">
+  <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications.</div>",
-        image: imgUrl("openbenchmark.png"),
-        imageAlign: 'left',
+        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications.</div><img width=500 src='img/openbenchmark.png'/>",
         title: "Blazingly Fast"
       }
     ]}
