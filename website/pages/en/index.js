@@ -107,18 +107,21 @@ const FeaturesTop = props => (
       {
         content: "All numerical routines are written in **Rust**: a **fast** and **safe** programming language, which is ideal for embedded applications.",
         image: imgUrl("microchip.svg"),
+        imageAlt: "microchip icon black and white",
         imageAlign: 'top',
         title: "Embeddable"
       },
       {
         content: "**Optimization Engine** can produce solutions of high accuracy thanks to the fast convergence properties of its numerical algorithm (PANOC).",
         image: imgUrl("bullseye.svg"),
+        imageAlt: "bullseye icon black and white",
         imageAlign: 'top',
         title: "Accurate"
       },
       {
-        content: "**Sub-millisecond** fast numerical nonconvex optimization tested on several platforms.",
+        content: "**Sub-millisecond** fast numerical nonconvex optimization tested on several platforms: check out our <a href='https://arxiv.org/abs/2003.00292'>benchmarks</a>.",
         image: imgUrl("rocket.svg"),
+        imageAlt: "small rocket icon black and white",
         imageAlign: 'top',
         title: "Fast"
       }
@@ -132,18 +135,21 @@ const FeaturesTopTwo = props => (
       {
         content: "**OpEn** is **seriously** easy to use! You can call if from Rust, MATLAB, Python and other programming languages - even over the Internet! A <a href='/optimization-engine/docs/docker'>Docker Image</a> is available!",
         image: imgUrl("happy.png"),
+        imageAlt: "smiley face icon black and white",
         imageAlign: 'top',
         title: "User Friendly"
       },
       {
         content: "**OpEn is open**: it is a free, open source, MIT/Apachev2-licensed software with a growing community that actively supports its development. Reach us [here](/optimization-engine/blog/2019/03/06/talk-to-us).",
         image: imgUrl("open.png"),
+        imageAlt: "group of people icon black and white",
         imageAlign: 'top',
         title: "Community"
       },
       {
         content: "**Well documented** with lots of examples. Among 10% best documented open-source Rust projects according to <a href='https://www.openhub.net/p/optimization-engine/factoids#FactoidCommentsVeryHigh'>openhub</a>.",
         image: imgUrl("saturn.png"),
+        imageAlt: "saturn icon black and white",
         imageAlign: 'top',
         title: "Documented"
       }
@@ -159,6 +165,7 @@ const AboutOpen = props => (
         content: "<div style='text-align:left'><p><b>Design &amp; Deploy</b> your high-performance embedded optimizer in no time... <ul><li>Formulate your problem in Python or MATLAB</li><li>Build an optimizer (Rust)</li><li>Consume it over a TCP interface or</li><li>Call it in C/C++ (and ROS), or Rust</li></ul></p> Focus on your design, not numerical optimization!</div>",
         image: imgUrl("about-open.png"),
         imageAlign: 'left',
+        imageAlt: "organisation map of Optimization Engine (OpEn) and how it works: design interfaces, solver in Rust, core solver engine, TCP/IP socket interface and C/C++ bindings",
         title: "Embedded Optimization Made Easy"
       }
     ]}
@@ -170,7 +177,7 @@ const ModelPredictiveControl = props => (
   <Block className="mpcBlock">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Model Predictive Control</b> (MPC) is a powerful optimization-based control methodology.</div><img width=500 src='img/mpc56.png'/>",
+        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Model_predictive_control' target='_blank'><b>Model Predictive Control</b></a> (MPC) is a powerful optimization-based control methodology. MPC has become the golden standard in control engineering as it can deal with nonlinear dynamics and state/input constraints. At its core, there is an optimization problem that needs to be solved in real time and within the ever so often stringent runtime requirements of modern applications (robotics, aerospace, automotive and more).</p></div><img width=500 src='img/mpc56.png' alt='model predictive control for UAV obstacle avoidance'/><div style='text-align:left'><p>When the system dynamics is nonlinear, or there exist nonconvex constraints (e.g., set avoidance constraints), the MPC optimization problem poses significant challenges towards the implementation and deployment of fast and reliable predictive controllers. This is where OpEn comes in: it offers a toolkit of extremely fast and robust numerical optimization methods, especially tailored for embedded applications where both speed and memory usage are of the essense.</p></div>",
         title: "Model Predictive Control"
       }
     ]}
@@ -182,7 +189,7 @@ const MovingHorizonEstimation = props => (
   <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Moving Horizon Estimation</b> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems.</div><img width=500 src='img/mhe.png'/>",
+        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Moving_horizon_estimation' target='_blank'><b>Moving Horizon Estimation</b></a> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems. MHE is backed by a strong theoretical bedrock, however, its applicability has been hampered by the associated computational burden that have.</p></div><img width=500 src='img/mhe.png' alt='estimation of the state of Lorenz system with nonlinear moving horizon estimation'/>",
         title: "Moving Horizon Estimation"
       }
     ]}
@@ -195,7 +202,7 @@ const SuperFastBlock = props => (
   <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications.</div><img width=500 src='img/openbenchmark.png'/>",
+        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications. OpEn implements numerical fast state-of-the-art optimization methods with low memory requirements. Our benchmarks have shown that OpEn can outperform other methods, such as interior point and sequential quadratic/convex programming by 1-2 orders of magnitude. This way, OpEn paves the way for the use of optimization-based methods, such as model predictive control and moving horizon estimation, to highly dynamical nonlinear systems.</div><img width=500 src='img/openbenchmark.png' alt='benchmark results of OpEn; comparison with IPOPT'/>",
         title: "Blazingly Fast"
       }
     ]}
@@ -233,7 +240,7 @@ builder.build()
 
 class Index extends React.Component {
   render() {
-    const language = this.props.language || "";
+    const language = this.props.language || "en";
 
     return (
       <div>
@@ -244,7 +251,7 @@ class Index extends React.Component {
               <div>
                   <h3>Easy Code Generation</h3>
                   <p>You can install OpEn in Python using <code>pip</code> (read the <a href="docs/installation">installation instructions</a>) and generate your first optimizer in a few minutes!</p>
-                  <img src="img/open-promo.gif"/>
+                  <img src="img/open-promo.gif" alt="showcase of OpEn functionality in Python via a code generation example"/>
                   <p/>
               </div>
             <Container background="light">

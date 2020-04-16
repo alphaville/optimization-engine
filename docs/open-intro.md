@@ -7,6 +7,7 @@ description: Introduction to OpEn and its capabilities for fast embedded optimiz
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 ## What is Optimization Engine (OpEn)?
 
@@ -30,6 +31,9 @@ The aim of **Optimization Engine** is to become a widely used software solution,
 
 Users can, for example, do their design entirely in Python and then use the **Optimization Engine Interface** to automatically generate Rust code (which can be used on an embedded device).
 
+<div class="alert alert-info">
+<b>Note:</b> You do not need to know Rust to use OpEn.</div>
+
 
 ## What problems can OpEn solve?
 
@@ -47,20 +51,43 @@ $p\in\mathbb{R}^{n_p}$ is a vector of parameters.
 This is a very flexible problem formulation that allows the user to model a very broad 
 class of optimization problems.
 
-In particular,
-- $f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
-  Function $f$ can be nonconvex.
-- $U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
+<button onclick="toggleTechnicalConditions()" id="techConditionsButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Click to expand technical conditions
+</button>
+
+<div class="mycontainer" id="containerTechnicalConditions">
+<ul>
+<li>$f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
+  Function $f$ can be nonconvex.</li>
+<li>$U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
   can compute projections. Examples, include norm balls, rectangles, 
-  finite sets and a lot more.
-- $F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping 
-  with Lipschitz-continuous Jacobian matrix which is bounded on $U$
-- $C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
+  finite sets and a lot more.</li>
+<li>$F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping 
+  with Lipschitz-continuous Jacobian matrix which is bounded on $U$</li>
+<li>$C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
   distances. Examples, are: (i) the positive orthant, (ii) norm balls, and (iii)
-  second-order cones.
-- $F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a mapping
+  second-order cones.</li>
+<li>$F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a mapping
   such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function 
-  with Lipschitz-continuous gradient
+  with Lipschitz-continuous gradient</li>
+</ul>
+</div><br/><br/>
+
+<script>
+function toggleTechnicalConditions() {
+    conditionsElement = document.getElementById("containerTechnicalConditions");
+    techhConditionsButtonElement = document.getElementById("techConditionsButton");
+    conditionsDisplay = getComputedStyle(conditionsElement, null).display
+    if (conditionsDisplay === "none") {
+        conditionsElement.style.display = "block";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-up"></i> Collapse technical conditions';
+    } else {
+        conditionsElement.style.display = "none";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-down"></i> Expand technical conditions';
+    }
+}
+</script>
 
 We will explain the difference between the constraints $F_1(u, p) \in C$ and 
 $F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using 
@@ -156,7 +183,7 @@ A code generation tool will create Rust code which can be used for maximum effic
   code generation libraries and interfaces 
 
 ## Next steps
-First, you need to [install rust]. Then, you can either learn how to use [OpEn in rust]./openrust-basic, or how to generate and use parametric optimizers [from MATLAB](./matlab-interface) or [Python](./python-interface).
+First, you need to [install rust]. Then, you can either learn how to use [OpEn in rust](./openrust-basic), or how to generate and use parametric optimizers [from MATLAB](./matlab-interface) or [Python](./python-interface).
 
 
 [`optimization-engine`]: https://crates.io/crates/optimization_engine

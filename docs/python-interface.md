@@ -146,10 +146,13 @@ meta = og.config.OptimizerMeta()                \
     .with_optimizer_name("the_optimizer")
 ```
 
-Note that `with_authors` takes a list of strings. The licence
+<div class="alert alert-info">
+<b>Info:</b> Note that <code>with_authors</code> takes a list of strings. The licence
 is either the name of a licence or a URL. The optimizer name 
 is the name of the auto-generated crate and the name of the 
-folder in which all generated files will be stored.
+folder in which all generated files will be stored.</div>
+
+
 
 Next, let us create a basic build configuration:
 
@@ -165,12 +168,13 @@ TCP/IP interface with which we will be able to call the solver from
 Python and other languages. You do not need to activate it if you 
 plan to use the optimizer on an embedded device. 
 
-*Note.* You may configure the TCP parameters of the server by providing 
-to `.with_tcp_interface_config()` a `TcpServerConfiguration` object. 
-By default, the server will bind on `127.0.0.1` and will listen for 
-requests at port `8333`. See the [advanced options] for details.
+<div class="alert alert-success">
+<b>Info:</b> You may configure the TCP parameters of the server by providing 
+to <code>.with_tcp_interface_config()</code> a <code>TcpServerConfiguration</code> object. 
+By default, the server will bind on <code>127.0.0.1</code> and will listen for 
+requests at port <code>8333</code>. 
+See the <a href="/optimization-engine/docs/python-advanced#tcp-ip-options">advanced options</a> for details.</div>
 
-[advanced options]: /optimization-engine/docs/python-advanced#tcp-ip-options
 
 This will instruct opegen to store the generated optimizer in
 `python_build/the_optimizer`. The build mode can be either 
