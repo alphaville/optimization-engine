@@ -5,7 +5,7 @@ description: OpEn in Rust and the augmented Lagrangian method
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 Here we shall go through a complete example on how to use Optimization Engine to solve
 more general problems that involve constraints of the general form $F_1(u) \in C$ and 
