@@ -8,6 +8,20 @@ description: Introduction to OpEn and its capabilities for fast embedded optimiz
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script type="text/javascript">
+function toggleCollapseExpand(buttonId, containerId, theText) {
+    conditionsElement = document.getElementById(containerId);
+    techhConditionsButtonElement = document.getElementById(buttonId);
+    conditionsDisplay = getComputedStyle(conditionsElement, null).display
+    if (conditionsDisplay === "none") {
+        conditionsElement.style.display = "block";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-up"></i> Collapse ' + theText;
+    } else {
+        conditionsElement.style.display = "none";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-down"></i> Expand ' + theText;
+    }
+}
+</script>
 
 ## What is Optimization Engine (OpEn)?
 
@@ -51,7 +65,7 @@ $p\in\mathbb{R}^{n_p}$ is a vector of parameters.
 This is a very flexible problem formulation that allows the user to model a very broad 
 class of optimization problems.
 
-<button onclick="toggleTechnicalConditions()" id="techConditionsButton">
+<button onclick="toggleCollapseExpand('techConditionsButton', 'containerTechnicalConditions', 'Technical Conditions')" id="techConditionsButton">
   <i class="fa fa-cog fa-spin"></i> 
   Click to expand technical conditions
 </button>
@@ -72,22 +86,8 @@ class of optimization problems.
   such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function 
   with Lipschitz-continuous gradient</li>
 </ul>
-</div><br/><br/>
-
-<script>
-function toggleTechnicalConditions() {
-    conditionsElement = document.getElementById("containerTechnicalConditions");
-    techhConditionsButtonElement = document.getElementById("techConditionsButton");
-    conditionsDisplay = getComputedStyle(conditionsElement, null).display
-    if (conditionsDisplay === "none") {
-        conditionsElement.style.display = "block";
-        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-up"></i> Collapse technical conditions';
-    } else {
-        conditionsElement.style.display = "none";
-        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-down"></i> Expand technical conditions';
-    }
-}
-</script>
+</div>
+<br/><br/>
 
 We will explain the difference between the constraints $F_1(u, p) \in C$ and 
 $F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using 
@@ -142,15 +142,24 @@ Rust compiles into llvm instructions and can run on any device, including embedd
 ### The power of PANOC
 What makes OpEn so fast?
 
-The typical approach for solving nonconvex optimization problems in real time is the use of *Sequential Quadratic Programming* (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for *interior point methods* - they require heavyweight inner iteration procedures.
+<p>The typical approach for solving nonconvex optimization problems in real time is the use of <em>Sequential Quadratic Programming</em> (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for <em>interior point methods</em> - they require heavyweight inner iteration procedures.</p>
 
-**OpEn** uses the proximal averaged Newton-type method (PANOC) which uses the same oracle as the projected gradient method, therefore, it involves only simple iterations. PANOC is a line-search method that combines forward-backward iterations with fast Newton-type steps over the *forward-backward envelope* - a real-valued continuous and exact merit function. 
+<button onclick="toggleCollapseExpand('panocButton', 'containerPanoc', 'PANOC details')" id="panocButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Click to learn more about PANOC
+</button>
 
-This way, **OpEn** enables very fast convergence (up to *superlinear convergence*, under mild assumptions), while it features very simple iterations which involve access to first-order information of the cost function and low-cost linear algebra (only vector-vector operations).
+<div class="mycontainer" id="containerPanoc">
+<p><b>OpEn</b> uses the proximal averaged Newton-type method (PANOC) which uses the same oracle as the projected gradient method, therefore, it involves only simple iterations. PANOC is a line-search method that combines forward-backward iterations with fast Newton-type steps over the <em>forward-backward envelope</em> - a real-valued continuous and exact merit function.</p>
 
-The result is a simple, yet rapidly convergent algorithm, which is perfectly suitable for embedded applications.
+<p>This way, <b>OpEn</b> enables very fast convergence (up to superlinear convergence, under mild assumptions), while it features very simple iterations which involve access to first-order information of the cost function and low-cost linear algebra (only vector-vector operations).</p>
 
-Find out more about PANOC in the [original publication](https://arxiv.org/pdf/1709.06487.pdf). See PANOC in action in obstacle avoidance scenarios in [this paper](https://core.ac.uk/download/pdf/153430972.pdf) and [this paper](https://arxiv.org/pdf/1812.04755.pdf).
+<p>The result is a simple, yet rapidly convergent algorithm, which is perfectly suitable for embedded applications.</p>
+
+<p>Find out more about PANOC in the <a href='https://arxiv.org/pdf/1709.06487.pdf' target='_blank'>original publication</a>. See PANOC in action in obstacle avoidance scenarios in <a href='https://core.ac.uk/download/pdf/153430972.pdf' target='_blank'>this paper</a> and <a href='https://arxiv.org/pdf/1812.04755.pdf' target='_blank'>this paper</a>.</p>
+</div>
+
+
 
 
 ### Augmented Lagrangian and Penalty Methods

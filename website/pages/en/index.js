@@ -101,6 +101,21 @@ const Block = props => (
   </Container>
 );
 
+const AboutOpen = props => (
+  <Block className="aboutBlock">
+    {[
+      {
+        content: "<div style='text-align:left'><p><b>Design &amp; Deploy</b> your high-performance embedded optimizer in no time... <ul><li>Formulate your problem in Python or MATLAB</li><li>Build an optimizer (Rust)</li><li>Consume it over a TCP interface or</li><li>Call it in C/C++ (and ROS), or Rust</li></ul></p> Focus on your design, not numerical optimization!</div>",
+        image: imgUrl("about-open.png"),
+        imageAlign: 'left',
+        imageAlt: "organisation map of Optimization Engine (OpEn) and how it works: design interfaces, solver in Rust, core solver engine, TCP/IP socket interface and C/C++ bindings",
+        title: "Embedded Optimization Made Easy"
+      }
+    ]}
+  </Block>
+
+);
+
 const FeaturesTop = props => (
   <Block layout="threeColumn" className="featureBlock">
     {[
@@ -158,15 +173,12 @@ const FeaturesTopTwo = props => (
 
 );
 
-const AboutOpen = props => (
-  <Block className="aboutBlock">
+const SuperFastBlock = props => (
+  <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><b>Design &amp; Deploy</b> your high-performance embedded optimizer in no time... <ul><li>Formulate your problem in Python or MATLAB</li><li>Build an optimizer (Rust)</li><li>Consume it over a TCP interface or</li><li>Call it in C/C++ (and ROS), or Rust</li></ul></p> Focus on your design, not numerical optimization!</div>",
-        image: imgUrl("about-open.png"),
-        imageAlign: 'left',
-        imageAlt: "organisation map of Optimization Engine (OpEn) and how it works: design interfaces, solver in Rust, core solver engine, TCP/IP socket interface and C/C++ bindings",
-        title: "Embedded Optimization Made Easy"
+        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications. OpEn implements numerical fast state-of-the-art optimization methods with low memory requirements. Our benchmarks have shown that OpEn can outperform other methods, such as interior point and sequential quadratic/convex programming by 1-2 orders of magnitude. This way, OpEn paves the way for the use of optimization-based methods, such as model predictive control and moving horizon estimation, to highly dynamical nonlinear systems.</div><img width=500 src='img/openbenchmark.png' alt='benchmark results of OpEn; comparison with IPOPT'/>",
+        title: "Blazingly Fast"
       }
     ]}
   </Block>
@@ -189,21 +201,8 @@ const MovingHorizonEstimation = props => (
   <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Moving_horizon_estimation' target='_blank'><b>Moving Horizon Estimation</b></a> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems. MHE is backed by a strong theoretical bedrock, however, its applicability has been hampered by the associated computational burden that have.</p></div><img width=500 src='img/mhe.png' alt='estimation of the state of Lorenz system with nonlinear moving horizon estimation'/>",
+        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Moving_horizon_estimation' target='_blank'><b>Moving Horizon Estimation</b></a> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems. MHE is backed by a strong theoretical bedrock that combines maximum likelihood estimation and dynamic programming; however, its applicability has been hampered by the associated computational burden and has limited its use to slow or linear dynamical systems. OpEn can unlock the huge potential of MHE and facilitate its use in robotics, automotive, aerospace and other applications with high sampling frequencies.</p></div><img width=500 src='img/mhe.png' alt='estimation of the state of Lorenz system with nonlinear moving horizon estimation'/>",
         title: "Moving Horizon Estimation"
-      }
-    ]}
-  </Block>
-
-);
-
-
-const SuperFastBlock = props => (
-  <Block className="oneColumn">
-    {[
-      {
-        content: "<div style='text-align:left'><p><b>Blazingly Fast Numerical Optimization</b>: OpEn combines extremely fast numerical optimization methods (<a href='docs/algorithm'>see details</a>) with Rust - a fast and safe programming language, which is ideal for embedded applications. OpEn implements numerical fast state-of-the-art optimization methods with low memory requirements. Our benchmarks have shown that OpEn can outperform other methods, such as interior point and sequential quadratic/convex programming by 1-2 orders of magnitude. This way, OpEn paves the way for the use of optimization-based methods, such as model predictive control and moving horizon estimation, to highly dynamical nonlinear systems.</div><img width=500 src='img/openbenchmark.png' alt='benchmark results of OpEn; comparison with IPOPT'/>",
-        title: "Blazingly Fast"
       }
     ]}
   </Block>
