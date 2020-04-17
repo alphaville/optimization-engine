@@ -10,6 +10,10 @@ target/
 open-codegen/opengen/icasadi/extern/Makefile
 open-codegen/virt
 open-codegen/opengen/data
+virt
+data
+my_optimizers
+.python_test_build
 
 # Python tests create this folder:
 open-codegen/opengen/.python_test_build/

@@ -12,7 +12,7 @@
 # -----------------------------------------------------------------
 
 [package]
-name = "tcp_iface"
+name = "tcp_iface_{{meta.optimizer_name}}"
 version = "0.0.1"
 license = "MIT"
 authors = ["John Smith"]

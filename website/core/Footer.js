@@ -89,12 +89,12 @@ class Footer extends React.Component {
               data-show-count="false"
               data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a>
             <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
-
           </div>
         </section>
 
 
         <section className="copyright">{this.props.config.copyright}</section>
+	<section className="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section>
       </footer>
     );
   }

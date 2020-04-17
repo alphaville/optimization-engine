@@ -1,6 +1,7 @@
 ---
 id: python-c
 title: C/C++ Bindings
+description: How to call OpEn from C/C++ or from Robot Operating System (ROS)
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

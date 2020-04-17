@@ -1,6 +1,7 @@
 ---
 id: irc
 title: IRC Chat
+description: Contact us on IRC to chat about OpEn
 ---
 
 Chat with us on IRC:

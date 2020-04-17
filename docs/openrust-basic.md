@@ -1,6 +1,7 @@
 ---
 id: openrust-basic
 title: Basic usage
+description: How to use OpEn directly in Rust
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

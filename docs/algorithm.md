@@ -1,6 +1,7 @@
 ---
 id: algorithm
 title: Algorithm
+description: Fast nonconvex optimization
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

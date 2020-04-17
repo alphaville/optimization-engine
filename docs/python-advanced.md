@@ -1,6 +1,7 @@
 ---
 id: python-advanced
 title: Advanced options
+description: Advanced options of opengen, OpEn's Python interface
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>

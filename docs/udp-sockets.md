@@ -2,6 +2,7 @@
 id: udp-sockets
 title: UDP Sockets
 sidebar_label: UDP sockets
+description: How to use the UDP interface of OpEn
 ---
 
 ## Consuming the module 

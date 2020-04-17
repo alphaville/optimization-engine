@@ -1,0 +1,23 @@
+[package]
+authors = ["Pantelis Sopasakis"]
+name = "icasadi_{{meta.optimizer_name}}"
+categories = ["api-bindings", "no-std", "science", "science::robotics", "simulation"]
+keywords = ["casadi", "optimization", "interface"]
+description = "Rust interface to CasADi functions"
+documentation = "https://docs.rs/icasadi"
+license = "MIT"
+readme = "README.md"
+version = "0.2.1"
+edition = "2018"
+
+[dependencies]
+libc = { version = "0.2.0", default-features = false }
+
+[build-dependencies]
+cc = "1.0"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3

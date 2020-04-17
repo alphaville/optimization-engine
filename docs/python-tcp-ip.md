@@ -1,6 +1,7 @@
 ---
 id: python-tcp-ip
 title: TCP Sockets
+description: How to use the TCP/IP API for OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -21,12 +22,10 @@ generator creates a
 ```text
 build_directory/
         |-- optimizer/
-                |-- tcp_iface/
+                |-- tcp_iface_{optimizer_name}/
 ```
 
-We can start the server from Python using the [`OptimizerTcpManager`], but we can 
-also start it by running `cargo run` from within `tcp_iface`. In order to see the 
-log messages of the server, start it with
+We can start the server from Python using the [`OptimizerTcpManager`], but we can also start it by running `cargo run` from within `tcp_iface_{optimizer_name}` (where `{optimizer_name}` is the name of the optimizer). In order to see the log messages of the server, start it with
 
 ```shell
 $ RUST_LOG=tcp_iface=info cargo run
@@ -132,7 +131,7 @@ $  echo '{ "Kill" : 1 }' | nc localhost 4598
 
 ### Error reporting
 
-In case a request cannot be processed, e.g., because the provided JSON is malformed, the provided vectors have incompatible dimensions, the TCP server will return to the client an error report. This is a JSON with three attributes: (i) a key-value pair `"type": "Error"`, to allow the client to tell that an error has occured, (ii) a `code`, which can be used to uniquely identify the type of error and (iii) a `message`, which offers some human-readable details.
+In case a request cannot be processed, e.g., because the provided JSON is malformed, the provided vectors have incompatible dimensions, the TCP server will return to the client an error report. This is a JSON with three attributes: (i) a key-value pair `"type": "Error"`, to allow the client to tell that an error has occurred, (ii) a `code`, which can be used to uniquely identify the type of error and (iii) a `message`, which offers some human-readable details.
 
 For example, if the client provides an incompatible number of parameters, that is, if vector `parameter` is of the wrong length, then the server will return the following error:
 

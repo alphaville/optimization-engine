@@ -2,6 +2,7 @@
 id: installation
 title: OpEn Installation
 sidebar_label: Installation
+description: How to install OpEn
 ---
 
 <script>

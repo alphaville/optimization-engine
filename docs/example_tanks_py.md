@@ -1,6 +1,7 @@
 ---
 id: example_tanks_py
 title: Tandem tanks
+description: Nonlinear model predictive control of a system of tandem tanks
 ---
 
 

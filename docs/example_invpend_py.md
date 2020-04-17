@@ -1,6 +1,7 @@
 ---
 id: example_invpend_py
 title: Inverted Pendulum
+description: Inverted pendulum control with OpEn
 ---
 
 
