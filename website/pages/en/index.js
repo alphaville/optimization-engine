@@ -14,7 +14,7 @@ const { MarkdownBlock, GridBlock, Container } = CompLibrary; /* Used to read mar
 const siteConfig = require(`${process.cwd()}/siteConfig.js`);
 
 function docUrl(doc, language) {
-  return `${siteConfig.baseUrl}${language ? `${language}/` : ""}${doc}`;
+  return `${siteConfig.baseUrl}docs/${doc}`;
 }
 
 function imgUrl(img) {
@@ -81,7 +81,7 @@ class HomeSplash extends React.Component {
         <div className="inner">
           <ProjectTitle />
           <PromoSection>
-            <Button href={docUrl("docs/open-intro", language)}>
+            <Button href={docUrl("open-intro", language)}>
               Get Started
             </Button>
           </PromoSection>
@@ -134,7 +134,7 @@ const FeaturesTop = props => (
         title: "Accurate"
       },
       {
-        content: "**Sub-millisecond** fast numerical nonconvex optimization tested on several platforms: check out our <a href='https://arxiv.org/abs/2003.00292'>benchmarks</a>.",
+        content: "**Sub-millisecond** fast numerical nonconvex optimization tested on several platforms: check out our <a href='https://arxiv.org/abs/2003.00292' target='_blank'>benchmarks</a>.",
         image: imgUrl("rocket.svg"),
         imageAlt: "small rocket icon black and white",
         imageAlign: 'top',
@@ -162,7 +162,7 @@ const FeaturesTopTwo = props => (
         title: "Community"
       },
       {
-        content: "**Well documented** with lots of examples. Among 10% best documented open-source Rust projects according to <a href='https://www.openhub.net/p/optimization-engine/factoids#FactoidCommentsVeryHigh'>openhub</a>.",
+        content: "**Well documented** with lots of examples. Among 10% best documented open-source Rust projects according to <a href='https://www.openhub.net/p/optimization-engine/factoids#FactoidCommentsVeryHigh' target='_blank'>openhub</a>.",
         image: imgUrl("saturn.png"),
         imageAlt: "saturn icon black and white",
         imageAlign: 'top',
@@ -201,7 +201,7 @@ const MovingHorizonEstimation = props => (
   <Block className="oneColumn">
     {[
       {
-        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Moving_horizon_estimation' target='_blank'><b>Moving Horizon Estimation</b></a> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems. MHE is backed by a strong theoretical bedrock that combines maximum likelihood estimation and dynamic programming; however, its applicability has been hampered by the associated computational burden and has limited its use to slow or linear dynamical systems. OpEn can unlock the huge potential of MHE and facilitate its use in robotics, automotive, aerospace and other applications with high sampling frequencies.</p></div><img width=500 src='img/mhe.png' alt='estimation of the state of Lorenz system with nonlinear moving horizon estimation'/>",
+        content: "<div style='text-align:left'><p><a href='https://en.wikipedia.org/wiki/Moving_horizon_estimation' target='_blank'><b>Moving Horizon Estimation</b></a> (MHE) is the bee's knees of nonlinear estimation: it is an optimization-based estimator for constrained nonlinear systems. MHE is backed by a strong theoretical bedrock that combines Bayesian estimation and dynamic programming; however, its applicability has been hampered by the associated computational burden and has limited its use to slow or linear dynamical systems. OpEn can unlock the huge potential of MHE and facilitate its use in robotics, automotive, aerospace and other applications with high sampling frequencies.</p></div><img width=500 src='img/mhe.png' alt='estimation of the state of Lorenz system with nonlinear moving horizon estimation'/>",
         title: "Moving Horizon Estimation"
       }
     ]}
@@ -232,7 +232,7 @@ meta = og.config.OptimizerMeta()  \\
 solver_config = og.config.SolverConfiguration()  \\
     .with_tolerance(1e-5)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-                                          build_config, 
+                                          build_config,
                                           solver_config)
 builder.build()
     `;
@@ -256,7 +256,7 @@ class Index extends React.Component {
             <Container background="light">
               <FeaturesTop />
               <FeaturesTopTwo />
-            </Container>                    
+            </Container>
           </div>
           <Container>
               <SuperFastBlock />
@@ -270,4 +270,3 @@ class Index extends React.Component {
 }
 
 module.exports = Index;
-
