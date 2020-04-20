@@ -1,5 +1,6 @@
-from ..constraints.rectangle import *
-from ..constraints.ball_inf import *
+from ..constraints.rectangle import Rectangle
+from ..constraints.ball_inf import BallInf
+
 
 class SetYCalculator:
 
