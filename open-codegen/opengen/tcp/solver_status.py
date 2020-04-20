@@ -98,4 +98,3 @@ class SolverStatus:
         :return: Vector of Lagrange multipliers
         """
         return self.__dict__["__lagrange_multipliers"]
-
