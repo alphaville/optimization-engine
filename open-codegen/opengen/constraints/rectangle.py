@@ -6,7 +6,7 @@ class Rectangle(Constraint):
     """A Rectangle (Box) constraint"""
 
     @classmethod
-    def __check_xmin_xmax(xmin, xmax):
+    def __check_xmin_xmax(cls, xmin, xmax):
         # (None, None) is not allowed
         if xmin is None and xmax is None:
             raise Exception("At least one of xmin and xmax must be not None")
