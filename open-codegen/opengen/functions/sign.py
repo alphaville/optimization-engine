@@ -9,5 +9,4 @@ def sign(u):
         return np.sign(u)
     elif is_symbolic(u):
         return cs.sign(u)
-    else:
-        raise Exception("Illegal argument")
+    raise Exception("Illegal argument")

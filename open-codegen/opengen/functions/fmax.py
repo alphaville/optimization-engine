@@ -1,7 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
-from .is_numeric import *
-from .is_symbolic import *
+from .is_numeric import is_numeric
+from .is_symbolic import is_symbolic
 
 
 def fmax(u, v):
@@ -9,5 +9,4 @@ def fmax(u, v):
         return np.fmax(u, v)
     elif is_symbolic(u) or is_symbolic(v):
         return cs.fmax(u, v)
-    else:
-        raise Exception("Illegal argument")
+    raise Exception("Illegal argument")

@@ -59,8 +59,7 @@ class Rectangle(Constraint):
             return len(self.__xmin)
         elif self.__xmax is not None:
             return len(self.__xmax)
-        else:
-            raise Exception("Absurd: both xmin and xmax are None!")
+        raise Exception("Absurd: both xmin and xmax are None!")
 
     def idx_bound_finite_all(self):
         idx_both_finite = []
@@ -85,7 +84,6 @@ class Rectangle(Constraint):
             return idx_xmin_infinite
 
         # Hereafter, xmax is not None (but xmin can be None)
-
         for i in range(self.dimension()):
             xmini = self.__xmin[i] if self.__xmin is not None else float('-inf')
             xmaxi = self.__xmax[i]

@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+
 set -euxo pipefail
 
 main() {

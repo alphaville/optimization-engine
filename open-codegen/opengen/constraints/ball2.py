@@ -27,8 +27,7 @@ class Ball2(Constraint):
         if radius <= 0:
             raise Exception("The radius must be a positive number")
 
-        if center is not None and not (isinstance(center, list)
-                                       or isinstance(center, np.ndarray)):
+        if center is not None and not isinstance(center, (list, np.ndarray)):
             raise Exception("center is neither None nor a list nor np.ndarray")
 
         self.__center = None if center is None else np.array([float(i) for i in center])

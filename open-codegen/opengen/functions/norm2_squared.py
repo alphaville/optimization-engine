@@ -1,7 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
-from .is_numeric import *
-from .is_symbolic import *
+from .is_numeric import is_numeric
+from .is_symbolic import is_symbolic
 
 
 def norm2_squared(u):
@@ -11,5 +11,4 @@ def norm2_squared(u):
         return np.dot(u, u)
     elif is_symbolic(u):
         return cs.dot(u, u)
-    else:
-        raise Exception("Illegal argument")
+    raise Exception("Illegal argument")

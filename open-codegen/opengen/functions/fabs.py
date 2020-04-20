@@ -1,7 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
-from .is_numeric import *
-from .is_symbolic import *
+from .is_numeric import is_numeric
+from .is_symbolic import is_symbolic
 
 
 def fabs(u):
@@ -9,5 +9,4 @@ def fabs(u):
         return np.fabs(u)
     elif is_symbolic(u):
         return cs.fabs(u)
-    else:
-        raise Exception("Illegal argument")
+    raise Exception("Illegal argument")

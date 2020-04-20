@@ -67,7 +67,7 @@ matrix:
       env:
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.7.5
-      rust: stable      
+      rust: stable
       python: "3.7.5"
 
 

@@ -46,5 +46,4 @@ class SetYCalculator:
             return self.__obtain_y_with_c_rectangle()
         elif self.__set_c.is_compact():
             return self.__obtain_y_with_c_compact()
-        else:
-            raise NotImplementedError()
+        raise NotImplementedError()
