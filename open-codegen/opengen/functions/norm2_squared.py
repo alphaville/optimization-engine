@@ -9,6 +9,6 @@ def norm2_squared(u):
                 or isinstance(u, np.ndarray):
         # if `u` is a numeric vector
         return np.dot(u, u)
-    elif is_symbolic(u):
+    if is_symbolic(u):
         return cs.dot(u, u)
     raise Exception("Illegal argument")
