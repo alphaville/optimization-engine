@@ -1,10 +1,10 @@
 <launch>
-  <node name="ros_node_{{meta.optimizer_name}}"
-        pkg="ros_node_{{meta.optimizer_name}}"
-        type="ros_node_{{meta.optimizer_name}}_optimizer"
+  <node name="{{ros.package_name}}"
+        pkg="{{ros.package_name}}"
+        type="{{ros.node_name}}"
         respawn="true"
         clear_params="true"
         output="screen">
-    <rosparam file="$(find ros_node_{{meta.optimizer_name}})/config/open_params.yaml" />
+    <rosparam file="$(find {{ros.package_name}})/config/open_params.yaml" />
   </node>
 </launch>

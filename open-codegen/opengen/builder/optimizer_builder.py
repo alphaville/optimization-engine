@@ -529,16 +529,6 @@ class OpEnOptimizerBuilder:
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
 
-    def __generate_ros_launch_file(self):
-        self.__logger.info("Generating open_optimizer.launch")
-        target_ros_dir = self.__ros_target_dir()
-        template = OpEnOptimizerBuilder.__get_template('ros/open_optimizer.launch')
-        output_template = template.render(meta=self.__meta)
-        target_rosnode_launch_path \
-            = os.path.join(target_ros_dir, "launch", "open_optimizer.launch")
-        with open(target_rosnode_launch_path, "w") as fh:
-            fh.write(output_template)
-
     def build(self):
         """Generate code and build project
 

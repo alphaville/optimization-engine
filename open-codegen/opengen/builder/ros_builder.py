@@ -1,5 +1,3 @@
-from opengen.config.ros_config import RosConfiguration
-
 import opengen.definitions as og_dfn
 
 import os
@@ -41,7 +39,8 @@ class RosBuilder:
                 self.__meta.optimizer_name))
 
     def __ros_target_dir(self):
-        ros_target_dir_name = _ROS_PREFIX + self.__meta.optimizer_name
+        ros_config = self.__build_config.ros_config
+        ros_target_dir_name = ros_config.package_name
         return os.path.abspath(
             os.path.join(
                 self.__build_config.build_dir,
@@ -62,7 +61,7 @@ class RosBuilder:
         self.__logger.info("Generating package.xml")
         target_ros_dir = self.__ros_target_dir()
         template = get_template('ros/package.xml')
-        output_template = template.render(meta=self.__meta)
+        output_template = template.render(meta=self.__meta, ros=self.__build_config.ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "package.xml")
         with open(target_rospkg_path, "w") as fh:
             fh.write(output_template)
@@ -71,7 +70,8 @@ class RosBuilder:
         self.__logger.info("Generating CMakeLists")
         target_ros_dir = self.__ros_target_dir()
         template = get_template('ros/CMakeLists.txt')
-        output_template = template.render(meta=self.__meta)
+        output_template = template.render(meta=self.__meta,
+                                          ros=self.__build_config.ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "CMakeLists.txt")
         with open(target_rospkg_path, "w") as fh:
             fh.write(output_template)
@@ -122,21 +122,33 @@ class RosBuilder:
                     target_ros_dir, 'msg', 'OptimizationResult.msg'))
         shutil.copyfile(original_result_msg, target_result_msg)
 
-        # 5. --- copy params file
-        original_result_msg = os.path.abspath(
-            os.path.join(
-                og_dfn.templates_dir(), 'ros', 'open_params.yaml'))
-        target_result_msg = \
-            os.path.abspath(
-                os.path.join(
-                    target_ros_dir, 'config', 'open_params.yaml'))
-        shutil.copyfile(original_result_msg, target_result_msg)
+        # # 5. --- copy params file
+        # original_result_msg = os.path.abspath(
+        #     os.path.join(
+        #         og_dfn.templates_dir(), 'ros', 'open_params.yaml'))
+        # target_result_msg = \
+        #     os.path.abspath(
+        #         os.path.join(
+        #             target_ros_dir, 'config', 'open_params.yaml'))
+        # shutil.copyfile(original_result_msg, target_result_msg)
+
+    def __generate_ros_params_file(self):
+        self.__logger.info("Generating open_params.yaml")
+        target_ros_dir = self.__ros_target_dir()
+        template = get_template('ros/open_params.yaml')
+        output_template = template.render(meta=self.__meta,
+                                          ros=self.__build_config.ros_config)
+        target_yaml_fname \
+            = os.path.join(target_ros_dir, "config", "open_params.yaml")
+        with open(target_yaml_fname, "w") as fh:
+            fh.write(output_template)
 
     def __generate_ros_node_header(self):
         self.__logger.info("Generating open_optimizer.hpp")
         target_ros_dir = self.__ros_target_dir()
         template = get_template('ros/open_optimizer.hpp')
-        output_template = template.render(meta=self.__meta)
+        output_template = template.render(meta=self.__meta,
+                                          ros=self.__build_config.ros_config)
         target_rosnode_header_path \
             = os.path.join(target_ros_dir, "include", "open_optimizer.hpp")
         with open(target_rosnode_header_path, "w") as fh:
@@ -152,10 +164,23 @@ class RosBuilder:
         with open(target_rosnode_cpp_path, "w") as fh:
             fh.write(output_template)
 
+    def __generate_ros_launch_file(self):
+        self.__logger.info("Generating open_optimizer.launch")
+        target_ros_dir = self.__ros_target_dir()
+        template = get_template('ros/open_optimizer.launch')
+        output_template = template.render(meta=self.__meta,
+                                          ros=self.__build_config.ros_config)
+        target_rosnode_launch_path \
+            = os.path.join(target_ros_dir, "launch", "open_optimizer.launch")
+        with open(target_rosnode_launch_path, "w") as fh:
+            fh.write(output_template)
+
     def build(self):
         self.__generate_ros_dir_structure()
         self.__generate_ros_package_xml()
         self.__generate_ros_cmakelists()
         self.__copy__ros_files()
+        self.__generate_ros_params_file()
         self.__generate_ros_node_header()
         self.__generate_ros_node_cpp()
+        self.__generate_ros_launch_file()

@@ -108,7 +108,7 @@ class BuildConfiguration:
         return self.__tcp_interface_config
 
     @property
-    def ros_config(self):
+    def ros_config(self) -> RosConfiguration:
         return self.__ros_config
 
     # ---------- SETTERS ---------------------------------------------
@@ -200,7 +200,7 @@ class BuildConfiguration:
         self.__build_c_bindings = build_c_bindings
         return self
 
-    def with_ros(self, ros_config=RosConfiguration()):
+    def with_ros(self, ros_config):
         self.__build_c_bindings = True  # no C++ bindings, no ROS package mate
         self.__ros_config = ros_config
         return self

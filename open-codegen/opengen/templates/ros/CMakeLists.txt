@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 add_compile_options(-std=c++11)
-project(ros_node_{{meta.optimizer_name}})
+project({{ros.package_name}})
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -27,7 +27,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/include
 )
 
-set(NODE_NAME ${PROJECT_NAME}_optimizer)
+set(NODE_NAME {{ros.node_name}})
 add_executable(${NODE_NAME} src/open_optimizer.cpp)
 target_link_libraries(
     ${NODE_NAME}

@@ -138,16 +138,24 @@ public:
  */
 int main(int argc, char** argv)
 {
+
+    std::string solution_topic, params_topic;  /* parameter and solution topics */
+    double rate; /* rate of node (specified by parameter) */
+
     ros_node_{{meta.optimizer_name}}::OptimizationEngineManager mng;
     ros::init(argc, argv, ROS_NODE_{{meta.optimizer_name|upper}}_NODE_NAME);
-    ros::NodeHandle n(ROS_NODE_{{meta.optimizer_name|upper}}_BASE_TOPIC);
+    ros::NodeHandle private_nh("~");
+
+    private_nh.param("solution_topic", solution_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC));
+    private_nh.param("params_topic", params_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC));
+    private_nh.param("rate", rate, double(ROS_NODE_{{meta.optimizer_name|upper}}_RATE));
 
     ros::Publisher mpc_pub
-        = n.advertise<ros_node_{{meta.optimizer_name}}::OptimizationResult>(
+        = private_nh.advertise<ros_node_{{meta.optimizer_name}}::OptimizationResult>(
             ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC,
             ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC_QUEUE_SIZE);
     ros::Subscriber sub
-        = n.subscribe(
+        = private_nh.subscribe(
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC,
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC_QUEUE_SIZE,
             &ros_node_{{meta.optimizer_name}}::OptimizationEngineManager::mpcReceiveRequestCallback,
