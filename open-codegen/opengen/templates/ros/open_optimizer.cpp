@@ -128,6 +128,13 @@ public:
 
 /**
  * Main method
+ *
+ * This advertises a new (private) topic to which the optimizer
+ * announces its solution and solution status and details. This
+ * is called '{{meta.optimizer_name}}/solution'
+ *
+ * It obtains inputs from a public/global topic, which is specified
+ * by a parameter (see config/open_params.yaml).
  */
 int main(int argc, char** argv)
 {
@@ -149,7 +156,6 @@ int main(int argc, char** argv)
 
     while (ros::ok()) {
         mng.solveAndPublish(mpc_pub);
-
         ros::spinOnce();
         loop_rate.sleep();
     }
