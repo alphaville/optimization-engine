@@ -598,13 +598,24 @@ class OpEnOptimizerBuilder:
                     target_ros_dir, 'msg', 'OptimizationResult.msg'))
         shutil.copyfile(original_result_msg, target_result_msg)
 
+    def __generate_ros_node_header(self):
+        self.__logger.info("Generating open_optimizer.hpp")
+        target_ros_dir = self.__ros_target_dir()
+        template = OpEnOptimizerBuilder.__get_template('ros/open_optimizer.hpp')
+        output_template = template.render(meta=self.__meta)
+        target_rosnode_header_path \
+            = os.path.join(target_ros_dir, "include", "open_optimizer.hpp")
+        with open(target_rosnode_header_path, "w") as fh:
+            fh.write(output_template)
+
     def __generate_ros_node_cpp(self):
         self.__logger.info("Generating open_optimizer.cpp")
         target_ros_dir = self.__ros_target_dir()
         template = OpEnOptimizerBuilder.__get_template('ros/open_optimizer.cpp')
         output_template = template.render(meta=self.__meta)
-        target_rospkg_path = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
-        with open(target_rospkg_path, "w") as fh:
+        target_rosnode_cpp_path \
+            = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
+        with open(target_rosnode_cpp_path, "w") as fh:
             fh.write(output_template)
 
     def __generate_ros_package(self):
@@ -613,6 +624,7 @@ class OpEnOptimizerBuilder:
         self.__generate_ros_package_xml()
         self.__generate_ros_cmakelists()
         self.__copy__ros_files()
+        self.__generate_ros_node_header()
         self.__generate_ros_node_cpp()
 
     def build(self):
