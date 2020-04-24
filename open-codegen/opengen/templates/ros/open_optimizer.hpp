@@ -7,6 +7,6 @@
 #define ROS_NODE_{{meta.optimizer_name|upper}}_RATE {{ros.rate}}
 #define ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC_QUEUE_SIZE {{ros.solution_topic_queue_size}}
 #define ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC_QUEUE_SIZE {{ros.params_topic_queue_size}}
-#define ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY 1000.0
+#define ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY {{solver_config.initial_penalty}}
 
 #endif /* Header Sentinel: MPC_DUMMY_H */

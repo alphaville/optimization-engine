@@ -14,10 +14,11 @@ meta = og.config.OptimizerMeta()                   \
     .with_optimizer_name("rosenbrock")             \
     .with_version('0.1.1')                         \
     .with_licence('LGPLv3')
-ros_config = og.config.RosConfiguration(meta)  \
-    .with_package_name("chungnode")            \
-    .with_node_name("open_node")               \
-    .with_rate(35)
+ros_config = og.config.RosConfiguration()       \
+    .with_package_name("parametric_optimizer")  \
+    .with_node_name("open_node")                \
+    .with_rate(35)                              \
+    .with_description("cool ROS node")
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("my_optimizers")     \
     .with_build_mode("debug")                  \
@@ -27,9 +28,12 @@ build_config = og.config.BuildConfiguration()  \
 solver_config = og.config.SolverConfiguration()    \
     .with_tolerance(1e-5)                          \
     .with_delta_tolerance(1e-4)                    \
-    .with_initial_penalty(1e3)                     \
+    .with_initial_penalty(890)                     \
     .with_penalty_weight_update_factor(5)
-builder = og.builder.OpEnOptimizerBuilder(problem, meta,
-                                          build_config, solver_config) \
+
+builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          meta,
+                                          build_config,
+                                          solver_config) \
     .with_generate_not_build_flag(True)
 builder.build()

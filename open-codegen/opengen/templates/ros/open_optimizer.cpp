@@ -61,7 +61,7 @@ private:
 
     /**
      * Call OpEn to solve the problem
-	   */
+     */
     rosenbrockSolverStatus solve()
     {
         return rosenbrock_solve(cache, u, p, y, &init_penalty);
@@ -70,8 +70,8 @@ private:
 
 public:
     /**
-	   * Constructor of OptimizationEngineManager
-	   */
+     * Constructor of OptimizationEngineManager
+     */
     OptimizationEngineManager()
     {
 			  y = new double[{{meta.optimizer_name|upper}}_N1];
@@ -79,8 +79,8 @@ public:
     }
 
     /**
-	   * Destructor of OptimizationEngineManager
-	   */
+     * Destructor of OptimizationEngineManager
+     */
     ~OptimizationEngineManager()
     {
 			  if (y!=NULL) delete[] y;
@@ -88,8 +88,8 @@ public:
     }
 
     /**
-	   * Copies results from `status` to the local field `results`
-	   */
+     * Copies results from `status` to the local field `results`
+     */
     void updateResults(rosenbrockSolverStatus& status)
     {
         std::vector<double> sol(u, u + {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES);
@@ -107,8 +107,8 @@ public:
     }
 
     /**
-		 * Callback that obtains data from topic `/ros_node_{{meta.optimizer_name}}/open_params`
-		 */
+     * Callback that obtains data from topic `/ros_node_{{meta.optimizer_name}}/open_params`
+     */
     void mpcReceiveRequestCallback(
         const ros_node_{{meta.optimizer_name}}::OptimizationParameters::ConstPtr& msg)
     {
@@ -130,11 +130,11 @@ public:
  * Main method
  *
  * This advertises a new (private) topic to which the optimizer
- * announces its solution and solution status and details. This
- * is called '{{meta.optimizer_name}}/solution'
+ * announces its solution and solution status and details. The
+ * publisher topic is '{{ros.package_name}}/{{ros.publisher_subtopic}}'.
  *
- * It obtains inputs from a public/global topic, which is specified
- * by a parameter (see config/open_params.yaml).
+ * It obtains inputs from '{{ros.package_name}}/{{ros.subscriber_subtopic}}'.
+ *
  */
 int main(int argc, char** argv)
 {
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, ROS_NODE_{{meta.optimizer_name|upper}}_NODE_NAME);
     ros::NodeHandle private_nh("~");
 
-    private_nh.param("solution_topic", solution_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC));
+    private_nh.param("solution_topic", solution_topic, std::string("xxx"));
     private_nh.param("params_topic", params_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC));
     private_nh.param("rate", rate, double(ROS_NODE_{{meta.optimizer_name|upper}}_RATE));
 

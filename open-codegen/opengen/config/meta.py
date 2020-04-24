@@ -1,4 +1,4 @@
-import re # regular expressions
+import re  # regular expressions
 
 
 class OptimizerMeta:

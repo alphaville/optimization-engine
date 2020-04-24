@@ -21,9 +21,10 @@ def get_template(name):
 
 class RosBuilder:
 
-    def __init__(self, meta, build_config):
+    def __init__(self, meta, build_config, solver_config):
         self.__meta = meta
         self.__build_config = build_config
+        self.__solver_config = solver_config
         self.__logger = logging.getLogger('opengen.builder.RosBuilder')
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(1)
@@ -148,7 +149,8 @@ class RosBuilder:
         target_ros_dir = self.__ros_target_dir()
         template = get_template('ros/open_optimizer.hpp')
         output_template = template.render(meta=self.__meta,
-                                          ros=self.__build_config.ros_config)
+                                          ros=self.__build_config.ros_config,
+                                          solver_config=self.__solver_config)
         target_rosnode_header_path \
             = os.path.join(target_ros_dir, "include", "open_optimizer.hpp")
         with open(target_rosnode_header_path, "w") as fh:
@@ -158,7 +160,8 @@ class RosBuilder:
         self.__logger.info("Generating open_optimizer.cpp")
         target_ros_dir = self.__ros_target_dir()
         template = get_template('ros/open_optimizer.cpp')
-        output_template = template.render(meta=self.__meta)
+        output_template = template.render(meta=self.__meta,
+                                          ros=self.__build_config.ros_config)
         target_rosnode_cpp_path \
             = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
         with open(target_rosnode_cpp_path, "w") as fh:
@@ -175,6 +178,17 @@ class RosBuilder:
         with open(target_rosnode_launch_path, "w") as fh:
             fh.write(output_template)
 
+    def __generate_ros_readme_file(self):
+        self.__logger.info("Generating README.md")
+        target_ros_dir = self.__ros_target_dir()
+        template = get_template('ros/README.md')
+        output_template = template.render(
+            ros=self.__build_config.ros_config)
+        target_readme_path \
+            = os.path.join(target_ros_dir, "README.md")
+        with open(target_readme_path, "w") as fh:
+            fh.write(output_template)
+
     def build(self):
         self.__generate_ros_dir_structure()
         self.__generate_ros_package_xml()
@@ -184,3 +198,4 @@ class RosBuilder:
         self.__generate_ros_node_header()
         self.__generate_ros_node_cpp()
         self.__generate_ros_launch_file()
+        self.__generate_ros_readme_file()

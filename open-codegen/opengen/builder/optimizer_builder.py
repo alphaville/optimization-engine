@@ -570,5 +570,8 @@ class OpEnOptimizerBuilder:
             self.__generate_c_bindings_makefile()
 
         if self.__build_config.ros_config is not None:
-            ros_builder = RosBuilder(self.__meta, self.__build_config)
+            ros_builder = RosBuilder(
+                self.__meta,
+                self.__build_config,
+                self.__solver_config)
             ros_builder.build()
