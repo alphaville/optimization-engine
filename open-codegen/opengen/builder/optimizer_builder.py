@@ -17,6 +17,7 @@ _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
+_ROS_PREFIX = 'ros_node_'
 
 
 def make_dir_if_not_exists(directory):
@@ -54,6 +55,12 @@ class OpEnOptimizerBuilder:
         self.__generate_not_build = False
         self.__logger = logging.getLogger('opengen.builder.OpEnOptimizerBuilder')
         self.with_verbosity_level(1)
+
+    @staticmethod
+    def __get_template(name):
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+        env = jinja2.Environment(loader=file_loader)
+        return env.get_template(name)
 
     def with_verbosity_level(self, verbosity_level):
         """Specify the verbosity level
@@ -130,6 +137,13 @@ class OpEnOptimizerBuilder:
                 self.__build_config.build_dir,
                 self.__meta.optimizer_name, icasadi_target_dir_name))
 
+    def __ros_target_dir(self):
+        ros_target_dir_name = _ROS_PREFIX + self.__meta.optimizer_name
+        return os.path.abspath(
+            os.path.join(
+                self.__build_config.build_dir,
+                self.__meta.optimizer_name, ros_target_dir_name))
+
     def __prepare_target_project(self):
         """Creates folder structure
 
@@ -170,9 +184,7 @@ class OpEnOptimizerBuilder:
         Generate icasadi's Cargo.toml file
         """
         self.__logger.info("Generating icasadi's Cargo.toml")
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('icasadi_cargo.toml.template')
+        template = OpEnOptimizerBuilder.__get_template('icasadi_cargo.toml.template')
         output_template = template.render(meta=self.__meta)
         icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
@@ -186,9 +198,7 @@ class OpEnOptimizerBuilder:
 
         """
         self.__logger.info("Generating intercafe.c (C interface)")
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('interface.c.template')
+        template = OpEnOptimizerBuilder.__get_template('interface.c.template')
         output_template = template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
@@ -205,9 +215,7 @@ class OpEnOptimizerBuilder:
         Generates src/lib.rs
         """
         self.__logger.info("Generating icasadi Rust library file")
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('icasadi_lib.rs.template')
+        template = OpEnOptimizerBuilder.__get_template('icasadi_lib.rs.template')
         output_template = template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
@@ -224,9 +232,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('optimizer_cargo.toml.template')
+        template = OpEnOptimizerBuilder.__get_template('optimizer_cargo.toml.template')
         output_template = template.render(
             meta=self.__meta,
             build_config=self.__build_config,
@@ -246,9 +252,7 @@ class OpEnOptimizerBuilder:
         :param f2: mapping F2  (cs.Function)
         """
         self.__logger.info("Generating casadi_memory.h")
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('casadi_memory.h.template')
+        template = OpEnOptimizerBuilder.__get_template('casadi_memory.h.template')
         output_template = template.render(cost=cost, grad=grad,
                                           f1=f1, f2=f2,
                                           build_config=self.__build_config,
@@ -376,9 +380,7 @@ class OpEnOptimizerBuilder:
     def __generate_main_project_code(self):
         self.__logger.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('optimizer.rs.template')
+        template = OpEnOptimizerBuilder.__get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self.__solver_config,
                                           meta=self.__meta,
                                           problem=self.__problem,
@@ -394,9 +396,7 @@ class OpEnOptimizerBuilder:
     def __generate_build_rs(self):
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('optimizer_build.rs.template')
+        template = OpEnOptimizerBuilder.__get_template('optimizer_build.rs.template')
         output_template = template.render(meta=self.__meta,
                                           activate_clib_generation=self.__build_config.build_c_bindings)
         target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
@@ -444,9 +444,7 @@ class OpEnOptimizerBuilder:
         make_dir_if_not_exists(tcp_iface_source_dir)
 
         # generate main.rs for tcp_iface
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('tcp_server.rs.template')
+        template = OpEnOptimizerBuilder.__get_template('tcp_server.rs.template')
         output_template = template.render(meta=self.__meta,
                                           tcp_server_config=self.__build_config.tcp_interface_config,
                                           timestamp_created=datetime.datetime.now())
@@ -455,7 +453,7 @@ class OpEnOptimizerBuilder:
             fh.write(output_template)
 
         # generate Cargo.toml for tcp_iface
-        template = env.get_template('tcp_server_cargo.toml.template')
+        template = OpEnOptimizerBuilder.__get_template('tcp_server_cargo.toml.template')
         output_template = template.render(meta=self.__meta,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
@@ -512,9 +510,7 @@ class OpEnOptimizerBuilder:
     def __generate_c_bindings_example(self):
         self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
         target_dir = self.__target_dir()
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('example_optimizer_c_bindings.c.template')
+        template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c.template')
         output_template = template.render(meta=self.__meta,
                                           build_config=self.__build_config,
                                           problem=self.__problem)
@@ -525,13 +521,99 @@ class OpEnOptimizerBuilder:
     def __generate_c_bindings_makefile(self):
         self.__logger.info("Generating CMakeLists (do: `cmake .; make` to compile the autogenerated example)")
         target_dir = self.__target_dir()
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
-        template = env.get_template('example_cmakelists.template')
+        template = OpEnOptimizerBuilder.__get_template('example_cmakelists.template')
         output_template = template.render(meta=self.__meta, build_config=self.__build_config)
         target_scr_lib_rs_path = os.path.join(target_dir, "CMakeLists.txt")
         with open(target_scr_lib_rs_path, "w") as fh:
             fh.write(output_template)
+
+    def __generate_ros_dir_structure(self):
+        self.__logger.info("(ROS) Generating directory structure")
+        target_ros_dir = self.__ros_target_dir()
+        make_dir_if_not_exists(target_ros_dir)
+        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'include')))
+        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'extern_lib')))
+        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'src')))
+        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'msg')))
+
+    def __generate_ros_package_xml(self):
+        target_ros_dir = self.__ros_target_dir()
+        template = OpEnOptimizerBuilder.__get_template('ros/package.xml')
+        output_template = template.render(meta=self.__meta)
+        target_rospkg_path = os.path.join(target_ros_dir, "package.xml")
+        with open(target_rospkg_path, "w") as fh:
+            fh.write(output_template)
+
+    def __generate_ros_cmakelists(self):
+        target_ros_dir = self.__ros_target_dir()
+        template = OpEnOptimizerBuilder.__get_template('ros/CMakeLists.txt')
+        output_template = template.render(meta=self.__meta)
+        target_rospkg_path = os.path.join(target_ros_dir, "CMakeLists.txt")
+        with open(target_rospkg_path, "w") as fh:
+            fh.write(output_template)
+
+    def __copy__ros_files(self):
+        self.__logger.info("(ROS) Copying external dependencies")
+        # 1. --- copy header file
+        target_ros_dir = self.__ros_target_dir()
+        header_file_name = self.__meta.optimizer_name + '_bindings.hpp'
+        target_include_filename = os.path.abspath(
+            os.path.join(
+                target_ros_dir, 'include', header_file_name))
+        original_include_file = os.path.abspath(
+            os.path.join(self.__target_dir(), header_file_name))
+        shutil.copyfile(original_include_file, target_include_filename)
+
+        # 2. --- copy library file
+        lib_file_name = 'lib' + self.__meta.optimizer_name + '.a'
+        target_lib_file_name = \
+            os.path.abspath(
+                os.path.join(
+                    target_ros_dir, 'extern_lib', lib_file_name))
+        original_lib_file = os.path.abspath(
+            os.path.join(
+                self.__target_dir(),
+                'target',
+                self.__build_config.build_mode,
+                lib_file_name))
+        shutil.copyfile(original_lib_file, target_lib_file_name)
+
+        # 3. --- copy msg file OptimizationParameters.msg
+        original_params_msg = os.path.abspath(
+            os.path.join(
+                og_dfn.templates_dir(), 'ros', 'OptimizationParameters.msg'))
+        target_params_msg = \
+            os.path.abspath(
+                os.path.join(
+                    target_ros_dir, 'msg', 'OptimizationParameters.msg'))
+        shutil.copyfile(original_params_msg, target_params_msg)
+
+        # 4. --- copy msg file OptimizationResult.msg
+        original_result_msg = os.path.abspath(
+            os.path.join(
+                og_dfn.templates_dir(), 'ros', 'OptimizationResult.msg'))
+        target_result_msg = \
+            os.path.abspath(
+                os.path.join(
+                    target_ros_dir, 'msg', 'OptimizationResult.msg'))
+        shutil.copyfile(original_result_msg, target_result_msg)
+
+    def __generate_ros_node_cpp(self):
+        self.__logger.info("Generating open_optimizer.cpp")
+        target_ros_dir = self.__ros_target_dir()
+        template = OpEnOptimizerBuilder.__get_template('ros/open_optimizer.cpp')
+        output_template = template.render(meta=self.__meta)
+        target_rospkg_path = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
+        with open(target_rospkg_path, "w") as fh:
+            fh.write(output_template)
+
+    def __generate_ros_package(self):
+        self.__logger.info("Generating ROS package")
+        self.__generate_ros_dir_structure()
+        self.__generate_ros_package_xml()
+        self.__generate_ros_cmakelists()
+        self.__copy__ros_files()
+        self.__generate_ros_node_cpp()
 
     def build(self):
         """Generate code and build project
@@ -563,12 +645,16 @@ class OpEnOptimizerBuilder:
             self.__logger.info("Building optimizer")
             self.__build_optimizer()             # build overall project
 
-            if self.__build_config.tcp_interface_config is not None:
-                self.__logger.info("Generating TCP/IP server")
-                self.__generate_code_tcp_interface()
+        if self.__build_config.tcp_interface_config is not None:
+            self.__logger.info("Generating TCP/IP server")
+            self.__generate_code_tcp_interface()
+            if not self.__generate_not_build:
                 self.__build_tcp_iface()
 
         if self.__build_config.build_c_bindings:
             self.__generate_c_bindings_example()
             self.__generate_c_bindings_makefile()
+
+        if self.__build_config.ros_config is not None:
+            self.__generate_ros_package()
 
