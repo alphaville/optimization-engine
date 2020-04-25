@@ -1,4 +1,4 @@
-float64[2]     parameter         # parameter p
-float64[]      initial_guess     # u0
-float64[]      initial_y         # y0
-float64        initial_penalty
+float64[]      parameter         # parameter p (mandatory)
+float64[]      initial_guess     # u0 (optional/recommended)
+float64[]      initial_y         # y0 (optional)
+float64        initial_penalty   # initial penalty (optional)

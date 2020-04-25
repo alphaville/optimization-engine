@@ -123,16 +123,6 @@ class RosBuilder:
                     target_ros_dir, 'msg', 'OptimizationResult.msg'))
         shutil.copyfile(original_result_msg, target_result_msg)
 
-        # # 5. --- copy params file
-        # original_result_msg = os.path.abspath(
-        #     os.path.join(
-        #         og_dfn.templates_dir(), 'ros', 'open_params.yaml'))
-        # target_result_msg = \
-        #     os.path.abspath(
-        #         os.path.join(
-        #             target_ros_dir, 'config', 'open_params.yaml'))
-        # shutil.copyfile(original_result_msg, target_result_msg)
-
     def __generate_ros_params_file(self):
         self.__logger.info("Generating open_params.yaml")
         target_ros_dir = self.__ros_target_dir()
