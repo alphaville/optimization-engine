@@ -97,6 +97,37 @@ class RustBuildTestCase(unittest.TestCase):
             .build()
 
     @classmethod
+    def setUpRosPackageGeneration(cls):
+        u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
+        p = cs.MX.sym("p", 2)  # parameter (np = 2)
+        phi = og.functions.rosenbrock(u, p)
+        c = cs.vertcat(1.5 * u[0] - u[1],
+                       cs.fmax(0.0, u[2] - u[3] + 0.1))
+        bounds = og.constraints.Ball2(None, 1.5)
+        tcp_config = og.config.TcpServerConfiguration(bind_port=4598)
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("rosenbrock_ros")
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds) \
+            .with_penalty_constraints(c)
+        ros_config = og.config.RosConfiguration() \
+            .with_package_name("parametric_optimizer") \
+            .with_node_name("open_node") \
+            .with_rate(35) \
+            .with_description("really cool ROS node")
+        build_config = og.config.BuildConfiguration() \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode("debug") \
+            .with_tcp_interface_config(tcp_interface_config=tcp_config) \
+            .with_build_c_bindings()  \
+            .with_ros(ros_config)
+        og.builder.OpEnOptimizerBuilder(problem,
+                                        metadata=meta,
+                                        build_configuration=build_config,
+                                        solver_configuration=cls.solverConfig()) \
+            .build()
+
+    @classmethod
     def setUpOnlyParametricF2(cls):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 3)  # parameter (np = 3)
@@ -127,6 +158,7 @@ class RustBuildTestCase(unittest.TestCase):
         cls.setUpOnlyF2()
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
+        cls.setUpRosPackageGeneration()
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
