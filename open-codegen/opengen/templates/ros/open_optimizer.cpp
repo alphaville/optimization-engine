@@ -1,20 +1,20 @@
 #include "ros/ros.h"
-#include "ros_node_{{meta.optimizer_name}}/OptimizationResult.h"
-#include "ros_node_{{meta.optimizer_name}}/OptimizationParameters.h"
+#include "{{ros.package_name}}/OptimizationResult.h"
+#include "{{ros.package_name}}/OptimizationParameters.h"
 #include "rosenbrock_bindings.hpp"
 #include "open_optimizer.hpp"
 
-namespace ros_node_{{meta.optimizer_name}} {
+namespace {{ros.package_name}} {
 /**
- * Class ros_node_{{meta.optimizer_name}}::OptimizationEngineManager manages the
+ * Class {{ros.package_name}}::OptimizationEngineManager manages the
  * exchange of data between the input and output topics
  * of this node
  */
 class OptimizationEngineManager {
 
 private:
-    ros_node_{{meta.optimizer_name}}::OptimizationParameters params;
-    ros_node_{{meta.optimizer_name}}::OptimizationResult results;
+    {{ros.package_name}}::OptimizationParameters params;
+    {{ros.package_name}}::OptimizationResult results;
     double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = { 0 };
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = { 0 };
 		double *y = NULL;
@@ -107,10 +107,10 @@ public:
     }
 
     /**
-     * Callback that obtains data from topic `/ros_node_{{meta.optimizer_name}}/open_params`
+     * Callback that obtains data from topic `/{{ros.package_name}}/open_params`
      */
     void mpcReceiveRequestCallback(
-        const ros_node_{{meta.optimizer_name}}::OptimizationParameters::ConstPtr& msg)
+        const {{ros.package_name}}::OptimizationParameters::ConstPtr& msg)
     {
         params = *msg;
     }
@@ -124,7 +124,7 @@ public:
     }
 }; /* end of class OptimizationEngineManager */
 
-} /* end of namespace ros_node_{{meta.optimizer_name}} */
+} /* end of namespace {{ros.package_name}} */
 
 /**
  * Main method
@@ -142,23 +142,23 @@ int main(int argc, char** argv)
     std::string solution_topic, params_topic;  /* parameter and solution topics */
     double rate; /* rate of node (specified by parameter) */
 
-    ros_node_{{meta.optimizer_name}}::OptimizationEngineManager mng;
+    {{ros.package_name}}::OptimizationEngineManager mng;
     ros::init(argc, argv, ROS_NODE_{{meta.optimizer_name|upper}}_NODE_NAME);
     ros::NodeHandle private_nh("~");
 
-    private_nh.param("solution_topic", solution_topic, std::string("xxx"));
+    private_nh.param("solution_topic", solution_topic, std::string("result"));
     private_nh.param("params_topic", params_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC));
     private_nh.param("rate", rate, double(ROS_NODE_{{meta.optimizer_name|upper}}_RATE));
 
     ros::Publisher mpc_pub
-        = private_nh.advertise<ros_node_{{meta.optimizer_name}}::OptimizationResult>(
+        = private_nh.advertise<{{ros.package_name}}::OptimizationResult>(
             ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC,
             ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC_QUEUE_SIZE);
     ros::Subscriber sub
         = private_nh.subscribe(
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC,
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC_QUEUE_SIZE,
-            &ros_node_{{meta.optimizer_name}}::OptimizationEngineManager::mpcReceiveRequestCallback,
+            &{{ros.package_name}}::OptimizationEngineManager::mpcReceiveRequestCallback,
             &mng);
     ros::Rate loop_rate(ROS_NODE_{{meta.optimizer_name|upper}}_RATE);
 

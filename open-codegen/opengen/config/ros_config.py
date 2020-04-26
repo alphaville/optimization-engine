@@ -13,7 +13,7 @@ class RosConfiguration:
         self.__rate = 10.0
         self.__solution_topic_queue_size = 100
         self.__params_topic_queue_size = 100
-        self.__publisher_subtopic = "solution"
+        self.__publisher_subtopic = "result"
         self.__subscriber_subtopic = "parameters"
 
     @property
