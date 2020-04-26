@@ -20,7 +20,9 @@ def get_template(name):
 
 
 class RosBuilder:
-
+    """
+    Code generation for ROS-related files
+    """
     def __init__(self, meta, build_config, solver_config):
         self.__meta = meta
         self.__build_config = build_config
@@ -180,12 +182,16 @@ class RosBuilder:
             fh.write(output_template)
 
     def build(self):
-        self.__generate_ros_dir_structure()
-        self.__generate_ros_package_xml()
-        self.__generate_ros_cmakelists()
-        self.__copy__ros_files()
-        self.__generate_ros_params_file()
-        self.__generate_ros_node_header()
-        self.__generate_ros_node_cpp()
-        self.__generate_ros_launch_file()
-        self.__generate_ros_readme_file()
+        """
+        Build ROS-related files
+        """
+        self.__generate_ros_dir_structure()   # generate necessary folders
+        self.__generate_ros_package_xml()     # generate package.xml
+        self.__generate_ros_cmakelists()      # generate CMakeLists.txt
+        self.__copy__ros_files()              # Copy certain files
+        #                                     #   - C++ bindings, library, msg
+        self.__generate_ros_params_file()     # generate params file
+        self.__generate_ros_node_header()     # generate node .hpp file
+        self.__generate_ros_node_cpp()        # generate main node .cpp file
+        self.__generate_ros_launch_file()     # generate launch file
+        self.__generate_ros_readme_file()     # final touch: create README.md

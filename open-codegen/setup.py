@@ -5,7 +5,7 @@ import io
 import os
 
 NAME = 'opengen'
-VERSION = '0.4.1'
+VERSION = '0.5.0'
 DESCRIPTION = 'Optimization Engine Code Generator'
 
 here = os.path.abspath(os.path.dirname(__file__))

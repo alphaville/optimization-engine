@@ -2,6 +2,9 @@ import re
 
 
 class RosConfiguration:
+    """
+    Configuration of auto-generated ROS package
+    """
 
     def __init__(self):
         """
@@ -11,7 +14,7 @@ class RosConfiguration:
         self.__node_name = "ros_node_optimizer"
         self.__description = "parametric optimization with OpEn"
         self.__rate = 10.0
-        self.__solution_topic_queue_size = 100
+        self.__result_topic_queue_size = 100
         self.__params_topic_queue_size = 100
         self.__publisher_subtopic = "result"
         self.__subscriber_subtopic = "parameters"
@@ -35,7 +38,7 @@ class RosConfiguration:
     @property
     def publisher_subtopic(self):
         """
-        Name of publisher sub-topic (default: solution)
+        Name of publisher sub-topic (default: "result")
         :return:
         """
         return self.__publisher_subtopic
@@ -65,12 +68,12 @@ class RosConfiguration:
         return self.__rate
 
     @property
-    def solution_topic_queue_size(self):
+    def result_topic_queue_size(self):
         """
-        Size of "solution" topic (default: 100)
-        :return: solution topic name
+        Size of "result" topic (default: 100)
+        :return: result topic name
         """
-        return self.__solution_topic_queue_size
+        return self.__result_topic_queue_size
 
     @property
     def params_topic_queue_size(self):
@@ -128,22 +131,42 @@ class RosConfiguration:
         return self
 
     def with_queue_sizes(self,
-                         solution_topic_queue_size=100,
+                         result_topic_queue_size=100,
                          parameter_topic_queue_size=100):
         """
         Set queue sizes for ROS node
-        :param solution_topic_queue_size:
+        :param result_topic_queue_size:
         :param parameter_topic_queue_size:
-        :return:
+        :return: current object
         """
-        self.__solution_topic_queue_size = solution_topic_queue_size
+        self.__result_topic_queue_size = result_topic_queue_size
         self.__params_topic_queue_size = parameter_topic_queue_size
         return self
 
     def with_publisher_subtopic(self, publisher_subtopic):
+        """
+        The auto-generated node will output its results to the topic
+        `~/{publisher_subtopic}`. The subtopic (publisher_subtopic)
+        can be specified using this method. The default subtopic name
+        is 'result'. This can be configured after the package is
+        generated, in `config/open_params.yaml`.
+
+        :param publisher_subtopic: publisher sub-topic name
+        :return: current object
+        """
         self.__publisher_subtopic = publisher_subtopic
         return self
 
     def with_subscriber_subtopic(self, subscriber_subtopic):
+        """
+        The auto-generated node will listen for input at
+        `~/{subscriber_subtopic}`. The subtopic (subscriber_subtopic)
+        can be specified using this method. The default subtopic name
+        is 'parameters'. This can be configured after the package is
+        generated, in `config/open_params.yaml`.
+
+        :param subscriber_subtopic: subscriber sub-topic name
+        :return: :return: current object
+        """
         self.__subscriber_subtopic = subscriber_subtopic
         return self
