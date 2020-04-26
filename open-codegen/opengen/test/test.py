@@ -104,7 +104,6 @@ class RustBuildTestCase(unittest.TestCase):
         c = cs.vertcat(1.5 * u[0] - u[1],
                        cs.fmax(0.0, u[2] - u[3] + 0.1))
         bounds = og.constraints.Ball2(None, 1.5)
-        tcp_config = og.config.TcpServerConfiguration(bind_port=4598)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("rosenbrock_ros")
         problem = og.builder.Problem(u, p, phi) \
@@ -118,7 +117,6 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
-            .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()  \
             .with_ros(ros_config)
         og.builder.OpEnOptimizerBuilder(problem,
@@ -154,11 +152,11 @@ class RustBuildTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         lg.basicConfig(level=lg.INFO)
+        cls.setUpRosPackageGeneration()
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
-        cls.setUpRosPackageGeneration()
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]

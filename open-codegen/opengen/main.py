@@ -22,7 +22,6 @@ ros_config = og.config.RosConfiguration()       \
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("my_optimizers")     \
     .with_build_mode("debug")                  \
-    .with_tcp_interface_config()               \
     .with_build_c_bindings()                   \
     .with_ros(ros_config)
 solver_config = og.config.SolverConfiguration()    \
@@ -34,6 +33,5 @@ solver_config = og.config.SolverConfiguration()    \
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
                                           build_config,
-                                          solver_config) \
-    .with_generate_not_build_flag(True)
+                                          solver_config)
 builder.build()

@@ -19,6 +19,12 @@ def get_template(name):
     return env.get_template(name)
 
 
+def get_ros_template(name):
+    file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir_ros())
+    env = jinja2.Environment(loader=file_loader)
+    return env.get_template(name)
+
+
 class RosBuilder:
     """
     Code generation for ROS-related files
@@ -63,7 +69,7 @@ class RosBuilder:
     def __generate_ros_package_xml(self):
         self.__logger.info("Generating package.xml")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/package.xml')
+        template = get_ros_template('package.xml')
         output_template = template.render(meta=self.__meta, ros=self.__build_config.ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "package.xml")
         with open(target_rospkg_path, "w") as fh:
@@ -72,7 +78,7 @@ class RosBuilder:
     def __generate_ros_cmakelists(self):
         self.__logger.info("Generating CMakeLists")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/CMakeLists.txt')
+        template = get_ros_template('CMakeLists.txt')
         output_template = template.render(meta=self.__meta,
                                           ros=self.__build_config.ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "CMakeLists.txt")
@@ -128,7 +134,7 @@ class RosBuilder:
     def __generate_ros_params_file(self):
         self.__logger.info("Generating open_params.yaml")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/open_params.yaml')
+        template = get_ros_template('open_params.yaml')
         output_template = template.render(meta=self.__meta,
                                           ros=self.__build_config.ros_config)
         target_yaml_fname \
@@ -139,7 +145,7 @@ class RosBuilder:
     def __generate_ros_node_header(self):
         self.__logger.info("Generating open_optimizer.hpp")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/open_optimizer.hpp')
+        template = get_ros_template('open_optimizer.hpp')
         output_template = template.render(meta=self.__meta,
                                           ros=self.__build_config.ros_config,
                                           solver_config=self.__solver_config)
@@ -151,7 +157,7 @@ class RosBuilder:
     def __generate_ros_node_cpp(self):
         self.__logger.info("Generating open_optimizer.cpp")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/open_optimizer.cpp')
+        template = get_ros_template('open_optimizer.cpp')
         output_template = template.render(meta=self.__meta,
                                           ros=self.__build_config.ros_config)
         target_rosnode_cpp_path \
@@ -162,7 +168,7 @@ class RosBuilder:
     def __generate_ros_launch_file(self):
         self.__logger.info("Generating open_optimizer.launch")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/open_optimizer.launch')
+        template = get_ros_template('open_optimizer.launch')
         output_template = template.render(meta=self.__meta,
                                           ros=self.__build_config.ros_config)
         target_rosnode_launch_path \
@@ -173,7 +179,7 @@ class RosBuilder:
     def __generate_ros_readme_file(self):
         self.__logger.info("Generating README.md")
         target_ros_dir = self.__ros_target_dir()
-        template = get_template('ros/README.md')
+        template = get_ros_template('README.md')
         output_template = template.render(
             ros=self.__build_config.ros_config)
         target_readme_path \
