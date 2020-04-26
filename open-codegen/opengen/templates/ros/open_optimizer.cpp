@@ -1,7 +1,7 @@
 #include "ros/ros.h"
 #include "{{ros.package_name}}/OptimizationResult.h"
 #include "{{ros.package_name}}/OptimizationParameters.h"
-#include "rosenbrock_bindings.hpp"
+#include "{{meta.optimizer_name}}_bindings.hpp"
 #include "open_optimizer.hpp"
 
 namespace {{ros.package_name}} {
@@ -19,7 +19,7 @@ private:
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = { 0 };
 		double *y = NULL;
 
-    rosenbrockCache* cache;
+    {{meta.optimizer_name}}Cache* cache;
     double init_penalty = ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
 
     /**
@@ -62,9 +62,9 @@ private:
     /**
      * Call OpEn to solve the problem
      */
-    rosenbrockSolverStatus solve()
+    {{meta.optimizer_name}}SolverStatus solve()
     {
-        return rosenbrock_solve(cache, u, p, y, &init_penalty);
+        return {{meta.optimizer_name}}_solve(cache, u, p, y, &init_penalty);
     }
 
 
@@ -75,7 +75,7 @@ public:
     OptimizationEngineManager()
     {
 			  y = new double[{{meta.optimizer_name|upper}}_N1];
-        cache = rosenbrock_new();
+        cache = {{meta.optimizer_name}}_new();
     }
 
     /**
@@ -84,13 +84,13 @@ public:
     ~OptimizationEngineManager()
     {
 			  if (y!=NULL) delete[] y;
-        rosenbrock_free(cache);
+        {{meta.optimizer_name}}_free(cache);
     }
 
     /**
      * Copies results from `status` to the local field `results`
      */
-    void updateResults(rosenbrockSolverStatus& status)
+    void updateResults({{meta.optimizer_name}}SolverStatus& status)
     {
         std::vector<double> sol(u, u + {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES);
         results.solution = sol;
@@ -118,7 +118,7 @@ public:
     void solveAndPublish(ros::Publisher& publisher)
     {
         updateInputData(); /* get input data */
-        rosenbrockSolverStatus status = solve(); /* solve!  */
+        {{meta.optimizer_name}}SolverStatus status = solve(); /* solve!  */
         updateResults(status); /* pack results into `results` */
         publishToTopic(publisher);
     }
@@ -139,21 +139,25 @@ public:
 int main(int argc, char** argv)
 {
 
-    std::string solution_topic, params_topic;  /* parameter and solution topics */
+    std::string result_topic, params_topic;  /* parameter and result topics */
     double rate; /* rate of node (specified by parameter) */
 
     {{ros.package_name}}::OptimizationEngineManager mng;
     ros::init(argc, argv, ROS_NODE_{{meta.optimizer_name|upper}}_NODE_NAME);
     ros::NodeHandle private_nh("~");
 
-    private_nh.param("solution_topic", solution_topic, std::string("result"));
-    private_nh.param("params_topic", params_topic, std::string(ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC));
-    private_nh.param("rate", rate, double(ROS_NODE_{{meta.optimizer_name|upper}}_RATE));
+    /* obtain parameters from config/open_params.yaml file */
+    private_nh.param("result_topic", result_topic,
+                     std::string(ROS_NODE_{{meta.optimizer_name|upper}}_RESULT_TOPIC));
+    private_nh.param("params_topic", params_topic,
+                     std::string(ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC));
+    private_nh.param("rate", rate,
+                     double(ROS_NODE_{{meta.optimizer_name|upper}}_RATE));
 
     ros::Publisher mpc_pub
         = private_nh.advertise<{{ros.package_name}}::OptimizationResult>(
-            ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC,
-            ROS_NODE_{{meta.optimizer_name|upper}}_SOLUTION_TOPIC_QUEUE_SIZE);
+            ROS_NODE_{{meta.optimizer_name|upper}}_RESULT_TOPIC,
+            ROS_NODE_{{meta.optimizer_name|upper}}_RESULT_TOPIC_QUEUE_SIZE);
     ros::Subscriber sub
         = private_nh.subscribe(
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC,
