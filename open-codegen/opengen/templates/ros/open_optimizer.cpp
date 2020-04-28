@@ -18,7 +18,9 @@ namespace {{ros.package_name}} {
  * of this node
  */
 class OptimizationEngineManager {
-
+/**
+ * Private fields and methods
+ */
 private:
     {{ros.package_name}}::OptimizationParameters params;
     {{ros.package_name}}::OptimizationResult results;
@@ -63,7 +65,6 @@ private:
             for (size_t i = 0; i < {{meta.optimizer_name|upper}}_N1; ++i)
                 y[i] = params.initial_y[i];
 		}
-
     }
 
     /**
@@ -73,8 +74,9 @@ private:
     {
         return {{meta.optimizer_name}}_solve(cache, u, p, y, &init_penalty);
     }
-
-
+/**
+ * Public fields and methods
+ */
 public:
     /**
      * Constructor of OptimizationEngineManager
@@ -130,7 +132,6 @@ public:
         publishToTopic(publisher);
     }
 }; /* end of class OptimizationEngineManager */
-
 } /* end of namespace {{ros.package_name}} */
 
 /**
@@ -145,7 +146,6 @@ public:
  */
 int main(int argc, char** argv)
 {
-
     std::string result_topic, params_topic;  /* parameter and result topics */
     double rate; /* rate of node (specified by parameter) */
 
