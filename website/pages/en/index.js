@@ -13,7 +13,7 @@ const { MarkdownBlock, GridBlock, Container } = CompLibrary; /* Used to read mar
 
 const siteConfig = require(`${process.cwd()}/siteConfig.js`);
 
-function docUrl(doc, language) {
+function docUrl(doc) {
   return `${siteConfig.baseUrl}docs/${doc}`;
 }
 
@@ -75,13 +75,12 @@ const PromoSection = props => (
 
 class HomeSplash extends React.Component {
   render() {
-    const language = this.props.language || "";
     return (
       <SplashContainer>
         <div className="inner">
           <ProjectTitle />
           <PromoSection>
-            <Button href={docUrl("open-intro", language)}>
+            <Button href={docUrl("open-intro")}>
               Get Started
             </Button>
           </PromoSection>

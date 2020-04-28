@@ -57,12 +57,6 @@ header.postHeader:empty + article h1 {
   text-decoration: underline;
 }
 
-.post article blockquote {
-  color: black;
-  background-color: $accentColor4;
-  border-left: 8px solid $accentColor5;
-}
-
 .post article .hash-link {
   /* add underlines to links in blocks of text for a11y */
   color: $accentColor1;
@@ -244,8 +238,10 @@ header.postHeader:empty + article h1 {
   }
 }
 
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
-}
+/* 
+ * @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+ * }
+*/
 
 @media only screen and (min-width: 1024px) {
   .reactNavSearchWrapper input#search_input_react {
@@ -278,11 +274,16 @@ header.postHeader:empty + article h1 {
   }
 }
 
-@media only screen and (min-width: 1400px) {
-}
-
-@media only screen and (min-width: 1500px) {
-}
+/**
+ *
+ * @media only screen and (min-width: 1400px) {
+ * } 
+ *
+ *
+ * @media only screen and (min-width: 1500px) {
+ * }
+ *
+ */
 
 .alert {
   padding: 15px;
