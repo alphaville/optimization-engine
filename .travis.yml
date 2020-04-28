@@ -68,7 +68,7 @@ matrix:
 
 
 
-before_install: 
+before_install:
   - set -e
   - python3 --version
 
@@ -90,6 +90,6 @@ notifications:
     urls:
       - https://webhooks.gitter.im/e/196d37e7f965d6bd599d
     on_success: always   # options: [always|never|change] default: always
-    on_failure: always 
-    on_start: always 
+    on_failure: always
+    on_start: always
 

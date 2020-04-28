@@ -1,4 +1,4 @@
-from opengen.functions.is_symbolic import *
+from opengen.functions.is_symbolic import is_symbolic
 
 
 def rosenbrock(u_, p_):

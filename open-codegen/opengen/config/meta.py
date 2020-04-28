@@ -74,8 +74,7 @@ class OptimizerMeta:
         if re.match(r"^[a-zA-Z_]+[\w]*$", optimizer_name):
             self.__optimizer_name = optimizer_name
             return self
-        else:
-            raise ValueError("invalid optimizer name")
+        raise ValueError("invalid optimizer name")
 
     def with_licence(self, optimizer_licence):
         """Specify licence of auto-generated code
