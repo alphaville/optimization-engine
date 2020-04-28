@@ -1,3 +1,10 @@
+/**
+ * This is an auto-generated file by Optimization Engine (OpEn)
+ * OpEn is a free open-source software - see doc.optimization-engine.xyz
+ * dually licensed under the MIT and Apache v2 licences.
+ *
+ * Generated at {{timestamp_created}}.
+ */
 #include "ros/ros.h"
 #include "{{ros.package_name}}/OptimizationResult.h"
 #include "{{ros.package_name}}/OptimizationParameters.h"
@@ -17,7 +24,7 @@ private:
     {{ros.package_name}}::OptimizationResult results;
     double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = { 0 };
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = { 0 };
-		double *y = NULL;
+    double *y = NULL;
 
     {{meta.optimizer_name}}Cache* cache;
     double init_penalty = ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
@@ -74,7 +81,7 @@ public:
      */
     OptimizationEngineManager()
     {
-			  y = new double[{{meta.optimizer_name|upper}}_N1];
+	    y = new double[{{meta.optimizer_name|upper}}_N1];
         cache = {{meta.optimizer_name}}_new();
     }
 
@@ -83,7 +90,7 @@ public:
      */
     ~OptimizationEngineManager()
     {
-			  if (y!=NULL) delete[] y;
+		if (y!=NULL) delete[] y;
         {{meta.optimizer_name}}_free(cache);
     }
 

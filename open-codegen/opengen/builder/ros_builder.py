@@ -4,6 +4,7 @@ import os
 import logging
 import jinja2
 import shutil
+import datetime
 
 _ROS_PREFIX = 'ros_node_'
 
@@ -159,7 +160,8 @@ class RosBuilder:
         target_ros_dir = self.__ros_target_dir()
         template = get_ros_template('open_optimizer.cpp')
         output_template = template.render(meta=self.__meta,
-                                          ros=self.__build_config.ros_config)
+                                          ros=self.__build_config.ros_config,
+                                          timestamp_created=datetime.datetime.now())
         target_rosnode_cpp_path \
             = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
         with open(target_rosnode_cpp_path, "w") as fh:
