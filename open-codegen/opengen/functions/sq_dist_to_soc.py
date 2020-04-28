@@ -7,9 +7,11 @@ class SqDistSOC(cs.Callback):
         cs.Callback.__init__(self)
         self.construct(name, opts)
 
-    def get_n_in(self): return 1
+    def get_n_in(self):
+        return 1
 
-    def get_n_out(self): return 1
+    def get_n_out(self):
+        return 1
 
     def init(self):
         pass
@@ -29,4 +31,3 @@ class SqDistSOC(cs.Callback):
         x = cs.MX.sym('x', 1)
         z = cs.MX.sym('x', 1)
         return cs.Function('fw', [x, z], [1])
-

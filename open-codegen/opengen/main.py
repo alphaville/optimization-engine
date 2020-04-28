@@ -45,12 +45,12 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           solver_configuration=solver_config)
 builder.build()
 
-mng = og.tcp.OptimizerTcpManager('my_optimizers/the_optimizer')
-mng.start()
-
-pong = mng.ping()                 # check if the server is alive
-print(pong)
-solution = mng.call([1.0, 50.0])  # call the solver over TCP
-print(solution.get().solution)
-
-mng.kill()
+# mng = og.tcp.OptimizerTcpManager('my_optimizers/the_optimizer')
+# mng.start()
+#
+# pong = mng.ping()                 # check if the server is alive
+# print(pong)
+# solution = mng.call([1.0, 50.0])  # call the solver over TCP
+# print(solution.get().solution)
+#
+# mng.kill()

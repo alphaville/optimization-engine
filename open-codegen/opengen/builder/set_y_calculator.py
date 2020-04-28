@@ -1,5 +1,6 @@
-from ..constraints.rectangle import *
-from ..constraints.ball_inf import *
+from ..constraints.rectangle import Rectangle
+from ..constraints.ball_inf import BallInf
+
 
 class SetYCalculator:
 
@@ -43,7 +44,6 @@ class SetYCalculator:
     def obtain(self):
         if isinstance(self.__set_c, Rectangle):
             return self.__obtain_y_with_c_rectangle()
-        elif self.__set_c.is_compact():
+        if self.__set_c.is_compact():
             return self.__obtain_y_with_c_compact()
-        else:
-            raise NotImplementedError()
+        raise NotImplementedError()
