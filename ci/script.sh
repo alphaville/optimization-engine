@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-main() {
+regular_test() {
     # Run Rust tests
     # ------------------------------------
     cargo test
@@ -29,6 +29,21 @@ main() {
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
+}
+
+test_docker() {
+    cd docker
+    docker image build -t alphaville/open .
+}
+
+main() {
+    if [ $DO_DOCKER -eq 0 ]; then
+        echo "Running regular tests"
+        regular_test
+    else
+        echo "Building Docker image"
+        test_docker
+    fi
 }
 
 main
