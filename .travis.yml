@@ -2,15 +2,9 @@ language: rust
 
 matrix:
   include:
-    # ------------------------------------------------------
-    # Linux Xenial distributions, Various Python versions
-    # Rust: Stable, Beta and Nightly
-    # ------------------------------------------------------
-    #
-
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 1: Xenial + Stable Rust + Python 3.6
+    # [Job 1] Xenial + Stable Rust + Python 3.6
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: xenial
@@ -25,18 +19,23 @@ matrix:
       env:
         - TARGET=x86_64-unknown-linux-gnu
         - PYTHON_VERSION=3.6
+        - DO_DOCKER=0
       rust: stable
       python: "3.6"
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [Job 2] Xenial, Test Docker
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    - os: linux
+      dist: xenial
+      services:
+        - docker      
+      env:
+        - DO_DOCKER=1
 
-    # ------------------------------------------------------
-    # Linux Trusty distribution, Python 3.6 and 2.7
-    # Stable Rust
-    # ------------------------------------------------------
-    #
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 2: Trusty + Stable Rust + Python 3.6
+    # [Job 3] Trusty + Stable Rust + Python 3.6
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: linux
       dist: trusty
@@ -51,28 +50,25 @@ matrix:
       env:
         - TARGET=x86_64-unknown-linux-gnu
         - PYTHON_VERSION=3.6
+        - DO_DOCKER=0
       rust: stable
       python: "3.6"
 
-    # ------------------------------------------------------
-    # OSX Darwin, Python 3.7.5
-    # Stable Rust
-    # ------------------------------------------------------
-    #
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Job 3: OSX + Stable Rust + Python 3.6
+    # [Job 4] OSX + Stable Rust + Python 3.6
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - os: osx
       env:
         - TARGET=i686-apple-darwin
         - PYTHON_VERSION=3.7.5
-      rust: stable      
+        - DO_DOCKER=0
+      rust: stable
       python: "3.7.5"
 
 
 
-before_install: 
+before_install:
   - set -e
   - python3 --version
 
@@ -94,6 +90,6 @@ notifications:
     urls:
       - https://webhooks.gitter.im/e/196d37e7f965d6bd599d
     on_success: always   # options: [always|never|change] default: always
-    on_failure: always 
-    on_start: always 
+    on_failure: always
+    on_start: always
 

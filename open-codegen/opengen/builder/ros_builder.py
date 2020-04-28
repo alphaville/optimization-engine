@@ -16,13 +16,13 @@ def make_dir_if_not_exists(directory):
 
 def get_template(name):
     file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-    env = jinja2.Environment(loader=file_loader)
+    env = jinja2.Environment(loader=file_loader, autoescape=True)
     return env.get_template(name)
 
 
 def get_ros_template(name):
     file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir_ros())
-    env = jinja2.Environment(loader=file_loader)
+    env = jinja2.Environment(loader=file_loader, autoescape=True)
     return env.get_template(name)
 
 

@@ -61,7 +61,7 @@ class OpEnOptimizerBuilder:
     @staticmethod
     def __get_template(name):
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         return env.get_template(name)
 
     def with_verbosity_level(self, verbosity_level):
@@ -186,13 +186,12 @@ class OpEnOptimizerBuilder:
         Generate icasadi's Cargo.toml file
         """
         self.__logger.info("Generating icasadi's Cargo.toml")
-        template = OpEnOptimizerBuilder.__get_template('icasadi_cargo.toml.template')
-        output_template = template.render(meta=self.__meta)
-        icallocator_path = os.path.abspath(
+        icasadi_cargo_template = OpEnOptimizerBuilder.__get_template('icasadi_cargo.toml.template')
+        icasadi_cargo_output_template = icasadi_cargo_template.render(meta=self.__meta)
+        icasadi_cargo_allocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
-        with open(icallocator_path, "w") as fh:
-            fh.write(output_template)
-        pass
+        with open(icasadi_cargo_allocator_path, "w") as fh:
+            fh.write(icasadi_cargo_output_template)
 
     def __generate_icasadi_c_interface(self):
         """
@@ -200,15 +199,15 @@ class OpEnOptimizerBuilder:
 
         """
         self.__logger.info("Generating intercafe.c (C interface)")
-        template = OpEnOptimizerBuilder.__get_template('interface.c.template')
-        output_template = template.render(meta=self.__meta,
+        cint_template = OpEnOptimizerBuilder.__get_template('interface.c.template')
+        cint_output_template = cint_template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
-        icallocator_path = os.path.abspath(
+        cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern/interface.c"))
-        with open(icallocator_path, "w") as fh:
-            fh.write(output_template)
+        with open(cint_icallocator_path, "w") as fh:
+            fh.write(cint_output_template)
 
     def __generate_icasadi_lib(self):
         """
@@ -217,15 +216,15 @@ class OpEnOptimizerBuilder:
         Generates src/lib.rs
         """
         self.__logger.info("Generating icasadi Rust library file")
-        template = OpEnOptimizerBuilder.__get_template('icasadi_lib.rs.template')
-        output_template = template.render(meta=self.__meta,
+        icasadi_lib_template = OpEnOptimizerBuilder.__get_template('icasadi_lib.rs.template')
+        icasadi_lib_output_template = icasadi_lib_template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
         icasadi_lib_rs_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "src/lib.rs"))
         with open(icasadi_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+            fh.write(icasadi_lib_output_template)
 
     def __generate_cargo_toml(self):
         """
@@ -234,15 +233,15 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
-        template = OpEnOptimizerBuilder.__get_template('optimizer_cargo.toml.template')
-        output_template = template.render(
+        cargo_template = OpEnOptimizerBuilder.__get_template('optimizer_cargo.toml.template')
+        cargo_output_template = cargo_template.render(
             meta=self.__meta,
             build_config=self.__build_config,
             activate_tcp_server=self.__build_config.tcp_interface_config is not None,
             activate_clib_generation=self.__build_config.build_c_bindings)
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
-            fh.write(output_template)
+            fh.write(cargo_output_template)
 
     def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None):
         """
@@ -254,8 +253,8 @@ class OpEnOptimizerBuilder:
         :param f2: mapping F2  (cs.Function)
         """
         self.__logger.info("Generating casadi_memory.h")
-        template = OpEnOptimizerBuilder.__get_template('casadi_memory.h.template')
-        output_template = template.render(cost=cost, grad=grad,
+        casadi_mem_template = OpEnOptimizerBuilder.__get_template('casadi_memory.h.template')
+        casadi_mem_output_template = casadi_mem_template.render(cost=cost, grad=grad,
                                           f1=f1, f2=f2,
                                           build_config=self.__build_config,
                                           meta=self.__meta,
@@ -263,7 +262,7 @@ class OpEnOptimizerBuilder:
         memory_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern/casadi_memory.h"))
         with open(memory_path, "w") as fh:
-            fh.write(output_template)
+            fh.write(casadi_mem_output_template)
 
     def __construct_function_psi(self):
         """
@@ -382,8 +381,9 @@ class OpEnOptimizerBuilder:
     def __generate_main_project_code(self):
         self.__logger.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
-        template = OpEnOptimizerBuilder.__get_template('optimizer.rs.template')
-        output_template = template.render(solver_config=self.__solver_config,
+        optimizer_rs_template = OpEnOptimizerBuilder.__get_template('optimizer.rs.template')
+        optimizer_rs_output_template = optimizer_rs_template.render(
+                                          solver_config=self.__solver_config,
                                           meta=self.__meta,
                                           problem=self.__problem,
                                           timestamp_created=datetime.datetime.now(),
@@ -393,17 +393,17 @@ class OpEnOptimizerBuilder:
         target_scr_lib_rs_path = os.path.join(target_source_path, "lib.rs")
         make_dir_if_not_exists(target_source_path)
         with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+            fh.write(optimizer_rs_output_template)
 
     def __generate_build_rs(self):
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
-        template = OpEnOptimizerBuilder.__get_template('optimizer_build.rs.template')
-        output_template = template.render(meta=self.__meta,
+        build_rs_template = OpEnOptimizerBuilder.__get_template('optimizer_build.rs.template')
+        build_rs_output_template = build_rs_template.render(meta=self.__meta,
                                           activate_clib_generation=self.__build_config.build_c_bindings)
-        target_scr_lib_rs_path = os.path.join(target_dir, "build.rs")
-        with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+        target_build_lib_rs_path = os.path.join(target_dir, "build.rs")
+        with open(target_build_lib_rs_path, "w") as fh:
+            fh.write(build_rs_output_template)
 
     def __build_optimizer(self):
         target_dir = os.path.abspath(self.__target_dir())
@@ -445,23 +445,23 @@ class OpEnOptimizerBuilder:
         make_dir_if_not_exists(tcp_iface_dir)
         make_dir_if_not_exists(tcp_iface_source_dir)
 
-        # generate main.rs for tcp_iface
-        template = OpEnOptimizerBuilder.__get_template('tcp_server.rs.template')
-        output_template = template.render(meta=self.__meta,
+        # generate tcp_server.rs for tcp_iface
+        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server.rs.template')
+        tcp_rs_output_template = tcp_rs_template.render(meta=self.__meta,
                                           tcp_server_config=self.__build_config.tcp_interface_config,
                                           timestamp_created=datetime.datetime.now())
-        target_scr_lib_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
-        with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+        target_tcp_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
+        with open(target_tcp_rs_path, "w") as fh:
+            fh.write(tcp_rs_output_template)
 
         # generate Cargo.toml for tcp_iface
-        template = OpEnOptimizerBuilder.__get_template('tcp_server_cargo.toml.template')
-        output_template = template.render(meta=self.__meta,
+        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server_cargo.toml.template')
+        tcp_rs_output_template = tcp_rs_template.render(meta=self.__meta,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
-        target_scr_lib_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
-        with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+        target_tcp_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
+        with open(target_tcp_rs_path, "w") as fh:
+            fh.write(tcp_rs_output_template)
 
     def __generate_yaml_data_file(self):
         self.__logger.info("Generating YAML configuration file")
@@ -512,22 +512,24 @@ class OpEnOptimizerBuilder:
     def __generate_c_bindings_example(self):
         self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
         target_dir = self.__target_dir()
-        template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c.template')
-        output_template = template.render(meta=self.__meta,
+        cbind_template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c.template')
+        cbind_output_template = cbind_template.render(meta=self.__meta,
                                           build_config=self.__build_config,
                                           problem=self.__problem)
-        target_scr_lib_rs_path = os.path.join(target_dir, "example_optimizer.c")
-        with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+        cbind_target_path = os.path.join(target_dir, "example_optimizer.c")
+        with open(cbind_target_path, "w") as fh:
+            fh.write(cbind_output_template)
 
     def __generate_c_bindings_makefile(self):
         self.__logger.info("Generating CMakeLists (do: `cmake .; make` to compile the autogenerated example)")
         target_dir = self.__target_dir()
-        template = OpEnOptimizerBuilder.__get_template('example_cmakelists.template')
-        output_template = template.render(meta=self.__meta, build_config=self.__build_config)
-        target_scr_lib_rs_path = os.path.join(target_dir, "CMakeLists.txt")
-        with open(target_scr_lib_rs_path, "w") as fh:
-            fh.write(output_template)
+        cbind_makefile_template = OpEnOptimizerBuilder.__get_template('example_cmakelists.template')
+        cbind_makefile_output_template \
+            = cbind_makefile_template.render(
+            meta=self.__meta, build_config=self.__build_config)
+        cbind_makefile_target_path = os.path.join(target_dir, "CMakeLists.txt")
+        with open(cbind_makefile_target_path, "w") as fh:
+            fh.write(cbind_makefile_output_template)
 
     def build(self):
         """Generate code and build project

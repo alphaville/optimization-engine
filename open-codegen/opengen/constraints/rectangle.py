@@ -5,22 +5,8 @@ import opengen.functions as fn
 class Rectangle(Constraint):
     """A Rectangle (Box) constraint"""
 
-    def __init__(self, xmin, xmax):
-        """Construct a new instance of Rectangle
-
-        Args:
-            xmin: minimum bounds (can be None)
-            xmax: maximum bounds (can be None)
-
-        Raises:
-            Exception: if both xmin and xmax is None
-              Exception: if xmin/xmax is not None and not a list (wrong type)
-            Exception: if xmin and xmax have incompatible lengths
-            Exception: if xmin(i) > xmax(i) for some i (empty set)
-
-        Returns:
-             A new instance of Rectangle
-        """
+    @classmethod
+    def __check_xmin_xmax(cls, xmin, xmax):
         # (None, None) is not allowed
         if xmin is None and xmax is None:
             raise Exception("At least one of xmin and xmax must be not None")
@@ -40,6 +26,24 @@ class Rectangle(Constraint):
                 if xmin_element > xmax_element:
                     raise Exception("xmin must be <= xmax")
 
+    def __init__(self, xmin, xmax):
+        """Construct a new instance of Rectangle
+
+        Args:
+            xmin: minimum bounds (can be None)
+            xmax: maximum bounds (can be None)
+
+        Raises:
+            Exception: if both xmin and xmax is None
+              Exception: if xmin/xmax is not None and not a list (wrong type)
+            Exception: if xmin and xmax have incompatible lengths
+            Exception: if xmin(i) > xmax(i) for some i (empty set)
+
+        Returns:
+             A new instance of Rectangle
+        """
+        Rectangle.__check_xmin_xmax(xmin, xmax)
+
         # Store xmin and xmax in attributes
         self.__xmin = None if xmin is None else [float(i) for i in xmin]
         self.__xmax = None if xmax is None else [float(i) for i in xmax]
@@ -57,10 +61,9 @@ class Rectangle(Constraint):
     def dimension(self):
         if self.__xmin is not None:
             return len(self.__xmin)
-        elif self.__xmax is not None:
+        if self.__xmax is not None:
             return len(self.__xmax)
-        else:
-            raise Exception("Absurd: both xmin and xmax are None!")
+        raise Exception("Absurd: both xmin and xmax are None!")
 
     def idx_bound_finite_all(self):
         idx_both_finite = []
@@ -85,7 +88,6 @@ class Rectangle(Constraint):
             return idx_xmin_infinite
 
         # Hereafter, xmax is not None (but xmin can be None)
-
         for i in range(self.dimension()):
             xmini = self.__xmin[i] if self.__xmin is not None else float('-inf')
             xmaxi = self.__xmax[i]
