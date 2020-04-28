@@ -15,7 +15,7 @@
 #
 # ------------------------------------------------------------------------------
 
-FROM debian
+FROM debian:jessie
 
 # Labels for the docker image
 LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
@@ -43,7 +43,9 @@ RUN "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf"  \
         python3-setuptools  \
     &&  curl https://sh.rustup.rs -sSf | bash -s -- -y  \
     &&  pip3 install wheel  \ 
-    &&  pip3 install opengen
+    &&  pip3 install opengen  \
+    &&  apt-get clean  \
+    &&  rm -rf /var/lib/apt/lists/*
 
 
 # Run the following command every time this docker image
