@@ -78,3 +78,60 @@ optimization_engine = "*"
 
 You may replace the asterisk with some particular version (e.g., `optimization_engine = "0.6.0"`).
 **OpEn** is available on <a href="https://crates.io/crates/optimization_engine">crates.io</a>.
+
+
+
+## Install from source
+
+This section is intended mainly for developers and contributors.
+
+### Get the source code: clone and/or fork
+
+The first step is to get the latest version from OpEn's git repository:
+
+```console
+git clone \
+https://github.com/alphaville/optimization-engine.git \
+optimization-engine
+```
+
+To clone a particular branch do
+
+```console
+git clone -b <branch_name> \
+https://github.com/alphaville/optimization-engine.git \
+optimization-engine
+```
+
+If you want to contribute to OpEn, you should rather *fork* OpEn on [github](https://github.com/alphaville/optimization-engine). In that case, you should also read the [contributing guide](contributing) as well.
+
+
+### Install opengen
+
+Go intro `optimization-engine/open-codegen` and create a virtual environment:
+
+```sh
+cd optimization-engine/open-codegen
+virtualenv -p python3.6 venvopen
+source venvopen/bin/activate
+python setup.py install
+```
+
+You're ready to go!
+
+It's a good idea to use an IDE, such as [PyCharm](https://www.jetbrains.com/pycharm/). Use the above virtual environment (`venvopen`) in PyCharm:
+
+- go to Run > Edit Configurations > Add new configuration
+- Script path: specify `main.py`
+- Working dir: `optimization-engine/open-codegen/opengen`
+- Python interpreter: `openve`
+
+### Install OpEn in Rust
+
+
+As easy as:
+
+```
+cd optimization-engine
+cargo build
+```

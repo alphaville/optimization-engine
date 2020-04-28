@@ -171,14 +171,13 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating icasadi's Cargo.toml")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('icasadi_cargo.toml.template')
         output_template = template.render(meta=self.__meta)
         icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
         with open(icallocator_path, "w") as fh:
             fh.write(output_template)
-        pass
 
     def __generate_icasadi_c_interface(self):
         """
@@ -187,7 +186,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating intercafe.c (C interface)")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('interface.c.template')
         output_template = template.render(meta=self.__meta,
                                           problem=self.__problem,
@@ -206,7 +205,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating icasadi Rust library file")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('icasadi_lib.rs.template')
         output_template = template.render(meta=self.__meta,
                                           problem=self.__problem,
@@ -225,7 +224,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('optimizer_cargo.toml.template')
         output_template = template.render(
             meta=self.__meta,
@@ -247,7 +246,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating casadi_memory.h")
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('casadi_memory.h.template')
         output_template = template.render(cost=cost, grad=grad,
                                           f1=f1, f2=f2,
@@ -377,7 +376,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('optimizer.rs.template')
         output_template = template.render(solver_config=self.__solver_config,
                                           meta=self.__meta,
@@ -395,7 +394,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('optimizer_build.rs.template')
         output_template = template.render(meta=self.__meta,
                                           activate_clib_generation=self.__build_config.build_c_bindings)
@@ -445,7 +444,7 @@ class OpEnOptimizerBuilder:
 
         # generate main.rs for tcp_iface
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('tcp_server.rs.template')
         output_template = template.render(meta=self.__meta,
                                           tcp_server_config=self.__build_config.tcp_interface_config,
@@ -513,7 +512,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('example_optimizer_c_bindings.c.template')
         output_template = template.render(meta=self.__meta,
                                           build_config=self.__build_config,
@@ -526,7 +525,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating CMakeLists (do: `cmake .; make` to compile the autogenerated example)")
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
-        env = jinja2.Environment(loader=file_loader)
+        env = jinja2.Environment(loader=file_loader, autoescape=True)
         template = env.get_template('example_cmakelists.template')
         output_template = template.render(meta=self.__meta, build_config=self.__build_config)
         target_scr_lib_rs_path = os.path.join(target_dir, "CMakeLists.txt")
@@ -571,4 +570,3 @@ class OpEnOptimizerBuilder:
         if self.__build_config.build_c_bindings:
             self.__generate_c_bindings_example()
             self.__generate_c_bindings_makefile()
-

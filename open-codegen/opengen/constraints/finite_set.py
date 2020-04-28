@@ -27,15 +27,13 @@ class FiniteSet(Constraint):
         p = self.points
         if p is None or len(p) == 0:
             return 0
-        else:
-            return len(p[0])
+        return len(p[0])
 
     def cardinality(self):
         p = self.points
         if p is None:
             return 0
-        else:
-            return len(p)
+        return len(p)
 
     def distance_squared(self, u):
         raise NotImplementedError()

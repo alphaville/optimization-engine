@@ -1,7 +1,7 @@
 import casadi.casadi as cs
 import numpy as np
-from .is_numeric import *
-from .is_symbolic import *
+from .is_numeric import is_numeric
+from .is_symbolic import is_symbolic
 
 
 def norm2(u):
@@ -9,7 +9,6 @@ def norm2(u):
                 or isinstance(u, np.ndarray):
         # if `u` is a numeric vector
         return np.linalg.norm(u)
-    elif is_symbolic(u):
+    if is_symbolic(u):
         return cs.norm_2(u)
-    else:
-        raise Exception("Illegal argument")
+    raise Exception("Illegal argument")
