@@ -15,7 +15,7 @@
 #
 # ------------------------------------------------------------------------------
 
-FROM debian:jessie
+FROM debian:stable
 
 # Labels for the docker image
 LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
