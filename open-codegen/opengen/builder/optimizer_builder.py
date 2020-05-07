@@ -286,8 +286,11 @@ class OpEnOptimizerBuilder:
         xi = cs.SX.sym('xi', n_xi, 1) if isinstance(u, cs.SX) \
             else cs.MX.sym('xi', n_xi, 1)
 
+        # Note: In the first term below, we divide by 'max(c, 1)', instead of
+        #       just 'c'. The reason is that this allows to set c=0 and
+        #       retrieve the value of the original cost function
         if n1 > 0:
-            sq_dist_term = alm_set_c.distance_squared(f1 + xi[1:n1+1]/xi[0])
+            sq_dist_term = alm_set_c.distance_squared(f1 + xi[1:n1+1]/cs.fmax(xi[0], 1))
             psi += xi[0] * sq_dist_term / 2
 
         if n2 > 0:
@@ -445,7 +448,7 @@ class OpEnOptimizerBuilder:
         # generate main.rs for tcp_iface
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader, autoescape=True)
-        template = env.get_template('tcp_server.rs.template')
+        template = env.get_template('tcp_server.rs')
         output_template = template.render(meta=self.__meta,
                                           tcp_server_config=self.__build_config.tcp_interface_config,
                                           timestamp_created=datetime.datetime.now())
