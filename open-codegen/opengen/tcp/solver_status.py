@@ -98,3 +98,10 @@ class SolverStatus:
         :return: Vector of Lagrange multipliers
         """
         return self.__dict__["__lagrange_multipliers"]
+
+    @property
+    def cost(self):
+        """
+        :return: Value of cost function at the solution
+        """
+        return self.__dict__["__cost"]
