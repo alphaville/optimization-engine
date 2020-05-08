@@ -109,6 +109,10 @@ class BuildConfiguration:
 
     @property
     def ros_config(self) -> RosConfiguration:
+        """
+        ROS package configuration
+        :return: instance of RosConfiguration
+        """
         return self.__ros_config
 
     # ---------- SETTERS ---------------------------------------------
@@ -200,7 +204,13 @@ class BuildConfiguration:
         self.__build_c_bindings = build_c_bindings
         return self
 
-    def with_ros(self, ros_config):
+    def with_ros(self, ros_config: RosConfiguration):
+        """
+        Activates the generation of a ROS package. The caller must provide an
+        instance of RosConfiguration
+        :param ros_config: Configuation of ROS package
+        :return: current instance of BuildConfiguration
+        """
         self.__build_c_bindings = True  # no C++ bindings, no ROS package mate
         self.__ros_config = ros_config
         return self

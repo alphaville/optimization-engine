@@ -1,5 +1,3 @@
-import os
-import sys
 import pkg_resources
 
 
@@ -13,13 +11,6 @@ def templates_subdir(subdir=None):
         return templates_dir()
     else:
         return pkg_resources.resource_filename('opengen', 'templates/%s/' % subdir)
-
-
-def templates_dir_ros():
-    """Directory where templates related to ROS packages
-       are found (for internal use, mainly)
-    """
-    return pkg_resources.resource_filename('opengen', 'templates/ros/')
 
 
 def original_icasadi_dir():

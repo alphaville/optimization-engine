@@ -201,10 +201,11 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating intercafe.c (C interface)")
         cint_template = OpEnOptimizerBuilder.__get_template('interface.c', 'icasadi')
-        cint_output_template = cint_template.render(meta=self.__meta,
-                                          problem=self.__problem,
-                                          build_config=self.__build_config,
-                                          timestamp_created=datetime.datetime.now())
+        cint_output_template = cint_template.render(
+            meta=self.__meta,
+            problem=self.__problem,
+            build_config=self.__build_config,
+            timestamp_created=datetime.datetime.now())
         cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
@@ -234,7 +235,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
-        cargo_template = OpEnOptimizerBuilder.__get_template('optimizer_cargo.toml.template')
+        cargo_template = OpEnOptimizerBuilder.__get_template('optimizer_cargo.toml')
         cargo_output_template = cargo_template.render(
             meta=self.__meta,
             build_config=self.__build_config,
@@ -255,11 +256,12 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Generating casadi_memory.h")
         casadi_mem_template = OpEnOptimizerBuilder.__get_template('casadi_memory.h', 'icasadi')
-        casadi_mem_output_template = casadi_mem_template.render(cost=cost, grad=grad,
-                                          f1=f1, f2=f2,
-                                          build_config=self.__build_config,
-                                          meta=self.__meta,
-                                          timestamp_created=datetime.datetime.now())
+        casadi_mem_output_template = casadi_mem_template.render(
+            cost=cost, grad=grad,
+            f1=f1, f2=f2,
+            build_config=self.__build_config,
+            meta=self.__meta,
+            timestamp_created=datetime.datetime.now())
         memory_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "casadi_memory.h"))
         with open(memory_path, "w") as fh:
@@ -402,9 +404,10 @@ class OpEnOptimizerBuilder:
     def __generate_build_rs(self):
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
-        build_rs_template = OpEnOptimizerBuilder.__get_template('optimizer_build.rs.template')
-        build_rs_output_template = build_rs_template.render(meta=self.__meta,
-                                          activate_clib_generation=self.__build_config.build_c_bindings)
+        build_rs_template = OpEnOptimizerBuilder.__get_template('optimizer_build.rs')
+        build_rs_output_template = build_rs_template.render(
+            meta=self.__meta,
+            activate_clib_generation=self.__build_config.build_c_bindings)
         target_build_lib_rs_path = os.path.join(target_dir, "build.rs")
         with open(target_build_lib_rs_path, "w") as fh:
             fh.write(build_rs_output_template)
@@ -450,19 +453,21 @@ class OpEnOptimizerBuilder:
         make_dir_if_not_exists(tcp_iface_source_dir)
 
         # generate tcp_server.rs for tcp_iface
-        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server.rs')
-        tcp_rs_output_template = tcp_rs_template.render(meta=self.__meta,
-                                          tcp_server_config=self.__build_config.tcp_interface_config,
-                                          timestamp_created=datetime.datetime.now())
+        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server.rs', 'tcp')
+        tcp_rs_output_template = tcp_rs_template.render(
+            meta=self.__meta,
+            tcp_server_config=self.__build_config.tcp_interface_config,
+            timestamp_created=datetime.datetime.now())
         target_tcp_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
 
         # generate Cargo.toml for tcp_iface
-        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server_cargo.toml.template')
-        tcp_rs_output_template = tcp_rs_template.render(meta=self.__meta,
-                                          build_config=self.__build_config,
-                                          timestamp_created=datetime.datetime.now())
+        tcp_rs_template = OpEnOptimizerBuilder.__get_template('tcp_server_cargo.toml', 'tcp')
+        tcp_rs_output_template = tcp_rs_template.render(
+            meta=self.__meta,
+            build_config=self.__build_config,
+            timestamp_created=datetime.datetime.now())
         target_tcp_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
@@ -516,10 +521,11 @@ class OpEnOptimizerBuilder:
     def __generate_c_bindings_example(self):
         self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
         target_dir = self.__target_dir()
-        cbind_template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c')
-        cbind_output_template = cbind_template.render(meta=self.__meta,
-                                                      build_config=self.__build_config,
-                                                      problem=self.__problem)
+        cbind_template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c', 'c')
+        cbind_output_template = cbind_template.render(
+            meta=self.__meta,
+            build_config=self.__build_config,
+            problem=self.__problem)
         cbind_target_path = os.path.join(target_dir, "example_optimizer.c")
         with open(cbind_target_path, "w") as fh:
             fh.write(cbind_output_template)
@@ -527,10 +533,10 @@ class OpEnOptimizerBuilder:
     def __generate_c_bindings_makefile(self):
         self.__logger.info("Generating CMakeLists (do: `cmake .; make` to compile the autogenerated example)")
         target_dir = self.__target_dir()
-        cbind_makefile_template = OpEnOptimizerBuilder.__get_template('example_cmakelists.template')
+        cbind_makefile_template = OpEnOptimizerBuilder.__get_template('example_cmakelists.txt', 'c')
         cbind_makefile_output_template \
-            = cbind_makefile_template.render(
-            meta=self.__meta, build_config=self.__build_config)
+            = cbind_makefile_template.render(meta=self.__meta,
+                                             build_config=self.__build_config)
         cbind_makefile_target_path = os.path.join(target_dir, "CMakeLists.txt")
         with open(cbind_makefile_target_path, "w") as fh:
             fh.write(cbind_makefile_output_template)

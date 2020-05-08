@@ -20,6 +20,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Changed
 
+* Reorganised template files into folders
+
 ### Removed
 
 
