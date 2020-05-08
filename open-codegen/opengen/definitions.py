@@ -12,7 +12,7 @@ def templates_subdir(subdir=None):
     if subdir is None:
         return templates_dir()
     else:
-        return pkg_resources.resource_filename('opengen', 'templates/'+subdir+'/')
+        return pkg_resources.resource_filename('opengen', 'templates/%s/' % subdir)
 
 
 def templates_dir_ros():
