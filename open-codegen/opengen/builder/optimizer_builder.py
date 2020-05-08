@@ -76,6 +76,7 @@ class OpEnOptimizerBuilder:
         c_format = logging.Formatter('[%(levelname)s] %(message)s')
         stream_handler.setFormatter(c_format)
         self.__logger.setLevel(verbosity_level)
+        self.__logger.handlers.clear()
         self.__logger.addHandler(stream_handler)
 
         return self
