@@ -39,6 +39,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_aug_lagrangian_constraints(f1, set_c) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
+            .with_open_version("0.7.0-alpha.1")  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -114,6 +115,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_rate(35) \
             .with_description("really cool ROS node")
         build_config = og.config.BuildConfiguration() \
+            .with_open_version("0.7.0-alpha.1")  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_build_c_bindings()  \
