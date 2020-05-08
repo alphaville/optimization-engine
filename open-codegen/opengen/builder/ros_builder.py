@@ -189,6 +189,12 @@ class RosBuilder:
         with open(target_readme_path, "w") as fh:
             fh.write(output_template)
 
+    def __symbolic_link_info_message(self):
+        target_ros_dir = self.__ros_target_dir()
+        self.__logger.info("ROS package was built successfully. Now run:")
+        self.__logger.info("ln -s %s  ~/catkin_ws/src/", target_ros_dir)
+        self.__logger.info("cd ~/catkin_ws/; catkin_make")
+
     def build(self):
         """
         Build ROS-related files
@@ -203,3 +209,4 @@ class RosBuilder:
         self.__generate_ros_node_cpp()        # generate main node .cpp file
         self.__generate_ros_launch_file()     # generate launch file
         self.__generate_ros_readme_file()     # final touch: create README.md
+        self.__symbolic_link_info_message()   # Info: create symbolic link

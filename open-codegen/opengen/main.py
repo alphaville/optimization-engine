@@ -12,7 +12,7 @@ problem = og.builder.Problem(u, p, phi) \
     .with_constraints(bounds)
 meta = og.config.OptimizerMeta()               \
     .with_optimizer_name("potato")             \
-    .with_version('0.1.1')                     \
+    .with_version('0.1.2')                     \
     .with_licence('LGPLv3')
 ros_config = og.config.RosConfiguration()      \
     .with_package_name("potato_optimizer")  \
@@ -22,8 +22,9 @@ ros_config = og.config.RosConfiguration()      \
 local_open = '/home/chung/NetBeansProjects/RUST/optimization-engine/'
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("my_optimizers")     \
-    .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)  \
+    .with_build_mode(og.config.BuildConfiguration.RELEASE_MODE)  \
     .with_open_version(local_path=local_open) \
+    .with_tcp_interface_config() \
     .with_ros(ros_config)
 solver_config = og.config.SolverConfiguration()    \
     .with_tolerance(1e-5)                          \
@@ -36,3 +37,9 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           build_config,
                                           solver_config)
 builder.build()
+
+o = og.tcp.OptimizerTcpManager('my_optimizers/potato')
+o.start()
+r = o.call([1.0, 50.0])
+print(r.get().cost)
+o.kill()

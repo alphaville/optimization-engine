@@ -14,6 +14,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Added
 
 * Auto-generation of ROS packages
+* Cost value at solution is returned
 
 ### Changed
 

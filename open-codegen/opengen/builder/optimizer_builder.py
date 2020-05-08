@@ -517,8 +517,8 @@ class OpEnOptimizerBuilder:
         target_dir = self.__target_dir()
         cbind_template = OpEnOptimizerBuilder.__get_template('example_optimizer_c_bindings.c')
         cbind_output_template = cbind_template.render(meta=self.__meta,
-                                          build_config=self.__build_config,
-                                          problem=self.__problem)
+                                                      build_config=self.__build_config,
+                                                      problem=self.__problem)
         cbind_target_path = os.path.join(target_dir, "example_optimizer.c")
         with open(cbind_target_path, "w") as fh:
             fh.write(cbind_output_template)

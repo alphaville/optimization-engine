@@ -165,7 +165,7 @@ An example of an auto-generated ROS package is available on this [github reposit
 ### Use the auto-generated ROS package
 OpEn generates a README file that you will find in `my_optimizers/rosenbrock/parametric_optimizer` with detailed instructions on how to build, run and configure your new ROS package. We recommend that you use `catkin` to build it. In brief, you have to:
 
-- Move the package folder to your catkin workspace (typically `~/catkin_ws`)
+- Create a soft symbolic link (using `ln -s`) of the auto-generated package into `catkin_ws/src`
 - Compile with `catkin_make`
 - Run using the auto-generated launch file
 

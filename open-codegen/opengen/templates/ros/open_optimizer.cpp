@@ -108,6 +108,7 @@ public:
         results.inner_iterations = status.num_inner_iterations;
         results.outer_iterations = status.num_outer_iterations;
         results.norm_fpr = status.last_problem_norm_fpr;
+        results.cost = status.cost;
         results.penalty = status.penalty;
         results.status = (int)status.exit_status;
         results.solve_time_ms = (double)status.solve_time_ns / 1000000.0;
