@@ -8,6 +8,9 @@ class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
 
+    # Which version of OpEn Rust library to test against
+    OPEN_RUSTLIB_VERSION = "0.7.0-alpha.1"
+
     @classmethod
     def solverConfig(cls):
         solver_config = og.config.SolverConfiguration() \
@@ -39,7 +42,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_aug_lagrangian_constraints(f1, set_c) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version("0.7.0-alpha.1")  \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -64,6 +67,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(f2) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -86,6 +90,7 @@ class RustBuildTestCase(unittest.TestCase):
         problem = og.builder.Problem(u, p, phi) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -115,7 +120,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_rate(35) \
             .with_description("really cool ROS node")
         build_config = og.config.BuildConfiguration() \
-            .with_open_version("0.7.0-alpha.1")  \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_build_c_bindings()  \
@@ -140,6 +145,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(f2) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
