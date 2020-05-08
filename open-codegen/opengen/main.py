@@ -35,8 +35,9 @@ solver_config = og.config.SolverConfiguration()    \
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
                                           build_config,
-                                          solver_config)
+                                          solver_config).with_verbosity_level(3)
 builder.build()
+
 
 o = og.tcp.OptimizerTcpManager('my_optimizers/potato')
 o.start()

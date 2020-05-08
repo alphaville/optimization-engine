@@ -21,7 +21,7 @@ def get_template(name):
 
 
 def get_ros_template(name):
-    file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir_ros())
+    file_loader = jinja2.FileSystemLoader(og_dfn.templates_subdir('ros'))
     env = jinja2.Environment(loader=file_loader, autoescape=True)
     return env.get_template(name)
 

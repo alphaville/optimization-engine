@@ -8,8 +8,17 @@ def templates_dir():
     return pkg_resources.resource_filename('opengen', 'templates/')
 
 
+def templates_subdir(subdir=None):
+    if subdir is None:
+        return templates_dir()
+    else:
+        return pkg_resources.resource_filename('opengen', 'templates/'+subdir+'/')
+
+
 def templates_dir_ros():
-    """Directory where the templates are found (for internal use, mainly)"""
+    """Directory where templates related to ROS packages
+       are found (for internal use, mainly)
+    """
     return pkg_resources.resource_filename('opengen', 'templates/ros/')
 
 

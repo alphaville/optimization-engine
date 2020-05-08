@@ -59,8 +59,8 @@ class OpEnOptimizerBuilder:
         self.with_verbosity_level(1)
 
     @staticmethod
-    def __get_template(name):
-        file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
+    def __get_template(name, subdir=None):
+        file_loader = jinja2.FileSystemLoader(og_dfn.templates_subdir(subdir))
         env = jinja2.Environment(loader=file_loader, autoescape=True)
         return env.get_template(name)
 
@@ -187,7 +187,7 @@ class OpEnOptimizerBuilder:
         Generate icasadi's Cargo.toml file
         """
         self.__logger.info("Generating icasadi's Cargo.toml")
-        icasadi_cargo_template = OpEnOptimizerBuilder.__get_template('icasadi_cargo.toml.template')
+        icasadi_cargo_template = OpEnOptimizerBuilder.__get_template('icasadi_cargo.toml', subdir='icasadi')
         icasadi_cargo_output_template = icasadi_cargo_template.render(meta=self.__meta)
         icasadi_cargo_allocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "Cargo.toml"))
@@ -200,13 +200,13 @@ class OpEnOptimizerBuilder:
 
         """
         self.__logger.info("Generating intercafe.c (C interface)")
-        cint_template = OpEnOptimizerBuilder.__get_template('interface.c.template')
+        cint_template = OpEnOptimizerBuilder.__get_template('interface.c', 'icasadi')
         cint_output_template = cint_template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
         cint_icallocator_path = os.path.abspath(
-            os.path.join(self.__icasadi_target_dir(), "extern/interface.c"))
+            os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
             fh.write(cint_output_template)
 
@@ -217,13 +217,13 @@ class OpEnOptimizerBuilder:
         Generates src/lib.rs
         """
         self.__logger.info("Generating icasadi Rust library file")
-        icasadi_lib_template = OpEnOptimizerBuilder.__get_template('icasadi_lib.rs.template')
+        icasadi_lib_template = OpEnOptimizerBuilder.__get_template('icasadi_lib.rs', 'icasadi')
         icasadi_lib_output_template = icasadi_lib_template.render(meta=self.__meta,
                                           problem=self.__problem,
                                           build_config=self.__build_config,
                                           timestamp_created=datetime.datetime.now())
         icasadi_lib_rs_path = os.path.abspath(
-            os.path.join(self.__icasadi_target_dir(), "src/lib.rs"))
+            os.path.join(self.__icasadi_target_dir(), "src", "lib.rs"))
         with open(icasadi_lib_rs_path, "w") as fh:
             fh.write(icasadi_lib_output_template)
 
@@ -254,14 +254,14 @@ class OpEnOptimizerBuilder:
         :param f2: mapping F2  (cs.Function)
         """
         self.__logger.info("Generating casadi_memory.h")
-        casadi_mem_template = OpEnOptimizerBuilder.__get_template('casadi_memory.h.template')
+        casadi_mem_template = OpEnOptimizerBuilder.__get_template('casadi_memory.h', 'icasadi')
         casadi_mem_output_template = casadi_mem_template.render(cost=cost, grad=grad,
                                           f1=f1, f2=f2,
                                           build_config=self.__build_config,
                                           meta=self.__meta,
                                           timestamp_created=datetime.datetime.now())
         memory_path = os.path.abspath(
-            os.path.join(self.__icasadi_target_dir(), "extern/casadi_memory.h"))
+            os.path.join(self.__icasadi_target_dir(), "extern", "casadi_memory.h"))
         with open(memory_path, "w") as fh:
             fh.write(casadi_mem_output_template)
 
