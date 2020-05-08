@@ -7,10 +7,13 @@ def templates_dir():
 
 
 def templates_subdir(subdir=None):
+    """
+    Directory where the templates are found and subfolder relative
+    to that path(for internal use, mainly)
+    """
     if subdir is None:
         return templates_dir()
-    else:
-        return pkg_resources.resource_filename('opengen', 'templates/%s/' % subdir)
+    return pkg_resources.resource_filename('opengen', 'templates/%s/' % subdir)
 
 
 def original_icasadi_dir():
