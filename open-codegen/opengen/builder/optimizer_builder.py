@@ -380,7 +380,7 @@ class OpEnOptimizerBuilder:
         target_dir = self.__target_dir()
         file_loader = jinja2.FileSystemLoader(og_dfn.templates_dir())
         env = jinja2.Environment(loader=file_loader, autoescape=True)
-        template = env.get_template('optimizer.rs.template')
+        template = env.get_template('optimizer.rs')
         output_template = template.render(solver_config=self.__solver_config,
                                           meta=self.__meta,
                                           problem=self.__problem,
