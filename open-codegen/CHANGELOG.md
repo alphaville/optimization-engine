@@ -12,6 +12,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Fixed
 
 * Prevent multiple log messages from printing
+* Check if TCP port is available before starting server 
 
 ### Added
 

@@ -54,6 +54,7 @@ float64[]    solution              # optimizer (solution)
 uint8        inner_iterations      # number of inner iterations
 uint16       outer_iterations      # number of outer iterations
 uint8        status                # status code
+float64      cost                  # cost value at solution
 float64      norm_fpr              # norm of FPR of last inner problem
 float64      penalty               # penalty value
 float64[]    lagrange_multipliers  # vector of Lagrange multipliers
@@ -140,7 +141,6 @@ ros_config = og.config.RosConfiguration()       \
     .with_description("cool ROS node")
 build_config = og.config.BuildConfiguration()   \
     .with_build_directory("my_optimizers")      \
-    .with_build_mode("debug")                   \
     .with_tcp_interface_config()                \
     .with_build_c_bindings()                    \
     .with_ros(ros_config)

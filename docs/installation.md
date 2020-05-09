@@ -119,12 +119,14 @@ python setup.py install
 
 You're ready to go!
 
-It's a good idea to use an IDE, such as [PyCharm](https://www.jetbrains.com/pycharm/). Use the above virtual environment (`venvopen`) in PyCharm:
+It's a good idea to use an IDE, such as 
+<a href="https://www.jetbrains.com/pycharm/" target="_blank">PyCharm</a>. 
+Use the above virtual environment (`venvopen`) in PyCharm:
 
 - go to Run > Edit Configurations > Add new configuration
 - Script path: specify `main.py`
 - Working dir: `optimization-engine/open-codegen/opengen`
-- Python interpreter: `openve`
+- Python interpreter: `venvopen`
 
 ### Install OpEn in Rust
 
@@ -135,3 +137,8 @@ As easy as:
 cd optimization-engine
 cargo build
 ```
+
+If you need to use `opengen` - the Python interface of OpEn - with a local
+version of the Rust library, use `with_open_version(local_path=...)` in 
+your code. Read the [advanced options](python-advanced#build-options)
+for details.

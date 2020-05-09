@@ -26,7 +26,8 @@ of the following ways:
 - Directly in **Rust** (you can include it in you Rust project as a dependency)
 - Over a **TCP socket** based on JSON (which can be accessed easily from any programming language)
 - In **Python** (using the TCP/IP interface in the background)
-- In **C** or **C++** using auto-generated C/C++ bindings (header files and static or shared libraries)
+- In [**C** or **C++**](python-c) using auto-generated C/C++ bindings (header files and static or shared libraries)
+- In [**ROS**](python-ros) using auto-generated ROS packages
 
 <img src="/optimization-engine/img/python-interfaces.jpg" alt="Opengen code generation" width="95%"/>
 
@@ -482,6 +483,12 @@ with the following methods:
 | `is_ok()`         | Whether the request was successful (`True`/`False`); |
 | `get()`           | Obtain a `SolverStatus` object if the request is successful (i.e., if `is_ok()` returns `True`) and an instance of `SolverError` otherwise |
 
+
+<div class="alert alert-success">
+<b>Note:</b> Method <code>is_ok</code> returns <code>True</code> iff the server is successful
+in returning a solution - even if it has not converged (e.g., due to reaching the maximum 
+number of iterations). The method returns <code>False</code>, only if the server is 
+unable to compute any solution (e.g., if it gets into <code>NaN</code>).</div>
 
 If the TCP request is successful, method `get()` returns a `SolverStatus`, which is an object with the following properties:
 
