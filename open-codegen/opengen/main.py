@@ -23,7 +23,7 @@ local_open = '/home/chung/NetBeansProjects/RUST/optimization-engine/'
 build_config = og.config.BuildConfiguration()  \
     .with_build_directory("my_optimizers")     \
     .with_build_mode(og.config.BuildConfiguration.RELEASE_MODE)  \
-    .with_open_version(local_path=local_open) \
+    .with_open_version('0.7.0-alpha.1') \
     .with_tcp_interface_config() \
     .with_ros(ros_config)
 solver_config = og.config.SolverConfiguration()    \
@@ -42,5 +42,7 @@ builder.build()
 o = og.tcp.OptimizerTcpManager('my_optimizers/potato')
 o.start()
 r = o.call([1.0, 50.0])
-print(r.get().cost)
+if r.is_ok():
+    status = r.get()
+    print(status.solution)
 o.kill()

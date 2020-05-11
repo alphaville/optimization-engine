@@ -9,7 +9,7 @@ class RustBuildTestCase(unittest.TestCase):
     TEST_DIR = ".python_test_build"
 
     # Which version of OpEn Rust library to test against
-    OPEN_RUSTLIB_VERSION = "0.7.0-alpha.1"
+    OPEN_RUSTLIB_VERSION = "*"
 
     @classmethod
     def solverConfig(cls):

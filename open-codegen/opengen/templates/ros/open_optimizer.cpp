@@ -22,13 +22,36 @@ class OptimizationEngineManager {
  * Private fields and methods
  */
 private:
+    /**
+     * Optimization parameters announced on the corresponding
+     * topic ({{ros.package_name}}/parameters)
+     */
     {{ros.package_name}}::OptimizationParameters params;
+    /**
+     * Object containing the result (solution and solver
+     * statistics), which will be announced on {{ros.package_name}}/results
+     */
     {{ros.package_name}}::OptimizationResult results;
+    /**
+     * Vector of parameters (provided by the client on
+     * {{ros.package_name}}/parameters)
+     */
     double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = { 0 };
+    /**
+     * Solution vector
+     */
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = { 0 };
+    /**
+     * Vector of Lagrange multipliers (if any)
+     */
     double *y = NULL;
-
+    /**
+     * Workspace variable used by the solver - initialised once
+     */
     {{meta.optimizer_name}}Cache* cache;
+    /**
+     * Initial guess for the penalty parameter
+     */
     double init_penalty = ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
 
     /**

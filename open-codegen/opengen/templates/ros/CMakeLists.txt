@@ -40,4 +40,3 @@ add_dependencies(
     ${NODE_NAME}
     ${${PROJECT_NAME}_EXPORTED_TARGETS}
     ${catkin_EXPORTED_TARGETS})
-
