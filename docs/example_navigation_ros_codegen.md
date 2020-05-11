@@ -201,7 +201,7 @@ The above program will generate a parametric optimizer at `optimization_engine/m
 We must create a ROS catkin workspace and place our package inside the `src` folder. We will do this by creating a symbolic link. After that, we can build and test our package.
 
 ```bash
-cd ~/open_nmpc_controller/
+cd ~/open_ros_codegen/
 mkdir -p catkin_ws/src
 cd catkin_ws/src
 ln -s ../../nmpc_open/optimization_engine/mpc_controller/open_nmpc_controller .
