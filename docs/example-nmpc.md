@@ -5,7 +5,7 @@ sidebar_label: Population dynamics
 description: Nonlinear model predictive control with OpEn: population dynamics
 ---
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 
 Here, we will give a complete example of designing a nonlinear model predictive controller (NMPC) using **OpEn**.

@@ -61,6 +61,8 @@ pub struct {{meta.optimizer_name}}SolverStatus {
     delta_y_norm_over_c: c_double,
     /// Norm of F2(u)
     f2_norm: c_double,
+    /// Value of cost function at solution
+    cost: c_double,
     /// Lagrange multipliers
     {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
     lagrange: [c_double; {{meta.optimizer_name|upper}}_N1]
@@ -154,6 +156,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             penalty: status.penalty() as c_double,
             delta_y_norm_over_c: status.delta_y_norm_over_c() as c_double,
             f2_norm: status.f2_norm() as c_double,
+            cost: status.cost() as c_double,
             lagrange: match status.lagrange_multipliers() {
                 Some({% if problem.dim_constraints_aug_lagrangian() == 0 %}_{% endif %}y) => {
                 {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
@@ -185,6 +188,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
             penalty: std::f64::INFINITY as c_double,
             delta_y_norm_over_c: std::f64::INFINITY as c_double,
             f2_norm: std::f64::INFINITY as c_double,
+            cost: std::f64::INFINITY as c_double,
             lagrange: {%- if problem.dim_constraints_aug_lagrangian() > 0 -%}
                     [0.0; {{meta.optimizer_name|upper}}_N1]
                     {%- else -%}0 as *const c_double{%- endif %}

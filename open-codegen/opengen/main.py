@@ -1,56 +1,48 @@
-import casadi.casadi as cs
 import opengen as og
+import casadi.casadi as cs
 
-u = cs.SX.sym("u", 5)                 # decision variable (nu = 5)
-p = cs.SX.sym("p", 2)                 # parameter (np = 2)
-phi = og.functions.rosenbrock(u, p)   # cost function
-
-
-f2 = cs.fmax(0.0, u[2] - u[3] + 0.1)
-
-f1 = cs.vertcat(1.5 * u[0] - u[1], cs.sin(u[2] + cs.pi/5) - 0.2)
-C = og.constraints.Ball2(None, 1.0)
-
-UA = og.constraints.FiniteSet([[1, 2, 3], [1, 2, 2], [1, 2, 4], [0, 5, -1]])
-UB = og.constraints.Ball2(None, 1.0)
-U = og.constraints.CartesianProduct(5, [2, 4], [UA, UB])
-
-problem = og.builder.Problem(u, p, phi)         \
-    .with_constraints(U)                        \
-    .with_aug_lagrangian_constraints(f1, C)
-
-meta = og.config.OptimizerMeta()                \
-    .with_version("0.0.0")                      \
-    .with_authors(["P. Sopasakis", "E. Fresk"]) \
-    .with_licence("CC4.0-By")                   \
-    .with_optimizer_name("the_optimizer")
-
+u = cs.SX.sym("u", 5)
+p = cs.SX.sym("p", 2)
+phi = og.functions.rosenbrock(u, p)
+c = cs.vertcat(1.5 * u[0] - u[1],
+               cs.fmax(0.0, u[2] - u[3] + 0.1))
+bounds = og.constraints.Ball2(None, 1.5)
+problem = og.builder.Problem(u, p, phi) \
+    .with_penalty_constraints(c)        \
+    .with_constraints(bounds)
+meta = og.config.OptimizerMeta()               \
+    .with_optimizer_name("potato")             \
+    .with_version('0.1.2')                     \
+    .with_licence('LGPLv3')
+ros_config = og.config.RosConfiguration()      \
+    .with_package_name("potato_optimizer")  \
+    .with_node_name("potato_controller")    \
+    .with_rate(35)                          \
+    .with_description("cool ROS node")
+local_open = '/home/chung/NetBeansProjects/RUST/optimization-engine/'
 build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("my_optimizers")      \
-    .with_build_mode("debug")                  \
-    .with_tcp_interface_config()
-
-solver_config = og.config.SolverConfiguration()   \
-            .with_tolerance(1e-5)                 \
-            .with_initial_penalty(1000)           \
-            .with_initial_tolerance(1e-5)         \
-            .with_max_outer_iterations(30)        \
-            .with_delta_tolerance(1e-4)           \
-            .with_penalty_weight_update_factor(2) \
-            .with_sufficient_decrease_coefficient(0.5)
+    .with_build_directory("my_optimizers")     \
+    .with_build_mode(og.config.BuildConfiguration.RELEASE_MODE)  \
+    .with_open_version('0.7.0-alpha.1') \
+    .with_tcp_interface_config() \
+    .with_ros(ros_config)
+solver_config = og.config.SolverConfiguration()    \
+    .with_tolerance(1e-5)                          \
+    .with_delta_tolerance(1e-4)                    \
+    .with_initial_penalty(890)                     \
+    .with_penalty_weight_update_factor(5)
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
-                                          metadata=meta,
-                                          build_configuration=build_config,
-                                          solver_configuration=solver_config)
+                                          meta,
+                                          build_config,
+                                          solver_config).with_verbosity_level(3)
 builder.build()
 
-# mng = og.tcp.OptimizerTcpManager('my_optimizers/the_optimizer')
-# mng.start()
-#
-# pong = mng.ping()                 # check if the server is alive
-# print(pong)
-# solution = mng.call([1.0, 50.0])  # call the solver over TCP
-# print(solution.get().solution)
-#
-# mng.kill()
+
+o = og.tcp.OptimizerTcpManager('my_optimizers/potato')
+o.start()
+r = o.call([1.0, 50.0])
+if r.is_ok():
+    status = r.get()
+    print(status.solution)
+o.kill()

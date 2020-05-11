@@ -25,8 +25,13 @@ pub struct AlmOptimizerStatus {
     solve_time: std::time::Duration,
     /// Last value of penalty parameter
     penalty: f64,
+    /// A measure of infeasibility of constraints F1(u; p) in C
     delta_y_norm: f64,
+    /// Norm of F2 at the solution, which is a measure of infeasibility
+    /// of constraints F2(u; p) = 0
     f2_norm: f64,
+    /// Value of cost function at optimal solution (optimal cost)
+    cost: f64,
 }
 
 impl AlmOptimizerStatus {
@@ -61,6 +66,7 @@ impl AlmOptimizerStatus {
             penalty: 0.0,
             delta_y_norm: 0.0,
             f2_norm: 0.0,
+            cost: 0.0,
         }
     }
 
@@ -176,6 +182,10 @@ impl AlmOptimizerStatus {
         self
     }
 
+    pub(crate) fn with_cost(mut self, cost: f64) -> Self {
+        self.cost = cost;
+        self
+    }
     // -------------------------------------------------
     // Getter Methods
     // -------------------------------------------------
@@ -261,5 +271,10 @@ impl AlmOptimizerStatus {
     /// Norm of F2(u) - measure of infeasibility of F2(u) = 0
     pub fn f2_norm(&self) -> f64 {
         self.f2_norm
+    }
+
+    /// Value of the cost function at the solution
+    pub fn cost(&self) -> f64 {
+        self.cost
     }
 }

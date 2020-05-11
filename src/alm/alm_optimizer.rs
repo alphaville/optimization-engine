@@ -885,6 +885,25 @@ where
         return Ok(InnerProblemStatus::new(true, inner_exit_status)); // `true` means do continue the outer iterations
     }
 
+    fn compute_cost_at_solution(&mut self, u: &mut [f64]) -> Result<f64, SolverError> {
+        /* WORK IN PROGRESS */
+        let alm_problem = &self.alm_problem; // Problem
+        let alm_cache = &mut self.alm_cache; // ALM Cache
+        let mut empty_vec = std::vec::Vec::new(); // Empty vector
+        let xi: &mut std::vec::Vec<f64> = alm_cache.xi.as_mut().unwrap_or(&mut empty_vec);
+        let mut __c: f64 = 0.0;
+        if !xi.is_empty() {
+            __c = xi[0];
+            xi[0] = 0.0;
+        }
+        let mut cost_value: f64 = 0.0;
+        (alm_problem.parametric_cost)(u, xi, &mut cost_value)?;
+        if !xi.is_empty() {
+            xi[0] = __c;
+        }
+        return Ok(cost_value);
+    }
+
     /* ---------------------------------------------------------------------------- */
     /*          MAIN API                                                            */
     /* ---------------------------------------------------------------------------- */
@@ -948,6 +967,7 @@ where
             0.0
         };
 
+        let cost = self.compute_cost_at_solution(u)?;
         let status = AlmOptimizerStatus::new(exit_status)
             .with_solve_time(tic.elapsed())
             .with_inner_iterations(self.alm_cache.inner_iteration_count)
@@ -955,7 +975,8 @@ where
             .with_last_problem_norm_fpr(self.alm_cache.last_inner_problem_norm_fpr)
             .with_delta_y_norm(self.alm_cache.delta_y_norm_plus)
             .with_f2_norm(self.alm_cache.f2_norm_plus)
-            .with_penalty(c);
+            .with_penalty(c)
+            .with_cost(cost);
         if self.alm_problem.n1 > 0 {
             let status = status.with_lagrange_multipliers(
                 &self
