@@ -7,6 +7,8 @@ description: Nonlinear model predictive control with OpEn using ROS
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+Example contributed by Guido Sanchez ([Github](https://github.com/gmsanchez/))
+
 ## Auto-generated ground vehicle navigation for ROS
 
 Consider the navigation problem for an autonomous ground vehicle that can be modeled using the differential drive equations.
@@ -20,6 +22,7 @@ To generate a ROS package you can use opengen - OpEn's Python interface (with op
 ```bash
 cd ~
 mkdir open_ros_codegen
+cd ~/open_ros_codegen
 virtualenv -p python3.6 venvopen
 source venvopen/bin/activate
 pip install opengen==0.5.0a1
@@ -201,6 +204,7 @@ The above program will generate a parametric optimizer at `optimization_engine/m
 We must create a ROS catkin workspace and place our package inside the `src` folder. We will do this by creating a symbolic link. After that, we can build and test our package.
 
 ```bash
+source /opt/ros/melodic/setup.bash
 cd ~/open_ros_codegen/
 mkdir -p catkin_ws/src
 cd catkin_ws/src
@@ -216,7 +220,7 @@ Right now we have a running ROS node with the defualt configuration. Now we must
 ## Download and run Husky packages
 
 ```bash
-cd ~/open_nmpc_controller/catkin_ws/src
+cd ~/open_ros_codegen/catkin_ws/src
 git clone https://github.com/husky/husky.git
 catkin build
 ```
@@ -494,7 +498,7 @@ int main(int argc, char** argv)
 We can rebuild and launch our node.
 
 ```bash
-cd ~/open_nmpc_controller/catkin_ws/
+cd ~/open_ros_codegen/catkin_ws/
 catkin build
 roslaunch open_nmpc_controller open_optimizer.launch
 ```
