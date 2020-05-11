@@ -12,16 +12,6 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
       Unreleased
      --------------------- -->
 
-## [Unreleased]
-
-
-### Fixed
-
-### Added
-
-### Changed
-
-
 
 ## [v0.7.0]
 
