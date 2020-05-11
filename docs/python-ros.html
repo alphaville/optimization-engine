@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Generation of ROS packages · OpEn</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Code generation for ROS packages using OpEn in Python"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Generation of ROS packages · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="Code generation for ROS packages using OpEn in Python"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">OpEn Guide<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Python<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-ros">ROS packages</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">MATLAB<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Rust<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">Advanced Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Docker<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/docker">Docker</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Extras<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/cite_open">Cite OpEn</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Generation of ROS packages</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="what-is-ros"></a><a href="#what-is-ros" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What is ROS</h2>
+<p>The <a href="https://www.ros.org/">Robot Operating System</a> (ROS) is a collection of tools and libraries, as well as a framework that facilitates the data exchange among them. ROS is popular in the robotics community and is used to design and operate modern robotic systems.</p>
+<p>In ROS all functionality is implemented in <strong>nodes</strong> which communicate with each other by <strong>messages</strong>. A node outputs data on a <strong>topic</strong> and can subscribe to another node's topic to read its data. For example, a <em>controller</em> node can subscribe to a few sensor topics, read their measurements, compute a control action and publish its control action on another topic.</p>
+<h2><a class="anchor" aria-hidden="true" id="ros--open"></a><a href="#ros--open" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ROS + OpEn</h2>
+<p>OpEn (with opengen version <code>0.5.0</code> or newer) can generate ready-to-use ROS packages very easily.</p>
+<h3><a class="anchor" aria-hidden="true" id="messages"></a><a href="#messages" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Messages</h3>
+<h4><a class="anchor" aria-hidden="true" id="input-parameters"></a><a href="#input-parameters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Input Parameters</h4>
+<p>The input parameters message follows the following specification:</p>
+<pre><code class="hljs"><span class="hljs-built_in">float64</span>[]      parameter         <span class="hljs-comment"># parameter p (mandatory)</span>
+<span class="hljs-built_in">float64</span>[]      initial_guess     <span class="hljs-comment"># u0 (optional/recommended)</span>
+<span class="hljs-built_in">float64</span>[]      initial_y         <span class="hljs-comment"># y0 (optional)</span>
+<span class="hljs-built_in">float64</span>        initial_penalty   <span class="hljs-comment"># initial penalty (optional)</span>
+</code></pre>
+<p>An example of such a message is</p>
+<pre><code class="hljs css language-yaml"><span class="hljs-attr">parameter:</span> <span class="hljs-string">[15.0,</span> <span class="hljs-number">2.1</span><span class="hljs-string">]</span>
+<span class="hljs-attr">initial_guess:</span> <span class="hljs-string">[0.5,</span> <span class="hljs-number">0.5</span><span class="hljs-string">,</span> <span class="hljs-number">0.5</span><span class="hljs-string">,</span> <span class="hljs-number">0.5</span><span class="hljs-string">,</span> <span class="hljs-number">0.5</span><span class="hljs-string">]</span>
+<span class="hljs-attr">initial_penalty:</span> <span class="hljs-number">1000</span><span class="hljs-string">,</span>
+<span class="hljs-attr">initial_y:</span> <span class="hljs-string">[]</span>
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="result"></a><a href="#result" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Result</h4>
+<p>A result message (<code>OptimizationResult</code>) contains the solution of the parametric optimization problem and details about the solution procedure such as the number of inner/outer iterations and the solution time. The result of an auto-generated OpEn node is a message with the following specification:</p>
+<pre><code class="hljs"><span class="hljs-comment"># Constants match the enumeration of status codes</span>
+<span class="hljs-built_in">uint8</span> <span class="hljs-type">STATUS_CONVERGED</span>=<span class="hljs-number">0</span>
+<span class="hljs-built_in">uint8</span> <span class="hljs-type">STATUS_NOT_CONVERGED_ITERATIONS</span>=<span class="hljs-number">1</span>
+<span class="hljs-built_in">uint8</span> <span class="hljs-type">STATUS_NOT_CONVERGED_OUT_OF_TIME</span>=<span class="hljs-number">2</span>
+<span class="hljs-built_in">uint8</span> <span class="hljs-type">STATUS_NOT_CONVERGED_COST</span>=<span class="hljs-number">3</span>
+<span class="hljs-built_in">uint8</span> <span class="hljs-type">STATUS_NOT_CONVERGED_FINITE_COMPUTATION</span>=<span class="hljs-number">4</span>
+
+<span class="hljs-built_in">float64</span>[]    solution              <span class="hljs-comment"># optimizer (solution)</span>
+<span class="hljs-built_in">uint8</span>        inner_iterations      <span class="hljs-comment"># number of inner iterations</span>
+<span class="hljs-built_in">uint16</span>       outer_iterations      <span class="hljs-comment"># number of outer iterations</span>
+<span class="hljs-built_in">uint8</span>        status                <span class="hljs-comment"># status code</span>
+<span class="hljs-built_in">float64</span>      cost                  <span class="hljs-comment"># cost value at solution</span>
+<span class="hljs-built_in">float64</span>      norm_fpr              <span class="hljs-comment"># norm of FPR of last inner problem</span>
+<span class="hljs-built_in">float64</span>      penalty               <span class="hljs-comment"># penalty value</span>
+<span class="hljs-built_in">float64</span>[]    lagrange_multipliers  <span class="hljs-comment"># vector of Lagrange multipliers</span>
+<span class="hljs-built_in">float64</span>      infeasibility_f1      <span class="hljs-comment"># infeasibility wrt F1</span>
+<span class="hljs-built_in">float64</span>      infeasibility_f2      <span class="hljs-comment"># infeasibility wrt F2</span>
+<span class="hljs-built_in">float64</span>      solve_time_ms         <span class="hljs-comment"># solution time in ms</span>
+</code></pre>
+<p>An example of such a message is given below:</p>
+<pre><code class="hljs css language-yaml"><span class="hljs-attr">solution:</span> <span class="hljs-string">[0.5317,</span> <span class="hljs-number">0.7975</span><span class="hljs-string">,</span> <span class="hljs-number">0.6761</span><span class="hljs-string">,</span> <span class="hljs-number">0.7760</span><span class="hljs-string">,</span> <span class="hljs-number">0.5214</span><span class="hljs-string">]</span>
+<span class="hljs-attr">inner_iterations:</span> <span class="hljs-number">159</span>
+<span class="hljs-attr">outer_iterations:</span> <span class="hljs-number">5</span>
+<span class="hljs-attr">status:</span> <span class="hljs-number">0</span>
+<span class="hljs-attr">norm_fpr:</span> <span class="hljs-number">2.142283848e-06</span>
+<span class="hljs-attr">penalty:</span> <span class="hljs-number">111250.0</span>
+<span class="hljs-attr">lagrange_multipliers:</span> <span class="hljs-string">[]</span>
+<span class="hljs-attr">infeasibility_f1:</span> <span class="hljs-number">0.0</span>
+<span class="hljs-attr">infeasibility_f2:</span> <span class="hljs-number">2.44131958366e-05</span>
+<span class="hljs-attr">solve_time_ms:</span> <span class="hljs-number">2.665959</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="configuration-parameters"></a><a href="#configuration-parameters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration Parameters</h3>
+<p>You can set certain configuration parameters of your ROS package both when you construct it (see <a href="#ros-package-generation-in-python">below</a>) as well as after you have generated the code. In particular, you may configure:</p>
+<ul>
+<li>the rate at which your node runs</li>
+<li>the name of the input topic</li>
+<li>the name of the output topic</li>
+</ul>
+<p>by modifying the contents of <code>config/open_params.yaml</code>. This is an auto-generated configuration file that looks like this:</p>
+<pre><code class="hljs css language-yaml"><span class="hljs-attr">solution_topic:</span> <span class="hljs-string">"solution"</span>
+<span class="hljs-attr">params_topic:</span> <span class="hljs-string">"parameters"</span>
+<span class="hljs-attr">rate:</span> <span class="hljs-number">35</span>
+</code></pre>
+<h3></h3>
+<h2><a class="anchor" aria-hidden="true" id="code-generation"></a><a href="#code-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation</h2>
+<h3><a class="anchor" aria-hidden="true" id="ros-package-generation-in-python"></a><a href="#ros-package-generation-in-python" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ROS Package Generation in Python</h3>
+<p>To generate a ROS package you can use opengen - OpEn's Python interface. You will have to provide certain configuration parameters, such as the package name, the node name and the rate of your node in Hz.</p>
+<p>To do so you need to construct a <code>RosConfiguration</code> object:</p>
+<pre><code class="hljs css language-py">ros_config = og.config.RosConfiguration()       \
+    .with_package_name(<span class="hljs-string">"parametric_optimizer"</span>)  \
+    .with_node_name(<span class="hljs-string">"open_node"</span>)                \
+    .with_rate(<span class="hljs-number">35</span>) 
+</code></pre>
+<p>Then apply <code>.with_ros(ros_config)</code> on your build configuration.</p>
+<p>When you compile with this option, the generation of C/C++ bindings is activated. This is because the auto-generated ROS package calls your optimizer via its C++ interface.</p>
+<h3><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h3>
+<pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
+<span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
+
+u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)
+p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)
+phi = og.functions.rosenbrock(u, p)
+c = cs.vertcat(<span class="hljs-number">1.5</span> * u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>],
+               cs.fmax(<span class="hljs-number">0.0</span>, u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>] + <span class="hljs-number">0.1</span>))
+bounds = og.constraints.Ball2(<span class="hljs-literal">None</span>, <span class="hljs-number">1.5</span>)
+problem = og.builder.Problem(u, p, phi) \
+    .with_penalty_constraints(c)        \
+    .with_constraints(bounds)
+meta = og.config.OptimizerMeta()                \
+    .with_optimizer_name(<span class="hljs-string">"rosenbrock"</span>)          \
+    .with_version(<span class="hljs-string">'0.1.1'</span>)                      \
+    .with_licence(<span class="hljs-string">'LGPLv3'</span>)
+ros_config = og.config.RosConfiguration()       \
+    .with_package_name(<span class="hljs-string">"parametric_optimizer"</span>)  \
+    .with_node_name(<span class="hljs-string">"open_node"</span>)                \
+    .with_rate(<span class="hljs-number">35</span>)                              \
+    .with_description(<span class="hljs-string">"cool ROS node"</span>)
+build_config = og.config.BuildConfiguration()   \
+    .with_build_directory(<span class="hljs-string">"my_optimizers"</span>)      \
+    .with_tcp_interface_config()                \
+    .with_build_c_bindings()                    \
+    .with_ros(ros_config)
+solver_config = og.config.SolverConfiguration()    \
+    .with_tolerance(<span class="hljs-number">1e-5</span>)                          \
+    .with_delta_tolerance(<span class="hljs-number">1e-4</span>)                    \
+    .with_initial_penalty(<span class="hljs-number">890</span>)                     \
+    .with_penalty_weight_update_factor(<span class="hljs-number">5</span>)
+
+builder = og.builder.OpEnOptimizerBuilder(problem,
+                                          meta,
+                                          build_config,
+                                          solver_config) 
+builder.build()
+</code></pre>
+<p>The above program will generate a parametric optimizer at <code>my_optimizers/rosenbrock</code>. The ROS package will be in <code>my_optimizers/rosenbrock/parametric_optimizer</code>.</p>
+<p>An example of an auto-generated ROS package is available on this <a href="https://github.com/alphaville/open_ros">github repository</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="use-the-auto-generated-ros-package"></a><a href="#use-the-auto-generated-ros-package" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Use the auto-generated ROS package</h3>
+<p>OpEn generates a README file that you will find in <code>my_optimizers/rosenbrock/parametric_optimizer</code> with detailed instructions on how to build, run and configure your new ROS package. We recommend that you use <code>catkin</code> to build it. In brief, you have to:</p>
+<ul>
+<li>Create a soft symbolic link (using <code>ln -s</code>) of the auto-generated package into <code>catkin_ws/src</code></li>
+<li>Compile with <code>catkin_make</code></li>
+<li>Run using the auto-generated launch file</li>
+</ul>
+<p>Check out the auto-generated README.md file for details.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-tcp-ip"><span class="arrow-prev">← </span><span>TCP Sockets</span></a><a class="docs-next button" href="/optimization-engine/docs/python-examples"><span>Examples</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#what-is-ros">What is ROS</a></li><li><a href="#ros--open">ROS + OpEn</a><ul class="toc-headings"><li><a href="#messages">Messages</a></li><li><a href="#configuration-parameters">Configuration Parameters</a></li></ul></li><li><a href="#code-generation">Code generation</a><ul class="toc-headings"><li><a href="#ros-package-generation-in-python">ROS Package Generation in Python</a></li><li><a href="#example">Example</a></li><li><a href="#use-the-auto-generated-ros-package">Use the auto-generated ROS package</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="/optimization-engine/docs/irc.html">Project Chat (Good Ol&#x27; IRC)</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2020 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
