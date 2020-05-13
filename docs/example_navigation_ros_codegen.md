@@ -13,6 +13,13 @@ Example contributed by Guido Sanchez ([Github](https://github.com/gmsanchez/))
 
 Consider the navigation problem for an autonomous ground vehicle that can be modeled using the differential drive equations.
 
+<div class="math">
+\[\begin{split}
+\dot{x}(t) {}={}&amp; v(t) \cos \theta(t),\\
+\dot{y}(t) {}={}&amp; v(t) \sin \theta(t),\\
+\dot{\theta}(t) {}={}&amp; \omega(t).
+\end{split}\]</div>
+
 ### Code generation
 
 To generate a ROS package you can use opengen - OpEn's Python interface (with opengen version `0.5.0` or newer). You will have to provide certain configuration parameters, such as the package name, the node name and the rate of your node in Hz.
