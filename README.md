@@ -156,15 +156,17 @@ opEnOptimizer = opEnBuilder.build();
 - [More information about OpEn](https://alphaville.github.io/optimization-engine/docs/open-intro)
 - [Quick installation guide](https://alphaville.github.io/optimization-engine/docs/installation)
 - [OpEn in Rust](https://alphaville.github.io/optimization-engine/docs/openrust-basic)
-- [OpEn in MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface)
-([Examples](https://alphaville.github.io/optimization-engine/docs/matlab-examples))
-- [OpEn in Python](https://alphaville.github.io/optimization-engine/docs/python-interface)
-  ([Examples](https://alphaville.github.io/optimization-engine/docs/python-examples))
+- [OpEn in Python](https://alphaville.github.io/optimization-engine/docs/python-interface) ([Examples](https://alphaville.github.io/optimization-engine/docs/python-examples))
+- [OpEn in MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface) ([Examples](https://alphaville.github.io/optimization-engine/docs/matlab-examples))
+- [OpEn+Jupyter in Docker](https://alphaville.github.io/optimization-engine/docs/docker)
+- [Generation of ROS packages](https://alphaville.github.io/optimization-engine/docs/python-ros)
+- [Call OpEn in C/C++](https://alphaville.github.io/optimization-engine/docs/python-c)
+- [TCP/IP interface of OpEn](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip)
 - [Frequently asked questions](https://alphaville.github.io/optimization-engine/docs/faq)
 
 ## Contact us
 
-- Join us on [Discord](https://discord.gg/mfYpn4V)
+- **Join the discussion on [Discord](https://discord.gg/mfYpn4V)**
 - Reach us on [Gitter](https://gitter.im/alphaville/optimization-engine)
 
 ## Do you like OpEn?
