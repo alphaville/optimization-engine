@@ -83,9 +83,8 @@ pip install matplotlib
 Let's make a folder for the code generation script
 
 ```bash
-cd ~/open_ros_codegen
-mkdir nmpc_open
-cd nmpc_open
+mkdir -p ~/open_ros_codegen/nmpc_open
+cd ~/open_ros_codegen/nmpc_open
 ```
 
 Create a file named `create_open_solver.py` inside the `nmpc_open` folder with the following content
@@ -202,8 +201,6 @@ The above program will generate a parametric optimizer at `optimization_engine/m
 We must create a ROS catkin workspace and place our package inside the `src` folder. We will do this by creating a symbolic link. After that, we can build and test our package.
 
 ```bash
-source /opt/ros/melodic/setup.bash
-cd ~/open_ros_codegen/
 mkdir -p ~/open_ros_codegen/catkin_ws/src
 cd ~/open_ros_codegen/catkin_ws/src
 ln -s ~/open_ros_codegen/nmpc_open/optimization_engine/mpc_controller/open_nmpc_controller .
@@ -478,11 +475,11 @@ int main(int argc, char** argv)
 
     ros::Publisher mpc_pub
         = private_nh.advertise<open_nmpc_controller::OptimizationResult>(
-            ROS_NODE_MPC_CONTROLLER_RESULT_TOPIC,
+            result_topic,
             ROS_NODE_MPC_CONTROLLER_RESULT_TOPIC_QUEUE_SIZE);
     ros::Subscriber sub
         = private_nh.subscribe(
-            ROS_NODE_MPC_CONTROLLER_PARAMS_TOPIC,
+            params_topic,
             ROS_NODE_MPC_CONTROLLER_PARAMS_TOPIC_QUEUE_SIZE,
             &open_nmpc_controller::OptimizationEngineManager::mpcReceiveRequestCallback,
             &mng);
@@ -497,7 +494,7 @@ int main(int argc, char** argv)
                                &open_nmpc_controller::OptimizationEngineManager::commandPoseCallback,
                                &mng);
     ros::Publisher pub_twist_cmd = nh.advertise<geometry_msgs::Twist>(out_twist, 1);
-    ros::Rate loop_rate(ROS_NODE_MPC_CONTROLLER_RATE);
+    ros::Rate loop_rate(rate);
 
     while (ros::ok()) {
         mng.solveAndPublishCmdVel(pub_twist_cmd);
