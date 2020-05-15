@@ -452,7 +452,7 @@ int main(int argc, char** argv)
 
     open_nmpc_controller::OptimizationEngineManager mng;
     ros::init(argc, argv, ROS_NODE_MPC_CONTROLLER_NODE_NAME);
-    ros::NodeHandle private_nh("~");
+    ros::NodeHandle nh, private_nh("~");
 
     /* obtain parameters from config/open_params.yaml file */
     private_nh.param("result_topic", result_topic,
@@ -476,16 +476,16 @@ int main(int argc, char** argv)
             &open_nmpc_controller::OptimizationEngineManager::mpcReceiveRequestCallback,
             &mng);
     ros::Subscriber pos_sub
-        = private_nh.subscribe(in_odometry,
-                               1,
-                               &open_nmpc_controller::OptimizationEngineManager::odometryCallback,
-                               &mng);
+        = nh.subscribe(in_odometry,
+                       1,
+                       &open_nmpc_controller::OptimizationEngineManager::odometryCallback,
+                       &mng);
     ros::Subscriber command_trajectory_subscriber
         = private_nh.subscribe("command/pose",
                                1,
                                &open_nmpc_controller::OptimizationEngineManager::commandPoseCallback,
                                &mng);
-    ros::Publisher pub_twist_cmd = private_nh.advertise<geometry_msgs::Twist>(out_twist, 1);
+    ros::Publisher pub_twist_cmd = nh.advertise<geometry_msgs::Twist>(out_twist, 1);
     ros::Rate loop_rate(ROS_NODE_MPC_CONTROLLER_RATE);
 
     while (ros::ok()) {
