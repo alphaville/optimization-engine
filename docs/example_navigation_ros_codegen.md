@@ -225,9 +225,12 @@ private:
     double p[MPC_CONTROLLER_NUM_PARAMETERS] = { 0 };
     double u[MPC_CONTROLLER_NUM_DECISION_VARIABLES] = { 0 };
     double *y = NULL;
-
-    double current_pos[3] = {0};
-    double current_ref[3] = {0};
+    
+    static const int NX = 3;
+    static const int NU = 2;
+    
+    double current_pos[NX] = {0};
+    double current_ref[NX] = {0};
 
     mpc_controllerCache* cache;
     double init_penalty = ROS_NODE_MPC_CONTROLLER_DEFAULT_INITIAL_PENALTY;
@@ -332,44 +335,46 @@ public:
         updateResults(status); /* pack results into `results` */
         publishToTopic(publisher);
     }
-
-    void CommandPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
+    
+    void commandPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
     {
         current_ref[0] = msg->pose.position.x;
         current_ref[1] = msg->pose.position.y;
-        current_ref[2] = msg->pose.orientation.w;  // we will use this field for the yaw in degrees.
+        current_ref[2] = msg->pose.orientation.w;
     }
 
     void odometryCallback(const nav_msgs::Odometry::ConstPtr &msg) {
         double roll, pitch, yaw;
-
-        tf::Quaternion quat(msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
+        
+        tf::Quaternion quat(msg->pose.pose.orientation.x,
+                            msg->pose.pose.orientation.y,
+                            msg->pose.pose.orientation.z,
+                            msg->pose.pose.orientation.w);
         tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-
+        
         current_pos[0] = msg->pose.pose.position.x;
         current_pos[1] = msg->pose.pose.position.y;
         current_pos[2] = yaw;
     }
-
+    
     void solveAndPublishCmdVel(ros::Publisher& publisher)
     {
         double current_par [MPC_CONTROLLER_NUM_PARAMETERS] = {0};
         double current_var [MPC_CONTROLLER_NUM_DECISION_VARIABLES] = {0};
         double lin_vel_cmd, ang_vel_cmd = 0;
-
-        current_par[0] = current_pos[0];
-        current_par[1] = current_pos[1];
-        current_par[2] = current_pos[2];
-        current_par[3] = current_ref[0];
-        current_par[4] = current_ref[1];
-        current_par[5] = current_ref[2];
-
+        
+        for (int i=0; i<NX; i++) {
+            current_par[i] = current_pos[i];
+            current_par[i+NX] = current_ref[i];
+        }
+        
         /* solve                  */
-        mpc_controllerSolverStatus status = mpc_controller_solve(cache, current_var, current_par, 0, &init_penalty);
-
+        mpc_controllerSolverStatus status
+            = mpc_controller_solve(cache, current_var, current_par, 0, &init_penalty);
+        
         lin_vel_cmd = current_var[0];
         ang_vel_cmd = current_var[1];
-
+    
         geometry_msgs::Twist twist;
         twist.linear.x = lin_vel_cmd;
         twist.linear.y = 0.0;
@@ -378,12 +383,13 @@ public:
         twist.angular.y = 0.0;
         twist.angular.z = ang_vel_cmd;
         publisher.publish(twist);
-
+        
         ROS_INFO("x: %f, y: %f, yaw: %f", current_pos[0], current_pos[1], current_pos[2]);
-        ROS_INFO("Solve time: %f ms. I will send %f %f \n", (double)status.solve_time_ns / 1000000.0, lin_vel_cmd, ang_vel_cmd);
+        ROS_INFO("Solve time: %f ms. I will send %f %f \n",
+                 (double)status.solve_time_ns / 1000000.0, lin_vel_cmd, ang_vel_cmd);
 
     }
-
+    
 }; /* end of class OptimizationEngineManager */
 
 } /* end of namespace open_nmpc_controller */
@@ -416,7 +422,7 @@ int main(int argc, char** argv)
                      std::string(ROS_NODE_MPC_CONTROLLER_PARAMS_TOPIC));
     private_nh.param("rate", rate,
                      double(ROS_NODE_MPC_CONTROLLER_RATE));
-
+    
     private_nh.param("out_twist_name", out_twist, std::string("/husky_velocity_controller/cmd_vel"));
     private_nh.param("in_odom_name", in_odometry, std::string("/odometry/filtered"));
 
@@ -430,16 +436,20 @@ int main(int argc, char** argv)
             ROS_NODE_MPC_CONTROLLER_PARAMS_TOPIC_QUEUE_SIZE,
             &open_nmpc_controller::OptimizationEngineManager::mpcReceiveRequestCallback,
             &mng);
-
     ros::Subscriber pos_sub
-        = private_nh.subscribe(in_odometry, 1, &open_nmpc_controller::OptimizationEngineManager::odometryCallback, &mng);
-    ros::Rate loop_rate(ROS_NODE_MPC_CONTROLLER_RATE);
+        = private_nh.subscribe(in_odometry,
+                               1,
+                               &open_nmpc_controller::OptimizationEngineManager::odometryCallback,
+                               &mng);
     ros::Subscriber command_trajectory_subscriber
-        = private_nh.subscribe("command/pose", 1, &open_nmpc_controller::OptimizationEngineManager::CommandPoseCallback, &mng);
+        = private_nh.subscribe("command/pose",
+                               1,
+                               &open_nmpc_controller::OptimizationEngineManager::commandPoseCallback,
+                               &mng);
     ros::Publisher pub_twist_cmd = private_nh.advertise<geometry_msgs::Twist>(out_twist, 1);
+    ros::Rate loop_rate(ROS_NODE_MPC_CONTROLLER_RATE);
 
     while (ros::ok()) {
-        // mng.solveAndPublish(mpc_pub);
         mng.solveAndPublishCmdVel(pub_twist_cmd);
         ros::spinOnce();
         loop_rate.sleep();
@@ -447,34 +457,6 @@ int main(int argc, char** argv)
 
     return 0;
 }
-```
-We can rebuild and launch our node.
-
-```bash
-cd ~/open_ros_codegen/catkin_ws/
-catkin build
-roslaunch open_nmpc_controller open_optimizer.launch
-```
-
-Our modified node will listen to the topic `/open_nmpc_controller/command/pose` and set the reference. As an example, you can execute
-
-```bash
-rostopic pub /open_nmpc_controller/command/pose geometry_msgs/PoseStamped "header:
-  seq: 0
-  stamp:
-    secs: 0
-    nsecs: 0
-  frame_id: ''
-pose:
-  position:
-    x: 10.0
-    y: 10.0
-    z: 0.0
-  orientation:
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 0.0"
 ```
 
 To send the ground vehicle to the point (10, 10).
