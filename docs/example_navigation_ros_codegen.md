@@ -219,12 +219,15 @@ Now we can run the Husky simulation as follows
 
 ## Edit the auto-generated node
 
-Our node should know where the vehicle is in order to obtain the correct control commands, so we must listen to an Odometry topic that is being published to `/odometry/filtered`
+The auto generated ROS package (as stated in the [documentation](https://alphaville.github.io/optimization-engine/docs/python-ros)) creates two topics:
+1. A topic that waits for the input parameters of the optimizer.
+2. A topic that outputs the result given the input parameters.
 
-Given our current position and orientation, we will obtain the NMPC solution and publish it as a Twist message to the `/husky_velocity_controller/cmd_vel` topic.
+We need to modify this behavior in order to drive the vehicle from one point to another. Our node should know where the vehicle is in order to obtain the correct control commands, so we must listen to the topic `/odometry/filtered`. This topic is already configured in the Husky package and publishes the vehicle [Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html) data: position and orientation in 3D.
 
-In order to do that, we must modify the auto generated `open_optimizer.cpp` file as follows:
+Given our current position and orientation, we will obtain the NMPC solution and publish it as a [Twist](http://docs.ros.org/melodic/api/geometry_msgs/html/msg/Twist.html) message to the `/husky_velocity_controller/cmd_vel` topic. Once again, the topic is already configured in the Husky package, we just need to publish the desired velocity commands.
 
+In order to do that, we must modify the auto generated `open_optimizer.cpp` file. We need to add a subscriber that listens to the `odometry/filtered` topic and a publisher that publishes data to the `/husky_velocity_controller/cmd_vel` topic. The following code is a modification of the auto generated code that adds the needed functionality.
 
 ```c++
 /**
