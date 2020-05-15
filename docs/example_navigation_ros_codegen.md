@@ -227,7 +227,9 @@ We need to modify this behavior in order to drive the vehicle from one point to 
 
 Given our current position and orientation, we will obtain the NMPC solution and publish it as a [Twist](http://docs.ros.org/melodic/api/geometry_msgs/html/msg/Twist.html) message to the `/husky_velocity_controller/cmd_vel` topic. Once again, the topic is already configured in the Husky package, we just need to publish the desired velocity commands.
 
-In order to do that, we must modify the auto generated `open_optimizer.cpp` file. We need to add a subscriber that listens to the `odometry/filtered` topic and a publisher that publishes data to the `/husky_velocity_controller/cmd_vel` topic. The following code is a modification of the auto generated code that adds the needed functionality.
+Finally, we will add a subscriber that listens on the `/open_nmpc_controller/command/pose` topic and expects a [PoseStamped](http://docs.ros.org/melodic/api/geometry_msgs/html/msg/PoseStamped.html) message. We will use the `position.x` and `position.y` fields for the x-y reference and the `orientation.w` for the yaw angle reference (in degrees).
+
+In order to accomplish that, we must modify the auto generated `open_optimizer.cpp` file. We need to add a subscriber that listens to the `odometry/filtered` topic and a publisher that publishes data to the `/husky_velocity_controller/cmd_vel` topic. The following code is a modification of the auto generated code that adds the needed functionality.
 
 ```c++
 /**
@@ -498,4 +500,32 @@ int main(int argc, char** argv)
 }
 ```
 
-To send the ground vehicle to the point (10, 10).
+After that, we need to rebuild and launch our ROS package
+
+```bash
+cd ~/open_ros_codegen/catkin_ws/
+catkin build
+roslaunch open_nmpc_controller open_optimizer.launch 
+```
+
+You can command the vehicle to go to the position $x^{\mathrm{ref}} = (10, 10, 0)$ by writing on a new terminal window:
+
+```bash
+source ~/open_ros_codegen/catkin_ws/devel/setup.bash
+rostopic pub /open_nmpc_controller/command/pose geometry_msgs/PoseStamped "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+pose:
+  position:
+    x: 10.0
+    y: 10.0
+    z: 0.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0"
+```
