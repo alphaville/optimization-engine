@@ -28,7 +28,7 @@ To generate a ROS package you can use opengen - OpEn's Python interface (with op
 
 ```bash
 cd ~
-mkdir open_ros_codegen
+mkdir ~/open_ros_codegen
 cd ~/open_ros_codegen
 virtualenv -p python3.6 venvopen
 source venvopen/bin/activate
@@ -51,15 +51,11 @@ Create a file named `create_open_solver.py` inside the `nmpc_open` folder with t
 ```python
 import casadi as cs
 import opengen as og
-import matplotlib.pyplot as plt
 import numpy as np
 
-useSX = True  # Use CasADi SX or MX. Seems quicker with SX
-doSim = False  # Run simulation after creating the solver
-
-N = 10
-NX = 3
-NU = 2
+N = 10  # The MPC horizon length
+NX = 3  # The number of elements in the state vector
+NU = 2  # The number of elements in the control vector
 sampling_time = 0.1
 NSim = 100
 
@@ -74,9 +70,9 @@ def dynamics_ct(_x, _u):
                     _u[1]])
 
 
-def dynamics_dt(_x, _u):
-    dx = dynamics_ct(_x, _u)
-    return cs.vcat([_x[i] + sampling_time * dx[i] for i in range(NX)])
+def dynamics_dt(x, u):
+    dx = dynamics_ct(x, u)
+    return cs.vcat([x[i] + sampling_time * dx[i] for i in range(NX)])
 
 
 def stage_cost(_x, _u, _x_ref=None, _u_ref=None):
@@ -95,15 +91,10 @@ def terminal_cost(_x, _x_ref=None):
     dx = _x - _x_ref
     return cs.mtimes([dx.T, QN, dx])
 
-if useSX:
-    x_0 = cs.SX.sym("x_0", NX)
-    x_ref = cs.SX.sym("x_ref", NX)
-    u_k = [cs.SX.sym('u_' + str(i), NU) for i in range(N)]
-else:
-    x_0 = cs.MX.sym("x_0", NX)
-    x_ref = cs.MX.sym("x_ref", NX)
-    u_k = [cs.MX.sym('u_' + str(i), NU) for i in range(N)]
 
+x_0 = cs.MX.sym("x_0", NX)
+x_ref = cs.MX.sym("x_ref", NX)
+u_k = [cs.MX.sym('u_' + str(i), NU) for i in range(N)]
 
 x_t = x_0
 total_cost = 0
@@ -129,79 +120,34 @@ umax = [2.0, 1.0] * N  # cs.DM.ones(NU * N) * cs.inf
 
 bounds = og.constraints.Rectangle(umin, umax)
 
-problem = og.builder.Problem(optimization_variables, optimization_parameters, total_cost).with_constraints(bounds)
+problem = og.builder.Problem(optimization_variables,
+                             optimization_parameters,
+                             total_cost) \
+    .with_constraints(bounds)
 
-if doSim:
-    build_config = og.config.BuildConfiguration()\
-        .with_build_directory("optimization_engine")\
-        .with_build_mode("release")\
-        .with_tcp_interface_config()
-else:
-    ros_config = og.config.RosConfiguration() \
-        .with_package_name("open_nmpc_controller") \
-        .with_node_name("open_mpc_controller_node") \
-        .with_rate(10) \
-        .with_description("Cool ROS node.")
-    build_config = og.config.BuildConfiguration()\
-        .with_build_directory("optimization_engine")\
-        .with_build_mode("release")\
-        .with_build_c_bindings() \
-        .with_ros(ros_config)
+ros_config = og.config.RosConfiguration() \
+    .with_package_name("open_nmpc_controller") \
+    .with_node_name("open_mpc_controller_node") \
+    .with_rate((int)(1.0/sampling_time)) \
+    .with_description("Cool ROS node.")
+
+build_config = og.config.BuildConfiguration()\
+    .with_build_directory("optimization_engine")\
+    .with_build_mode("release")\
+    .with_build_c_bindings() \
+    .with_ros(ros_config)
 
 meta = og.config.OptimizerMeta()\
     .with_optimizer_name("mpc_controller")
+
 solver_config = og.config.SolverConfiguration()\
     .with_tolerance(1e-5)
+
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
                                           build_config,
-                                          solver_config) \
-    .with_verbosity_level(1)
+                                          solver_config)
 builder.build()
-
-
-if doSim:
-    # Use TCP server
-    # ------------------------------------
-    mng = og.tcp.OptimizerTcpManager('optimization_engine/mpc_controller')
-    mng.start()
-
-    current_x_0 = [-1, -1, 0]
-    current_x_ref = [2, 2, 0]
-    current_u = [0, 0]
-    cur_opt_var = [0] * (N * NU)  # current optimization variables
-    cur_opt_par = current_x_0 + current_x_ref  # current optimization parameters
-    average_solvetime = 0.0
-
-    x_sim = np.zeros((NSim + 1, NX))
-    x_sim[0:N + 1] = current_x_0
-
-    for k in range(0, NSim):
-
-        solver_status = mng.call(cur_opt_par)
-        cur_opt_var = solver_status['solution']
-        solvetime = solver_status['solve_time_ms']
-        current_u = cur_opt_var[0:NU]
-        current_x_0 = dynamics_dt(current_x_0, current_u).toarray().flatten()
-        x_sim[k + 1] = current_x_0
-
-        print(("Step %d/%d took %f [ms]") % (k, NSim, solvetime))
-        average_solvetime += solvetime
-
-        cur_opt_par = list(current_x_0) + current_x_ref
-
-    mng.kill()
-
-    print(("Average solvetime %.4f [ms]") % (average_solvetime/NSim))
-
-    plt.figure()
-    plt.subplot(3,1,1)
-    plt.plot(x_sim[:, 0])
-    plt.subplot(3, 1, 2)
-    plt.plot(x_sim[:, 1])
-    plt.subplot(3, 1, 3)
-    plt.plot(x_sim[:, 0], x_sim[:, 1])
-    plt.show()
 ```
 
 The above program will generate a parametric optimizer at `optimization_engine/mpc_controller`. The ROS package will be in `optimization_engine/mpc_controller/open_nmpc_controller`.
@@ -213,12 +159,12 @@ We must create a ROS catkin workspace and place our package inside the `src` fol
 ```bash
 source /opt/ros/melodic/setup.bash
 cd ~/open_ros_codegen/
-mkdir -p catkin_ws/src
-cd catkin_ws/src
-ln -s ../../nmpc_open/optimization_engine/mpc_controller/open_nmpc_controller .
+mkdir -p ~/open_ros_codegen/catkin_ws/src
+cd ~/open_ros_codegen/catkin_ws/src
+ln -s ~/open_ros_codegen/nmpc_open/optimization_engine/mpc_controller/open_nmpc_controller .
 cd ~/open_ros_codegen/catkin_ws
 catkin build
-source devel/setup.bash
+source ~/open_ros_codegen/catkin_ws/devel/setup.bash
 roslaunch open_nmpc_controller open_optimizer.launch
 ```
 
