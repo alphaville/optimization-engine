@@ -18,9 +18,42 @@ Consider the navigation problem for an autonomous ground vehicle that can be mod
 \dot{x}(t) {}={}&amp; v(t) \cos \theta(t),\\
 \dot{y}(t) {}={}&amp; v(t) \sin \theta(t),\\
 \dot{\theta}(t) {}={}&amp; \omega(t).
-\end{split}\]</div>
+\end{split}\]
+</div>
 
-### Code generation
+We want to solve the following optimal control problem
+
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& \sum_{i=1}^{N - 1} 
+        \|x_t-x^{\mathrm{ref}}\|_Q^2 + \|u_t\|_R^2 + \|x_N-x^{\mathrm{ref}}\|_{Q_N}^2
+    \\
+    \text{subject to: }& x_{t+1} = f(x_t, u_t), t=0,\ldots, N-1
+    \\
+    &u_{\min} \leq u_t \leq u_{\max}, t=0,\ldots, N-1
+    \\
+    &x_0=z
+    \end{align}
+\]</div>
+
+where $x = (p_x,p_y,\theta)$ is the position and orientation of the vehicle,
+$x^{\mathrm{ref}}$ is the target position and orientation, $u = (v, \omega)$ is the linear and angular velocity of the vehicle and $f$ describes 
+the vehicle dynamics, which in this example is
+
+<div class="math">
+\[
+    f(x, u) = \begin{bmatrix}
+    p_x + t_s (v \cos\theta)
+    \\
+    p_y + t_s (v \sin\theta )
+    \\
+    \theta + t_s \omega
+    \end{bmatrix}
+\]</div>
+
+
+### Code generation for the MPC controller
 
 To generate a ROS package you can use opengen - OpEn's Python interface (with opengen version `0.5.0` or newer). You will have to provide certain configuration parameters, such as the package name, the node name and the rate of your node in Hz.
 
@@ -32,7 +65,7 @@ mkdir ~/open_ros_codegen
 cd ~/open_ros_codegen
 virtualenv -p python3.6 venvopen
 source venvopen/bin/activate
-pip install opengen==0.5.0a1
+pip install opengen==0.5.0
 pip install matplotlib
 ```
 
@@ -75,6 +108,7 @@ def dynamics_dt(x, u):
     return cs.vcat([x[i] + sampling_time * dx[i] for i in range(NX)])
 
 
+# The stage cost for x and u
 def stage_cost(_x, _u, _x_ref=None, _u_ref=None):
     if _x_ref is None:
         _x_ref = cs.DM.zeros(_x.shape)
@@ -85,6 +119,7 @@ def stage_cost(_x, _u, _x_ref=None, _u_ref=None):
     return cs.mtimes([dx.T, Q, dx]) + cs.mtimes([du.T, R, du])
 
 
+# The terminal cost for x
 def terminal_cost(_x, _x_ref=None):
     if _x_ref is None:
         _x_ref = cs.DM.zeros(_x.shape)
@@ -96,6 +131,7 @@ x_0 = cs.MX.sym("x_0", NX)
 x_ref = cs.MX.sym("x_ref", NX)
 u_k = [cs.MX.sym('u_' + str(i), NU) for i in range(N)]
 
+# Create the cost function
 x_t = x_0
 total_cost = 0
 
