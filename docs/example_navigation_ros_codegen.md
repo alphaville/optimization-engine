@@ -11,7 +11,11 @@ Example contributed by Guido Sanchez ([Github](https://github.com/gmsanchez/))
 
 ## Auto-generated ground vehicle navigation for ROS
 
-Consider the navigation problem for an autonomous ground vehicle that can be modeled using the differential drive equations.
+We will create a MPC controller for position tracking of a [Husky](https://clearpathrobotics.com/husky-unmanned-ground-vehicle-robot/) ground vehicle. Husky is a medium sized robotic development platform fully supported in ROS with community driven Open Source code and examples.
+
+<img src="/optimization-engine/img/husky.jpg" alt="Husky Ground Vehicle">
+
+The vehicle can be modeled using the differential drive equations:
 
 <div class="math">
 \[\begin{split}
@@ -52,6 +56,11 @@ the vehicle dynamics, which in this example is
     \end{bmatrix}
 \]</div>
 
+The auto generated controller will allow you to move the vehicle to any point of the simulation grid, as shown in the following video
+
+<video width="960" height="540" controls>
+  <source src="/optimization-engine/img/husky_video.mp4" type="video/mp4">
+</video>
 
 ### Code generation for the MPC controller
 
