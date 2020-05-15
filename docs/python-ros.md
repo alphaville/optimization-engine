@@ -161,6 +161,9 @@ The above program will generate a parametric optimizer at `my_optimizers/rosenbr
 
 An example of an auto-generated ROS package is available on this [github repository](https://github.com/alphaville/open_ros).
 
+<div class="alert alert-info">
+<b>See also:</b> this <a href="example_navigation_ros_codegen">complete example</a> on how to use OpEn to build an NMPC controller on a <em>Husky</em> ground vehicle.</div>
+
 
 ### Use the auto-generated ROS package
 OpEn generates a README file that you will find in `my_optimizers/rosenbrock/parametric_optimizer` with detailed instructions on how to build, run and configure your new ROS package. We recommend that you use `catkin` to build it. In brief, you have to:
