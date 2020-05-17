@@ -1,7 +1,11 @@
 use crate::{matrix_operations, SolverError};
 
-pub const SOLUTION_A: [f64; 2] = [-0.14895971825577, 0.13345786727339];
-pub const SOLUTION_HARD: [f64; 3] = [-0.041123164672281, -0.028440417469206, 0.000167276757790];
+pub const SOLUTION_A: [f64; 2] = [-0.148_959_718_255_77, 0.133_457_867_273_39];
+pub const SOLUTION_HARD: [f64; 3] = [
+    -0.041_123_164_672_281,
+    -0.028_440_417_469_206,
+    0.000_167_276_757_790,
+];
 
 pub fn lipschitz_mock(u: &[f64], g: &mut [f64]) -> Result<(), SolverError> {
     g[0] = 3.0 * u[0];
@@ -112,7 +116,7 @@ pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(),
     assert!(u_len == grad.len(), "u and grad must have equal lengths");
     grad.copy_from_slice(u);
     grad.iter_mut().for_each(|grad_i| *grad_i += xi[0]);
-    &xi[1..]
+    xi[1..]
         .iter()
         .zip(grad.iter_mut())
         .for_each(|(xi_i, grad_i)| *grad_i += xi_i);

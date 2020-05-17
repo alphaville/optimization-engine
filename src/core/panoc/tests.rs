@@ -15,8 +15,8 @@ fn t_panoc_init() {
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
         let mut u = [0.75, -1.4];
         panoc_engine.init(&mut u).unwrap();
-        assert!(2.549509967743775 > panoc_engine.cache.lipschitz_constant);
-        assert!(0.372620625931781 < panoc_engine.cache.gamma, "gamma");
+        assert!(2.549_509_967_743_775 > panoc_engine.cache.lipschitz_constant);
+        assert!(0.372_620_625_931_781 < panoc_engine.cache.gamma, "gamma");
         println!("----------- {} ", panoc_engine.cache.cost_value);
         unit_test_utils::assert_nearly_equal(
             6.34125,

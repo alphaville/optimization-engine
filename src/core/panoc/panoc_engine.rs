@@ -380,10 +380,10 @@ mod tests {
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-        let mut u = [0.75, -1.4];
+        let u = [0.75, -1.4];
         panoc_engine.cache.gamma = 0.0234;
         panoc_engine.cache.u_half_step.copy_from_slice(&[0.5, 2.9]);
-        panoc_engine.compute_fpr(&mut u); // gamma_fpr ← u - u_half_step, norm_fpr ← norm(gamma_fpr)
+        panoc_engine.compute_fpr(&u); // gamma_fpr ← u - u_half_step, norm_fpr ← norm(gamma_fpr)
         unit_test_utils::assert_nearly_equal_array(
             &[0.25, -4.3],
             &panoc_engine.cache.gamma_fpr,
@@ -392,7 +392,7 @@ mod tests {
             "fpr",
         );
         unit_test_utils::assert_nearly_equal(
-            4.307261310856354,
+            4.307_261_310_856_354,
             panoc_engine.cache.norm_gamma_fpr,
             1e-8,
             1e-10,
@@ -409,10 +409,10 @@ mod tests {
         let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
         let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
 
-        let mut u = [-0.11, -1.35];
+        let u = [-0.11, -1.35];
         panoc_engine.cache.gamma = 0.545;
         panoc_engine.cache.gradient_u.copy_from_slice(&[1.94, 2.6]);
-        panoc_engine.gradient_step(&mut u); // gradient_step ← u - gamma * gradient_u
+        panoc_engine.gradient_step(&u); // gradient_step ← u - gamma * gradient_u
 
         unit_test_utils::assert_nearly_equal_array(
             &[-1.1673, -2.767],
@@ -466,7 +466,7 @@ mod tests {
         panoc_engine.half_step(); // u_half_step ← projection(gradient_step)
 
         unit_test_utils::assert_nearly_equal_array(
-            &[0.312347523777212, 0.390434404721515],
+            &[0.312_347_523_777_212, 0.390_434_404_721_515],
             &panoc_engine.cache.u_half_step,
             1e-8,
             1e-10,
@@ -491,18 +491,18 @@ mod tests {
             .copy_from_slice(&[-3.49, -2.35, -103.85]);
 
         // the following Lipschitz constant is valid for `hard_quadratic_gradient`
-        panoc_engine.cache.lipschitz_constant = 2001.305974987387;
+        panoc_engine.cache.lipschitz_constant = 2_001.305_974_987_387;
 
         // gamma = 0.95/L
-        panoc_engine.cache.gamma = 4.746900333448449e-4;
+        panoc_engine.cache.gamma = 4.746_900_333_448_449e-4;
 
         // fpr = (u - u_half_step)/gamma
         panoc_engine.cache.gamma_fpr.copy_from_slice(&[
-            -0.001656668216374,
-            -0.001115521578360,
-            -0.049296559962862,
+            -0.001_656_668_216_374,
+            -0.001_115_521_578_360,
+            -0.049_296_559_962_862,
         ]);
-        panoc_engine.cache.norm_gamma_fpr = 0.049337001957385;
+        panoc_engine.cache.norm_gamma_fpr = 0.049_337_001_957_385;
 
         // cost at `u`
         panoc_engine.cache.cost_value = 5.21035;
@@ -511,7 +511,7 @@ mod tests {
 
         println!("rhs = {}", rhs);
         println!("cache = {:#?}", panoc_engine.cache);
-        unit_test_utils::assert_nearly_equal(2.518233435388051, rhs, 1e-8, 1e-10, "lip rhs");
+        unit_test_utils::assert_nearly_equal(2.518_233_435_388_051, rhs, 1e-8, 1e-10, "lip rhs");
     }
 
     #[test]
@@ -542,7 +542,7 @@ mod tests {
         println!("rhs = {}", panoc_engine.cache.rhs_ls);
 
         unit_test_utils::assert_nearly_equal(
-            2.373394267002398,
+            2.373_394_267_002_398,
             panoc_engine.cache.rhs_ls,
             1e-10,
             1e-8,

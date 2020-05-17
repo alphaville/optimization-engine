@@ -344,7 +344,13 @@ mod tests {
         let mut cost = 0.0;
         assert!(factory.psi(&u, &xi, &mut cost).is_ok());
         println!("cost = {}", cost);
-        unit_test_utils::assert_nearly_equal(1064.98664258336, cost, 1e-14, 1e-10, "psi is wrong");
+        unit_test_utils::assert_nearly_equal(
+            1_064.986_642_583_36,
+            cost,
+            1e-14,
+            1e-10,
+            "psi is wrong",
+        );
     }
 
     #[test]
@@ -365,7 +371,11 @@ mod tests {
         let mut grad_psi = [0.0; 3];
         assert!(factory.d_psi(&u, &xi, &mut grad_psi).is_ok());
         unit_test_utils::assert_nearly_equal_array(
-            &[71.7347887565619, -32.2228286485675, 46.5711991530422],
+            &[
+                71.734_788_756_561_9,
+                -32.222_828_648_567_5,
+                46.571_199_153_042_2,
+            ],
             &grad_psi,
             1e-12,
             1e-12,
@@ -412,7 +422,7 @@ mod tests {
         assert!(factory.psi(&u, &xi, &mut cost).is_ok());
         println!("cost = {}", cost);
         unit_test_utils::assert_nearly_equal(
-            1.115986642583360e+03,
+            1.115_986_642_583_36e+03,
             cost,
             1e-12,
             1e-10,
@@ -439,7 +449,11 @@ mod tests {
         assert!(factory.d_psi(&u, &xi, &mut grad_psi).is_ok());
         println!("grad = {:#?}", &grad_psi);
         unit_test_utils::assert_nearly_equal_array(
-            &[124.21451243258949, 180.87127490866962, 46.962043731516474],
+            &[
+                124.214_512_432_589_49,
+                180.871_274_908_669_62,
+                46.962_043_731_516_474,
+            ],
             &grad_psi,
             1e-12,
             1e-12,

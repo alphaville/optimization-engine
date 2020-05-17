@@ -332,9 +332,7 @@ fn make_mockito_f0<'a>(
     )
 }
 
-fn make_mockito_jacobian(
-    _param: &[f64],
-) -> Box<dyn Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>> {
+fn make_mockito_jacobian(_param: &[f64]) -> Box<JacobianMappingType> {
     Box::new(|_u: &[f64], _xi: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) })
 }
 

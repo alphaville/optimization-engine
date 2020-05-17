@@ -1023,7 +1023,7 @@ mod tests {
         let d_psi = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         // ALM-type data
-        let f1: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n1 == 0 {
+        let f1: Option<MappingType> = if n1 == 0 {
             NO_MAPPING
         } else {
             Some(void_mapping)
@@ -1039,7 +1039,7 @@ mod tests {
             None::<Ball2>
         };
         // Penalty-type data
-        let f2: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n2 == 0 {
+        let f2: Option<MappingType> = if n2 == 0 {
             NO_MAPPING
         } else {
             Some(void_mapping)
@@ -1127,16 +1127,16 @@ mod tests {
         //
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(25.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+            .with_initial_lagrange_multipliers(&[2., 3., 4., 10.]);
 
         alm_optimizer.project_on_set_y();
         if let Some(xi_after_proj) = &alm_optimizer.alm_cache.xi {
             println!("xi = {:#?}", xi_after_proj);
             let y_projected_correct = [
-                0.352180362530250,
-                0.528270543795374,
-                0.704360725060499,
-                1.760901812651248,
+                0.352_180_362_530_250,
+                0.528_270_543_795_374,
+                0.704_360_725_060_499,
+                1.760_901_812_651_248,
             ];
             unit_test_utils::assert_nearly_equal_array(
                 &xi_after_proj[1..],
@@ -1193,7 +1193,7 @@ mod tests {
         println!("||F2(u_plus)|| = {}", alm_cache.f2_norm_plus);
         unit_test_utils::assert_nearly_equal(
             alm_cache.f2_norm_plus,
-            147.166572291400,
+            147.166_572_291_400,
             1e-12,
             1e-12,
             "||F2(u_plus)|| is wrong",
@@ -1215,17 +1215,17 @@ mod tests {
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+            .with_initial_lagrange_multipliers(&[2., 3., 4., 10.]);
         {
             let cache = &mut alm_optimizer.alm_cache;
             // Set y1 = [10, 20, 11, 100]
             if let Some(y_plus) = &mut cache.y_plus {
-                y_plus.copy_from_slice(&vec![10., 20., 11., 100.]);
+                y_plus.copy_from_slice(&[10., 20., 11., 100.]);
             }
         }
         assert!(alm_optimizer.compute_alm_infeasibility().is_ok());
         unit_test_utils::assert_nearly_equal(
-            92.2062904578641,
+            92.206_290_457_864_1,
             alm_optimizer.alm_cache.delta_y_norm_plus,
             1e-10,
             1e-12,
@@ -1253,13 +1253,13 @@ mod tests {
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3.]);
+            .with_initial_lagrange_multipliers(&[2., 3.]);
         let u = [3.0, 5.0, 7.0, 9.0, 11.];
         assert!(alm_optimizer.update_lagrange_multipliers(&u).is_ok());
 
         println!("xi = {:#?}", alm_optimizer.alm_cache.w_alm_aux);
         unit_test_utils::assert_nearly_equal_array(
-            &[350.163243585489, 2838.112880538070],
+            &[350.163_243_585_489, 2_838.112_880_538_07],
             &alm_optimizer
                 .alm_cache
                 .y_plus
@@ -1365,7 +1365,7 @@ mod tests {
         alm_optimizer.alm_cache.delta_y_norm_plus = 1.2345;
         alm_optimizer.alm_cache.f2_norm_plus = 3.45678;
         if let Some(xi) = &mut alm_optimizer.alm_cache.xi {
-            xi[1..].copy_from_slice(&vec![5.6, 7.8]);
+            xi[1..].copy_from_slice(&[5.6, 7.8]);
         }
         assert_eq!(
             0, alm_optimizer.alm_cache.iteration,
@@ -1444,8 +1444,8 @@ mod tests {
 
         alm_optimizer.alm_cache.delta_y_norm = 100.0;
         alm_optimizer.alm_cache.delta_y_norm_plus = 10.0;
-        alm_optimizer.alm_cache.f2_norm = 200000.0;
-        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+        alm_optimizer.alm_cache.f2_norm = 200_000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20_000.0;
 
         assert!(alm_optimizer.is_penalty_stall_criterion());
         println!("cache = {:#?}", alm_optimizer.alm_cache);
@@ -1494,8 +1494,8 @@ mod tests {
 
         alm_optimizer.alm_cache.delta_y_norm = 0.0;
         alm_optimizer.alm_cache.delta_y_norm_plus = 0.0;
-        alm_optimizer.alm_cache.f2_norm = 200000.0;
-        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+        alm_optimizer.alm_cache.f2_norm = 200_000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20_000.0;
 
         assert!(alm_optimizer.is_penalty_stall_criterion());
         println!("cache = {:#?}", alm_optimizer.alm_cache);
@@ -1535,7 +1535,7 @@ mod tests {
 
         // Set y0 = [5.0, 6.0] and initial penalty = 1.0 (so, xi = [1.0, 5.0, 6.0])
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
-            .with_initial_lagrange_multipliers(&vec![5.0, 6.0])
+            .with_initial_lagrange_multipliers(&[5.0, 6.0])
             .with_initial_penalty(1.0)
             .with_epsilon_tolerance(1e-12)
             .with_initial_inner_tolerance(1e-12);
