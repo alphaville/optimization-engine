@@ -43,12 +43,12 @@ impl<'a> FiniteSet<'a> {
     ///
     pub fn new(data: &'a [&'a [f64]]) -> Self {
         // Do a sanity check...
-        assert!(data.len() > 0, "empty data not allowed");
+        assert!(!data.is_empty(), "empty data not allowed");
         let n = data[0].len();
         for v in data.iter() {
             assert!(n == v.len(), "inconsistent dimensions");
         }
-        FiniteSet { data: data }
+        FiniteSet { data }
     }
 }
 
@@ -98,6 +98,6 @@ impl<'a> Constraint for FiniteSet<'a> {
     }
 
     fn is_convex(&self) -> bool {
-        self.data.len() == 1 && self.data[0].len() > 0
+        self.data.len() == 1 && !self.data[0].is_empty()
     }
 }

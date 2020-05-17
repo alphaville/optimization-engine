@@ -792,7 +792,7 @@ where
             return criterion_alm && criterion_pm;
         }
 
-        return false;
+        false
     }
 
     fn update_penalty_parameter(&mut self) {
@@ -817,7 +817,7 @@ where
         cache.delta_y_norm = cache.delta_y_norm_plus;
         cache.f2_norm = cache.f2_norm_plus;
         if let (Some(xi), Some(y_plus)) = (&mut cache.xi, &cache.y_plus) {
-            &xi[1..].copy_from_slice(&y_plus);
+            xi[1..].copy_from_slice(&y_plus);
         }
         cache.panoc_cache.reset();
     }
@@ -882,7 +882,7 @@ where
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
 
-        return Ok(InnerProblemStatus::new(true, inner_exit_status)); // `true` means do continue the outer iterations
+        Ok(InnerProblemStatus::new(true, inner_exit_status)) // `true` means do continue the outer iterations
     }
 
     fn compute_cost_at_solution(&mut self, u: &mut [f64]) -> Result<f64, SolverError> {
@@ -901,7 +901,7 @@ where
         if !xi.is_empty() {
             xi[0] = __c;
         }
-        return Ok(cost_value);
+        Ok(cost_value)
     }
 
     /* ---------------------------------------------------------------------------- */

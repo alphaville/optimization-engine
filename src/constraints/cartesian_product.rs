@@ -21,6 +21,7 @@ use super::Constraint;
 /// The constraint $x \in C$ is interpreted as $x_i in C_i$
 /// for all $i=0,\ldots, n-1$.
 ///
+#[derive(Default)]
 pub struct CartesianProduct<'a> {
     idx: Vec<usize>,
     constraints: Vec<Box<dyn Constraint + 'a>>,
@@ -148,9 +149,9 @@ impl<'a> Constraint for CartesianProduct<'a> {
     }
 
     fn is_convex(&self) -> bool {
-        return self.constraints.iter().fold(true, |mut flag, cnstr| {
+        self.constraints.iter().fold(true, |mut flag, cnstr| {
             flag &= cnstr.is_convex();
             flag
-        });
+        })
     }
 }

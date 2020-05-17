@@ -7,36 +7,33 @@
 //! ```
 //! use optimization_engine::matrix_operations::*;
 //!
-//! fn main() {
-//!     let a = [1.0, 2.0, 3.0];
-//!     let b = [4.0, 5.0, 6.0];
+//! let a = [1.0, 2.0, 3.0];
+//! let b = [4.0, 5.0, 6.0];
 //!
-//!     // inner product
-//!     let a_dot_b = inner_product(&a, &b);
-//!     assert!(a_dot_b == 32.);
+//! // inner product
+//! let a_dot_b = inner_product(&a, &b);
+//! assert!(a_dot_b == 32.);
 //!
-//!     // Euclidean norm and squared norm
-//!     let norm_a = norm2(&a);
-//!     let norm_sq_a = norm2_squared(&a);
-//!     assert!(norm_sq_a == 14.);
+//! // Euclidean norm and squared norm
+//! let norm_a = norm2(&a);
+//! let norm_sq_a = norm2_squared(&a);
+//! assert!(norm_sq_a == 14.);
 //!
-//!     // Squared Euclidean norm of difference of vectors
-//!     let norm_sq_a_minus_b = norm2_squared_diff(&a, &b);
-//!     assert!(norm_sq_a_minus_b == 27.);
+//! // Squared Euclidean norm of difference of vectors
+//! let norm_sq_a_minus_b = norm2_squared_diff(&a, &b);
+//! assert!(norm_sq_a_minus_b == 27.);
 //!
-//!     // Sum of elements of vector
-//!     let sum_a = sum(&a);
-//!     assert!(sum_a == 6.);
+//! // Sum of elements of vector
+//! let sum_a = sum(&a);
+//! assert!(sum_a == 6.);
 //!
-//!     // Check whether all elements of a vector are finite
-//!     assert!(is_finite(&a));
+//! // Check whether all elements of a vector are finite
+//! assert!(is_finite(&a));
 //!
-//!     // Infinity norm
-//!     let norm_inf_b = norm_inf(&b);
-//!     assert!(norm_inf_b == 6.);
-//! }
+//! // Infinity norm
+//! let norm_inf_b = norm_inf(&b);
+//! assert!(norm_inf_b == 6.);
 //! ```
-//!
 //!
 
 use num::{Float, Zero};
@@ -101,7 +98,7 @@ pub fn sum<T>(a: &[T]) -> T
 where
     T: Float + Sum<T> + Mul<T, Output = T>,
 {
-    let norm: T = a.iter().map(|x| *x).sum();
+    let norm: T = a.iter().copied().sum();
     norm
 }
 

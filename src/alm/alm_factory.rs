@@ -209,22 +209,26 @@ where
     ///
     pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
         (self.f)(u, cost)?;
-        let ny = if xi.len() > 0 { xi.len() - 1 } else { 0 };
-        let mut t = vec![0.0; ny];
+        let ny = if !xi.is_empty() { xi.len() - 1 } else { 0 };
+        let mut f1_u_plus_y_over_c = vec![0.0; ny];
         let mut s = vec![0.0; ny];
         if let (Some(set_c), Some(mapping_f1)) = (&self.set_c, &self.mapping_f1) {
-            let c = xi[0];
-            mapping_f1(u, &mut t)?; // t = F1(u)
-            let y = &xi[1..];
+            let penalty_parameter = xi[0];
+            mapping_f1(u, &mut f1_u_plus_y_over_c)?; // f1_u = F1(u)
+            let y_lagrange_mult = &xi[1..];
             // Note: In the first term below, we divide by 'max(c, 1)', instead of
             //       just 'c'. The reason is that this allows to set c=0 and
             //       retrieve the value of the original cost function
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / f64::max(c, 1.0));
-            s.copy_from_slice(&t);
+            // f1_u := F1(u) + y/max(1, c)
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(y_lagrange_mult.iter())
+                .for_each(|(ti, yi)| *ti += yi / f64::max(penalty_parameter, 1.0));
+            s.copy_from_slice(&f1_u_plus_y_over_c);
             set_c.project(&mut s);
-            *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
+            *cost += 0.5
+                * penalty_parameter
+                * matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
         }
         if let Some(f2) = &self.mapping_f2 {
             let c = xi[0];
@@ -261,7 +265,7 @@ where
         // The following statement is needed to account for the case where n1=n2=0
         // when xi can be an empty array; we don't have any assertions for that as
         // for now this factory structure is for in-house use and testing only
-        let ny = if xi.len() > 0 { xi.len() - 1 } else { 0 };
+        let ny = if !xi.is_empty() { xi.len() - 1 } else { 0 };
 
         (self.df)(u, grad)?; // grad := d_f0(u)
 
@@ -272,27 +276,32 @@ where
             &self.mapping_f1,
             &self.jacobian_mapping_f1_trans,
         ) {
-            let c = xi[0];
-            let mut t = vec![0.0; ny];
-            let mut s = vec![0.0; ny];
-            let y = &xi[1..];
+            let c_penalty_parameter = xi[0];
+            let mut f1_u_plus_y_over_c = vec![0.0; ny];
+            let mut s_aux_var = vec![0.0; ny]; // auxiliary variable `s`
+            let y_lagrange_mult = &xi[1..];
             let mut jac_prod = vec![0.0; nu];
-            mapping_f1(&u, &mut t)?; // t = F1(u)
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / c); // t = F1(u) + y/c
-            s.copy_from_slice(&t); // s = t
-            set_c.project(&mut s); // s = Proj_C(F1(u) + y/c)
+            mapping_f1(&u, &mut f1_u_plus_y_over_c)?; // f1_u_plus_y_over_c = F1(u)
+                                                      // f1_u_plus_y_over_c = F1(u) + y/c
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(y_lagrange_mult.iter())
+                .for_each(|(ti, yi)| *ti += yi / c_penalty_parameter);
+            s_aux_var.copy_from_slice(&f1_u_plus_y_over_c); // s = t
+            set_c.project(&mut s_aux_var); // s = Proj_C(F1(u) + y/c)
 
             // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
-            t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(s_aux_var.iter())
+                .for_each(|(ti, si)| *ti -= si);
 
-            jf1t(&u, &t, &mut jac_prod)?;
+            jf1t(&u, &f1_u_plus_y_over_c, &mut jac_prod)?;
 
             // grad += c*t
             grad.iter_mut()
                 .zip(jac_prod.iter())
-                .for_each(|(gradi, jac_prodi)| *gradi += c * jac_prodi);
+                .for_each(|(gradi, jac_prodi)| *gradi += c_penalty_parameter * jac_prodi);
         }
 
         // Compute second part: JF2(u)'*F2(u)
