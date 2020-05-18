@@ -535,4 +535,5 @@ pose:
     z: 0.0
     w: 0.0"
 ```
-The source code from this example is available at [open_ros_codegen](https://github.com/gmsanchez/open_ros_codegen) Github repository.
+
+The source code of this example is available at [open_ros_codegen](https://github.com/gmsanchez/open_ros_codegen) Github repository.
