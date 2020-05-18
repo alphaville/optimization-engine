@@ -30,7 +30,7 @@ We want to solve the following optimal control problem
 <div class="math">
 \[
     \begin{align}
-    \mathbb{P}(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& \sum_{i=1}^{N - 1} 
+    \mathbb{P}(z){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& \sum_{i=1}^{N - 1} 
         \|x_t-x^{\mathrm{ref}}\|_Q^2 + \|u_t\|_R^2 + \|x_N-x^{\mathrm{ref}}\|_{Q_N}^2
     \\
     \text{subject to: }& x_{t+1} = f(x_t, u_t), t=0,\ldots, N-1
@@ -535,3 +535,4 @@ pose:
     z: 0.0
     w: 0.0"
 ```
+The source code from this example is available at [open_ros_codegen](https://github.com/gmsanchez/open_ros_codegen) Github repository.
