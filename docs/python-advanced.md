@@ -5,7 +5,7 @@ description: Advanced options of opengen, OpEn's Python interface
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 
 
@@ -105,7 +105,7 @@ Note that you need to install the necessary target first.
 
 | Method                        | Explanation                                 |
 |-------------------------------|---------------------------------------------|
-| `with_build_directory`        | Target build directory; the default is ``                    |
+| `with_build_directory`        | Target build directory; the default is `.`  |
 | `with_build_mode`             | `release` or `debug`; the default option is `release`, which requires more time to compile, but leads to high performance executables; use `debug` for faster compilation, at the cost of lower performance (this is useful when experimenting with OpEn)  |
 | `with_tcp_interface_config`   | Enable TCP server; provide configuration    |
 | `with_target_system`          | Target system                               |

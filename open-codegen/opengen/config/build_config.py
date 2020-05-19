@@ -1,4 +1,5 @@
 from opengen.config.tcp_server_config import TcpServerConfiguration
+from opengen.config.ros_config import RosConfiguration
 import random
 import string
 
@@ -35,6 +36,7 @@ class BuildConfiguration:
         self.__build_dir = build_dir
         self.__open_version = None
         self.__build_c_bindings = False
+        self.__ros_config = None
         self.__tcp_interface_config = None
         self.__local_path = None
 
@@ -104,6 +106,14 @@ class BuildConfiguration:
     @property
     def tcp_interface_config(self):
         return self.__tcp_interface_config
+
+    @property
+    def ros_config(self) -> RosConfiguration:
+        """
+        ROS package configuration
+        :return: instance of RosConfiguration
+        """
+        return self.__ros_config
 
     # ---------- SETTERS ---------------------------------------------
 
@@ -192,6 +202,17 @@ class BuildConfiguration:
         :return: current instance of BuildConfiguration
         """
         self.__build_c_bindings = build_c_bindings
+        return self
+
+    def with_ros(self, ros_config: RosConfiguration):
+        """
+        Activates the generation of a ROS package. The caller must provide an
+        instance of RosConfiguration
+        :param ros_config: Configuation of ROS package
+        :return: current instance of BuildConfiguration
+        """
+        self.__build_c_bindings = True  # no C++ bindings, no ROS package mate
+        self.__ros_config = ros_config
         return self
 
     def with_tcp_interface_config(self, tcp_interface_config=TcpServerConfiguration()):

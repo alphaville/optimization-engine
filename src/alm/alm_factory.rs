@@ -51,18 +51,18 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 /// multipliers respectively, according to
 ///
 /// $$
-/// \psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) + c^{-1}y)
+/// \psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) + \bar{c}^{-1}y)
 ///         + \Vert F_2(u) \Vert^2\right],
 /// $$
 ///
-/// and
+/// where $\bar{c} = \max\\{1,c\\}$ and
 ///
 /// $$
 /// \nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
 ///                              + c JF_2(u)^\top F_2(u).
 /// $$
 ///
-/// where $t(u) = F_1(u) + c^{-1}y$.
+/// where $t(u) = F_1(u) + \bar{c}^{-1}y$.
 ///
 pub struct AlmFactory<
     MappingF1,
@@ -187,10 +187,10 @@ where
 
     /// Computes function $\psi$ given by
     ///
-    /// $$\psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2(F_1(u) + c^{-1}y)
+    /// $$\psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2\left(F_1(u) + \bar{c}^{-1}y\right)
     ///           + \Vert F_2(u) \Vert^2\right],$$
     ///
-    /// where $f:\mathbb{R}^{n_u}\to\mathbb{R}$ is a $C^{1,1}$ function,
+    /// where $\bar{c} = \max\\{1,c\\}$, $f:\mathbb{R}^{n_u}\to\mathbb{R}$ is a $C^{1,1}$ function,
     /// $F_1:\mathbb{R}^{n_u}\to\mathbb{R}^{n_1}$ and $F_2:\mathbb{R}^{n_u}\to\mathbb{R}^{n_2}$
     /// are smooth mappings, $C\subseteq \mathbb{R}^{n_1}$ is a closed set on which
     /// we can compute projections and $c\in\mathbb{R}$ and $y\in\mathbb{R}^{n_1}$ are the
@@ -216,9 +216,12 @@ where
             let c = xi[0];
             mapping_f1(u, &mut t)?; // t = F1(u)
             let y = &xi[1..];
+            // Note: In the first term below, we divide by 'max(c, 1)', instead of
+            //       just 'c'. The reason is that this allows to set c=0 and
+            //       retrieve the value of the original cost function
             t.iter_mut()
                 .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / c);
+                .for_each(|(ti, yi)| *ti += yi / f64::max(c, 1.0));
             s.copy_from_slice(&t);
             set_c.project(&mut s);
             *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
@@ -239,7 +242,7 @@ where
     /// $$\nabla \psi(u) = \nabla f(u) + c JF_1(u)^\top [t(u) - \Pi_C(t(u))]
     ///                                + c JF_2(u)^\top F_2(u),$$
     ///
-    /// where $t(u) = F_1(u) + c^{-1}y$.
+    /// where $t(u) = F_1(u) + \max\\{1,c\\}^{-1}y$.
     ///
     /// # Arguments
     ///

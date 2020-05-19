@@ -9,6 +9,7 @@
       "python-advanced",
       "python-c",
       "python-tcp-ip",
+      "python-ros",
       "python-examples"
     ],
     "MATLAB": [
@@ -18,6 +19,9 @@
     "Rust": [
       "openrust-basic",
       "openrust-alm"
+    ],
+    "Docker": [
+      "docker"
     ],
     "Extras": [
       "algorithm",

@@ -12,14 +12,14 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
       Unreleased
      --------------------- -->
 
-## [Unreleased]
 
+## [v0.7.0]
 
-### Fixed
 
 ### Added
 
-### Changed
+* ALM: compute cost value at solution
+
 
 
 
@@ -165,6 +165,7 @@ This is a breaking API change.
 
 <!-- Releases -->
 [Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master
+[v0.7.0]: https://github.com/alphaville/optimization-engine/compare/v0.6.2...v0.7.0
 [v0.6.2]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...v0.6.2
 [v0.6.1-alpha.2]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...v0.6.1-alpha.2
 [v0.5.0]: https://github.com/alphaville/optimization-engine/compare/v0.4.0...v0.5.0

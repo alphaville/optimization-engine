@@ -40,11 +40,14 @@ class Footer extends React.Component {
             <a href={this.docUrl('open-intro.html')}>
               Getting Started
             </a>
+            <a href={this.docUrl('python-interface.html')}>
+              Python interface
+            </a>
             <a href={this.docUrl('matlab-interface.html')}>
               MATLAB interface
             </a>
-            <a href={this.docUrl('python-interface.html')}>
-              Python interface
+            <a href={this.docUrl('docker')}>
+              Docker
             </a>
           </div>
           <div>
@@ -52,15 +55,9 @@ class Footer extends React.Component {
             <a href={this.pageUrl('users.html')}>
               User Showcase
             </a>
-            <a
-              href="http://stackoverflow.com/questions/tagged/"
-              target="_blank"
-              rel="noreferrer noopener">
-              Stack Overflow
-            </a>
-            <a href="https://discord.gg/mfYpn4V" target="_blank">Discord community</a>
+            <a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a>
+            <a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a>
             <a href={this.docUrl('irc.html')}>Project Chat (Good Ol' IRC)</a>
-            <a href="https://gitter.im/alphaville/optimization-engine" target="_blank">Chat on Gitter</a>
             <a
               href="https://twitter.com/isToxic"
               target="_blank"
@@ -71,7 +68,8 @@ class Footer extends React.Component {
           <div>
             <h5>More</h5>
             <a href={`${this.props.config.baseUrl}blog`}>Blog</a>
-            <a href="https://github.com/alphaville/optimization-engine">GitHub</a>
+            <a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a>
+            <a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a>
             <a
               className="github-button"
               href={this.props.config.repoUrl}

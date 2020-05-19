@@ -64,7 +64,9 @@ int main() {
     printf("penalty          : %f\n", status.penalty);
     printf("||Dy||/c         : %f\n", status.delta_y_norm_over_c);
     printf("||F2(u)||        : %f\n", status.f2_norm);
+    printf("Cost             : %f\n", status.cost);
     printf("||FRP||          : %f\n\n", status.last_problem_norm_fpr);
+
 
 
     /* free memory */

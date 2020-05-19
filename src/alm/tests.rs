@@ -222,6 +222,18 @@ fn t_alm_numeric_test_1() {
 
     let mut f1res = vec![0.0; 2];
     assert!(mocks::mapping_f1_affine(&u, &mut f1res).is_ok());
+
+    // --- Test value of optimal cost
+    let cost_actual = r.cost();
+    let mut cost_expected = 0.0;
+    assert!(mocks::f0(&u, &mut cost_expected).is_ok());
+    unit_test_utils::assert_nearly_equal(
+        cost_actual,
+        cost_expected,
+        1e-4,
+        1e-8,
+        "cost value is wrong",
+    );
 }
 
 fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {

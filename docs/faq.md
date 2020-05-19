@@ -6,7 +6,7 @@ description: Frequently asked questions (FAQ) about OpEn
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 <script>
   ((window.gitter = {}).chat = {}).options = {
@@ -73,3 +73,9 @@ Find out more information [here](https://alphaville.github.io/optimization-engin
 ### 9. How can I report an issue?
 Please report any issues on [github](https://github.com/alphaville/optimization-engine/issues).
 
+
+### 10. Is OpEn being actively developed
+
+Yes, we are constantly exploring extensions, adding new features and addressing issues that our users report on github. See some statistics about OpEn below:
+
+<script type='text/javascript' src='https://www.openhub.net/p/optimization-engine/widgets/project_factoids_stats?format=js'></script>

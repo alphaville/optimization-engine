@@ -93,13 +93,23 @@ class OptimizerTcpManager:
         data = self.__send_receive_data(request)
         return json.loads(data)
 
+    def __check_if_server_is_running(self):
+        tcp_data = self.__optimizer_details_from_yml
+        ip = tcp_data['tcp']['ip']
+        port = tcp_data['tcp']['port']
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+        return 0 == s.connect_ex((ip, port))
+
     def start(self):
         """Starts the TCP server"""
-        # TODO: start only if the server has not started
         # start the server in a separate thread
 
         if self.__optimizer_path is None:
-            raise Exception("Cannot start a remote server")
+            raise Exception("No optimizer path provided - cannot start a remote server")
+
+        if self.__check_if_server_is_running():
+            msg = "Port %d not available" % self.__optimizer_details_from_yml['tcp']['port']
+            raise Exception(msg)
 
         logging.info("Starting TCP/IP server thread")
         thread = Thread(target=self.__threaded_start)

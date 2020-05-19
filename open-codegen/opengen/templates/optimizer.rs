@@ -61,7 +61,7 @@ pub const {{meta.optimizer_name|upper}}_N1: usize = {{problem.dim_constraints_au
 /// Number of penalty constraints
 pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_penalty() or 0}};
 
-{% include "optimizer_cinterface.rs.template" %}
+{% include "c/optimizer_cinterface.rs" %}
 
 // ---Parameters of the constraints----------------------------------------------------------------------
 
