@@ -19,3 +19,10 @@ description: List of OpEn examples in Python
 
 
 
+<div class="alert alert-success">
+<p><b>OpEn+ROS:</b> this <a href="example_navigation_ros_codegen">complete example</a> on how to use OpEn to build an NMPC controller on a <em>Husky</em> ground vehicle.</p>
+
+<a href="example_navigation_ros_codegen"><img src="/optimization-engine/img/hsk.png" alt="Clearpath Husky unmanned ground vehicle"/></a>
+
+<p>OpEn generates a complete ROS package that can run on the robot. To build your own ROS package <a href="python-ros">read the documentation first</a>.</p>
+</div>
