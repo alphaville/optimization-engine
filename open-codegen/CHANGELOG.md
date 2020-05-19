@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
-## [0.5.0]
+
+## [0.5.1] - 2020-05-19
+
+### Fixed
+
+- Issue #185: ROS config parameters are ignored
+
+
+## [0.5.0] - 2020-05-12
 
 ### Fixed
 
@@ -26,7 +34,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Removed
 
 
-## [0.4.1]
+## [0.4.1] - 2020-04-13
 
 ### Fixed
 
@@ -34,12 +42,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
-### Added
 
-### Changed
-
-### Removed
-
-
+[0.5.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.5.1...opengen-0.5.0
 [0.5.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.5.0...opengen-0.4.1
 [0.4.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.4.1...master
