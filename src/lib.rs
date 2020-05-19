@@ -49,6 +49,9 @@ pub enum SolverError {
     NotFiniteComputation,
 }
 
+/// Result of a function call (status)
+pub type FunctionCallResult = Result<(), SolverError>;
+
 pub mod alm;
 pub mod constraints;
 pub mod core;

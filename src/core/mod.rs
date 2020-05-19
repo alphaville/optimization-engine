@@ -8,7 +8,7 @@ pub mod panoc;
 pub mod problem;
 pub mod solver_status;
 
-pub use crate::{constraints, SolverError};
+pub use crate::{constraints, FunctionCallResult, SolverError};
 pub use problem::Problem;
 pub use solver_status::SolverStatus;
 
@@ -51,5 +51,5 @@ pub trait AlgorithmEngine {
     fn step(&mut self, u: &mut [f64]) -> Result<bool, SolverError>;
 
     /// Initializes the algorithm
-    fn init(&mut self, u: &mut [f64]) -> Result<(), SolverError>;
+    fn init(&mut self, u: &mut [f64]) -> FunctionCallResult;
 }

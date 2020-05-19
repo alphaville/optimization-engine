@@ -1,7 +1,7 @@
 use crate::{
     constraints,
     core::{panoc::PANOCCache, AlgorithmEngine, Problem},
-    matrix_operations, SolverError,
+    matrix_operations, FunctionCallResult, SolverError,
 };
 
 /// gamma = GAMMA_L_COEFF/L
@@ -30,8 +30,8 @@ const MAX_LINESEARCH_ITERATIONS: u32 = 10;
 /// Engine for PANOC algorithm
 pub struct PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     problem: Problem<'a, GradientType, ConstraintType, CostType>,
@@ -41,8 +41,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     /// Construct a new Engine for PANOC
@@ -64,7 +64,7 @@ where
     }
 
     /// Estimate the local Lipschitz constant at `u`
-    fn estimate_loc_lip(&mut self, u: &mut [f64]) -> Result<(), SolverError> {
+    fn estimate_loc_lip(&mut self, u: &mut [f64]) -> FunctionCallResult {
         let mut lipest = crate::lipschitz_estimator::LipschitzEstimator::new(
             u,
             &self.problem.gradf,
@@ -158,7 +158,7 @@ where
     }
 
     /// Updates the estimate of the Lipscthiz constant
-    fn update_lipschitz_constant(&mut self, u_current: &[f64]) -> Result<(), SolverError> {
+    fn update_lipschitz_constant(&mut self, u_current: &[f64]) -> FunctionCallResult {
         let mut cost_u_half_step = 0.0;
 
         // Compute the cost at the half step
@@ -263,7 +263,7 @@ where
     }
 
     /// Update without performing a line search; this is executed at the first iteration
-    fn update_no_linesearch(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
+    fn update_no_linesearch(&mut self, u_current: &mut [f64]) -> FunctionCallResult {
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
@@ -274,7 +274,7 @@ where
     }
 
     /// Performs a line search to select tau
-    fn linesearch(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
+    fn linesearch(&mut self, u_current: &mut [f64]) -> FunctionCallResult {
         // perform line search
         self.compute_rhs_ls(); // compute the right hand side of the line search
         self.cache.tau = 1.0; // initialise tau ← 1.0
@@ -298,8 +298,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for PANOCEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     /// PANOC step
@@ -346,7 +346,7 @@ where
     /// gradient of the cost at the initial point, initial estimates for `gamma` and `sigma`,
     /// a gradient step and a half step (projected gradient step)
     ///
-    fn init(&mut self, u_current: &mut [f64]) -> Result<(), SolverError> {
+    fn init(&mut self, u_current: &mut [f64]) -> FunctionCallResult {
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)

@@ -3,8 +3,8 @@
 use crate::{
     constraints,
     core::{
-        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, Optimizer, Problem,
-        SolverStatus,
+        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, FunctionCallResult,
+        Optimizer, Problem, SolverStatus,
     },
     matrix_operations, SolverError,
 };
@@ -24,8 +24,8 @@ const MAX_ITER: usize = 100_usize;
 ///
 pub struct FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     fbs_engine: FBSEngine<'a, GradientType, ConstraintType, CostType>,
@@ -36,8 +36,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     /// Constructs a new instance of `FBSOptimizer`
@@ -94,8 +94,8 @@ where
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
     for FBSOptimizer<'life, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError> + 'life,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError> + 'life,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult + 'life,
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {

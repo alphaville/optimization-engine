@@ -1,7 +1,7 @@
 use crate::{
     alm::*,
     core::{constraints::*, panoc::*, ExitStatus},
-    mocks, SolverError,
+    mocks, FunctionCallResult,
 };
 
 #[test]
@@ -30,8 +30,8 @@ fn t_create_alm_cache() {
 
 #[test]
 fn t_create_alm_problem() {
-    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
 
     {
         // Construct an instance of AlmProblem without any AL-type data
@@ -45,7 +45,7 @@ fn t_create_alm_problem() {
 
     {
         // Construct an AlmProblem with AL-type constraints, but no PM-type ones
-        let f1 = |_u: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = |_u: &[f64], _f1up: &mut [f64]| -> FunctionCallResult { Ok(()) };
         let soc = SecondOrderCone::new(1.5);
         let bounds = Ball2::new(None, 10.0);
         let y_set = NoConstraints::new();
@@ -64,8 +64,8 @@ fn t_create_alm_problem() {
 
     {
         // Construct an AlmProblem with both AL-type and PM-type constraints
-        let f1 = |_u: &[f64], _f1up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-        let f2 = |_u: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+        let f1 = |_u: &[f64], _f1up: &mut [f64]| -> FunctionCallResult { Ok(()) };
+        let f2 = |_u: &[f64], _f2up: &mut [f64]| -> FunctionCallResult { Ok(()) };
         let soc = SecondOrderCone::new(1.5);
         let bounds = Ball2::new(None, 10.0);
         let y_set = NoConstraints::new();
@@ -86,8 +86,8 @@ fn t_create_alm_problem() {
 #[should_panic]
 #[test]
 fn t_create_alm_problem_fail_alm() {
-    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
     let n1 = 1; // n1 = 1, but there is no set C
     let n2 = 0; // no F2 (and n2 = 0)
     let y_set = NoConstraints::new();
@@ -108,9 +108,9 @@ fn t_create_alm_problem_fail_alm() {
 #[should_panic]
 #[test]
 fn t_create_alm_problem_fail_pm() {
-    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    let f2 = |_u: &[f64], _f2up: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
+    let f2 = |_u: &[f64], _f2up: &mut [f64]| -> FunctionCallResult { Ok(()) };
     let bounds = Ball2::new(None, 10.0);
     let n1 = 1;
     let n2 = 0; // there is an f2, but n2 = 0
@@ -127,9 +127,9 @@ fn t_create_alm_optimizer() {
     let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
     let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
 
-    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    let f = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    let df = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
+    let f1 = |_u: &[f64], _result: &mut [f64]| -> FunctionCallResult { Ok(()) };
     let set_c = Ball2::new(None, 1.50);
 
     // Construct an instance of AlmProblem without any PM-type data
@@ -186,10 +186,8 @@ fn t_alm_numeric_test_1() {
         bounds,
         Some(set_c_b),
         Some(set_y),
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
@@ -236,7 +234,7 @@ fn t_alm_numeric_test_1() {
     );
 }
 
-fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+fn mapping_f2(u: &[f64], res: &mut [f64]) -> FunctionCallResult {
     res[0] = u[0];
     res[1] = u[1];
     res[2] = u[2] - u[0];
@@ -244,7 +242,7 @@ fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
     Ok(())
 }
 
-fn jac_mapping_f2_tr(_u: &[f64], d: &[f64], res: &mut [f64]) -> Result<(), crate::SolverError> {
+fn jac_mapping_f2_tr(_u: &[f64], d: &[f64], res: &mut [f64]) -> FunctionCallResult {
     res[0] = d[0] - d[2] - d[3];
     res[1] = d[1] - d[3];
     res[2] = d[2] + d[3];
@@ -281,10 +279,8 @@ fn t_alm_numeric_test_2() {
         bounds,
         Some(set_c_b),
         Some(set_y),
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
@@ -317,15 +313,19 @@ fn t_alm_numeric_test_2() {
     println!("y = {:#?}", r.lagrange_multipliers());
 }
 
+// Trait alias (type aliases are not stable yet, so the alternative is to use
+// the following trait definition, i.e., to "extend" Fn and implement it)
+// See https://bit.ly/2zJvd6g
+trait CostFunction: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult {}
+impl<T> CostFunction for T where T: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult + ?Sized {}
+
 // Badass implementation: (i) returning a Box-ed closure: that's how we can
 // return closures from a function, (ii) moving the context of the function
 // (using `move`), (iii) `param` should leave at least as long as the box
-fn make_mockito_f0<'a>(
-    c: f64,
-    param: &'a [f64],
-) -> Box<dyn Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError> + 'a> {
+// See: https://bit.ly/36icE5r
+fn make_mockito_f0<'a>(c: f64, param: &'a [f64]) -> impl CostFunction + 'a {
     Box::new(
-        move |_u: &[f64], _xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+        move |_u: &[f64], _xi: &[f64], cost: &mut f64| -> FunctionCallResult {
             *cost = c + param[0];
             Ok(())
         },
@@ -333,7 +333,7 @@ fn make_mockito_f0<'a>(
 }
 
 fn make_mockito_jacobian(_param: &[f64]) -> Box<JacobianMappingType> {
-    Box::new(|_u: &[f64], _xi: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) })
+    Box::new(|_u: &[f64], _xi: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) })
 }
 
 #[test]
@@ -412,10 +412,8 @@ fn t_alm_numeric_test_out_of_outer_iterations() {
         bounds,
         Some(set_c_b),
         Some(set_y),
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
@@ -470,10 +468,8 @@ fn t_alm_numeric_test_out_of_inner_iterations() {
         bounds,
         Some(set_c_b),
         Some(set_y),
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
@@ -528,10 +524,8 @@ fn t_alm_numeric_test_out_of_time() {
         bounds,
         Some(set_c_b),
         Some(set_y),
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         Some(mocks::mapping_f1_affine),
@@ -583,10 +577,8 @@ fn t_alm_numeric_test_no_mappings() {
         bounds,
         NO_SET,
         NO_SET,
-        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-            factory.psi(u, xi, cost)
-        },
-        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             factory.d_psi(u, xi, grad)
         },
         NO_MAPPING,

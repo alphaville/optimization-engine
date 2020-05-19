@@ -1,4 +1,4 @@
-use crate::{constraints::Constraint, SolverError};
+use crate::{constraints::Constraint, FunctionCallResult};
 
 /// Definition of optimization problem to be solved with `AlmOptimizer`. The optimization
 /// problem has the general form
@@ -34,11 +34,11 @@ pub struct AlmProblem<
     LagrangeSetY,
 > where
     // This is function F1: R^xn --> R^n1 (ALM)
-    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
     // This is function F2: R^xn --> R^n2 (PM)
-    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
     ConstraintsType: Constraint,
     AlmSetC: Constraint,
     LagrangeSetY: Constraint,
@@ -88,10 +88,10 @@ impl<
         LagrangeSetY,
     >
 where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
     ConstraintsType: Constraint,
     AlmSetC: Constraint,
     LagrangeSetY: Constraint,
@@ -120,10 +120,10 @@ where
     ///
     ///
     /// ```rust
-    /// use optimization_engine::{SolverError, alm::*, constraints::Ball2};
+    /// use optimization_engine::{FunctionCallResult, alm::*, constraints::Ball2};
     ///
-    /// let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let dpsi = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let psi = |_u: &[f64], _p: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    /// let dpsi = |_u: &[f64], _p: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
     /// let n1 = 0;
     /// let n2 = 0;
     /// let bounds = Ball2::new(None, 10.0);
