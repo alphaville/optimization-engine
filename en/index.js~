@@ -13,7 +13,7 @@ const { MarkdownBlock, GridBlock, Container } = CompLibrary; /* Used to read mar
 
 const siteConfig = require(`${process.cwd()}/siteConfig.js`);
 
-function docUrl(doc, language) {
+function docUrl(doc) {
   return `${siteConfig.baseUrl}docs/${doc}`;
 }
 
@@ -75,13 +75,13 @@ const PromoSection = props => (
 
 class HomeSplash extends React.Component {
   render() {
-    const language = this.props.language || "";
     return (
       <SplashContainer>
         <div className="inner">
           <ProjectTitle />
+<h2><a href="https://twitter.com/hashtag/BlackLivesMatter">#BlackLivesMatter</a> - Optimization Engine stands in solidarity with the black community in the US and worldwide and all	 people's struggle for justice and freedom from oppression. Racism cannot be tolerated!</h2>
           <PromoSection>
-            <Button href={docUrl("open-intro", language)}>
+            <Button href={docUrl("open-intro")}>
               Get Started
             </Button>
           </PromoSection>
