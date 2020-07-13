@@ -187,15 +187,15 @@ int main(int argc, char** argv)
 
     ros::Publisher mpc_pub
         = private_nh.advertise<{{ros.package_name}}::OptimizationResult>(
-            ROS_NODE_{{meta.optimizer_name|upper}}_RESULT_TOPIC,
+            result_topic,
             ROS_NODE_{{meta.optimizer_name|upper}}_RESULT_TOPIC_QUEUE_SIZE);
     ros::Subscriber sub
         = private_nh.subscribe(
-            ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC,
+            params_topic,
             ROS_NODE_{{meta.optimizer_name|upper}}_PARAMS_TOPIC_QUEUE_SIZE,
             &{{ros.package_name}}::OptimizationEngineManager::mpcReceiveRequestCallback,
             &mng);
-    ros::Rate loop_rate(ROS_NODE_{{meta.optimizer_name|upper}}_RATE);
+    ros::Rate loop_rate(rate);
 
     while (ros::ok()) {
         mng.solveAndPublish(mpc_pub);
