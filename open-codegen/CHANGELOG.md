@@ -7,15 +7,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.0a1] - 2020-07-14
 
-## [0.5.1] - 2020-05-19
+### Added
+
+* Added checks for `segments` in `CartesianProduct`
+
+### Changed
+
+* Dropping first argument in `Cartesian` (`dimension`) as it is unnecessary
+* Documented class `CartesianProduct`
+* Dropped `dimension` from constructor of `CartesianProduct` (breaking change)
 
 ### Fixed
 
-- Issue #185: ROS config parameters are ignored
+* Issue #185: ROS config parameters are ignored
+
 
 
 ## [0.5.0] - 2020-05-12
+
 
 ### Fixed
 
@@ -43,6 +54,6 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
-[0.5.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.5.1...opengen-0.5.0
+[0.6.0a1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.0a1...opengen-0.5.0
 [0.5.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.5.0...opengen-0.4.1
 [0.4.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.4.1...master

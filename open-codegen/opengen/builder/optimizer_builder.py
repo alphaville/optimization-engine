@@ -10,6 +10,7 @@ import casadi.casadi as cs
 import os
 import jinja2
 import logging
+import pkg_resources
 
 from .ros_builder import RosBuilder
 
@@ -482,6 +483,8 @@ class OpEnOptimizerBuilder:
 
         target_yaml_file_path = os.path.join(target_dir, "optimizer.yml")
 
+        opengen_version = pkg_resources.require("opengen")[0].version
+
         tcp_details = None if tcp_config is None \
             else {'ip': tcp_config.bind_ip, 'port': tcp_config.bind_port}
         metadata_details = {'optimizer_name': metadata.optimizer_name,
@@ -490,6 +493,7 @@ class OpEnOptimizerBuilder:
                             'licence': metadata.licence}
         build_details = {'id': build_config.id,
                          'open_version': build_config.open_version,
+                         'opengen_version': opengen_version,
                          'build_dir': build_config.build_dir,
                          'build_mode': build_config.build_mode,
                          'target_system': build_config.target_system,
