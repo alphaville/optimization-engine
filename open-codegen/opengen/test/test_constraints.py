@@ -263,6 +263,12 @@ class ConstraintsTestCase(unittest.TestCase):
         with self.assertRaises(ValueError) as __context:
             og.constraints.CartesianProduct(segments, sets)
 
+    def test_cartesian_segments_empty_args(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct([], sets)
+
     # -----------------------------------------------------------------------
     # Finite Set
     # -----------------------------------------------------------------------

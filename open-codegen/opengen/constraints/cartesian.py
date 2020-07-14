@@ -25,6 +25,9 @@ class CartesianProduct(constraint.Constraint):
         :param constraints: list of sets
         """
 
+        if not segments or not constraints:
+            raise ValueError("segments and constraints must be nonempty lists")
+
         if any([segments[i] >= segments[i+1] for i in range(len(segments)-1)]):
             raise ValueError("segments should be a list of integers in strictly ascending order")
 
