@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.0]
+
+### Changed
+- documented class `CartesianProduct`
+- dropped `dimension` from constructor of `CartesianProduct` (breaking change)
+
+### Added
+- added checks for `segments` in `CartesianProduct`
+
+
+
 ## [0.5.0]
 
 ### Fixed
