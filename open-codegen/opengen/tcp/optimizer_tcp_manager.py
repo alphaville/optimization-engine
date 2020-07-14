@@ -6,6 +6,7 @@ import json
 import logging
 import time
 import math
+import pkg_resources
 from threading import Thread
 from retry import retry
 from .solver_response import SolverResponse
@@ -36,6 +37,12 @@ class OptimizerTcpManager:
             self.__optimizer_details_from_yml = {"tcp": {"ip": ip, "port": port}}
         else:
             raise Exception("Illegal arguments")
+        # Check whether the optimizer was built with the current version of opengen
+        opengen_version = self.__optimizer_details_from_yml['build']['opengen_version']
+        current_opengen_version = pkg_resources.require("opengen")[0].version
+        if current_opengen_version != opengen_version:
+            logging.warn('the target optimizer was build with a different version of opengen (%s)' % opengen_version)
+            logging.warn('you are running opengen version %s' % current_opengen_version)
 
     def __load_tcp_details(self):
         logging.info("loading TCP/IP details")
