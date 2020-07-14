@@ -4,11 +4,16 @@ from setuptools import setup, find_packages
 import io
 import os
 
+here = os.path.abspath(os.path.dirname(__file__))
+
 NAME = 'opengen'
-VERSION = '0.5.0'
+
+# Import version from file
+version_file = open(os.path.join(here, 'VERSION'))
+VERSION = version_file.read().strip()
+
 DESCRIPTION = 'Optimization Engine Code Generator'
 
-here = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
