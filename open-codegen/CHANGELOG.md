@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.0]
+
+### Changed
+
+* 
+
 ## [0.5.0]
 
 ### Fixed
@@ -41,5 +47,6 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Removed
 
 
+[0.6.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.0...opengen-0.5.0
 [0.5.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.5.0...opengen-0.4.1
 [0.4.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.4.1...master
