@@ -7,18 +7,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
-## [0.6.0]
+## [0.6.0] - 2020-07-12
+
+### Added
+
+* Added checks for `segments` in `CartesianProduct`
 
 ### Changed
 
 * Dropping first argument in `Cartesian` (`dimension`) as it is unnecessary
+* Documented class `CartesianProduct`
+* Dropped `dimension` from constructor of `CartesianProduct` (breaking change)
 
 ### Fixed
 
 * Issue #185: ROS config parameters are ignored
 
 
+
 ## [0.5.0] - 2020-05-12
+
 
 ### Fixed
 
