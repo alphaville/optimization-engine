@@ -12,7 +12,7 @@ cstrs = [og.constraints.NoConstraints,
          og.constraints.NoConstraints,
          og.constraints.NoConstraints]
 dim = 5
-bounds = og.constraints.CartesianProduct(dim, segment_ids, cstrs)
+bounds = og.constraints.CartesianProduct(segment_ids, cstrs)
 
 problem = og.builder.Problem(u, p, phi)  \
         .with_constraints(bounds)
@@ -21,35 +21,31 @@ meta = og.config.OptimizerMeta()                \
     .with_version("0.0.0")                      \
     .with_authors(["P. Sopasakis", "E. Fresk"]) \
     .with_licence("CC4.0-By")                   \
-    .with_optimizer_name("the_optimizer")
+    .with_optimizer_name("potato")
 
 build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("python_build")      \
-    .with_build_mode("debug")                  \
+    .with_build_directory("my_optimizers")     \
+    .with_build_mode(og.config.BuildConfiguration.RELEASE_MODE)  \
+    .with_open_version('0.7.0-alpha.1') \
     .with_tcp_interface_config()
-
-solver_config = og.config.SolverConfiguration()   \
-            .with_lbfgs_memory(15)                \
-            .with_tolerance(1e-5)                 \
-            .with_max_inner_iterations(155)
+solver_config = og.config.SolverConfiguration()    \
+    .with_tolerance(1e-5)                          \
+    .with_delta_tolerance(1e-4)                    \
+    .with_initial_penalty(890)                     \
+    .with_penalty_weight_update_factor(5)
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
-                                          metadata=meta,
-                                          build_configuration=build_config,
-                                          solver_configuration=solver_config)
+                                          meta,
+                                          build_config,
+                                          solver_config).with_verbosity_level(3).with_generate_not_build_flag(True)
+
 builder.build()
 
-mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
-mng.start()
+o = og.tcp.OptimizerTcpManager('my_optimizers/potato')
+# o.start()
+# r = o.call([1.0, 50.0])
+# if r.is_ok():
+#     status = r.get()
+#     print(status.solution)
+# o.kill()
 
-pong = mng.ping()                 # check if the server is alive
-print(pong)
-response = mng.call([1.0, 50.0])  # call the solver over TCP
-
-if response.is_ok():
-    sol = response.get()
-    print(sol.solution)
-else:
-    print(response)
-
-mng.kill()
