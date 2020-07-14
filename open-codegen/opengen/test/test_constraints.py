@@ -242,6 +242,27 @@ class ConstraintsTestCase(unittest.TestCase):
         u_mx = cs.SX.sym("u", 9, 1)
         _sqd_mx = cartesian.distance_squared(u_mx)
 
+    def test_cartesian_segments_not_increasing(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints, no_constraints]
+        segments = [0, 2, 2]  # should be increasing
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
+    def test_cartesian_segments_negative_elements(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        segments = [-1, 2]  # -1 is not allowed
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
+    def test_cartesian_segments_different_lengths(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        segments = [0, 2, 4]  # 3 elements (but sets has two elements)
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
     # -----------------------------------------------------------------------
     # Finite Set
     # -----------------------------------------------------------------------

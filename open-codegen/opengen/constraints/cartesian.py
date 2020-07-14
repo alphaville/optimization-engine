@@ -31,6 +31,9 @@ class CartesianProduct(constraint.Constraint):
         if segments[0] < 0:
             raise ValueError("the first element of segment must be a positive integer")
 
+        if len(segments) != len(constraints):
+            raise ValueError("segments and constraints must have equal dimensions")
+
         self.__segments = segments
         self.__constraints = constraints
 
