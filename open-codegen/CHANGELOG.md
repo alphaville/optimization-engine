@@ -11,9 +11,14 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Changed
 
-* 
+* Dropping first argument in `Cartesian` (`dimension`) as it is unnecessary
 
-## [0.5.0]
+### Fixed
+
+* Issue #185: ROS config parameters are ignored
+
+
+## [0.5.0] - 2020-05-12
 
 ### Fixed
 
@@ -32,19 +37,13 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Removed
 
 
-## [0.4.1]
+## [0.4.1] - 2020-04-13
 
 ### Fixed
 
 * Project-specific `icasadi` dependency
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
-
-### Added
-
-### Changed
-
-### Removed
 
 
 [0.6.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.0...opengen-0.5.0

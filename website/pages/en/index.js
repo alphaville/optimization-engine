@@ -79,6 +79,8 @@ class HomeSplash extends React.Component {
       <SplashContainer>
         <div className="inner">
           <ProjectTitle />
+<h2><a href="https://twitter.com/hashtag/BlackLivesMatter">#BlackLivesMatter</a> - Optimization Engine stands in solidarity with the black community in the US and worldwide and all	 people's struggle for justice and freedom from oppression.</h2>
+<h2>Racism cannot be tolerated!</h2>
           <PromoSection>
             <Button href={docUrl("open-intro")}>
               Get Started
