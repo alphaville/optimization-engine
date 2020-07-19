@@ -14,6 +14,41 @@ fn t_zero_set() {
         "wrong projection on zero set",
     );
 }
+
+#[test]
+fn t_halfspace_project_inside() {
+    let normal_vector = [1., 2.];
+    let offset = 5.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    let mut x = [-1., 3.];
+    let x_expected = [-1., 3.];
+    halfspace.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_expected,
+        1e-10,
+        1e-14,
+        "halfspace projection failed (inside)",
+    );
+}
+
+#[test]
+fn t_halfspace_project_outside() {
+    let normal_vector = [1., 2.];
+    let offset = 1.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    let mut x = [-1., 3.];
+    let x_expected = [-1.8, 1.4];
+    halfspace.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_expected,
+        1e-8,
+        1e-14,
+        "halfspace projection failed (outside)",
+    );
+}
+
 #[test]
 #[should_panic]
 fn t_finite_set_inconsistent_dimensions() {
