@@ -225,7 +225,7 @@ class ConstraintsTestCase(unittest.TestCase):
         # [0, 1]
         # [2, 3, 4]
         # [5, 6, 7, 8]
-        cartesian = og.constraints.CartesianProduct(9, [1, 4, 8], [ball_inf, ball_eucl, rect])
+        cartesian = og.constraints.CartesianProduct([1, 4, 8], [ball_inf, ball_eucl, rect])
         sq_dist = cartesian.distance_squared([5, 10, 1, 1, 1, 0.5, -1, 0, 11])
         correct_sq_distance = 102.0 + (math.sqrt(3)-1.0)**2
         self.assertAlmostEqual(correct_sq_distance, sq_dist, 12)
@@ -236,11 +236,38 @@ class ConstraintsTestCase(unittest.TestCase):
         ball_eucl = og.constraints.Ball2(None, 1)
         rect = og.constraints.Rectangle(xmin=[0.0, 1.0, -inf, 2.0],
                                         xmax=[1.0, inf, 10.0, 10.0])
-        cartesian = og.constraints.CartesianProduct(9, [1, 4, 8], [ball_inf, ball_eucl, rect])
+        cartesian = og.constraints.CartesianProduct([1, 4, 8], [ball_inf, ball_eucl, rect])
         u_sx = cs.SX.sym("u", 9, 1)
         _sqd_sx = cartesian.distance_squared(u_sx)
         u_mx = cs.SX.sym("u", 9, 1)
         _sqd_mx = cartesian.distance_squared(u_mx)
+
+    def test_cartesian_segments_not_increasing(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints, no_constraints]
+        segments = [0, 2, 2]  # should be increasing
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
+    def test_cartesian_segments_negative_elements(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        segments = [-1, 2]  # -1 is not allowed
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
+    def test_cartesian_segments_different_lengths(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        segments = [0, 2, 4]  # 3 elements (but sets has two elements)
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct(segments, sets)
+
+    def test_cartesian_segments_empty_args(self):
+        no_constraints = og.constraints.NoConstraints()
+        sets = [no_constraints, no_constraints]
+        with self.assertRaises(ValueError) as __context:
+            og.constraints.CartesianProduct([], sets)
 
     # -----------------------------------------------------------------------
     # Finite Set
@@ -254,7 +281,7 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertEqual(0, c.dimension())
         self.assertEqual(0, c.cardinality())
 
-        c = og.constraints.FiniteSet([[1,2,3], [4,5,6]])
+        c = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
         self.assertEqual(3, c.dimension())
         self.assertEqual(2, c.cardinality())
 

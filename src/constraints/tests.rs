@@ -406,6 +406,38 @@ fn t_cartesian_product_dimension() {
 }
 
 #[test]
+fn t_cartesian_ball_no_constraint() {
+    let xc = [1., 0., 0.];
+    let radius = 0.5;
+    let ball2 = Ball2::new(Some(&xc), radius);
+    let no_constraints = NoConstraints::new();
+    let cartesian = CartesianProduct::new_with_capacity(4)
+        .add_constraint(2, no_constraints)
+        .add_constraint(5, ball2)
+        .add_constraint(8, no_constraints)
+        .add_constraint(9, no_constraints);
+    assert_eq!(9, cartesian.dimension());
+    let mut x = [100., -200., 0.5, 1.5, 3.5, 1000., 5., -500., 2_000_000.];
+    cartesian.project(&mut x);
+    let x_proj_ball = [0.869811089019176, 0.390566732942472, 0.911322376865767];
+    unit_test_utils::assert_nearly_equal_array(
+        &x[0..=1],
+        &[100., -200.],
+        1e-10,
+        1e-15,
+        "projection on no constraints is wrong",
+    );
+    unit_test_utils::assert_nearly_equal_array(&x[2..=4], &x_proj_ball, 1e-8, 1e-15, "haha");
+    unit_test_utils::assert_nearly_equal_array(
+        &x[5..=8],
+        &[1000., 5., -500., 2_000_000.],
+        1e-10,
+        1e-5,
+        "projection on no constraints is wrong",
+    );
+}
+
+#[test]
 fn t_ball_inf_origin() {
     let ball_inf = BallInf::new(None, 1.0);
     let mut x = [0.0, -0.5, 0.5, 1.5, 3.5, 0.8, 1.1, -5.0, -10.0];
