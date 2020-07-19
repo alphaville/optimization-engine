@@ -16,7 +16,7 @@ impl<'a> FiniteSet<'a> {
     /// $x_i\in\mathbb{R}^n$
     ///
     ///
-    /// # Parameters
+    /// # Arguments
     ///
     /// - data: vector of vectors (see example below)
     ///
