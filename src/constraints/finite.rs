@@ -24,7 +24,7 @@ impl<'a> FiniteSet<'a> {
     /// # Example
     ///
     /// ```
-    /// use optimization_engine::constraints::*;
+    /// use optimization_engine::constraints::{Constraint, FiniteSet};
     ///
     /// let data: &[&[f64]] = &[
     ///    &[1.0, 1.0],
