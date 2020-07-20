@@ -14,6 +14,24 @@ fn t_zero_set() {
         "wrong projection on zero set",
     );
 }
+
+#[test]
+fn t_hyperplane() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let offset = 1.0;
+    let hyperplane = Hyperplane::new(&normal_vector, offset);
+    let mut x = [-1., 3., 5.];
+    let x_proj_expected = [-2.357142857142857, 0.285714285714286, 0.928571428571429];
+    hyperplane.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_proj_expected,
+        1e-8,
+        1e-12,
+        "halfspace projection failed",
+    );
+}
+
 #[test]
 #[should_panic]
 fn t_finite_set_inconsistent_dimensions() {
