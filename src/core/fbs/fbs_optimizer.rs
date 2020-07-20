@@ -3,10 +3,10 @@
 use crate::{
     constraints,
     core::{
-        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, FunctionCallResult,
-        Optimizer, Problem, SolverStatus,
+        fbs::fbs_engine::FBSEngine, fbs::FBSCache, AlgorithmEngine, ExitStatus, Optimizer, Problem,
+        SolverStatus,
     },
-    matrix_operations, SolverError,
+    matrix_operations, FunctionCallResult, SolverError,
 };
 use std::time;
 
@@ -120,7 +120,7 @@ where
         }
 
         // cost at the solution [propagate error upstream]
-        let mut cost_value = 0.0;
+        let mut cost_value: f64 = 0.0;
         (self.fbs_engine.problem.cost)(u, &mut cost_value)?;
 
         if !matrix_operations::is_finite(&u) || !cost_value.is_finite() {

@@ -21,7 +21,11 @@ fn t_hyperplane() {
     let offset = 1.0;
     let hyperplane = Hyperplane::new(&normal_vector, offset);
     let mut x = [-1., 3., 5.];
-    let x_proj_expected = [-2.357142857142857, 0.285714285714286, 0.928571428571429];
+    let x_proj_expected = [
+        -2.357_142_857_142_857,
+        0.285_714_285_714_286,
+        0.928_571_428_571_429,
+    ];
     hyperplane.project(&mut x);
     unit_test_utils::assert_nearly_equal_array(
         &x,
@@ -266,7 +270,7 @@ fn t_no_constraints() {
 
     whole_space.project(&mut x);
 
-    assert_eq!([1., 2., 3.], x);
+    unit_test_utils::assert_nearly_equal_array(&[1., 2., 3.], &x, 1e-10, 1e-15, "x is wrong");
 }
 
 #[test]

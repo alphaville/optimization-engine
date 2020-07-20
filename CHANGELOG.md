@@ -19,7 +19,8 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 * Introduced `Halfspace` (implemented and tested)
 * Introduced `Hyperplane` (implemented and tested)
-
+* New types: `FunctionCallResult`, `MappingType` and `JacobianMappingType`
+* Various clippy-related code improvements
 
 
 

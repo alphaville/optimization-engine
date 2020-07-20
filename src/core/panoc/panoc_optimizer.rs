@@ -4,9 +4,9 @@ use crate::{
     constraints,
     core::{
         panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, ExitStatus,
-        FunctionCallResult, Optimizer, Problem, SolverStatus,
+        Optimizer, Problem, SolverStatus,
     },
-    matrix_operations, SolverError,
+    matrix_operations, FunctionCallResult, SolverError,
 };
 use std::time;
 
@@ -196,30 +196,30 @@ mod tests {
     fn t_panoc_optimizer_rosenbrock() {
         /* USER PARAMETERS */
         let tolerance = 1e-6;
-        let a = 1.0;
-        let b = 200.0;
-        let n = 2;
+        let a_param = 1.0;
+        let b_param = 200.0;
+        let n_dimension = 2;
         let lbfgs_memory = 8;
         let max_iters = 80;
-        let mut u = [-1.5, 0.9];
+        let mut u_solution = [-1.5, 0.9];
 
         /* COST FUNCTION */
-        let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
-            mocks::rosenbrock_grad(a, b, u, grad);
+        let cost_gradient = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
+            mocks::rosenbrock_grad(a_param, b_param, u, grad);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
-            *c = mocks::rosenbrock_cost(a, b, u);
+        let cost_function = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+            *c = mocks::rosenbrock_cost(a_param, b_param, u);
             Ok(())
         };
         /* CONSTRAINTS */
         let radius = 2.0;
         let bounds = constraints::Ball2::new(None, radius);
-        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
-        let problem = Problem::new(&bounds, df, f);
+        let mut panoc_cache = PANOCCache::new(n_dimension, tolerance, lbfgs_memory);
+        let problem = Problem::new(&bounds, cost_gradient, cost_function);
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
         let now = std::time::Instant::now();
-        let status = panoc.solve(&mut u).unwrap();
+        let status = panoc.solve(&mut u_solution).unwrap();
 
         println!("{} iterations", status.iterations());
         println!("elapsed {:?}", now.elapsed());
@@ -231,10 +231,10 @@ mod tests {
 
         /* CHECK FEASIBILITY */
         let mut u_project = [0.0; 2];
-        u_project.copy_from_slice(&u);
+        u_project.copy_from_slice(&u_solution);
         bounds.project(&mut u_project);
         unit_test_utils::assert_nearly_equal_array(
-            &u,
+            &u_solution,
             &u_project,
             1e-12,
             1e-16,
@@ -246,46 +246,49 @@ mod tests {
     fn t_panoc_in_loop() {
         /* USER PARAMETERS */
         let tolerance = 1e-5;
-        let mut a = 1.0;
-        let mut b = 100.0;
-        let n = 2;
+        let mut a_param = 1.0;
+        let mut b_param = 100.0;
+        let n_dimension = 2;
         let lbfgs_memory = 10;
         let max_iters = 100;
-        let mut u = [-1.5, 0.9];
-        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
+        let mut u_solution = [-1.5, 0.9];
+        let mut panoc_cache = PANOCCache::new(n_dimension, tolerance, lbfgs_memory);
         for i in 1..=100 {
-            b *= 1.01;
-            a -= 1e-3;
+            b_param *= 1.01;
+            a_param -= 1e-3;
             // Note: updating `radius` like this because `radius += 0.01` builds up small
             // numerical errors and is less reliable
             let radius = 1.0 + 0.01 * (i as f64);
-            let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
-                mocks::rosenbrock_grad(a, b, u, grad);
+            let cost_gradient = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
+                mocks::rosenbrock_grad(a_param, b_param, u, grad);
                 Ok(())
             };
-            let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
-                *c = mocks::rosenbrock_cost(a, b, u);
+            let cost_function = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+                *c = mocks::rosenbrock_cost(a_param, b_param, u);
                 Ok(())
             };
             let bounds = constraints::Ball2::new(None, radius);
-            let problem = Problem::new(&bounds, df, f);
+            let problem = Problem::new(&bounds, cost_gradient, cost_function);
             let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
 
-            let status = panoc.solve(&mut u).unwrap();
+            let status = panoc.solve(&mut u_solution).unwrap();
 
             println!("status = {:#?}", status);
             println!(
                 "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
-                a,
-                b,
+                a_param,
+                b_param,
                 radius,
                 status.iterations()
             );
 
             /* CHECK FEASIBILITY */
             // The norm of u must be <= radius
-            let ru = crate::matrix_operations::norm2(&u);
-            assert!(ru <= radius + 5e-16, "infeasibility in problem solution");
+            let norm_u = crate::matrix_operations::norm2(&u_solution);
+            assert!(
+                norm_u <= radius + 5e-16,
+                "infeasibility in problem solution"
+            );
 
             assert_eq!(max_iters, panoc.max_iter);
             assert!(status.has_converged());
@@ -299,33 +302,33 @@ mod tests {
         /* USER PARAMETERS */
         let tolerance = 1e-6;
         let akkt_tolerance = 1e-6;
-        let a = 1.0;
-        let b = 200.0;
-        let n = 2;
+        let a_param = 1.0;
+        let b_param = 200.0;
+        let n_dimension = 2;
         let lbfgs_memory = 8;
         let max_iters = 580;
-        let mut u = [-1.5, 0.9];
+        let mut u_solution = [-1.5, 0.9];
 
-        let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
-            mocks::rosenbrock_grad(a, b, u, grad);
+        let cost_gradient = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
+            mocks::rosenbrock_grad(a_param, b_param, u, grad);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
-            *c = mocks::rosenbrock_cost(a, b, u);
+        let cost_function = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+            *c = mocks::rosenbrock_cost(a_param, b_param, u);
             Ok(())
         };
 
         let radius = 1.2;
         let bounds = constraints::Ball2::new(None, radius);
 
-        let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
-        let problem = Problem::new(&bounds, df, f);
+        let mut panoc_cache = PANOCCache::new(n_dimension, tolerance, lbfgs_memory);
+        let problem = Problem::new(&bounds, cost_gradient, cost_function);
 
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache)
             .with_max_iter(max_iters)
             .with_akkt_tolerance(akkt_tolerance);
 
-        let status = panoc.solve(&mut u).unwrap();
+        let status = panoc.solve(&mut u_solution).unwrap();
 
         assert_eq!(max_iters, panoc.max_iter);
         assert!(status.has_converged());

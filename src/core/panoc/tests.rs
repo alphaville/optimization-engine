@@ -117,26 +117,26 @@ fn t_test_panoc_hard() {
 #[test]
 fn t_test_panoc_rosenbrock() {
     let tolerance = 1e-12;
-    let a = 1.0;
-    let b = 100.0;
-    let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
-        mocks::rosenbrock_grad(a, b, u, grad);
+    let a_param = 1.0;
+    let b_param = 100.0;
+    let cost_gradient = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
+        mocks::rosenbrock_grad(a_param, b_param, u, grad);
         Ok(())
     };
-    let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
-        *c = mocks::rosenbrock_cost(a, b, u);
+    let cost_function = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+        *c = mocks::rosenbrock_cost(a_param, b_param, u);
         Ok(())
     };
     let bounds = constraints::Ball2::new(None, 1.0);
-    let problem = Problem::new(&bounds, df, f);
+    let problem = Problem::new(&bounds, cost_gradient, cost_function);
     let mut panoc_cache = PANOCCache::new(2, tolerance, 2).with_cbfgs_parameters(2.0, 1e-6, 1e-12);
     let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
-    let mut u = [-1.5, 0.9];
-    panoc_engine.init(&mut u).unwrap();
-    let mut i = 1;
-    while panoc_engine.step(&mut u) == Ok(true) && i < 50 {
-        i += 1;
+    let mut u_solution = [-1.5, 0.9];
+    panoc_engine.init(&mut u_solution).unwrap();
+    let mut idx = 1;
+    while panoc_engine.step(&mut u_solution) == Ok(true) && idx < 50 {
+        idx += 1;
     }
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
-    println!("u = {:?}", u);
+    println!("u = {:?}", u_solution);
 }
