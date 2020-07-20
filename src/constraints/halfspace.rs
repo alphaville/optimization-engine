@@ -56,13 +56,36 @@ impl<'a> Halfspace<'a> {
 }
 
 impl<'a> Constraint for Halfspace<'a> {
+    /// Projects on halfspace using the following formula:
+    ///
+    /// $$\begin{aligned}
+    /// \mathrm{proj}_{H}(x) = \begin{cases}
+    /// x,& \text{ if } \langle c, x\rangle \leq b
+    /// \\\\
+    /// x - \frac{\langle c, x\rangle - b}
+    ///          {\\|c\\|}c,& \text{else}
+    /// \end{cases}
+    /// \end{aligned}$$
+    ///
+    /// where $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: (in) vector to be projected on the current instance of a halfspace,
+    ///    (out) projection on the second-order cone
+    ///
+    /// # Panics
+    ///
+    /// This method panics if the length of `x` is not equal to the dimension
+    /// of the halfspace.
+    ///
     fn project(&self, x: &mut [f64]) {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         if inner_product > self.offset {
             let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
             x.iter_mut()
                 .zip(self.normal_vector.iter())
-                .for_each(|(x, nrm_vct)| *x -= factor * nrm_vct);
+                .for_each(|(x, normal_vector_i)| *x -= factor * normal_vector_i);
         }
     }
 

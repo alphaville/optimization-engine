@@ -56,6 +56,26 @@ impl<'a> Hyperplane<'a> {
 }
 
 impl<'a> Constraint for Hyperplane<'a> {
+    /// Projects on the hyperplane using the formula:
+    ///
+    /// $$\begin{aligned}
+    /// \mathrm{proj}_{H}(x) =
+    /// x - \frac{\langle c, x\rangle - b}
+    ///          {\\|c\\|}c.
+    /// \end{aligned}$$
+    ///
+    /// where $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: (in) vector to be projected on the current instance of a hyperplane,
+    ///    (out) projection on the second-order cone
+    ///
+    /// # Panics
+    ///
+    /// This method panics if the length of `x` is not equal to the dimension
+    /// of the hyperplane.
+    ///
     fn project(&self, x: &mut [f64]) {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
