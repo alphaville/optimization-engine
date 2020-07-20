@@ -9,8 +9,18 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      Unreleased
+      Unreleased; 
+      Next version: 0.7.1
      --------------------- -->
+
+## [Unreleased]
+
+### Added
+
+* Introduced `Halfspace` (implemented and tested)
+* Introduced `Hyperplane` (implemented and tested)
+
+
 
 
 ## [v0.7.0]
@@ -164,7 +174,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...master
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.7.0...master
 [v0.7.0]: https://github.com/alphaville/optimization-engine/compare/v0.6.2...v0.7.0
 [v0.6.2]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...v0.6.2
 [v0.6.1-alpha.2]: https://github.com/alphaville/optimization-engine/compare/v0.5.0...v0.6.1-alpha.2

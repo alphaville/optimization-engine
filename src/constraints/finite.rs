@@ -16,7 +16,7 @@ impl<'a> FiniteSet<'a> {
     /// $x_i\in\mathbb{R}^n$
     ///
     ///
-    /// # Parameters
+    /// # Arguments
     ///
     /// - data: vector of vectors (see example below)
     ///
@@ -24,7 +24,7 @@ impl<'a> FiniteSet<'a> {
     /// # Example
     ///
     /// ```
-    /// use optimization_engine::constraints::*;
+    /// use optimization_engine::constraints::{Constraint, FiniteSet};
     ///
     /// let data: &[&[f64]] = &[
     ///    &[1.0, 1.0],

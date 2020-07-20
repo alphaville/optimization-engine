@@ -33,6 +33,40 @@ fn t_hyperplane() {
 }
 
 #[test]
+fn t_halfspace_project_inside() {
+    let normal_vector = [1., 2.];
+    let offset = 5.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    let mut x = [-1., 3.];
+    let x_expected = [-1., 3.];
+    halfspace.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_expected,
+        1e-10,
+        1e-14,
+        "halfspace projection failed (inside)",
+    );
+}
+
+#[test]
+fn t_halfspace_project_outside() {
+    let normal_vector = [1., 2.];
+    let offset = 1.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    let mut x = [-1., 3.];
+    let x_expected = [-1.8, 1.4];
+    halfspace.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_expected,
+        1e-8,
+        1e-14,
+        "halfspace projection failed (outside)",
+    );
+}
+
+#[test]
 #[should_panic]
 fn t_finite_set_inconsistent_dimensions() {
     let x1 = vec![1.0; 2];
@@ -500,30 +534,58 @@ fn t_ball_inf_center() {
 }
 
 #[test]
-fn t_is_convex() {
+fn t_is_convex_ball_inf() {
     let ball_inf = BallInf::new(None, 1.5);
     assert!(ball_inf.is_convex());
+}
 
+#[test]
+fn t_is_convex_ball2() {
     let ball_2 = Ball2::new(None, 1.0);
     assert!(ball_2.is_convex());
+}
 
+#[test]
+fn t_is_convex_finite_set() {
     let finite = FiniteSet::new(&[&[1.0, 2.0, 3.0]]);
     assert!(finite.is_convex());
 
     let finite_noncvx = FiniteSet::new(&[&[1.0, 2.0], &[3.0, 4.0]]);
     assert!(!finite_noncvx.is_convex());
+}
 
+#[test]
+fn t_is_convex_soc() {
     let soc = SecondOrderCone::new(2.0);
     assert!(soc.is_convex());
+}
 
+#[test]
+fn t_is_convex_zero() {
     let zero = Zero::new();
     assert!(zero.is_convex());
+}
 
+#[test]
+fn t_is_convex_halfspace() {
+    let normal_vector = vec![1.0, 2.0, 4.0];
+    let offset = 1.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    assert!(halfspace.is_convex());
+}
+
+#[test]
+fn t_is_convex_cartesian_product() {
+    let ball_2 = Ball2::new(None, 1.0);
+    let ball_inf = BallInf::new(None, 1.5);
+    let finite = FiniteSet::new(&[&[1.0, 2.0, 3.0]]);
     let cartesian_product = CartesianProduct::new()
         .add_constraint(4, ball_2)
-        .add_constraint(6, ball_inf);
+        .add_constraint(6, ball_inf)
+        .add_constraint(9, finite);
     assert!(cartesian_product.is_convex());
 
+    let finite_noncvx = FiniteSet::new(&[&[1.0, 2.0], &[3.0, 4.0]]);
     let cartesian_product = cartesian_product.add_constraint(10, finite_noncvx);
     assert!(!cartesian_product.is_convex());
 }
