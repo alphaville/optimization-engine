@@ -149,42 +149,46 @@ fn make_constraints() -> impl Constraint {
     let bounds = Zero::new();
     {% elif 'CartesianProduct' == problem.constraints.__class__.__name__ -%}
     // Cartesian product of constraints:
-        let bounds = CartesianProduct::new();
-        {% for set_i in problem.constraints.constraints %}
-            let idx_{{loop.index}} = {{problem.constraints.segments[loop.index-1]+1}};
-            {% if 'Ball2' == set_i.__class__.__name__ -%}
-            let radius_{{loop.index}} = {{set_i.radius}};
-            let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
-            let set_{{loop.index}} = Ball2::new(center_{{loop.index}}, radius_{{loop.index}});
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
-            {% elif 'BallInf' == set_i.__class__.__name__ -%}
-            let radius_{{loop.index}} = {{set_i.radius}};
-            let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
-            let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
-            {% elif 'Rectangle' == set_i.__class__.__name__ -%}
-            let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
-            {%- for xmini in set_i.xmin -%}
-            {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
-            {%- endfor -%}
-            ]){% else %}None{% endif %};
-            let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
-            {%- for xmaxi in set_i.xmax -%}
-            {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
-            {%- endfor -%}
-            ]){% else %}None{% endif %};
-            let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
-            {% elif 'FiniteSet' == set_i.__class__.__name__ -%}
-            let data_{{loop.index}}: &[&[f64]] = &[{% for point in set_i.points %}&[{{point|join(', ')}}],{% endfor %}];
-            let set_{{loop.index}} = FiniteSet::new(data_{{loop.index}});
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
-            {% elif 'NoConstraints' == set_i.__class__.__name__ -%}
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, NoConstraints::new());
-            {% elif 'Zero' == set_i.__class__.__name__ -%}
-            let bounds = bounds.add_constraint(idx_{{loop.index}}, Zero::new());
-            {% endif -%}
-        {% endfor %}
+    let bounds = CartesianProduct::new();
+    {% for set_i in problem.constraints.constraints %}
+    let idx_{{loop.index}} = {{problem.constraints.segments[loop.index-1]+1}};
+    {% if 'Ball2' == set_i.__class__.__name__ -%}
+    let radius_{{loop.index}} = {{set_i.radius}};
+    let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
+    let set_{{loop.index}} = Ball2::new(center_{{loop.index}}, radius_{{loop.index}});
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+    {% elif 'BallInf' == set_i.__class__.__name__ -%}
+    let radius_{{loop.index}} = {{set_i.radius}};
+    let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
+    let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+    {% elif 'Rectangle' == set_i.__class__.__name__ -%}
+    let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
+    {%- for xmini in set_i.xmin -%}
+    {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+    {%- endfor -%}
+    ]){% else %}None{% endif %};
+    let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
+    {%- for xmaxi in set_i.xmax -%}
+    {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+    {%- endfor -%}
+    ]){% else %}None{% endif %};
+    let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+    {% elif 'FiniteSet' == set_i.__class__.__name__ -%}
+    let data_{{loop.index}}: &[&[f64]] = &[{% for point in set_i.points %}&[{{point|join(', ')}}],{% endfor %}];
+    let set_{{loop.index}} = FiniteSet::new(data_{{loop.index}});
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+    {% elif 'Halfspace' == set_i.__class__.__name__ -%}
+    let normal_vector_{{loop.index}} = &[{{set_i.normal_vector | join(', ')}}];
+    let offset_{{loop.index}} = {{ set_i.offset }};
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, Halfspace::new(normal_vector_{{loop.index}}, offset_{{loop.index}}));
+    {% elif 'NoConstraints' == set_i.__class__.__name__ -%}
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, NoConstraints::new());
+    {% elif 'Zero' == set_i.__class__.__name__ -%}
+    let bounds = bounds.add_constraint(idx_{{loop.index}}, Zero::new());
+    {% endif -%}
+    {% endfor %}
     {% endif -%}
     bounds
 }
