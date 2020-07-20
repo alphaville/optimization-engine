@@ -2,7 +2,7 @@ use crate::{
     alm::*,
     constraints,
     core::{panoc::PANOCOptimizer, ExitStatus, Optimizer, Problem, SolverStatus},
-    matrix_operations, SolverError,
+    matrix_operations, FunctionCallResult, SolverError,
 };
 
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
@@ -125,10 +125,10 @@ pub struct AlmOptimizer<
     AlmSetC,
     LagrangeSetY,
 > where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
     ConstraintsType: constraints::Constraint,
     AlmSetC: constraints::Constraint,
     LagrangeSetY: constraints::Constraint,
@@ -188,10 +188,10 @@ impl<
         LagrangeSetY,
     >
 where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    MappingPm: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
     ConstraintsType: constraints::Constraint,
     AlmSetC: constraints::Constraint,
     LagrangeSetY: constraints::Constraint,
@@ -214,7 +214,7 @@ where
     /// # Example
     ///
     /// ```rust
-    /// use optimization_engine::{alm::*, SolverError, core::{panoc::*, constraints}};
+    /// use optimization_engine::{alm::*, FunctionCallResult, core::{panoc::*, constraints}};
     ///
     /// let tolerance = 1e-8;
     /// let nx = 10;
@@ -224,9 +224,9 @@ where
     /// let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
     /// let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
     ///
-    /// let psi =  |_u: &[f64], _param: &[f64], _cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let d_psi =|_u: &[f64], _param: &[f64], _grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    /// let f1 = |_u: &[f64], _result: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let psi =  |_u: &[f64], _param: &[f64], _cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    /// let d_psi =|_u: &[f64], _param: &[f64], _grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
+    /// let f1 = |_u: &[f64], _result: &mut [f64]| -> FunctionCallResult { Ok(()) };
     /// let set_c = constraints::Ball2::new(None, 1.50);
     ///
     /// // Construct an instance of AlmProblem without any PM-type data
@@ -585,7 +585,7 @@ where
     /*          PRIVATE METHODS                                                     */
     /* ---------------------------------------------------------------------------- */
 
-    fn compute_alm_infeasibility(&mut self) -> Result<(), SolverError> {
+    fn compute_alm_infeasibility(&mut self) -> FunctionCallResult {
         let alm_cache = &mut self.alm_cache; // ALM cache
         if let (Some(y_plus), Some(xi)) = (&alm_cache.y_plus, &alm_cache.xi) {
             // compute ||y_plus - y||
@@ -596,7 +596,7 @@ where
     }
 
     /// Computes PM infeasibility, that is, ||F2(u)||
-    fn compute_pm_infeasibility(&mut self, u: &[f64]) -> Result<(), SolverError> {
+    fn compute_pm_infeasibility(&mut self, u: &[f64]) -> FunctionCallResult {
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -613,7 +613,7 @@ where
     ///
     /// `y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]`
     ///
-    fn update_lagrange_multipliers(&mut self, u: &[f64]) -> Result<(), SolverError> {
+    fn update_lagrange_multipliers(&mut self, u: &[f64]) -> FunctionCallResult {
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -713,11 +713,11 @@ where
         // Construct psi and psi_grad (as functions of `u` alone); it is
         // psi(u) = psi(u; xi) and psi_grad(u) = phi_grad(u; xi)
         // psi: R^nu --> R
-        let psi = |u: &[f64], psi_val: &mut f64| -> Result<(), SolverError> {
+        let psi = |u: &[f64], psi_val: &mut f64| -> FunctionCallResult {
             (alm_problem.parametric_cost)(u, &xi, psi_val)
         };
         // psi_grad: R^nu --> R^nu
-        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> Result<(), SolverError> {
+        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> FunctionCallResult {
             (alm_problem.parametric_gradient)(u, &xi, psi_grad)
         };
         // define the inner problem
@@ -792,7 +792,7 @@ where
             return criterion_alm && criterion_pm;
         }
 
-        return false;
+        false
     }
 
     fn update_penalty_parameter(&mut self) {
@@ -817,7 +817,7 @@ where
         cache.delta_y_norm = cache.delta_y_norm_plus;
         cache.f2_norm = cache.f2_norm_plus;
         if let (Some(xi), Some(y_plus)) = (&mut cache.xi, &cache.y_plus) {
-            &xi[1..].copy_from_slice(&y_plus);
+            xi[1..].copy_from_slice(&y_plus);
         }
         cache.panoc_cache.reset();
     }
@@ -882,7 +882,7 @@ where
         // sets f2_norm = f2_norm_plus etc
         self.final_cache_update();
 
-        return Ok(InnerProblemStatus::new(true, inner_exit_status)); // `true` means do continue the outer iterations
+        Ok(InnerProblemStatus::new(true, inner_exit_status)) // `true` means do continue the outer iterations
     }
 
     fn compute_cost_at_solution(&mut self, u: &mut [f64]) -> Result<f64, SolverError> {
@@ -901,7 +901,7 @@ where
         if !xi.is_empty() {
             xi[0] = __c;
         }
-        return Ok(cost_value);
+        Ok(cost_value)
     }
 
     /* ---------------------------------------------------------------------------- */
@@ -1003,17 +1003,17 @@ mod tests {
         core::{constraints::*, panoc::*, ExitStatus},
         matrix_operations,
         mocks::*,
-        SolverError,
+        FunctionCallResult,
     };
 
     fn make_dummy_alm_problem(
         n1: usize,
         n2: usize,
     ) -> AlmProblem<
-        impl Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-        impl Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-        impl Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>,
-        impl Fn(&[f64], &[f64], &mut f64) -> Result<(), SolverError>,
+        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+        impl Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
+        impl Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
         impl Constraint,
         impl Constraint,
         impl Constraint,
@@ -1023,7 +1023,7 @@ mod tests {
         let d_psi = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         // ALM-type data
-        let f1: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n1 == 0 {
+        let f1: Option<MappingType> = if n1 == 0 {
             NO_MAPPING
         } else {
             Some(void_mapping)
@@ -1039,7 +1039,7 @@ mod tests {
             None::<Ball2>
         };
         // Penalty-type data
-        let f2: Option<fn(&[f64], &mut [f64]) -> Result<(), SolverError>> = if n2 == 0 {
+        let f2: Option<MappingType> = if n2 == 0 {
             NO_MAPPING
         } else {
             Some(void_mapping)
@@ -1127,16 +1127,16 @@ mod tests {
         //
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(25.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+            .with_initial_lagrange_multipliers(&[2., 3., 4., 10.]);
 
         alm_optimizer.project_on_set_y();
         if let Some(xi_after_proj) = &alm_optimizer.alm_cache.xi {
             println!("xi = {:#?}", xi_after_proj);
             let y_projected_correct = [
-                0.352180362530250,
-                0.528270543795374,
-                0.704360725060499,
-                1.760901812651248,
+                0.352_180_362_530_250,
+                0.528_270_543_795_374,
+                0.704_360_725_060_499,
+                1.760_901_812_651_248,
             ];
             unit_test_utils::assert_nearly_equal_array(
                 &xi_after_proj[1..],
@@ -1166,7 +1166,7 @@ mod tests {
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let psi = void_parameteric_cost;
         let d_psi = void_parameteric_gradient;
-        let f2 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+        let f2 = Some(|u: &[f64], res: &mut [f64]| -> FunctionCallResult {
             res[0] = matrix_operations::sum(u);
             res[1] = matrix_operations::norm2_squared(u);
             Ok(())
@@ -1193,7 +1193,7 @@ mod tests {
         println!("||F2(u_plus)|| = {}", alm_cache.f2_norm_plus);
         unit_test_utils::assert_nearly_equal(
             alm_cache.f2_norm_plus,
-            147.166572291400,
+            147.166_572_291_400,
             1e-12,
             1e-12,
             "||F2(u_plus)|| is wrong",
@@ -1215,17 +1215,17 @@ mod tests {
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3., 4., 10.]);
+            .with_initial_lagrange_multipliers(&[2., 3., 4., 10.]);
         {
             let cache = &mut alm_optimizer.alm_cache;
             // Set y1 = [10, 20, 11, 100]
             if let Some(y_plus) = &mut cache.y_plus {
-                y_plus.copy_from_slice(&vec![10., 20., 11., 100.]);
+                y_plus.copy_from_slice(&[10., 20., 11., 100.]);
             }
         }
         assert!(alm_optimizer.compute_alm_infeasibility().is_ok());
         unit_test_utils::assert_nearly_equal(
-            92.2062904578641,
+            92.206_290_457_864_1,
             alm_optimizer.alm_cache.delta_y_norm_plus,
             1e-10,
             1e-12,
@@ -1240,7 +1240,7 @@ mod tests {
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let psi = void_parameteric_cost;
         let d_psi = void_parameteric_gradient;
-        let f1 = Some(|u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
+        let f1 = Some(|u: &[f64], res: &mut [f64]| -> FunctionCallResult {
             res[0] = matrix_operations::sum(u);
             res[1] = matrix_operations::norm2_squared(&u);
             Ok(())
@@ -1253,13 +1253,13 @@ mod tests {
         // Set y0 = [2, 3, 4, 10]
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_initial_penalty(10.0)
-            .with_initial_lagrange_multipliers(&vec![2., 3.]);
+            .with_initial_lagrange_multipliers(&[2., 3.]);
         let u = [3.0, 5.0, 7.0, 9.0, 11.];
         assert!(alm_optimizer.update_lagrange_multipliers(&u).is_ok());
 
         println!("xi = {:#?}", alm_optimizer.alm_cache.w_alm_aux);
         unit_test_utils::assert_nearly_equal_array(
-            &[350.163243585489, 2838.112880538070],
+            &[350.163_243_585_489, 2_838.112_880_538_07],
             &alm_optimizer
                 .alm_cache
                 .y_plus
@@ -1365,7 +1365,7 @@ mod tests {
         alm_optimizer.alm_cache.delta_y_norm_plus = 1.2345;
         alm_optimizer.alm_cache.f2_norm_plus = 3.45678;
         if let Some(xi) = &mut alm_optimizer.alm_cache.xi {
-            xi[1..].copy_from_slice(&vec![5.6, 7.8]);
+            xi[1..].copy_from_slice(&[5.6, 7.8]);
         }
         assert_eq!(
             0, alm_optimizer.alm_cache.iteration,
@@ -1444,8 +1444,8 @@ mod tests {
 
         alm_optimizer.alm_cache.delta_y_norm = 100.0;
         alm_optimizer.alm_cache.delta_y_norm_plus = 10.0;
-        alm_optimizer.alm_cache.f2_norm = 200000.0;
-        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+        alm_optimizer.alm_cache.f2_norm = 200_000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20_000.0;
 
         assert!(alm_optimizer.is_penalty_stall_criterion());
         println!("cache = {:#?}", alm_optimizer.alm_cache);
@@ -1494,8 +1494,8 @@ mod tests {
 
         alm_optimizer.alm_cache.delta_y_norm = 0.0;
         alm_optimizer.alm_cache.delta_y_norm_plus = 0.0;
-        alm_optimizer.alm_cache.f2_norm = 200000.0;
-        alm_optimizer.alm_cache.f2_norm_plus = 20000.0;
+        alm_optimizer.alm_cache.f2_norm = 200_000.0;
+        alm_optimizer.alm_cache.f2_norm_plus = 20_000.0;
 
         assert!(alm_optimizer.is_penalty_stall_criterion());
         println!("cache = {:#?}", alm_optimizer.alm_cache);
@@ -1535,7 +1535,7 @@ mod tests {
 
         // Set y0 = [5.0, 6.0] and initial penalty = 1.0 (so, xi = [1.0, 5.0, 6.0])
         let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
-            .with_initial_lagrange_multipliers(&vec![5.0, 6.0])
+            .with_initial_lagrange_multipliers(&[5.0, 6.0])
             .with_initial_penalty(1.0)
             .with_epsilon_tolerance(1e-12)
             .with_initial_inner_tolerance(1e-12);

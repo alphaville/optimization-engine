@@ -24,21 +24,19 @@
 //!     Ok(())
 //! }
 //!
-//! fn main() {
-//!     let radius = 0.2;
-//!     let box_constraints = Ball2::new(None, radius);
-//!     let problem = Problem::new(&box_constraints, my_gradient, my_cost);
-//!     let gamma = 0.3;
-//!     let tolerance = 1e-6;
+//! let radius = 0.2;
+//! let box_constraints = Ball2::new(None, radius);
+//! let problem = Problem::new(&box_constraints, my_gradient, my_cost);
+//! let gamma = 0.3;
+//! let tolerance = 1e-6;
 //!
-//!     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
-//!     let mut u = [0.0; 2];
-//!     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
+//! let mut fbs_cache = FBSCache::new(NonZeroUsize::new(2).unwrap(), gamma, tolerance);
+//! let mut u = [0.0; 2];
+//! let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
 //!
-//!     let status = optimizer.solve(&mut u).unwrap();
+//! let status = optimizer.solve(&mut u).unwrap();
 //!
-//!     assert!(status.has_converged());
-//! }
+//! assert!(status.has_converged());
 //! ```
 
 mod fbs_cache;

@@ -1,11 +1,11 @@
 /* ---------------------------------------------------------------------------- */
-/* MOCKING FRAMEWORK FOR ALM OPTIMIZER                                          */
+/* ALM FACTORY                                                                  */
 /*                                                                              */
 /* About: The user provides f, df, F1, JF1'*d, F2 and C and MockAlmFactory      */
 /*        prepares psi and d_psi, which can be used to define an AlmOptimizer   */
 /* ---------------------------------------------------------------------------- */
 
-use crate::{constraints::Constraint, matrix_operations, SolverError};
+use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
 
 /// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
 /// and optionally $F_1$, $JF_1$, $C$ and $F_2$
@@ -16,7 +16,7 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 ///           by a function with signature:
 ///
 ///```rust,ignore
-///fn f(u: &[f64], cost: &mut f64) -> Result<(), SolverError>
+///fn f(u: &[f64], cost: &mut f64) -> FunctionCallResult
 ///```
 ///
 ///  where `cost` is updated with the value $f(u)$,
@@ -25,7 +25,7 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 ///                   which is computed by a function with signature
 ///
 /// ```rust,ignore
-/// fn df(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError>
+/// fn df(u: &[f64], grad: &mut [f64]) -> FunctionCallResult
 /// ```
 ///
 /// where on exit `grad` stores the
@@ -35,7 +35,7 @@ use crate::{constraints::Constraint, matrix_operations, SolverError};
 ///                                are computed by functions with signature
 ///
 /// ```rust,ignore
-/// fn mapping(u: &[f64], fu: &mut [f64]) -> Result<(), SolverError>
+/// fn mapping(u: &[f64], fu: &mut [f64]) -> FunctionCallResult
 /// ```
 ///
 /// - `JacobianMappingF1Trans` and `JacobianMappingF2Trans`: functions that compute
@@ -73,12 +73,12 @@ pub struct AlmFactory<
     CostGradient,
     SetC,
 > where
-    Cost: Fn(&[f64], &mut f64) -> Result<(), SolverError>, // f(u, result)
-    CostGradient: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // df(u, result)
-    MappingF1: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // f1(u, result)
-    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>, // jf1(u, d, result)
-    MappingF2: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // f2(u, result)
-    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>, // jf2(u, d, result)
+    Cost: Fn(&[f64], &mut f64) -> FunctionCallResult, // f(u, result)
+    CostGradient: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // df(u, result)
+    MappingF1: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // f1(u, result)
+    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf1(u, d, result)
+    MappingF2: Fn(&[f64], &mut [f64]) -> FunctionCallResult,                      // f2(u, result)
+    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf2(u, d, result)
     SetC: Constraint,
 {
     f: Cost,
@@ -110,12 +110,12 @@ impl<
         SetC,
     >
 where
-    Cost: Fn(&[f64], &mut f64) -> Result<(), SolverError>, // f(u, result)
-    CostGradient: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // df(u, result)
-    MappingF1: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // f1(u, result)
-    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>, // jf1(u, d, result)
-    MappingF2: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>, // f2(u, result)
-    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> Result<(), SolverError>, // jf2(u, d, result)
+    Cost: Fn(&[f64], &mut f64) -> FunctionCallResult, // f(u, result)
+    CostGradient: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // df(u, result)
+    MappingF1: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // f1(u, result)
+    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf1(u, d, result)
+    MappingF2: Fn(&[f64], &mut [f64]) -> FunctionCallResult,                      // f2(u, result)
+    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf2(u, d, result)
     SetC: Constraint,
 {
     /// Construct a new instance of `MockFactory`
@@ -125,15 +125,15 @@ where
     /// # Example
     ///
     /// ```rust
-    /// use optimization_engine::{constraints::Ball2, alm::*, SolverError};
+    /// use optimization_engine::{constraints::Ball2, alm::*, FunctionCallResult};
     ///
     /// let set_c = Ball2::new(None, 1.0);
     /// let n2 = 0;
     ///
-    /// let f = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> { Ok(()) };
-    /// let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    /// let f1 = |u: &[f64], f1u: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
-    /// let jf1_tr = |_u: &[f64], d: &[f64], res: &mut [f64]| -> Result<(), SolverError> { Ok(()) };
+    /// let f = |u: &[f64], cost: &mut f64| -> FunctionCallResult { Ok(()) };
+    /// let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult { Ok(()) };
+    /// let f1 = |u: &[f64], f1u: &mut [f64]| -> FunctionCallResult { Ok(()) };
+    /// let jf1_tr = |_u: &[f64], d: &[f64], res: &mut [f64]| -> FunctionCallResult { Ok(()) };
     ///
     /// let factory = AlmFactory::new(
     ///     f,
@@ -207,24 +207,28 @@ where
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
     ///
-    pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+    pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> FunctionCallResult {
         (self.f)(u, cost)?;
-        let ny = if xi.len() > 0 { xi.len() - 1 } else { 0 };
-        let mut t = vec![0.0; ny];
+        let ny = if !xi.is_empty() { xi.len() - 1 } else { 0 };
+        let mut f1_u_plus_y_over_c = vec![0.0; ny];
         let mut s = vec![0.0; ny];
         if let (Some(set_c), Some(mapping_f1)) = (&self.set_c, &self.mapping_f1) {
-            let c = xi[0];
-            mapping_f1(u, &mut t)?; // t = F1(u)
-            let y = &xi[1..];
+            let penalty_parameter = xi[0];
+            mapping_f1(u, &mut f1_u_plus_y_over_c)?; // f1_u = F1(u)
+            let y_lagrange_mult = &xi[1..];
             // Note: In the first term below, we divide by 'max(c, 1)', instead of
             //       just 'c'. The reason is that this allows to set c=0 and
             //       retrieve the value of the original cost function
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / f64::max(c, 1.0));
-            s.copy_from_slice(&t);
+            // f1_u := F1(u) + y/max(1, c)
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(y_lagrange_mult.iter())
+                .for_each(|(ti, yi)| *ti += yi / f64::max(penalty_parameter, 1.0));
+            s.copy_from_slice(&f1_u_plus_y_over_c);
             set_c.project(&mut s);
-            *cost += 0.5 * c * matrix_operations::norm2_squared_diff(&t, &s);
+            *cost += 0.5
+                * penalty_parameter
+                * matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
         }
         if let Some(f2) = &self.mapping_f2 {
             let c = xi[0];
@@ -255,13 +259,13 @@ where
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
     ///
-    pub fn d_psi(&self, u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+    pub fn d_psi(&self, u: &[f64], xi: &[f64], grad: &mut [f64]) -> FunctionCallResult {
         let nu = u.len();
 
         // The following statement is needed to account for the case where n1=n2=0
         // when xi can be an empty array; we don't have any assertions for that as
         // for now this factory structure is for in-house use and testing only
-        let ny = if xi.len() > 0 { xi.len() - 1 } else { 0 };
+        let ny = if !xi.is_empty() { xi.len() - 1 } else { 0 };
 
         (self.df)(u, grad)?; // grad := d_f0(u)
 
@@ -272,27 +276,32 @@ where
             &self.mapping_f1,
             &self.jacobian_mapping_f1_trans,
         ) {
-            let c = xi[0];
-            let mut t = vec![0.0; ny];
-            let mut s = vec![0.0; ny];
-            let y = &xi[1..];
+            let c_penalty_parameter = xi[0];
+            let mut f1_u_plus_y_over_c = vec![0.0; ny];
+            let mut s_aux_var = vec![0.0; ny]; // auxiliary variable `s`
+            let y_lagrange_mult = &xi[1..];
             let mut jac_prod = vec![0.0; nu];
-            mapping_f1(&u, &mut t)?; // t = F1(u)
-            t.iter_mut()
-                .zip(y.iter())
-                .for_each(|(ti, yi)| *ti += yi / c); // t = F1(u) + y/c
-            s.copy_from_slice(&t); // s = t
-            set_c.project(&mut s); // s = Proj_C(F1(u) + y/c)
+            mapping_f1(&u, &mut f1_u_plus_y_over_c)?; // f1_u_plus_y_over_c = F1(u)
+                                                      // f1_u_plus_y_over_c = F1(u) + y/c
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(y_lagrange_mult.iter())
+                .for_each(|(ti, yi)| *ti += yi / c_penalty_parameter);
+            s_aux_var.copy_from_slice(&f1_u_plus_y_over_c); // s = t
+            set_c.project(&mut s_aux_var); // s = Proj_C(F1(u) + y/c)
 
             // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
-            t.iter_mut().zip(s.iter()).for_each(|(ti, si)| *ti -= si);
+            f1_u_plus_y_over_c
+                .iter_mut()
+                .zip(s_aux_var.iter())
+                .for_each(|(ti, si)| *ti -= si);
 
-            jf1t(&u, &t, &mut jac_prod)?;
+            jf1t(&u, &f1_u_plus_y_over_c, &mut jac_prod)?;
 
             // grad += c*t
             grad.iter_mut()
                 .zip(jac_prod.iter())
-                .for_each(|(gradi, jac_prodi)| *gradi += c * jac_prodi);
+                .for_each(|(gradi, jac_prodi)| *gradi += c_penalty_parameter * jac_prodi);
         }
 
         // Compute second part: JF2(u)'*F2(u)
@@ -315,7 +324,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{alm::*, constraints::*, core::SolverError, mocks};
+    use crate::{alm::*, constraints::*, mocks, FunctionCallResult, SolverError};
 
     #[test]
     fn t_mocking_alm_factory_psi() {
@@ -335,7 +344,13 @@ mod tests {
         let mut cost = 0.0;
         assert!(factory.psi(&u, &xi, &mut cost).is_ok());
         println!("cost = {}", cost);
-        unit_test_utils::assert_nearly_equal(1064.98664258336, cost, 1e-14, 1e-10, "psi is wrong");
+        unit_test_utils::assert_nearly_equal(
+            1_064.986_642_583_36,
+            cost,
+            1e-14,
+            1e-10,
+            "psi is wrong",
+        );
     }
 
     #[test]
@@ -356,7 +371,11 @@ mod tests {
         let mut grad_psi = [0.0; 3];
         assert!(factory.d_psi(&u, &xi, &mut grad_psi).is_ok());
         unit_test_utils::assert_nearly_equal_array(
-            &[71.7347887565619, -32.2228286485675, 46.5711991530422],
+            &[
+                71.734_788_756_561_9,
+                -32.222_828_648_567_5,
+                46.571_199_153_042_2,
+            ],
             &grad_psi,
             1e-12,
             1e-12,
@@ -364,7 +383,7 @@ mod tests {
         );
     }
 
-    fn mapping_f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+    fn mapping_f2(u: &[f64], res: &mut [f64]) -> FunctionCallResult {
         res[0] = u[0];
         res[1] = u[1];
         res[2] = u[2] - u[0];
@@ -403,7 +422,7 @@ mod tests {
         assert!(factory.psi(&u, &xi, &mut cost).is_ok());
         println!("cost = {}", cost);
         unit_test_utils::assert_nearly_equal(
-            1.115986642583360e+03,
+            1.115_986_642_583_36e+03,
             cost,
             1e-12,
             1e-10,
@@ -430,7 +449,11 @@ mod tests {
         assert!(factory.d_psi(&u, &xi, &mut grad_psi).is_ok());
         println!("grad = {:#?}", &grad_psi);
         unit_test_utils::assert_nearly_equal_array(
-            &[124.21451243258949, 180.87127490866962, 46.962043731516474],
+            &[
+                124.214_512_432_589_49,
+                180.871_274_908_669_62,
+                46.962_043_731_516_474,
+            ],
             &grad_psi,
             1e-12,
             1e-12,
