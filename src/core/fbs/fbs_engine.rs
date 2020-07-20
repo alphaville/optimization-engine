@@ -3,15 +3,15 @@
 use crate::{
     constraints,
     core::{fbs::FBSCache, AlgorithmEngine, Problem},
-    matrix_operations, SolverError,
+    matrix_operations, FunctionCallResult, SolverError,
 };
 
 /// The FBE Engine defines the steps of the FBE algorithm and the termination criterion
 ///
 pub struct FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     pub(crate) problem: Problem<'a, GradientType, ConstraintType, CostType>,
@@ -21,8 +21,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     /// Constructor for instances of `FBSEngine`
@@ -64,8 +64,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType> AlgorithmEngine
     for FBSEngine<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError> + 'a,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError> + 'a,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'a,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult + 'a,
     ConstraintType: constraints::Constraint + 'a,
 {
     /// Take a forward-backward step and check whether the algorithm should terminate
@@ -93,7 +93,7 @@ where
         Ok(self.cache.norm_fpr > self.cache.tolerance)
     }
 
-    fn init(&mut self, _u_current: &mut [f64]) -> Result<(), SolverError> {
+    fn init(&mut self, _u_current: &mut [f64]) -> FunctionCallResult {
         Ok(())
     }
 }

@@ -18,31 +18,31 @@ fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
 
 fn main() {
     let tolerance = 1e-6;
-    let mut a = 1.0;
-    let mut b = 100.0;
-    let n = 2;
+    let mut a_param = 1.0;
+    let mut b_param = 100.0;
+    let n_dim_u = 2;
     let lbfgs_memory = 10;
     let max_iters = 100;
     let mut u = [-1.5, 0.9];
     let mut radius = 1.0;
 
     // the cache is created only ONCE
-    let mut panoc_cache = PANOCCache::new(n, tolerance, lbfgs_memory);
+    let mut panoc_cache = PANOCCache::new(n_dim_u, tolerance, lbfgs_memory);
 
-    let mut i = 0;
-    while i < 100 {
+    let mut idx = 0;
+    while idx < 100 {
         // update the values of `a`, `b` and `radius`
-        b *= 1.01;
-        a -= 1e-3;
+        b_param *= 1.01;
+        a_param -= 1e-3;
         radius += 0.001;
 
         // update the function definitions (`f` and `df`)
         let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-            rosenbrock_grad(a, b, u, grad);
+            rosenbrock_grad(a_param, b_param, u, grad);
             Ok(())
         };
         let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
-            *c = rosenbrock_cost(a, b, u);
+            *c = rosenbrock_cost(a_param, b_param, u);
             Ok(())
         };
 
@@ -57,13 +57,13 @@ fn main() {
 
         let status = panoc.solve(&mut u).unwrap();
 
-        i += 1;
+        idx += 1;
 
         // print useful information
         println!(
             "parameters: (a={:.4}, b={:.4}, r={:.4}), iters = {}",
-            a,
-            b,
+            a_param,
+            b_param,
             radius,
             status.iterations()
         );

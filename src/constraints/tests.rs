@@ -212,7 +212,10 @@ fn t_ball_at_origin() {
     ball.project(&mut x);
 
     unit_test_utils::assert_nearly_equal_array(
-        &[0.7071067811865476, 0.7071067811865476],
+        &[
+            std::f64::consts::FRAC_1_SQRT_2,
+            std::f64::consts::FRAC_1_SQRT_2,
+        ],
         &x,
         1e-8,
         1e-8,
@@ -229,8 +232,9 @@ fn t_ball_elsewhere() {
 
     ball.project(&mut x);
 
+    let expected_proj_element = std::f64::consts::FRAC_1_SQRT_2 + 1.;
     unit_test_utils::assert_nearly_equal_array(
-        &[1.7071067811865476, 1.7071067811865476],
+        &[expected_proj_element, expected_proj_element],
         &x,
         1e-8,
         1e-8,
@@ -415,6 +419,7 @@ fn t_cartesian_product_dimension() {
     let mut x = [-0.5, 1.1, 0.45, 0.55, 10.0, 10.0, -500.0, 1.0, 1.0, 1.0];
     cartesian.project(&mut x);
     println!("X = {:#?}", x);
+    let sqrt_3_over_3 = 3.0_f64.sqrt() / 3.;
     unit_test_utils::assert_nearly_equal_array(
         &x,
         &[
@@ -425,9 +430,9 @@ fn t_cartesian_product_dimension() {
             10.0,
             10.0,
             -500.0,
-            0.5773502691896258,
-            0.5773502691896258,
-            0.5773502691896258,
+            sqrt_3_over_3,
+            sqrt_3_over_3,
+            sqrt_3_over_3,
         ],
         1e-10,
         1e-12,

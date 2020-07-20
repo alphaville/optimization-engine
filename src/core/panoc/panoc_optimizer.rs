@@ -4,7 +4,7 @@ use crate::{
     constraints,
     core::{
         panoc::panoc_engine::PANOCEngine, panoc::PANOCCache, AlgorithmEngine, ExitStatus,
-        Optimizer, Problem, SolverStatus,
+        FunctionCallResult, Optimizer, Problem, SolverStatus,
     },
     matrix_operations, SolverError,
 };
@@ -17,8 +17,8 @@ const MAX_ITER: usize = 100_usize;
 ///
 pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     panoc_engine: PANOCEngine<'a, GradientType, ConstraintType, CostType>,
@@ -29,8 +29,8 @@ where
 impl<'a, GradientType, ConstraintType, CostType>
     PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError>,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint,
 {
     /// Constructor of `PANOCOptimizer`
@@ -118,8 +118,8 @@ where
 impl<'life, GradientType, ConstraintType, CostType> Optimizer
     for PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> Result<(), SolverError> + 'life,
-    CostType: Fn(&[f64], &mut f64) -> Result<(), SolverError>,
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
@@ -190,7 +190,7 @@ mod tests {
     use crate::core::constraints::*;
     use crate::core::panoc::*;
     use crate::core::*;
-    use crate::{mocks, SolverError};
+    use crate::{mocks, FunctionCallResult};
 
     #[test]
     fn t_panoc_optimizer_rosenbrock() {
@@ -204,11 +204,11 @@ mod tests {
         let mut u = [-1.5, 0.9];
 
         /* COST FUNCTION */
-        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             mocks::rosenbrock_grad(a, b, u, grad);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+        let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
             *c = mocks::rosenbrock_cost(a, b, u);
             Ok(())
         };
@@ -259,11 +259,11 @@ mod tests {
             // Note: updating `radius` like this because `radius += 0.01` builds up small
             // numerical errors and is less reliable
             let radius = 1.0 + 0.01 * (i as f64);
-            let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
                 mocks::rosenbrock_grad(a, b, u, grad);
                 Ok(())
             };
-            let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+            let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
                 *c = mocks::rosenbrock_cost(a, b, u);
                 Ok(())
             };
@@ -306,11 +306,11 @@ mod tests {
         let max_iters = 580;
         let mut u = [-1.5, 0.9];
 
-        let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        let df = |u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
             mocks::rosenbrock_grad(a, b, u, grad);
             Ok(())
         };
-        let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+        let f = |u: &[f64], c: &mut f64| -> FunctionCallResult {
             *c = mocks::rosenbrock_cost(a, b, u);
             Ok(())
         };

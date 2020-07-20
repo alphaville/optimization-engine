@@ -240,7 +240,7 @@ mod tests {
         let lip = lip_estimator.estimate_local_lipschitz().unwrap();
 
         unit_test_utils::assert_nearly_equal(
-            1.336306209562331,
+            1.336_306_209_562_331,
             lip,
             1e-10,
             1e-14,
@@ -285,7 +285,7 @@ mod tests {
         let lip = lip_estimator.estimate_local_lipschitz().unwrap();
 
         unit_test_utils::assert_nearly_equal(
-            1.3363062094165823,
+            1.336_306_209_416_582_3,
             lip,
             1e-8,
             1e-14,
@@ -298,7 +298,7 @@ mod tests {
     fn t_test_get_function_value() {
         let u: [f64; 10] = [1.0, 2.0, 3.0, -5.0, 1.0, 10.0, 14.0, 17.0, 3.0, 5.0];
         let mut function_value = [0.0; 10];
-        let mut u_copy = u.clone();
+        let mut u_copy = u;
 
         let f =
             |u: &[f64], g: &mut [f64]| -> Result<(), SolverError> { mocks::lipschitz_mock(u, g) };
@@ -314,10 +314,9 @@ mod tests {
                 1e-14,
                 "computed gradient",
             );
-
-            computed_gradient
-                .iter()
-                .for_each(|&s| assert_eq!(s, 0.0_f64));
+            computed_gradient.iter().for_each(|&s| {
+                unit_test_utils::assert_nearly_equal(0.0_f64, s, 1e-10, 1e-16, "gradient")
+            });
         }
 
         lip_estimator.estimate_local_lipschitz().unwrap();

@@ -23,7 +23,7 @@ fn t_solve_fbs_hard() {
 
     let mut fbs_cache = FBSCache::new(NonZeroUsize::new(3).unwrap(), gamma, tolerance);
     let mut u = [-12., -160., 55.];
-    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(100000);
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(100_000);
     let status = optimizer.solve(&mut u).unwrap();
 
     println!("|fpr| = {}", status.norm_fpr());
@@ -90,7 +90,7 @@ fn t_fbs_step_ball_constraints() {
 
     assert!(fbs_engine.step(&mut u).unwrap());
     unit_test_utils::assert_nearly_equal_array(
-        &[0.020395425411200, 0.097898041973761],
+        &[0.020_395_425_411_200, 0.097_898_041_973_761],
         &u,
         1e-8,
         1e-14,
