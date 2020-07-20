@@ -27,7 +27,7 @@ fn t_hyperplane() {
         &x,
         &x_proj_expected,
         1e-8,
-        1e-12,
+        1e-14,
         "halfspace projection failed",
     );
 }
@@ -526,4 +526,12 @@ fn t_is_convex() {
 
     let cartesian_product = cartesian_product.add_constraint(10, finite_noncvx);
     assert!(!cartesian_product.is_convex());
+}
+
+#[test]
+fn t_hyperplane_is_convex() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let offset = 1.0;
+    let hyperplane = Hyperplane::new(&normal_vector, offset);
+    assert!(hyperplane.is_convex());
 }

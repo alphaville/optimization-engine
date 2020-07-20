@@ -13,8 +13,8 @@ pub struct Hyperplane<'a> {
 }
 
 impl<'a> Hyperplane<'a> {
-    /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$,
-    /// where $c$ is the normal vector of the halfspace and $b$ is an offset.
+    /// A hyperplane is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$,
+    /// where $c$ is the normal vector of the hyperplane and $b$ is an offset.
     ///
     /// This method constructs a new instance of `Hyperplane` with a given normal
     /// vector and bias
@@ -40,9 +40,9 @@ impl<'a> Hyperplane<'a> {
     ///
     /// let normal_vector = [1., 2.];
     /// let offset = 1.0;
-    /// let halfspace = Hyperplane::new(&normal_vector, offset);
+    /// let hyperplane = Hyperplane::new(&normal_vector, offset);
     /// let mut x = [-1., 3.];
-    /// halfspace.project(&mut x);
+    /// hyperplane.project(&mut x);
     /// ```
     ///
     pub fn new(normal_vector: &'a [f64], offset: f64) -> Self {
