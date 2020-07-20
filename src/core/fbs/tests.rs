@@ -64,7 +64,6 @@ fn t_fbs_step_no_constraints() {
         let mut u = [1.0, 3.0];
 
         assert!(fbs_engine.step(&mut u).unwrap());
-        assert_eq!([0.5, 2.4], u);
         unit_test_utils::assert_nearly_equal_array(&[0.5, 2.4], &u, 1e-10, 1e-14, "u");
     }
     unit_test_utils::assert_nearly_equal_array(

@@ -16,6 +16,27 @@ fn t_zero_set() {
 }
 
 #[test]
+fn t_hyperplane() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let offset = 1.0;
+    let hyperplane = Hyperplane::new(&normal_vector, offset);
+    let mut x = [-1., 3., 5.];
+    let x_proj_expected = [
+        -2.357_142_857_142_857,
+        0.285_714_285_714_286,
+        0.928_571_428_571_429,
+    ];
+    hyperplane.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x,
+        &x_proj_expected,
+        1e-8,
+        1e-14,
+        "halfspace projection failed",
+    );
+}
+
+#[test]
 fn t_halfspace_project_inside() {
     let normal_vector = [1., 2.];
     let offset = 5.0;
@@ -249,7 +270,7 @@ fn t_no_constraints() {
 
     whole_space.project(&mut x);
 
-    assert_eq!([1., 2., 3.], x);
+    unit_test_utils::assert_nearly_equal_array(&[1., 2., 3.], &x, 1e-10, 1e-15, "x is wrong");
 }
 
 #[test]
@@ -576,4 +597,12 @@ fn t_is_convex_cartesian_product() {
     let finite_noncvx = FiniteSet::new(&[&[1.0, 2.0], &[3.0, 4.0]]);
     let cartesian_product = cartesian_product.add_constraint(10, finite_noncvx);
     assert!(!cartesian_product.is_convex());
+}
+
+#[test]
+fn t_hyperplane_is_convex() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let offset = 1.0;
+    let hyperplane = Hyperplane::new(&normal_vector, offset);
+    assert!(hyperplane.is_convex());
 }

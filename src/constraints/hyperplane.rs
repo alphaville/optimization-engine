@@ -2,8 +2,8 @@ use super::Constraint;
 use crate::matrix_operations;
 
 #[derive(Clone)]
-/// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$.
-pub struct Halfspace<'a> {
+/// A hyperplane is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$.
+pub struct Hyperplane<'a> {
     /// normal vector
     normal_vector: &'a [f64],
     /// offset
@@ -12,11 +12,11 @@ pub struct Halfspace<'a> {
     normal_vector_squared_norm: f64,
 }
 
-impl<'a> Halfspace<'a> {
-    /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$,
-    /// where $c$ is the normal vector of the halfspace and $b$ is an offset.
+impl<'a> Hyperplane<'a> {
+    /// A hyperplane is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$,
+    /// where $c$ is the normal vector of the hyperplane and $b$ is an offset.
     ///
-    /// This method constructs a new instance of `Halfspace` with a given normal
+    /// This method constructs a new instance of `Hyperplane` with a given normal
     /// vector and bias
     ///
     /// # Arguments
@@ -26,7 +26,7 @@ impl<'a> Halfspace<'a> {
     ///
     /// # Returns
     ///
-    /// New instance of `Halfspace`
+    /// New instance of `Hyperplane`
     ///
     /// # Panics
     ///
@@ -36,18 +36,18 @@ impl<'a> Halfspace<'a> {
     /// # Example
     ///
     /// ```
-    /// use optimization_engine::constraints::{Constraint, Halfspace};
+    /// use optimization_engine::constraints::{Constraint, Hyperplane};
     ///
     /// let normal_vector = [1., 2.];
     /// let offset = 1.0;
-    /// let halfspace = Halfspace::new(&normal_vector, offset);
+    /// let hyperplane = Hyperplane::new(&normal_vector, offset);
     /// let mut x = [-1., 3.];
-    /// halfspace.project(&mut x);
+    /// hyperplane.project(&mut x);
     /// ```
     ///
     pub fn new(normal_vector: &'a [f64], offset: f64) -> Self {
         let normal_vector_squared_norm = matrix_operations::norm2_squared(normal_vector);
-        Halfspace {
+        Hyperplane {
             normal_vector,
             offset,
             normal_vector_squared_norm,
@@ -55,41 +55,36 @@ impl<'a> Halfspace<'a> {
     }
 }
 
-impl<'a> Constraint for Halfspace<'a> {
-    /// Projects on halfspace using the following formula:
+impl<'a> Constraint for Hyperplane<'a> {
+    /// Projects on the hyperplane using the formula:
     ///
     /// $$\begin{aligned}
-    /// \mathrm{proj}_{H}(x) = \begin{cases}
-    /// x,& \text{ if } \langle c, x\rangle \leq b
-    /// \\\\
+    /// \mathrm{proj}_{H}(x) =
     /// x - \frac{\langle c, x\rangle - b}
-    ///          {\\|c\\|}c,& \text{else}
-    /// \end{cases}
+    ///          {\\|c\\|}c.
     /// \end{aligned}$$
     ///
-    /// where $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$
+    /// where $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$
     ///
     /// # Arguments
     ///
-    /// - `x`: (in) vector to be projected on the current instance of a halfspace,
+    /// - `x`: (in) vector to be projected on the current instance of a hyperplane,
     ///    (out) projection on the second-order cone
     ///
     /// # Panics
     ///
     /// This method panics if the length of `x` is not equal to the dimension
-    /// of the halfspace.
+    /// of the hyperplane.
     ///
     fn project(&self, x: &mut [f64]) {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
-        if inner_product > self.offset {
-            let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
-            x.iter_mut()
-                .zip(self.normal_vector.iter())
-                .for_each(|(x, normal_vector_i)| *x -= factor * normal_vector_i);
-        }
+        let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
+        x.iter_mut()
+            .zip(self.normal_vector.iter())
+            .for_each(|(x, nrm_vct)| *x -= factor * nrm_vct);
     }
 
-    /// Halfspaces are convex sets
+    /// Hyperplanes are convex sets
     ///
     /// # Returns
     ///
