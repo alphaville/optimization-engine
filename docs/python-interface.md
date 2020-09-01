@@ -191,7 +191,7 @@ example is given below:
 
 ```python
 solver_config = og.config.SolverConfiguration()   \
-            .with_lfbgs_memory(15)                \
+            .with_lbfgs_memory(15)                \
             .with_tolerance(1e-5)                 \
             .with_max_inner_iterations(155)
 ```
@@ -420,7 +420,7 @@ satisfies
 The user may change the maximum constraint violation using
 
 ```python
-solver_config.with_constraints_tolerance(1e-6)
+solver_config.with_delta_tolerance(1e-6)
 ```
 
 [penalty method]: https://en.wikipedia.org/wiki/Penalty_method
