@@ -97,13 +97,15 @@ vector $u$ to $f(u) = 5 u_1 - u_2^2$. This will be:</p>
 <tr><th>Constraint</th><th>Explanation</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html"><code>Ball2</code></a></td><td>$U= \{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\}$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html"><code>BallInf</code></a></td><td>$U= \{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\}$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Rectangle.html"><code>Rectangle</code></a></td><td>$U= \{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\}$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.NoConstraints.html"><code>NoConstraints</code></a></td><td>$U = \mathbb{R}^n$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html"><code>FiniteSet</code></a></td><td>$U = \{u^{(1)}, u^{(2)},\ldots,u^{(N)}\}$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.SecondOrderCone.html"><code>SecondOrderCone</code></a></td><td>$U = \{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\}$</td></tr>
-<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html"><code>Zero</code></a></td><td>$U = \{0\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html"><code>Ball2</code></a></td><td>$U {}={} \{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html"><code>BallInf</code></a></td><td>$U {}={} \{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Halfspace.html"><code>Halfspace</code></a></td><td>$U {}={} \{u\in\mathbb{R}^n : \langle c, u\rangle \leq b\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Hyperplane.html"><code>Hyperplane</code></a></td><td>$U {}={} \{u\in\mathbb{R}^n : \langle c, u\rangle {}={} b\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Rectangle.html"><code>Rectangle</code></a></td><td>$U {}={} \{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.NoConstraints.html"><code>NoConstraints</code></a></td><td>$U {}={} \mathbb{R}^n$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html"><code>FiniteSet</code></a></td><td>$U {}={} \{u^{(1)}, u^{(2)},\ldots,u^{(N)}\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.SecondOrderCone.html"><code>SecondOrderCone</code></a></td><td>$U {}={} \{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\}$</td></tr>
+<tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html"><code>Zero</code></a></td><td>$U {}={} \{0\}$</td></tr>
 <tr><td><a href="https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.CartesianProduct.html"><code>CartesianProduct</code></a></td><td>Cartesian products of any of the above</td></tr>
 </tbody>
 </table>
