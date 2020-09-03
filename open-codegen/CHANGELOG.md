@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.0] - 2020-09-03
+
+### Added 
+
+* Support for half-spaces in problem constraints
+
 ## [0.6.0a1] - 2020-07-14
 
 ### Added
