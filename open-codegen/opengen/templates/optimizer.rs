@@ -146,6 +146,11 @@ fn make_constraints() -> impl Constraint {
     {% for point in problem.constraints.points %}&[{{point|join(', ')}}],{% endfor %}
     ];
     let bounds = FiniteSet::new(data);
+    {% elif 'Halfspace' == problem.constraints.__class__.__name__ -%}
+    // - Halfspace:
+    let offset: f64 = {{problem.constraints.offset}};
+    let normal_vector: &[f64] = &[{{problem.constraints.normal_vector | join(', ')}}];
+    let bounds = Halfspace::new(&normal_vector, offset);
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
     // - No constraints (whole Rn):
     let bounds = NoConstraints::new();
