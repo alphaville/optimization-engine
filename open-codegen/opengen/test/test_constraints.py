@@ -49,6 +49,14 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(d_num, correct_squared_distance,
                                8, "expected squared distance")
 
+    def test_ball_inf_origin_convex(self):
+        ball = og.constraints.BallInf()
+        self.assertTrue(ball.is_convex())
+
+    def test_ball_inf_origin_compact(self):
+        ball = og.constraints.BallInf()
+        self.assertTrue(ball.is_compact())
+
     # -----------------------------------------------------------------------
     # Euclidean Ball
     # -----------------------------------------------------------------------
@@ -104,6 +112,14 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(d_sym, correct_squared_distance,
                                8, "expected squared distance")
 
+    def test_ball_euclidean_origin_convex(self):
+        ball = og.constraints.Ball2()
+        self.assertTrue(ball.is_convex())
+
+    def test_ball_euclidean_origin_compact(self):
+        ball = og.constraints.Ball2()
+        self.assertTrue(ball.is_compact())
+
     # -----------------------------------------------------------------------
     # Rectangle
     # -----------------------------------------------------------------------
@@ -145,45 +161,67 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(1.0, rect.distance_squared([1e16, 4.0]), 8)
         self.assertAlmostEqual(4.0, rect.distance_squared([1e16, -4.0]), 8)
 
+    def test_rectangle_convex_i(self):
+        rect = og.constraints.Rectangle([-1.0, -2.0], [1.0, 3.0])
+        self.assertTrue(rect.is_convex())
+
+    def test_rectangle_convex_ii(self):
+        rect = og.constraints.Rectangle([-1.0, -2.0], [float('inf'), 3.0])
+        self.assertTrue(rect.is_convex())
+
+    def test_rectangle_compact(self):
+        rect = og.constraints.Rectangle([-1.0, -2.0], [0.0, 3.0])
+        self.assertTrue(rect.is_compact())
+
+    def test_rectangle_noncompact(self):
+        rect = og.constraints.Rectangle([-1.0, float('-inf')], [10.0, 3.0])
+        self.assertFalse(rect.is_compact())
+
     # -----------------------------------------------------------------------
     # Second-Order Cone (SOC)
     # -----------------------------------------------------------------------
 
-    def test_second_order_cone(self):
+    def test_second_order_cone_origin_inside(self):
         soc = og.constraints.SecondOrderCone(2.0)
-
         # dist_C^2(0, 0, 0) = 0 [origin is in the cone]
         sq_dist = soc.distance_squared([0.0, 0.0, 0.0])
         self.assertAlmostEqual(0, sq_dist, 16)
 
+    def test_second_order_cone_close_origin(self):
+        soc = og.constraints.SecondOrderCone(2.0)
         # dist_C^2(0, 0, 0) = 0 [close-origin]
         sq_dist = soc.distance_squared([1e-12, 1e-12, 1e-12])
         self.assertAlmostEqual(0, sq_dist, 16)
 
+    def test_second_order_cone_case_i(self):
         # dist_C^2(1, 1, 0.75) = 0 [case II]
+        soc = og.constraints.SecondOrderCone(2.0)
         sq_dist = soc.distance_squared([1.0, 1.0, 0.75])
         self.assertAlmostEqual(0, sq_dist, 16)
 
+    def test_second_order_cone_case_ii(self):
         # dist_C^2(3, 4, -11) = 146.0 [case II]
+        soc = og.constraints.SecondOrderCone(2.0)
         sq_dist = soc.distance_squared([3.0, 4.0, -11.0])
         self.assertAlmostEqual(146.0, sq_dist, 16)
         sq_dist = soc.distance_squared([4.0, 3.0, -11.0])
         self.assertAlmostEqual(146.0, sq_dist, 16)
 
+    def test_second_order_cone_case_iii(self):
         # dist_C^2(2, 3, 0.5) = 1.357... [case III]
+        soc = og.constraints.SecondOrderCone(2.0)
         sq_dist = soc.distance_squared([2.0, 3.0, 0.5])
         self.assertAlmostEqual(1.35777948981440, sq_dist, 12)
 
     def test_second_order_cone_symbolic(self):
         soc = og.constraints.SecondOrderCone(2.0)
-        u = cs.SX.sym('u', 3, 1)
+        u = cs.MX.sym('u', 3, 1)
         sq_dist = soc.distance_squared(u)
         u0 = [4.0, 3.0, -11.0]
 
         sq_dist_sx_fun = cs.Function('sqd1', [u], [sq_dist])
         self.assertAlmostEqual(146.0, sq_dist_sx_fun(u0), 16)
 
-        umx = cs.MX.sym('u', 3, 1)
         sq_dist_m2 = soc.distance_squared(u)
         sq_dist_mx_fun = cs.Function('sqd2', [u], [sq_dist_m2])
         self.assertAlmostEqual(146.0, sq_dist_mx_fun(u0), 16)
@@ -201,6 +239,14 @@ class ConstraintsTestCase(unittest.TestCase):
             self.assertFalse(math.isnan(v[i]), "v[i] is NaN")
         self.assertAlmostEqual(0, cs.norm_2(v), 12)
 
+    def test_second_order_cone_convex(self):
+        soc = og.constraints.SecondOrderCone()
+        self.assertTrue(soc.is_convex())
+
+    def test_second_order_cone_convex(self):
+        soc = og.constraints.SecondOrderCone()
+        self.assertFalse(soc.is_compact())
+
     # -----------------------------------------------------------------------
     # No Constraints
     # -----------------------------------------------------------------------
@@ -210,6 +256,14 @@ class ConstraintsTestCase(unittest.TestCase):
         u = [1., 2., 3., 4.]
         self.assertAlmostEqual(0.0, whole_rn.distance_squared(u), 16)
         self.assertListEqual(u, whole_rn.project(u))
+
+    def test_no_constraints_convex(self):
+        whole_rn = og.constraints.NoConstraints()
+        self.assertTrue(whole_rn.is_convex())
+
+    def test_no_constraints_compact(self):
+        whole_rn = og.constraints.NoConstraints()
+        self.assertFalse(whole_rn.is_compact())
 
     # -----------------------------------------------------------------------
     # Cartesian product of constraints
@@ -288,6 +342,37 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_finite_set_fail(self):
         with self.assertRaises(Exception) as __context:
             og.constraints.FiniteSet([[1., 2.], [1., 2., 3.]])
+
+    def test_finite_set_convex(self):
+        c = og.constraints.FiniteSet([[1, 2, 3]])
+        self.assertTrue(c.is_convex())
+
+    def test_finite_set_nonconvex(self):
+        c = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
+        self.assertFalse(c.is_convex())
+
+    def test_finite_set_compact(self):
+        c = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
+        self.assertTrue(c.is_compact())
+
+    # -----------------------------------------------------------------------
+    # Halfspaces
+    # -----------------------------------------------------------------------
+    def test_halfspace_dimension(self):
+        h = og.constraints.Halfspace([1, 4, 5], 1)
+        self.assertEqual(3, h.dimension())
+
+    def test_halfspace_not_compact(self):
+        h = og.constraints.Halfspace([1, 4, 5], 1)
+        self.assertFalse(h.is_compact())
+
+    def test_halfspace_compact(self):
+        h = og.constraints.Halfspace([0, 0, 0], -1)
+        self.assertTrue(h.is_compact())
+
+    def test_halfspace_convex(self):
+        h = og.constraints.Halfspace([1, 4, 5], 1)
+        self.assertTrue(h.is_convex())
 
     # -----------------------------------------------------------------------
     # Set Y (from C)
