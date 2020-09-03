@@ -77,6 +77,7 @@ following types of constraints:
 |--------------------|------------------------------------------------|
 | `Ball2`            | Euclidean ball: `Ball2(None, r)` creates a Euclidean ball of radius `r` centered at the origin, and `Ball2(xc, r)` is a ball centered at point `xc` (list) |
 | `BallInf`          | Ball of infinity norm:`BallInf(None, r)` creates an infinity-norm ball of radius `r` centered at the origin, and `BallInf(xc, r)` is an infinity ball centered at point `xc` (list) |
+| `Halfspace`        | A halfspace is a set of the form $\\{x: c'x \leq b \\}$, for a vector $c$ and a scalar $b$. The syntax is straightforwarrd: `Halfspace(c, b)`. |
 | `FiniteSet`        | Finite set, $\\{u^{(1)},\ldots,u^{(m)}\\}$; the set of point is provided as a list of lists, for example, `FiniteSet([[1,2],[2,3],[4,5]])`. The commonly used set of binary numbers, $\\{0, 1\\}$, is created with `FiniteSet([[0], [1]])`. |
 | `NoConstraints`    | No constraints - the whole $\mathbb{R}^{n}$|
 | `Rectangle`        | Rectangle, $$R = \\{u \in \mathbb{R}^{n_u} {}:{} f_{\min} \leq u \leq f_{\max}\\},$$ for example, `Rectangle(fmin, fmax)` |
@@ -282,7 +283,7 @@ $$
 C = \\{0\\}.
 $$
 
-We also need to provide a compact set $Y \subseteq C^*$; we select
+We may also to provide a compact set $Y \subseteq C^*$ (if we do not, this will be computed automatically); we select
 
 $$Y = \\{y \in \mathbb{R}^{n_1}{}:{} \Vert y \Vert_{\infty} \leq 10^{12}\\}.$$
 
