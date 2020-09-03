@@ -17,7 +17,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
       v0.7.1-alpha.1
      --------------------- -->
 
-## [v0.7.1-alpha.1]
+## [v0.7.1]
 
 ### Added
 
