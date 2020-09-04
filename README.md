@@ -5,9 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://twitter.com/intent/tweet?text=Fast%20and%20accurate%20nonconvex%20optimization&url=https://alphaville.github.io/optimization-engine/&via=isToxic&hashtags=optimization,rustlang,matlab,python">
-    <img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social">
-  </a>
+  <a href="https://www.codefactor.io/repository/github/alphaville/optimization-engine"><img src="https://www.codefactor.io/repository/github/alphaville/optimization-engine/badge" alt="CodeFactor" /></a> 
   <a href="https://travis-ci.org/alphaville/optimization-engine">
     <img alt="build status" src="https://travis-ci.org/alphaville/optimization-engine.svg?branch=master">
   </a>
@@ -28,6 +26,9 @@
 <p align="center">
   <a href="https://gitter.im/alphaville/optimization-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
     <img alt="Gitter" src="https://badges.gitter.im/alphaville/optimization-engine.svg">
+  </a>
+   <a href="https://twitter.com/intent/tweet?text=Fast%20and%20accurate%20nonconvex%20optimization&url=https://alphaville.github.io/optimization-engine/&via=isToxic&hashtags=optimization,rustlang,matlab,python">
+    <img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social">
   </a>
   <a href="https://discord.gg/mfYpn4V">
     <img alt="Chat on Discord" src="https://img.shields.io/badge/chat-on%20discord-gold.svg">
