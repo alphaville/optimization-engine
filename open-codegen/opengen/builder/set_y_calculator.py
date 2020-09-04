@@ -1,5 +1,6 @@
 from ..constraints.rectangle import Rectangle
 from ..constraints.ball_inf import BallInf
+from ..constraints.halfspace import Halfspace
 
 
 class SetYCalculator:
@@ -16,12 +17,7 @@ class SetYCalculator:
         c = self.__set_c
         xmin = c.xmin
         xmax = c.xmax
-        if xmin is not None:
-            n = len(xmin)
-        elif xmax is not None:
-            n = len(xmax)
-        else:
-            raise Exception("Fatal error: both xmin and xmax are None")
+        n = c.dimension()
 
         if xmin is None:
             ymin = [0.0] * n
@@ -42,8 +38,13 @@ class SetYCalculator:
         return Rectangle(ymin, ymax)
 
     def obtain(self):
+        err_msg = 'The set C you chose is not supported yet ' \
+                  '(report at https://github.com/alphaville/optimization-engine/issues)'
         if isinstance(self.__set_c, Rectangle):
             return self.__obtain_y_with_c_rectangle()
         if self.__set_c.is_compact():
             return self.__obtain_y_with_c_compact()
-        raise NotImplementedError()
+        if isinstance(self.__set_c, Halfspace):
+            err_msg = 'For the time being, you cannot use a Halfspace in set C (issue #197)'
+
+        raise NotImplementedError(err_msg)

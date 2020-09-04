@@ -44,7 +44,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug") \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
@@ -69,7 +69,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug") \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
@@ -92,7 +92,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug") \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
@@ -122,7 +122,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug") \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_build_c_bindings()  \
             .with_ros(ros_config)
         og.builder.OpEnOptimizerBuilder(problem,
@@ -146,8 +146,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
             .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
-            .with_build_mode("debug") \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
         solver_config = og.config.SolverConfiguration() \
@@ -157,12 +157,46 @@ class RustBuildTestCase(unittest.TestCase):
         og.builder.OpEnOptimizerBuilder(problem, meta, build_config, solver_config).build()
 
     @classmethod
+    def setUpHalfspace(cls):
+        u = cs.SX.sym("u", 5)  # decision variable (nu = 5)
+        p = cs.SX.sym("p", 2)  # parameter (np = 2)
+        phi = cs.dot(u, u)  # cost function
+
+        bounds = og.constraints.Halfspace([1., 2., 1., 5., 2.], -10.39)
+
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds)
+
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("halfspace_optimizer")
+
+        tcp_config = og.config.TcpServerConfiguration(bind_port=3305)
+        build_config = og.config.BuildConfiguration() \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_tcp_interface_config(tcp_interface_config=tcp_config)
+
+        builder = og.builder.OpEnOptimizerBuilder(problem,
+                                                  meta,
+                                                  build_config,
+                                                  cls.solverConfig())
+        builder.build()
+
+    @classmethod
     def setUpClass(cls):
+        print('---><---- Setting up: ROS package generation  ----------><---')
         cls.setUpRosPackageGeneration()
+        print('---><---- Setting up: F1-only --------------------------><---')
         cls.setUpOnlyF1()
+        print('---><---- Setting up: F2-only --------------------------><---')
         cls.setUpOnlyF2()
+        print('---><---- Setting up: Simple problem -------------------><---')
         cls.setUpPlain()
+        print('---><---- Setting up: Parametric F2 --------------------><---')
         cls.setUpOnlyParametricF2()
+        print('---><---- Setting up: Halfspace ------------------------><---')
+        cls.setUpHalfspace()
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -294,7 +328,7 @@ class RustBuildTestCase(unittest.TestCase):
 
         mng.kill()
 
-    def test_rust_build_only_f2(self):
+    def test_rust_build_plain(self):
         mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')
         mng.start()
         pong = mng.ping()  # check if the server is alive
@@ -321,12 +355,31 @@ class RustBuildTestCase(unittest.TestCase):
         status = response.get()
         self.assertEqual("Converged", status.exit_status)
         self.assertTrue(status.f2_norm < 1e-4)
+        mng.kill()
+
+    def test_rust_build_parametric_halfspace(self):
+        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/halfspace_optimizer')
+        mng.start()
+        pong = mng.ping()  # check if the server is alive
+        self.assertEqual(1, pong["Pong"])
+
+        # Regular call
+        response = mng.call(p=[1.0, 1.0])
+        self.assertTrue(response.is_ok())
+        status = response.get()
+        self.assertEqual("Converged", status.exit_status)
+        u = status.solution
+        c = [1., 2., 1., 5., 2.]
+        b = -10.39
+        eps = 1e-14
+        self.assertTrue(sum([u[i] * c[i] for i in range(5)]) - b <= eps)
+        self.assertTrue(-sum([u[i] * c[i] for i in range(5)]) + b <= eps)
 
         mng.kill()
 
     @staticmethod
     def c_bindings_helper(optimizer_name):
-        p = subprocess.Popen(["gcc",
+        p = subprocess.Popen(["/usr/bin/gcc",
                               RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
                               "-I" + RustBuildTestCase.TEST_DIR + "/" + optimizer_name,
                               "-pthread",

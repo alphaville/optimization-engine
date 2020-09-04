@@ -42,8 +42,9 @@ class SecondOrderCone(Constraint):
             :return: distance from set as a float or a CasADi symbol
         """
 
-        if isinstance(u, cs.SX):
-            warnings.warn("This function does not accept casadi.SX; use casadi.MX instead")
+        # Need to check this?:
+        # if isinstance(u, cs.SX):
+        #     warnings.warn("This function does not accept casadi.SX; use casadi.MX instead")
 
         if fn.is_symbolic(u):
             nu = u.size(1)
@@ -64,9 +65,9 @@ class SecondOrderCone(Constraint):
         sq_norm_x = cs.dot(x, x)  # squared norm of x
         gamma = (a * norm_x + r)/(a**2 + 1)
 
-        fun1 = 0
+        fun1 = 0.
         fun2 = sq_norm_x + r ** 2
-        fun3 = sq_norm_x * (1 - gamma * a / norm_x)**2 + (r - gamma)**2
+        fun3 = sq_norm_x * (1. - gamma * a / (cs.fmax(eps, norm_x)))**2 + (r - gamma)**2
 
         condition0 = norm_x + cs.fabs(r) < eps
         condition1 = norm_x <= a*r

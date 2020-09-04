@@ -17,7 +17,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
       v0.7.1-alpha.1
      --------------------- -->
 
-## [v0.7.1-alpha.1]
+## [v0.7.1]
 
 ### Added
 
@@ -179,7 +179,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.7.0...master
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.7.1...master
 [v0.7.1]: https://github.com/alphaville/optimization-engine/compare/v0.7.0...v0.7.1
 [v0.7.0]: https://github.com/alphaville/optimization-engine/compare/v0.6.2...v0.7.0
 [v0.6.2]: https://github.com/alphaville/optimization-engine/compare/v0.6.1-alpha.2...v0.6.2

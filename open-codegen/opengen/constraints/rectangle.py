@@ -152,3 +152,5 @@ class Rectangle(Constraint):
         for i in range(len(self.__xmax)):
             if self.__xmax[i] == float('inf'):
                 return False
+
+        return True

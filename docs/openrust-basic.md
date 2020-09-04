@@ -62,13 +62,15 @@ Constraints implement the namesake trait, [`Constraint`]. Implementations of [`C
 
 | Constraint           | Explanation                                          |
 |----------------------|------------------------------------------------------|
-| [`Ball2`]            | $U= \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$         |
-| [`BallInf`]          | $U= \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$         |
-| [`Rectangle`]        | $U= \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
-| [`NoConstraints`]    | $U = \mathbb{R}^n$                                   |
-| [`FiniteSet`]        | $U = \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
-| [`SecondOrderCone`]  | $U = \\{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\\}$ |
-| [`Zero`]             | $U = \\{0\\}$                                        |
+| [`Ball2`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$         |
+| [`BallInf`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$         |
+| [`Halfspace`]        | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle \leq b\\}$ |
+| [`Hyperplane`]       | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle {}={} b\\}$ |
+| [`Rectangle`]        | $U {}={} \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
+| [`NoConstraints`]    | $U {}={} \mathbb{R}^n$                                   |
+| [`FiniteSet`]        | $U {}={} \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
+| [`SecondOrderCone`]  | $U {}={} \\{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\\}$ |
+| [`Zero`]             | $U {}={} \\{0\\}$                                        |
 | [`CartesianProduct`] | Cartesian products of any of the above               |
 
 These are the most common constraints in practice.
@@ -353,6 +355,8 @@ the imposition of a maximum allowed duration, the exit status will be
 [`Constraint`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/trait.Constraint.html
 [`Ball2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html
 [`BallInf`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html
+[`Halfspace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Halfspace.html
+[`Hyperplane`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Hyperplane.html
 [`Zero`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html
 [`FiniteSet`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html
 [`CartesianProduct`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.CartesianProduct.html

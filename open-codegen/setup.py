@@ -38,7 +38,7 @@ setup(name=NAME,
           'jinja2', 'casadi', 'numpy', 'pyyaml', 'retry'
       ],
       classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'License :: OSI Approved :: MIT License',
             'License :: OSI Approved :: Apache Software License',
             'Programming Language :: Python',
