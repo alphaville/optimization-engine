@@ -39,6 +39,22 @@ Optimization Engine (OpEn) is a solver for Fast & Accurate Embedded Optimization
 
 **Documentation available at** [**alphaville.github.io/optimization-engine**](https://alphaville.github.io/optimization-engine/)
 
+## Table of contents
+
+- [Features](#features)
+- [Demos](#demos)
+  - [Code generation](#code-generation)
+  - [Embedded applications](#embedded-applications)
+- [Parametric optimization problems](#parametric-problems)
+- [Code generation example](#code-generation-example)
+- [Getting started](#getting-started)
+- [Contact](#contact-us)
+- [Show us your love](#do-you-like-open)
+- [Licence](#license)
+- [Core team](#core-team)
+- [Contributions](#contributions)
+- [Cite OpEn](#citing-open)
+
 ## Features
 
 **OpEn** is the counterpart of CVXGen for nonconvex problems.
@@ -69,7 +85,7 @@ You can use the [MATLAB](https://alphaville.github.io/optimization-engine/docs/m
 
 This can then be called directly, using Rust, or, it can be consumed as a service over a socket.
 
-![Code generation](https://alphaville.github.io/optimization-engine/img/open-promo.gif "Easy Code Generation")
+<img src="https://alphaville.github.io/optimization-engine/img/open-promo.gif" alt="Easy Code Generation" width="55%"/>
 
 You can generate a parametric optimizer in just very few lines of code and in no time.
 
@@ -78,7 +94,7 @@ OpEn allows application developers and researchers to focus on the challenges of
 ### Embedded applications
 OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz** using only **15%** CPU!
 
-![Autonomous Aerial Vehicle](https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif "Fast NMPC of MAV")
+<img src="https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif" alt="Fast NMPC of MAV" width="55%"/>
 
 
 ## Parametric Problems
