@@ -206,15 +206,15 @@ fn make_constraints() -> impl Constraint {
 /// Make set C
 fn make_set_c() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
+    Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS)
     {% elif 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = BallInf::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
+    BallInf::new(SET_C_BALL_XC, SET_C_BALL_RADIUS)
     {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Rectangle::new(SET_C_XMIN, SET_C_XMAX);
+    Rectangle::new(SET_C_XMIN, SET_C_XMAX)
     {% elif 'NoConstraints' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = NoConstraints::new();
+    NoConstraints::new()
     {% elif 'Zero' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Zero::new();
+    Zero::new()
     {% elif 'CartesianProduct' == problem.alm_set_c.__class__.__name__ -%}
         // Cartesian product of constraints (Set C)
         let set_c = CartesianProduct::new();
@@ -254,8 +254,8 @@ fn make_set_c() -> impl Constraint {
             let set_c = set_c.add_constraint(idx_{{loop.index}}, Zero::new());
             {% endif -%}
         {% endfor %}
-    {% endif -%}
     set_c
+    {% endif -%}
 }
 {% endif %}
 
@@ -263,17 +263,16 @@ fn make_set_c() -> impl Constraint {
 /// Make set Y
 fn make_set_y() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
+    Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS)
     {% elif 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = BallInf::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
+    BallInf::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS)
     {% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = Rectangle::new(SET_Y_XMIN, SET_Y_XMAX);
+    Rectangle::new(SET_Y_XMIN, SET_Y_XMAX)
     {% elif 'NoConstraints' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = NoConstraints::new();
+    NoConstraints::new()
     {% elif 'Zero' == problem.alm_set_y.__class__.__name__ -%}
-    let set_c = Zero::new();
+    Zero::new()
     {% endif -%}
-    set_y
 }
 {% endif %}
 
@@ -286,9 +285,7 @@ pub fn initialize_solver() -> AlmCache {
     {% if solver_config.cbfgs_alpha is not none and solver_config.cbfgs_epsilon is not none -%}
         let panoc_cache = panoc_cache.with_cbfgs_parameters({{solver_config.cbfgs_alpha}}, {{solver_config.cbfgs_epsilon}}, {{solver_config.cbfgs_sy_epsilon}});
     {% endif -%}
-    let alm_cache = AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2);
-
-    alm_cache
+    AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2)
 }
 
 

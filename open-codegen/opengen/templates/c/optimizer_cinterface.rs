@@ -163,14 +163,14 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                     y_array.copy_from_slice(&y);
                     y_array
                 {% else %}
-                    0 as *const c_double
+                    std::ptr::null::<c_double>()
                 {% endif %}
                 },
                 None => {
                 {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
                     [0.0; {{meta.optimizer_name|upper}}_N1]
                 {% else %}
-                    0 as *const c_double
+                    std::ptr::null::<c_double>()
                 {% endif -%}
                 }
             }
@@ -190,7 +190,7 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
             cost: std::f64::INFINITY as c_double,
             lagrange: {%- if problem.dim_constraints_aug_lagrangian() > 0 -%}
                     [0.0; {{meta.optimizer_name|upper}}_N1]
-                    {%- else -%}0 as *const c_double{%- endif %}
+                    {%- else -%}std::ptr::null::<c_double>(){%- endif %}
         },
     }
 }
