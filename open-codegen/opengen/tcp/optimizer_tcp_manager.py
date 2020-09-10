@@ -20,25 +20,53 @@ class OptimizerTcpManager:
     """
 
     def __init__(self, optimizer_path=None, ip=None, port=None):
-        """Constructs instance of <code>OptimizerTcpManager</code>
+        """
+        Constructs instance of <code>OptimizerTcpManager</code>
+
+        There are three ways to use this constructor:
+
+        - OptimizerTcpManager(optimizer_path): creates a TCP manager for a local
+          TCP server using the default IP and port of that TCP server (specified
+          upon code generation)
+        - OptimizerTcpManager(optimizer_path, ip, port): creates a TCP manager
+          for a local TCP server, but overrides the default IP and port. This way
+          the user can set the address '0.0.0.0', so that the TCP server binds on
+          all IPs, or '127.0.0.1' so that it is accessible only locally, or a VPN
+          IP address, so that the optimizer is accessible only over a private
+          network.
+        - OptimizerTcpManager(ip, port): If a path is not provided, then the
+          TCP manager can be used to connect to a remote TCP server, as a client,
+          but cannot be used to start the server.
 
         Args:
-            optimizer_path: path to auto-generated optimizer (just to
-            be clear: this is the folder that contains <code>optimizer.yml</code>)
+            :param optimizer_path:
+            path to auto-generated optimizer (just to be clear: this is
+            the folder that contains <code>optimizer.yml</code>)
+
+            :param ip:
+            the user can provide the IP of a remote TCP server (must be up and
+            running) so as to establish a remote connection. In that case `path`
+            must be equal to `None` (see examples above)
+
+            :param port: see ip
 
         Returns:
             New instance of <code>OptimizerTcpManager</code>
         """
         self.__optimizer_path = optimizer_path
         if optimizer_path is not None:
-            self.__optimizer_details_from_yml = None
+            self.__optimizer_details = None  # create attribute (including IP and port)
             self.__load_tcp_details()
+            if ip is not None:
+                self.__optimizer_details['tcp']['ip'] = ip
+            if port is not None:
+                self.__optimizer_details['tcp']['port'] = port
         elif ip is not None and port is not None:
-            self.__optimizer_details_from_yml = {"tcp": {"ip": ip, "port": port}}
+            self.__optimizer_details = {"tcp": {"ip": ip, "port": port}}
         else:
             raise Exception("Illegal arguments")
         # Check whether the optimizer was built with the current version of opengen
-        opengen_version = self.__optimizer_details_from_yml['build']['opengen_version']
+        opengen_version = self.__optimizer_details['build']['opengen_version']
         current_opengen_version = pkg_resources.require("opengen")[0].version
         if current_opengen_version != opengen_version:
             logging.warn('the target optimizer was build with a different version of opengen (%s)' % opengen_version)
@@ -48,26 +76,13 @@ class OptimizerTcpManager:
         logging.info("loading TCP/IP details")
         yaml_file = os.path.join(self.__optimizer_path, "optimizer.yml")
         with open(yaml_file, 'r') as stream:
-            self.__optimizer_details_from_yml = yaml.safe_load(stream)
-        details = self.__optimizer_details_from_yml
+            self.__optimizer_details = yaml.safe_load(stream)
+        details = self.__optimizer_details
         logging.info("TCP/IP details: %s:%d", details['tcp']['ip'], details['tcp']['port'])
-
-    def __threaded_start(self):
-        optimizer_details = self.__optimizer_details_from_yml
-        logging.info("Starting TCP/IP server at %s:%d (in a detached thread)",
-                     optimizer_details['tcp']['ip'],
-                     optimizer_details['tcp']['port'])
-        command = ['cargo', 'run', '-q']
-        if optimizer_details['build']['build_mode'] == 'release':
-            command.append('--release')
-        tcp_dir_name = "tcp_iface_" + optimizer_details['meta']['optimizer_name']
-        tcp_iface_directory = os.path.join(self.__optimizer_path, tcp_dir_name)
-        p = subprocess.Popen(command, cwd=tcp_iface_directory)
-        p.wait()
 
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
-        tcp_data = self.__optimizer_details_from_yml
+        tcp_data = self.__optimizer_details
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -101,25 +116,52 @@ class OptimizerTcpManager:
         return json.loads(data)
 
     def __check_if_server_is_running(self):
-        tcp_data = self.__optimizer_details_from_yml
+        tcp_data = self.__optimizer_details
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         return 0 == s.connect_ex((ip, port))
 
     def start(self):
-        """Starts the TCP server"""
-        # start the server in a separate thread
+        """Starts the TCP server
 
+        Note: this method starts a *local* server whose path must have been
+        provided - we cannot start a remote server.
+
+        The server starts on a separate thread, so this method does not block
+        the execution of the caller's programme.
+
+        """
+
+        # Check if a path has been provided; if not,
         if self.__optimizer_path is None:
             raise Exception("No optimizer path provided - cannot start a remote server")
 
+        # Server start data
+        tcp_data = self.__optimizer_details
+        ip = tcp_data['tcp']['ip']
+        port = tcp_data['tcp']['port']
+
+        # Check if any of the ip/port pairs is occupied
         if self.__check_if_server_is_running():
-            msg = "Port %d not available" % self.__optimizer_details_from_yml['tcp']['port']
+            msg = "Port %d not available" % port
             raise Exception(msg)
 
+        def threaded_start():
+            optimizer_details = self.__optimizer_details
+            logging.info("Starting TCP/IP server at %s:%d (in a detached thread)",
+                         ip, port)
+            command = ['cargo', 'run', '-q', '--', '--port=%d' % port, '--ip=%s' % ip]
+            if optimizer_details['build']['build_mode'] == 'release':
+                command.append('--release')
+            tcp_dir_name = "tcp_iface_" + optimizer_details['meta']['optimizer_name']
+            tcp_iface_directory = os.path.join(self.__optimizer_path, tcp_dir_name)
+            p = subprocess.Popen(command, cwd=tcp_iface_directory)
+            p.wait()
+
+        # start the server in a separate thread
         logging.info("Starting TCP/IP server thread")
-        thread = Thread(target=self.__threaded_start)
+        thread = Thread(target=threaded_start)
         thread.start()
 
         # ping the server until it responds so that we know it's
