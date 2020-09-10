@@ -87,7 +87,7 @@ fn pong(stream: &mut std::net::TcpStream, code: i32) {
         code
     );
     stream
-        .write(error_message.as_bytes())
+        .write_all(error_message.as_bytes())
         .expect("cannot write to stream");
 }
 
@@ -100,7 +100,7 @@ fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &
     );
     warn!("Invalid request {:?}", code);
     stream
-        .write(error_message.as_bytes())
+        .write_all(error_message.as_bytes())
         .expect("cannot write to stream");
 }
 
@@ -128,7 +128,7 @@ fn return_solution_to_client(
     };
     let solution_json = serde_json::to_string_pretty(&solution).unwrap();
     stream
-        .write(solution_json.as_bytes())
+        .write_all(solution_json.as_bytes())
         .expect("cannot write to stream");
 }
 

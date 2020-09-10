@@ -98,9 +98,8 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 /// Instance of `{{meta.optimizer_name}}SolverStatus`, with the solver status
 /// (e.g., number of inner/outer iterations, measures of accuracy, solver time,
 /// and the array of Lagrange multipliers at the solution).
-///
 #[no_mangle]
-pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
+pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
     instance: *mut {{meta.optimizer_name}}Cache,
     u: *mut c_double,
     params: *const c_double,
@@ -109,19 +108,19 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
 ) -> {{meta.optimizer_name}}SolverStatus {
 
     // Convert all pointers into the required data structures
-    let instance: &mut {{meta.optimizer_name}}Cache = unsafe {
+    let instance: &mut {{meta.optimizer_name}}Cache = {
         assert!(!instance.is_null());
         &mut *instance
     };
 
     // "*mut c_double" to "&mut [f64]"
-    let u : &mut [f64] = unsafe {
+    let u : &mut [f64] = {
         assert!(!u.is_null());
         std::slice::from_raw_parts_mut(u as *mut f64, {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES)
     };
 
     // "*const c_double" to "&[f64]"
-    let params : &[f64] = unsafe {
+    let params : &[f64] = {
         assert!(!params.is_null());
         std::slice::from_raw_parts(params as *const f64, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
     };
@@ -129,13 +128,13 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
     let c0_option: Option<f64> = if c0.is_null() {
         None::<f64>
     } else {
-        Some(unsafe { *c0 })
+        Some(*c0)
     };
 
     let y0_option: Option<Vec<f64>> = if y0.is_null() {
         None::<Vec<f64>>
     } else {
-        Some(unsafe { std::slice::from_raw_parts(y0 as *mut f64, {{meta.optimizer_name|upper}}_N1).to_vec() })
+        Some(std::slice::from_raw_parts(y0 as *mut f64, {{meta.optimizer_name|upper}}_N1).to_vec())
     };
 
     // Invoke `solve`
@@ -199,11 +198,9 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_solve(
 /// Deallocate the solver's memory, which has been previously allocated
 /// using `{{meta.optimizer_name|lower}}_new`
 #[no_mangle]
-pub extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optimizer_name}}Cache) {
+pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optimizer_name}}Cache) {
     // Add impl
-    unsafe {
-        assert!(!instance.is_null());
-        Box::from_raw(instance);
-    }
+    assert!(!instance.is_null());
+    Box::from_raw(instance);
 }
 {% endif %}
