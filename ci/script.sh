@@ -6,6 +6,9 @@ regular_test() {
     # ------------------------------------
     cargo test
 
+    # Run Clippy
+    # ------------------------------------
+    cargo clippy --all-targets --all-features
 
     # Run Python tests
     # ------------------------------------
@@ -29,6 +32,16 @@ regular_test() {
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
+
+
+    # Run Clippy for generated optimizers
+    # ------------------------------------
+    cd .python_test_build/only_f1/tcp_iface_only_f1
+    cargo clippy --all-targets --all-features
+    cd ../../only_f2/tcp_iface_only_f2
+    cargo clippy --all-targets --all-features
+    cd ../../rosenbrock_ros
+    cargo clippy --all-targets --all-features
 }
 
 test_docker() {

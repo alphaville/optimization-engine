@@ -2,6 +2,7 @@ import unittest
 import casadi.casadi as cs
 import opengen as og
 import subprocess
+import logging
 
 
 class RustBuildTestCase(unittest.TestCase):
@@ -185,17 +186,11 @@ class RustBuildTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print('---><---- Setting up: ROS package generation  ----------><---')
         cls.setUpRosPackageGeneration()
-        print('---><---- Setting up: F1-only --------------------------><---')
         cls.setUpOnlyF1()
-        print('---><---- Setting up: F2-only --------------------------><---')
         cls.setUpOnlyF2()
-        print('---><---- Setting up: Simple problem -------------------><---')
         cls.setUpPlain()
-        print('---><---- Setting up: Parametric F2 --------------------><---')
         cls.setUpOnlyParametricF2()
-        print('---><---- Setting up: Halfspace ------------------------><---')
         cls.setUpHalfspace()
 
     def test_rectangle_empty(self):
@@ -250,8 +245,31 @@ class RustBuildTestCase(unittest.TestCase):
         with self.assertRaises(Exception) as __context:
             og.config.SolverConfiguration().with_max_inner_iterations()
 
+    def test_start_multiple_servers(self):
+        all_managers = []
+        for i in range(50):
+            all_managers += [og.tcp.OptimizerTcpManager(
+                optimizer_path=RustBuildTestCase.TEST_DIR + '/only_f1',
+                ip='0.0.0.0',
+                port=15311+i)]
+
+        # Start all servers
+        for m in all_managers:
+            m.start()
+
+        # Ping all
+        for m in all_managers:
+            m.ping()
+
+        # Kill all
+        for m in all_managers:
+            m.kill()
+
     def test_rust_build_only_f1(self):
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f1')
+        # Start the server using a custom bind IP and port
+        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f1',
+                                         ip='0.0.0.0',
+                                         port=13757)
         mng.start()
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
@@ -419,4 +437,5 @@ class RustBuildTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    logging.getLogger('retry').setLevel(logging.ERROR)
     unittest.main()

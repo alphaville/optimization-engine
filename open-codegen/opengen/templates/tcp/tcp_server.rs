@@ -5,10 +5,15 @@
 use optimization_engine::alm::*;
 use serde::{Deserialize, Serialize};
 
+#[macro_use]
+extern crate clap;
+
 use std::{
     io::{prelude::Read, Write},
     net::TcpListener,
 };
+
+use clap::{Arg, App};
 
 use {{ meta.optimizer_name }}::*;
 
@@ -16,13 +21,26 @@ use {{ meta.optimizer_name }}::*;
 extern crate log;
 
 /// IP of server (use 0.0.0.0 to bind to any IP)
-const BIND_IP: &str = "{{tcp_server_config.bind_ip}}";
+/// Can be overriden by the user
+const BIND_IP_DEFAULT: &str = "{{tcp_server_config.bind_ip}}";
 
 /// Port
-const BIND_PORT: i32 = {{tcp_server_config.bind_port}};
+/// Can be overriden by the user
+const BIND_PORT_DEFAULT: u32 = {{tcp_server_config.bind_port}};
 
 /// Size of read buffer
+/// Can be overriden by the user
 const READ_BUFFER_SIZE: usize = 1024;
+
+/// Configuration of TCP server (provided by the user
+/// as command-line parameters)
+#[derive(Debug)]
+struct TcpServerConfiguration<'a> {
+   /// Bind IP
+   ip: &'a str,
+   /// Port
+   port: u32,
+}
 
 #[derive(Deserialize, Debug)]
 struct ExecutionParameter {
@@ -69,7 +87,7 @@ fn pong(stream: &mut std::net::TcpStream, code: i32) {
         code
     );
     stream
-        .write(error_message.as_bytes())
+        .write_all(error_message.as_bytes())
         .expect("cannot write to stream");
 }
 
@@ -82,7 +100,7 @@ fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &
     );
     warn!("Invalid request {:?}", code);
     stream
-        .write(error_message.as_bytes())
+        .write_all(error_message.as_bytes())
         .expect("cannot write to stream");
 }
 
@@ -110,7 +128,7 @@ fn return_solution_to_client(
     };
     let solution_json = serde_json::to_string_pretty(&solution).unwrap();
     stream
-        .write(solution_json.as_bytes())
+        .write_all(solution_json.as_bytes())
         .expect("cannot write to stream");
 }
 
@@ -174,14 +192,14 @@ fn execution_handler(
     }
 }
 
-fn run_server() {
+fn run_server(tcp_config: &TcpServerConfiguration) {
     info!("Initializing cache...");
     let mut p = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS];
     let mut cache = initialize_solver();
     info!("Done");
-    let listener = TcpListener::bind(format!("{}:{}", BIND_IP, BIND_PORT)).unwrap();
+    let listener = TcpListener::bind(format!("{}:{}", tcp_config.ip, tcp_config.port)).unwrap();
     let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
-    info!("listening started, ready to accept");
+    info!("listening started, ready to accept connections at {}:{}", tcp_config.ip, tcp_config.port);
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
 
@@ -227,7 +245,27 @@ fn run_server() {
 }
 
 fn main() {
+    let matches = App::new("OpEn TCP Server [{{meta.optimizer_name}}]")
+        .version("{{meta.version}}")
+        .author("{{meta.authors | join(', ')}}")
+        .about("TCP interface of OpEn optimizer")
+        .arg(Arg::with_name("ip")
+                 .short("ip")
+                 .long("ip")
+                 .takes_value(true)
+                 .help("TCP server bind IP (0.0.0.0 for no restrictions)"))
+        .arg(Arg::with_name("port")
+                 .short("p")
+                 .long("port")
+                 .takes_value(true)
+                 .help("TCP server port"))
+        .get_matches();
+    let port = value_t!(matches, "port", u32).unwrap_or(BIND_PORT_DEFAULT);
+    let ip = matches.value_of("ip").unwrap_or(BIND_IP_DEFAULT);
+    let server_config = TcpServerConfiguration {ip, port};
+
     pretty_env_logger::init();
-    run_server();
+    info!("{:?}", server_config);
+    run_server(&server_config);
     info!("Exiting... (adios!)");
 }

@@ -5,7 +5,6 @@
 // Generated at: {{timestamp_created}}
 //
 
-use icasadi_{{meta.optimizer_name}};
 {% if activate_clib_generation -%}
 use libc::{c_double, c_ulong, c_ulonglong};
 {% endif %}
@@ -133,30 +132,30 @@ const SET_Y_XMAX :Option<&[f64]> = {% if problem.alm_set_y.xmax is not none %}So
 fn make_constraints() -> impl Constraint {
     {% if 'Ball2' == problem.constraints.__class__.__name__ -%}
     // - Euclidean ball:
-    let bounds = Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    Ball2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
     {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
     // - Infinity ball:
-    let bounds = BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS);
+    BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     // - Rectangle:
-    let bounds = Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX);
+    Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX)
     {% elif 'FiniteSet' == problem.constraints.__class__.__name__ -%}
     // - Finite Set:
     let data: &[&[f64]] = &[
     {% for point in problem.constraints.points %}&[{{point|join(', ')}}],{% endfor %}
     ];
-    let bounds = FiniteSet::new(data);
+    FiniteSet::new(data)
     {% elif 'Halfspace' == problem.constraints.__class__.__name__ -%}
     // - Halfspace:
     let offset: f64 = {{problem.constraints.offset}};
     let normal_vector: &[f64] = &[{{problem.constraints.normal_vector | join(', ')}}];
-    let bounds = Halfspace::new(&normal_vector, offset);
+    Halfspace::new(&normal_vector, offset)
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
     // - No constraints (whole Rn):
-    let bounds = NoConstraints::new();
+    NoConstraints::new()
     {% elif 'Zero' == problem.constraints.__class__.__name__ -%}
     // - Zero!
-    let bounds = Zero::new();
+    Zero::new()
     {% elif 'CartesianProduct' == problem.constraints.__class__.__name__ -%}
         // - Cartesian product of constraints:
         let bounds = CartesianProduct::new();
@@ -198,24 +197,24 @@ fn make_constraints() -> impl Constraint {
         {% elif 'Zero' == set_i.__class__.__name__ -%}
         let bounds = bounds.add_constraint(idx_{{loop.index}}, Zero::new());
         {% endif -%}
+    bounds
     {% endfor %}
     {% endif -%}
-    bounds
 }
 
 {% if problem.alm_set_c is not none -%}
 /// Make set C
 fn make_set_c() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
+    Ball2::new(SET_C_BALL_XC, SET_C_BALL_RADIUS)
     {% elif 'BallInf' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = BallInf::new(SET_C_BALL_XC, SET_C_BALL_RADIUS);
+    BallInf::new(SET_C_BALL_XC, SET_C_BALL_RADIUS)
     {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Rectangle::new(SET_C_XMIN, SET_C_XMAX);
+    Rectangle::new(SET_C_XMIN, SET_C_XMAX)
     {% elif 'NoConstraints' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = NoConstraints::new();
+    NoConstraints::new()
     {% elif 'Zero' == problem.alm_set_c.__class__.__name__ -%}
-    let set_c = Zero::new();
+    Zero::new()
     {% elif 'CartesianProduct' == problem.alm_set_c.__class__.__name__ -%}
         // Cartesian product of constraints (Set C)
         let set_c = CartesianProduct::new();
@@ -255,8 +254,8 @@ fn make_set_c() -> impl Constraint {
             let set_c = set_c.add_constraint(idx_{{loop.index}}, Zero::new());
             {% endif -%}
         {% endfor %}
-    {% endif -%}
     set_c
+    {% endif -%}
 }
 {% endif %}
 
@@ -264,17 +263,16 @@ fn make_set_c() -> impl Constraint {
 /// Make set Y
 fn make_set_y() -> impl Constraint {
     {% if 'Ball2' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
+    Ball2::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS)
     {% elif 'BallInf' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = BallInf::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS);
+    BallInf::new(SET_Y_BALL_XC, SET_Y_BALL_RADIUS)
     {% elif 'Rectangle' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = Rectangle::new(SET_Y_XMIN, SET_Y_XMAX);
+    Rectangle::new(SET_Y_XMIN, SET_Y_XMAX)
     {% elif 'NoConstraints' == problem.alm_set_y.__class__.__name__ -%}
-    let set_y = NoConstraints::new();
+    NoConstraints::new()
     {% elif 'Zero' == problem.alm_set_y.__class__.__name__ -%}
-    let set_c = Zero::new();
+    Zero::new()
     {% endif -%}
-    set_y
 }
 {% endif %}
 
@@ -287,9 +285,7 @@ pub fn initialize_solver() -> AlmCache {
     {% if solver_config.cbfgs_alpha is not none and solver_config.cbfgs_epsilon is not none -%}
         let panoc_cache = panoc_cache.with_cbfgs_parameters({{solver_config.cbfgs_alpha}}, {{solver_config.cbfgs_epsilon}}, {{solver_config.cbfgs_sy_epsilon}});
     {% endif -%}
-    let alm_cache = AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2);
-
-    alm_cache
+    AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2)
 }
 
 
