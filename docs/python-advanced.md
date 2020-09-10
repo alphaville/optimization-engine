@@ -126,7 +126,7 @@ for requests (e.g., for remote connections), you may crate an
 ```python
 tcp_config = og.config.TcpServerConfiguration('10.8.0.12', 9555)
 ```
-
+                               
 and then provide it to the builder configuration using 
 
 ```python
@@ -138,10 +138,13 @@ builder_config.with_tcp_interface_config(tcp_config)
 There are two ways to connect to a generated TCP server and call the
 auto-generated optimizer:
 
-1. *Connect to a local optimizer* by providing the path of the optimizer
+<div class="alert alert-info">
+<b>Connect to a local optimizer</b> by providing the path of the optimizer
 directory. For that purpose, we need to create an instance of 
-`OptimizerTcpManager` and specify the path to the auto-generated optimizer;
-for example,
+<code>OptimizerTcpManager</code> and specify the path to the auto-generated optimizer.
+</div>
+
+For example,
 
 ```python
 mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
@@ -150,10 +153,28 @@ mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer')
 we can then `start` the optimizer. The TCP manager known what IP and port 
 to link to, so we can `call` it directly.
 
-2. *Connect to a remote optimizer* by providing its IP and port. In that 
+<div class="alert alert-info">
+<b>Connect to a local optimizer</b> and <b>customize</b> its IP and port. 
+This is particularly useful if you need to start multiple instances of a TCP 
+server (with different ports).
+</div>
+
+For example,
+
+```python
+ip = '0.0.0.0'
+port = 5678
+mng = og.tcp.OptimizerTcpManager('python_build/the_optimizer', ip, port)
+```
+
+<div class="alert alert-info">
+<b>Connect to a remote optimizer</b> by providing its IP and port. In that 
 case we assume that an optimizer is up an running at some remote address
 and listens for connections at a certain port. In that case, we cannot 
-`start` the optimizer remotely using the TCP manager. 
+<code>start</code> the optimizer remotely using the TCP manager. 
+</div>
+
+
 
 For example to connect to a *remote* TCP server at `10.8.0.7:5678`, we can
 create a TCP manager as follows:

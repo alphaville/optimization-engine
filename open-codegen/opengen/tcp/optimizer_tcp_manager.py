@@ -72,13 +72,14 @@ class OptimizerTcpManager:
             logging.warn('the target optimizer was build with a different version of opengen (%s)' % opengen_version)
             logging.warn('you are running opengen version %s' % current_opengen_version)
 
+        logging.info("TCP/IP details: %s:%d",
+                     self.__optimizer_details['tcp']['ip'],
+                     self.__optimizer_details['tcp']['port'])
+
     def __load_tcp_details(self):
-        logging.info("loading TCP/IP details")
         yaml_file = os.path.join(self.__optimizer_path, "optimizer.yml")
         with open(yaml_file, 'r') as stream:
             self.__optimizer_details = yaml.safe_load(stream)
-        details = self.__optimizer_details
-        logging.info("TCP/IP details: %s:%d", details['tcp']['ip'], details['tcp']['port'])
 
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
@@ -121,6 +122,10 @@ class OptimizerTcpManager:
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         return 0 == s.connect_ex((ip, port))
+
+    @property
+    def details(self):
+        return self.__optimizer_details
 
     def start(self):
         """Starts the TCP server
@@ -167,7 +172,7 @@ class OptimizerTcpManager:
         # ping the server until it responds so that we know it's
         # up and running
         logging.info("Waiting for server to start")
-        time.sleep(2)
+        time.sleep(0.1)
         self.ping()
 
     def kill(self):

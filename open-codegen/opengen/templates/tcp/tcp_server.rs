@@ -245,9 +245,9 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
 }
 
 fn main() {
-    let matches = App::new("OpEn TCP Server [potato]")
-        .version("0.1.0")
-        .author("Pantelis Sopasakis")
+    let matches = App::new("OpEn TCP Server [{{meta.optimizer_name}}]")
+        .version("{{meta.version}}")
+        .author("{{meta.authors | join(', ')}}")
         .about("TCP interface of OpEn optimizer")
         .arg(Arg::with_name("ip")
                  .short("ip")
