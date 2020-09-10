@@ -75,6 +75,9 @@ before_install:
 install:
   - bash ci/install.sh
 
+before_script:
+  - rustup component add clippy
+
 script:
   - bash ci/script.sh
 

@@ -4,6 +4,7 @@ import opengen as og
 import subprocess
 import logging
 
+
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
@@ -248,7 +249,7 @@ class RustBuildTestCase(unittest.TestCase):
         all_managers = []
         for i in range(50):
             all_managers += [og.tcp.OptimizerTcpManager(
-                optimizer_path='my_optimizers/halfspace_optimizer',
+                optimizer_path=RustBuildTestCase.TEST_DIR + '/only_f1',
                 ip='0.0.0.0',
                 port=15311+i)]
 

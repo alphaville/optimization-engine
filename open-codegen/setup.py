@@ -53,4 +53,5 @@ setup(name=NAME,
       keywords=['optimization', 'nonconvex', 'embedded'],
       url=(
             'https://github.com/alphaville/optimization-engine'
-      ))
+      ),
+      zip_safe=False)
