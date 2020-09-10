@@ -4,6 +4,7 @@ import opengen as og
 import subprocess
 import logging
 
+
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
