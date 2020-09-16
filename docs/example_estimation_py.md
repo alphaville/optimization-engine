@@ -219,7 +219,11 @@ meta = og.config.OptimizerMeta()               \
     .with_optimizer_name("estimator")
 builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
 builder.build()
+```
 
+The generated solver can be consumed over its TCP interface:
+
+```python
 # Use TCP server
 # ------------------------------------
 mng = og.tcp.OptimizerTcpManager('python_test_build/estimator')
