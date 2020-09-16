@@ -30,6 +30,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Add this to your ~/.profile file
 export PATH="$HOME/.cargo/bin:$PATH"
 ```
+then **logout and login again** (or restart) for this to take effect.
 * **clang**, following this <a href="https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md" rel="nofollow" target="blank">guide</a>
   - Why? OpEn uses CasADi to build certain functions in C, which then need to be
     called from OpEn's core solver in Rust. For that purpose we need **bindgen**,
