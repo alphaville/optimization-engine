@@ -17,9 +17,20 @@ description: How to install OpEn
 Before you start, you need to install
 
 * **Rust**, following the official <a href="https://www.rust-lang.org/tools/install" rel="nofollow" target="blank">installation guide</a>,
-  - Why? The Rust compiler is an essential component of OpEn; you will most likely
+  - _Why?_ The Rust compiler is an essential component of OpEn; you will most likely
     not need to write (or compile yourself) any Rust code, but OpEn's Python/MATLAB
     interface will need the compiler to build your optimizer
+  - _How?_ Follow the <a href="https://www.rust-lang.org/tools/install" rel="nofollow" target="blank">instructions</a>;
+    in a nutshell, on Linux and MacOSX run:
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+   and add `/.cargo/bin` to your path - e.g., on Linux, put the following line in your `~/.profile` file:
+```sh
+# Add this to your ~/.profile file
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+then **logout and login again** (or restart) for this to take effect.
 * **clang**, following this <a href="https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md" rel="nofollow" target="blank">guide</a>
   - Why? OpEn uses CasADi to build certain functions in C, which then need to be
     called from OpEn's core solver in Rust. For that purpose we need **bindgen**,
@@ -35,6 +46,7 @@ pip install opengen
 
 You might need to prepend `sudo` on some Linux systems.
 
+
 Note that OpEn requires Python **version 3.5 or newer**. You might, therefore,
 need to install it using
 
@@ -44,6 +56,8 @@ pip3 install opengen
 
 OpEn may run on earlier versions of Python (as old as 2.7), but we cannot promise
 you that (the main difficulty being the installation of dependencies).
+
+We strongly recommend that you use `virtualenv`.
 
 ### Python installation with virtualenv
 
