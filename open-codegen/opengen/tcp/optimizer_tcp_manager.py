@@ -156,9 +156,9 @@ class OptimizerTcpManager:
             optimizer_details = self.__optimizer_details
             logging.info("Starting TCP/IP server at %s:%d (in a detached thread)",
                          ip, port)
-            command = ['cargo', 'run', '-q', '--', '--port=%d' % port, '--ip=%s' % ip]
-            if optimizer_details['build']['build_mode'] == 'release':
-                command.append('--release')
+            command = ['cargo', 'run', '-q']
+            command += ["--release"] if optimizer_details['build']['build_mode'] == 'release' else []
+            command += ['--', '--port=%d' % port, '--ip=%s' % ip]
             tcp_dir_name = "tcp_iface_" + optimizer_details['meta']['optimizer_name']
             tcp_iface_directory = os.path.join(self.__optimizer_path, tcp_dir_name)
             p = subprocess.Popen(command, cwd=tcp_iface_directory)
