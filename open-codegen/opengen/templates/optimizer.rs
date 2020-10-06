@@ -197,8 +197,8 @@ fn make_constraints() -> impl Constraint {
         {% elif 'Zero' == set_i.__class__.__name__ -%}
         let bounds = bounds.add_constraint(idx_{{loop.index}}, Zero::new());
         {% endif -%}
-    bounds
     {% endfor %}
+    bounds
     {% endif -%}
 }
 
