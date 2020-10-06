@@ -12,8 +12,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Fixed
 
-* Fixed bug #210 with Cartesian products in code generation
-
+* Fixed bug #210: Cartesian products in code generation
+* Fixed bug #211: `OptimizerTcpManager` and remote connections
 
 
 ## [0.6.2] - 2020-09-27
@@ -77,6 +77,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3
 [0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.1...opengen-0.6.2
 [0.6.1]: https://github.com/alphaville/optimization-engine/compare/opengen-v0.6.0...opengen-0.6.1
 [0.6.0]: https://github.com/alphaville/optimization-engine/compare/opengen-v0.5.0...opengen-0.6.0
