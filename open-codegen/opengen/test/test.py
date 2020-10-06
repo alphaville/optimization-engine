@@ -435,6 +435,19 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual(0, rc1)
         self.assertEqual(0, rc2)
 
+    def test_tcp_manager_remote_cannot_start(self):
+        remote_tcp_manager = og.tcp.OptimizerTcpManager(ip='10.8.0.1', port=3345)
+        with self.assertRaises(Exception) as __context:
+            remote_tcp_manager.start()
+
+    def test_tcp_manager_remote_ip_no_port(self):
+        with self.assertRaises(Exception) as __context:
+            _remote_tcp_manager = og.tcp.OptimizerTcpManager(ip='10.8.0.1')
+
+    def test_tcp_manager_remote_port_no_ip(self):
+        with self.assertRaises(Exception) as __context:
+            _remote_tcp_manager = og.tcp.OptimizerTcpManager(port=8888)
+
 
 if __name__ == '__main__':
     logging.getLogger('retry').setLevel(logging.ERROR)
