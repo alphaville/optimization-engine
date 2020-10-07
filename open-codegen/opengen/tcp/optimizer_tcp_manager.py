@@ -61,16 +61,22 @@ class OptimizerTcpManager:
                 self.__optimizer_details['tcp']['ip'] = ip
             if port is not None:
                 self.__optimizer_details['tcp']['port'] = port
+
+            # Check whether the optimizer was built with the current version of opengen
+            # We can only check the optimizer version if the optimizer runs locally
+            opengen_version = self.__optimizer_details['build']['opengen_version']
+            current_opengen_version = pkg_resources.require("opengen")[0].version
+            if current_opengen_version != opengen_version:
+                logging.warn(
+                    'the target optimizer was build with a different version of opengen (%s)' % opengen_version)
+                logging.warn('you are running opengen version %s' % current_opengen_version)
+
         elif ip is not None and port is not None:
             self.__optimizer_details = {"tcp": {"ip": ip, "port": port}}
         else:
+            # If the optimizer path has not been provided, both the IP and and the
+            # port must be provided, otherwise, raise an exception
             raise Exception("Illegal arguments")
-        # Check whether the optimizer was built with the current version of opengen
-        opengen_version = self.__optimizer_details['build']['opengen_version']
-        current_opengen_version = pkg_resources.require("opengen")[0].version
-        if current_opengen_version != opengen_version:
-            logging.warn('the target optimizer was build with a different version of opengen (%s)' % opengen_version)
-            logging.warn('you are running opengen version %s' % current_opengen_version)
 
         logging.info("TCP/IP details: %s:%d",
                      self.__optimizer_details['tcp']['ip'],
