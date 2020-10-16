@@ -22,7 +22,8 @@ tcp_config = og.config.TcpServerConfiguration(bind_port=3305)
 build_config = og.config.BuildConfiguration() \
     .with_build_directory('my_optimizers') \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-    .with_tcp_interface_config()
+    .with_build_python_bindings()
+    # .with_tcp_interface_config()
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
@@ -30,24 +31,30 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           og.config.SolverConfiguration())
 builder.build()
 
-all_managers = []
-for i in range(10):
-    all_managers += [og.tcp.OptimizerTcpManager(
-        optimizer_path='my_optimizers/halfspace_optimizer',
-        ip='0.0.0.0',
-        port=3311+i)]
+import halfspace_optimizer
 
-for m in all_managers:
-    m.start()
+solver = halfspace_optimizer.build_solver()
+result = solver.run([1., 2.])
+print(result.solution)
 
-time.sleep(4)
-
-for m in all_managers:
-    print(m.details)
-    resp = m.call(p=[1., 2.])
-    print(resp.get().solution)
-
-# mng.kill()
-time.sleep(6)
-for m in all_managers:
-    m.kill()
+# all_managers = []
+# for i in range(10):
+#     all_managers += [og.tcp.OptimizerTcpManager(
+#         optimizer_path='my_optimizers/halfspace_optimizer',
+#         ip='0.0.0.0',
+#         port=3311+i)]
+#
+# for m in all_managers:
+#     m.start()
+#
+# time.sleep(4)
+#
+# for m in all_managers:
+#     print(m.details)
+#     resp = m.call(p=[1., 2.])
+#     print(resp.get().solution)
+#
+# # mng.kill()
+# time.sleep(6)
+# for m in all_managers:
+#     m.kill()
