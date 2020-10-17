@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.3] - 2020-10-17
+
+# Changed
+
+* `enable_tcp_interface` previously gave a `DeprecationWarning`; now it raises it. In a future version, it will be removed. 
 
 ## [0.6.3] - 2020-10-06
 
