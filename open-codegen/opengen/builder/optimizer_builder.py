@@ -18,6 +18,7 @@ _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
+_PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
 _ROS_PREFIX = 'ros_node_'
@@ -421,6 +422,27 @@ class OpEnOptimizerBuilder:
         if process_completion != 0:
             raise Exception('Rust build failed')
 
+    def __build_python_bindings(self):
+        self.__logger.info("Building Python bindings")
+        target_dir = os.path.abspath(self.__target_dir())
+        optimizer_name = self.__meta.optimizer_name
+        python_bindings_dir_name = _PYTHON_BINDINGS_PREFIX + optimizer_name
+        python_bindings_dir = os.path.join(target_dir, python_bindings_dir_name)
+        command = self.__make_build_command()
+        p = subprocess.Popen(command, cwd=python_bindings_dir)
+        process_completion = p.wait()
+        if process_completion != 0:
+            raise Exception('Rust build of Python bindings failed')
+
+        if self.__build_config.build_mode.lower() == 'release':
+            build_dir = os.path.join(python_bindings_dir, 'target', 'release')
+        else:
+            build_dir = os.path.join(python_bindings_dir, 'target', 'debug')
+
+        generated_bindings = os.path.join(build_dir, f"lib{optimizer_name}.so")
+        assert os.path.isfile(generated_bindings)
+        shutil.copyfile(generated_bindings, os.path.join(os.getcwd(), f"{optimizer_name}.so"))
+
     def __build_tcp_iface(self):
         self.__logger.info("Building the TCP interface")
         target_dir = os.path.abspath(self.__target_dir())
@@ -438,6 +460,37 @@ class OpEnOptimizerBuilder:
 
     def __check_user_provided_parameters(self):
         self.__logger.info("Checking user parameters")
+
+    def __generate_code_python_bindings(self):
+        self.__logger.info("Generating code for Python bindings")
+        target_dir = self.__target_dir()
+        python_bindings_dir_name = _PYTHON_BINDINGS_PREFIX + self.__meta.optimizer_name
+        python_bindings_dir = os.path.join(target_dir, python_bindings_dir_name)
+        python_bindings_source_dir = os.path.join(python_bindings_dir, "src")
+        self.__logger.info(f"Generating code for Python bindings in {python_bindings_dir}")
+
+        # make python_bindings/ and python_bindings/src
+        make_dir_if_not_exists(python_bindings_dir)
+        make_dir_if_not_exists(python_bindings_source_dir)
+
+        # generate tcp_server.rs for python_bindings
+        python_rs_template = OpEnOptimizerBuilder.__get_template('python_bindings.rs', 'python')
+        python_rs_output_template = python_rs_template.render(
+            meta=self.__meta,
+            timestamp_created=datetime.datetime.now())
+        target_python_rs_path = os.path.join(python_bindings_source_dir, "lib.rs")
+        with open(target_python_rs_path, "w") as fh:
+            fh.write(python_rs_output_template)
+
+        # generate Cargo.toml for python_bindings
+        python_rs_template = OpEnOptimizerBuilder.__get_template('python_bindings_cargo.toml', 'python')
+        python_rs_output_template = python_rs_template.render(
+            meta=self.__meta,
+            build_config=self.__build_config,
+            timestamp_created=datetime.datetime.now())
+        target_python_rs_path = os.path.join(python_bindings_dir, "Cargo.toml")
+        with open(target_python_rs_path, "w") as fh:
+            fh.write(python_rs_output_template)
 
     def __generate_code_tcp_interface(self):
         self.__logger.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
@@ -582,8 +635,15 @@ class OpEnOptimizerBuilder:
                 self.__build_tcp_iface()
 
         if self.__build_config.build_c_bindings:
+            self.__logger.info("Generating C/C++ bindings")
             self.__generate_c_bindings_example()
             self.__generate_c_bindings_makefile()
+
+        if self.__build_config.build_python_bindings:
+            self.__logger.info("Generating Python bindings")
+            self.__generate_code_python_bindings()
+            if not self.__generate_not_build:
+                self.__build_python_bindings()
 
         if self.__build_config.ros_config is not None:
             ros_builder = RosBuilder(
