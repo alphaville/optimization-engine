@@ -499,6 +499,12 @@ class OpEnOptimizerBuilder:
         with open(target_python_rs_path, "w") as fh:
             fh.write(python_rs_output_template)
 
+        # move cargo_config into .cargo/config
+        target_cargo_config_dir = os.path.join(python_bindings_dir, '.cargo')
+        make_dir_if_not_exists(target_cargo_config_dir)
+        cargo_config_file = os.path.join(og_dfn.templates_dir(), 'python', 'cargo_config')
+        shutil.copy(cargo_config_file, os.path.join(target_cargo_config_dir, 'config'))
+
     def __generate_code_tcp_interface(self):
         self.__logger.info("Generating code for TCP/IP interface (tcp_iface/src/main.rs)")
         self.__logger.info("TCP server will bind at %s:%d",
