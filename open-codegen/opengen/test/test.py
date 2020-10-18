@@ -214,7 +214,6 @@ class RustBuildTestCase(unittest.TestCase):
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
         cls.setUpHalfspace()
-        pass
 
     def test_python_bindings(self):
         import sys

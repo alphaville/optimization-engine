@@ -11,6 +11,7 @@ import os
 import jinja2
 import logging
 import pkg_resources
+import sys
 
 from .ros_builder import RosBuilder
 
@@ -242,7 +243,8 @@ class OpEnOptimizerBuilder:
             meta=self.__meta,
             build_config=self.__build_config,
             activate_tcp_server=self.__build_config.tcp_interface_config is not None,
-            activate_clib_generation=self.__build_config.build_c_bindings)
+            activate_clib_generation=self.__build_config.build_c_bindings,
+            timestamp_created=datetime.datetime.now())
         cargo_toml_path = os.path.abspath(os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
             fh.write(cargo_output_template)
@@ -439,9 +441,14 @@ class OpEnOptimizerBuilder:
         else:
             build_dir = os.path.join(python_bindings_dir, 'target', 'debug')
 
-        generated_bindings = os.path.join(build_dir, f"lib{optimizer_name}.so")
-        assert os.path.isfile(generated_bindings)
-        shutil.copyfile(generated_bindings, os.path.join(os.getcwd(), f"{optimizer_name}.so"))
+        pltform_extension_dict = {'linux': ('.so', '.so'),
+                                  'darwin': ('.dylib', '.so'),
+                                  'win32': ('.dll', '.pyd')}
+        (original_lib_extension, target_lib_extension) = pltform_extension_dict[sys.platform]
+        generated_bindings = os.path.join(build_dir, f"lib{optimizer_name}{original_lib_extension}")
+        target_bindings = os.path.join(target_dir, f"{optimizer_name}{target_lib_extension}")
+        shutil.copyfile(generated_bindings, target_bindings)
+        sys.path.insert(1, target_dir)  # add target_dir to path
 
     def __build_tcp_iface(self):
         self.__logger.info("Building the TCP interface")
