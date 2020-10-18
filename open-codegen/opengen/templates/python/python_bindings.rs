@@ -11,14 +11,14 @@ use {{ meta.optimizer_name }}::*;
 
 #[pymodule]
 fn {{ meta.optimizer_name }}(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(build_solver, m)?)?;
+    m.add_function(wrap_pyfunction!(solver, m)?)?;
     m.add_class::<OptimizerSolution>()?;
     m.add_class::<Solver>()?;
     Ok(())
 }
 
 #[pyfunction]
-fn build_solver() -> PyResult<Solver> {
+fn solver() -> PyResult<Solver> {
     let cache = initialize_solver();
     Ok(Solver { cache })
 }
