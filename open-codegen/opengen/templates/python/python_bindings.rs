@@ -35,7 +35,7 @@ struct OptimizerSolution {
     #[pyo3(get)]
     last_problem_norm_fpr: f64,
     #[pyo3(get)]
-    delta_y_norm_over_c: f64,
+    f1_infeasibility: f64,
     #[pyo3(get)]
     f2_norm: f64,
     #[pyo3(get)]
@@ -58,9 +58,11 @@ struct Solver {
 #[pymethods]
 impl Solver {
     /// Run solver
+    ///
+    #[text_signature = "($self, p, initial_guess, initial_y, initial_penalty)"]
     fn run(
         &mut self,
-        parameter: Vec<f64>,
+        p: Vec<f64>,
         initial_guess: Option<Vec<f64>>,
         initial_lagrange_multipliers: Option<Vec<f64>>,
         initial_penalty: Option<f64>,
@@ -99,10 +101,10 @@ impl Solver {
         // ----------------------------------------------------
         // Check parameter
         // ----------------------------------------------------
-        if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
+        if p.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
             println!(
                 "3003 -> wrong number of parameters: {} != {}",
-                parameter.len(),
+                p.len(),
                 {{meta.optimizer_name|upper}}_NUM_PARAMETERS
             );
             return Ok(None);
@@ -112,7 +114,7 @@ impl Solver {
         // Run solver
         // ----------------------------------------------------
         let solver_status = solve(
-            &parameter,
+            &p,
             &mut self.cache,
             &mut u,
             &initial_lagrange_multipliers,
@@ -125,7 +127,7 @@ impl Solver {
                 num_outer_iterations: status.num_outer_iterations(),
                 num_inner_iterations: status.num_inner_iterations(),
                 last_problem_norm_fpr: status.last_problem_norm_fpr(),
-                delta_y_norm_over_c: status.delta_y_norm_over_c(),
+                f1_infeasibility: status.delta_y_norm_over_c(),
                 f2_norm: status.f2_norm(),
                 penalty: status.penalty(),
                 lagrange_multipliers: status.lagrange_multipliers().clone().unwrap_or_default(),

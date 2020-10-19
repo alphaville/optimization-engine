@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.4] - 2020-10-21
+
+### Added
+
+* Accessing Rust from Python directly using PyO3 
+
+### Fixed
+
+* List of authors in `Cargo.toml` is generated properly
+
 
 ## [0.6.3] - 2020-10-06
 
@@ -77,6 +87,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
 [0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3
 [0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.1...opengen-0.6.2
 [0.6.1]: https://github.com/alphaville/optimization-engine/compare/opengen-v0.6.0...opengen-0.6.1

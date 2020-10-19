@@ -26,6 +26,7 @@ of the following ways:
 - Directly in **Rust** (you can include it in you Rust project as a dependency)
 - Over a **TCP socket** based on JSON (which can be accessed easily from any programming language)
 - In **Python** (using the TCP/IP interface in the background)
+- In [**Python**](python-bindings) by accessing the Rust-based auto-generated optimizer directly
 - In [**C** or **C++**](python-c) using auto-generated C/C++ bindings (header files and static or shared libraries)
 - In [**ROS**](python-ros) using auto-generated ROS packages
 
