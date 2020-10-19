@@ -588,9 +588,9 @@ class OpEnOptimizerBuilder:
 
     def enable_tcp_interface(self,
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
-        warnings.warn("deprecated (use BuildConfiguration.with_tcp_interface_config instead)",
-                      DeprecationWarning)
-        self.__build_config.with_tcp_interface_config(tcp_server_configuration)
+        # This method should not be used!
+        raise DeprecationWarning(
+            "deprecated (use BuildConfiguration.with_tcp_interface_config instead)")
 
     def __generate_c_bindings_example(self):
         self.__logger.info("Generating example_optimizer.c (C bindings example for your convenience)")
