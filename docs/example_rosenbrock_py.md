@@ -42,11 +42,11 @@ problem = og.builder.Problem(u, p, phi) \
     .with_penalty_constraints(c)        \
     .with_constraints(bounds)
 build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("python_test_build") \
+    .with_build_directory("my_optimizers") \
     .with_build_mode("debug")                  \
     .with_tcp_interface_config()
 meta = og.config.OptimizerMeta()                   \
-    .with_optimizer_name("tcp_enabled_optimizer")
+    .with_optimizer_name("rosenbrock")
 solver_config = og.config.SolverConfiguration()    \
     .with_tolerance(1e-5)                          \
     .with_delta_tolerance(1e-4)                    \
@@ -58,12 +58,16 @@ builder.build()
 
 # Use TCP server
 # ------------------------------------
-mng = og.tcp.OptimizerTcpManager('python_test_build/tcp_enabled_optimizer')
+mng = og.tcp.OptimizerTcpManager('my_optimizers/rosenbrock')
 mng.start()
 
 mng.ping()
-solution = mng.call([1.0, 50.0])
-print(solution)
+server_response = mng.call([1.0, 50.0])
+
+if server_response.is_ok():
+    solution = server_response.get()
+    u_star = solution.solution
+    status = solution.exit_status
 
 mng.kill()
 ```
