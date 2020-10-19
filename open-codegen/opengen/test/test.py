@@ -218,9 +218,11 @@ class RustBuildTestCase(unittest.TestCase):
     def test_python_bindings(self):
         import sys
         import os
-        sys.path.insert(1, os.getcwd())  # include the CWD into the path!
 
+        # include the target directory into the path...
+        sys.path.insert(1, os.path.join(RustBuildTestCase.TEST_DIR, "python_bindings"))
         import python_bindings  # import python_bindings.so
+
         solver = python_bindings.solver()
         result = solver.run([1., 2.])  # returns object of type OptimizerSolution
         self.assertIsNotNone(result.solution)
