@@ -116,3 +116,18 @@ properties:
 
 These are the same properties as those of `opengen.tcp.SolverStatus`.
 
+
+## Importing optimizer with variable name
+
+Previously we used `import rosenbrock` to import the auto-generated module.
+
+The limitation of this syntax is that it makes it difficult to change the name of the optimizer, i.e., `rosenbrock` is hard-coded.
+
+A better syntax would be:
+
+```python
+optimizers_dir = "my_optimizers"
+optimizer_name = "rosenbrock"
+sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
+rosenbrock = __import__(optimizer_name)
+```
