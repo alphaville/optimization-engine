@@ -237,8 +237,9 @@ meta = og.config.OptimizerMeta()               \
     .with_optimizer_name(<span class="hljs-string">"estimator"</span>)
 builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
 builder.build()
-
-<span class="hljs-comment"># Use TCP server</span>
+</code></pre>
+<p>The generated solver can be consumed over its TCP interface:</p>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Use TCP server</span>
 <span class="hljs-comment"># ------------------------------------</span>
 mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_test_build/estimator'</span>)
 mng.start()

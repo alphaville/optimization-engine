@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Direct interface · OpEn</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="How to access the auto-generated optimizer from Python"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Direct interface · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="How to access the auto-generated optimizer from Python"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">OpEn Guide<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Python<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Advanced options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-bindings">Direct interface</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ros">ROS packages</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">MATLAB<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Rust<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Basic usage</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">Advanced Rust</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Docker<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/docker">Docker</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Extras<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/cite_open">Cite OpEn</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Direct interface</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<div class="alert alert-warning">
+<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.6.4</code>.
+The API is still young and is likely to change in versions <code>0.7.X</code>.
+</div>
+<p>As we <a href="python-interface#about">discussed previously</a> there are various ways
+you can use the auto-generated optimizer. You can use the generated Rust code,
+access it over a TCP socket, and so on. In this section we will focus on
+how to access it <em>directly</em>.</p>
+<p>The idea is that OpEn can generate a Python module that you can <code>import</code>.</p>
+<h2><a class="anchor" aria-hidden="true" id="generate-a-python-module-for-your-optimizer"></a><a href="#generate-a-python-module-for-your-optimizer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generate a Python module for your optimizer</h2>
+<p>Consider the following <a href="example_rosenbrock_py">parametric optimization problem</a>:</p>
+<div class="math">
+\[
+    \begin{align}
+    \operatorname*{Minimize}_{\|u\|\leq r}& \sum_{i=1}^{n_u - 1} b (u_{i+1} - u_{i}^2)^2 + (a-u_i)^2
+    \\
+    \text{subject to: }& 1.5 u_1 - u_2 = 0
+    \\
+    &u_3 - u_4 + 0.1 \leq 0
+    \end{align}
+\]</div>
+<pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
+<span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
+
+u = cs.SX.sym(<span class="hljs-string">"u"</span>, <span class="hljs-number">5</span>)
+p = cs.SX.sym(<span class="hljs-string">"p"</span>, <span class="hljs-number">2</span>)
+phi = og.functions.rosenbrock(u, p)
+c = cs.vertcat(<span class="hljs-number">1.5</span> * u[<span class="hljs-number">0</span>] - u[<span class="hljs-number">1</span>],
+               cs.fmax(<span class="hljs-number">0.0</span>, u[<span class="hljs-number">2</span>] - u[<span class="hljs-number">3</span>] + <span class="hljs-number">0.1</span>))
+bounds = og.constraints.Ball2(radius=<span class="hljs-number">1.5</span>)
+problem = og.builder.Problem(u, p, phi) \
+    .with_penalty_constraints(c) \
+    .with_constraints(bounds)
+build_config = og.config.BuildConfiguration() \
+    .with_build_directory(<span class="hljs-string">"my_optimizers"</span>) \
+    .with_build_mode(<span class="hljs-string">"debug"</span>) \
+    .with_build_python_bindings()
+meta = og.config.OptimizerMeta() \
+    .with_optimizer_name(<span class="hljs-string">"rosenbrock"</span>)
+builder = og.builder.OpEnOptimizerBuilder(problem, meta,
+                                          build_config)
+builder.build()
+</code></pre>
+<p>Note that we have used <code>with_build_python_bindings()</code>.</p>
+<p>This will allow us to <strong>import the auto-generated optimizer</strong> as a Python
+module!</p>
+<h2><a class="anchor" aria-hidden="true" id="use-the-generated-module"></a><a href="#use-the-generated-module" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Use the generated module</h2>
+<p>The above code generates an optimizer which is stored in <code>my_optimizers/rosenbrock</code>.
+In that directory you can find a file called <code>rosenbrock.so</code> (or <code>rosenbrock.pyd</code> on Windows).
+This can be loaded as an autogenerated Python module.
+However, mind that this directory is most likely not in your Python path,
+so you will have to add it before you can import the optimizer.
+This can be done very easily:</p>
+<pre><code class="hljs css language-python">sys.path.insert(<span class="hljs-number">1</span>, <span class="hljs-string">'./my_optimizers/rosenbrock'</span>)
+<span class="hljs-keyword">import</span> rosenbrock
+</code></pre>
+<p>Then you will be able to use it as follows:</p>
+<pre><code class="hljs css language-python">solver = rosenbrock.solver()
+result = solver.run(p=[<span class="hljs-number">20.</span>, <span class="hljs-number">1.</span>])
+u_star = result.solution
+</code></pre>
+<p>In the first line, <code>solver = rosenbrock.solver()</code>, we obtain an instance of
+<code>Solver</code>, which can be used to solve parametric optimization problems.
+In the second line, <code>result = solver.run(p=[20., 1.])</code>, we call the solver
+with parameter $p=(20, 1)$. Method <code>run</code> accepts another three optional
+arguments, namely:</p>
+<ul>
+<li><code>initial_guess</code> (can be either a list or a numpy array),</li>
+<li><code>initial_lagrange_multipliers</code>, and</li>
+<li><code>initial_penalty</code></li>
+</ul>
+<p>The solver returns an object of type <code>OptimizerSolution</code> with the following
+properties:</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Explanation</th></tr>
+</thead>
+<tbody>
+<tr><td><code>exit_status</code></td><td>Exit status; can be (i) <code>Converged</code> or (ii) <code>NotConvergedIterations</code>, if the maximum number of iterations was reached, therefore, the algorithm did not converge up to the specified tolerances, or (iii) <code>NotConvergedOutOfTime</code>, if the solver did not have enough time to converge</td></tr>
+<tr><td><code>num_outer_iterations</code></td><td>Number of outer iterations</td></tr>
+<tr><td><code>num_inner_iterations</code></td><td>Total number of inner iterations (for all inner problems)</td></tr>
+<tr><td><code>last_problem_norm_fpr</code></td><td>Norm of the fixed-point residual of the last inner problem; this is a measure of the solution quality of the inner problem</td></tr>
+<tr><td><code>f1_infeasibility</code></td><td>Euclidean norm of $c^{-1}(y^+-y)$, which is equal to the distance between $F_1(u, p)$ and $C$ at the solution</td></tr>
+<tr><td><code>f2_norm</code></td><td>Euclidean norm of $F_2(u, p)$ at the solution</td></tr>
+<tr><td><code>solve_time_ms</code></td><td>Total execution time in milliseconds</td></tr>
+<tr><td><code>penalty</code></td><td>Last value of the penalty parameter</td></tr>
+<tr><td><code>solution</code></td><td>Solution</td></tr>
+<tr><td><code>cost</code></td><td>Cost function at solution</td></tr>
+<tr><td><code>lagrange_multipliers</code></td><td>Vector of Lagrange multipliers (if $n_1 &gt; 0$) or an empty vector, otherwise</td></tr>
+</tbody>
+</table>
+<p>These are the same properties as those of <code>opengen.tcp.SolverStatus</code>.</p>
+<h2><a class="anchor" aria-hidden="true" id="importing-optimizer-with-variable-name"></a><a href="#importing-optimizer-with-variable-name" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Importing optimizer with variable name</h2>
+<p>Previously we used <code>import rosenbrock</code> to import the auto-generated module.</p>
+<p>The limitation of this syntax is that it makes it difficult to change the name of the optimizer, i.e., <code>rosenbrock</code> is hard-coded.</p>
+<p>A better syntax would be:</p>
+<pre><code class="hljs css language-python">optimizers_dir = <span class="hljs-string">"my_optimizers"</span>
+optimizer_name = <span class="hljs-string">"rosenbrock"</span>
+sys.path.insert(<span class="hljs-number">1</span>, os.path.join(optimizers_dir, optimizer_name))
+rosenbrock = __import__(optimizer_name)
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-c"><span class="arrow-prev">← </span><span>C/C++ Bindings</span></a><a class="docs-next button" href="/optimization-engine/docs/python-tcp-ip"><span>TCP Sockets</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#generate-a-python-module-for-your-optimizer">Generate a Python module for your optimizer</a></li><li><a href="#use-the-generated-module">Use the generated module</a></li><li><a href="#importing-optimizer-with-variable-name">Importing optimizer with variable name</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2020 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
