@@ -1,28 +1,25 @@
-import time
-import logging
+import sys
+import os
 import casadi.casadi as cs
 import opengen as og
 
-logging.getLogger().setLevel(5)
+optimizers_dir = "my_optimizers"
+optimizer_name = "rosenbrock"
 
 u = cs.SX.sym("u", 5)  # decision variable (nu = 5)
 p = cs.SX.sym("p", 2)  # parameter (np = 2)
-phi = cs.dot(u, u)  # cost function
+phi = og.functions.rosenbrock(u, p)  # cost function
 
 bounds = og.constraints.Halfspace([1., 2., 1., 5., 2.], -10.39)
-
-problem = og.builder.Problem(u, p, phi) \
-    .with_constraints(bounds)
-
+problem = og.builder.Problem(u, p, phi).with_constraints(bounds)
 meta = og.config.OptimizerMeta() \
-    .with_optimizer_name("halfspace_optimizer") \
-    .with_authors(["P. Sopasakis", "S. Author"]).with_version("0.1.56")
+    .with_optimizer_name(optimizer_name)
 
 tcp_config = og.config.TcpServerConfiguration(bind_port=3305)
 build_config = og.config.BuildConfiguration() \
-    .with_build_directory('my_optimizers') \
+    .with_build_directory(optimizers_dir) \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-    .with_tcp_interface_config()
+    .with_build_python_bindings()
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
@@ -30,24 +27,9 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           og.config.SolverConfiguration())
 builder.build()
 
-all_managers = []
-for i in range(10):
-    all_managers += [og.tcp.OptimizerTcpManager(
-        optimizer_path='my_optimizers/halfspace_optimizer',
-        ip='0.0.0.0',
-        port=3311+i)]
+sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
+rosenbrock = __import__(optimizer_name)
 
-for m in all_managers:
-    m.start()
-
-time.sleep(4)
-
-for m in all_managers:
-    print(m.details)
-    resp = m.call(p=[1., 2.])
-    print(resp.get().solution)
-
-# mng.kill()
-time.sleep(6)
-for m in all_managers:
-    m.kill()
+solver = rosenbrock.solver()
+result = solver.run([1., 2.])
+print(result.solution)

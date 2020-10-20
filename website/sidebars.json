@@ -8,6 +8,7 @@
       "python-interface",
       "python-advanced",
       "python-c",
+      "python-bindings",
       "python-tcp-ip",
       "python-ros",
       "python-examples"

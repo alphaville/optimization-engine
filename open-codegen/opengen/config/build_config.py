@@ -36,6 +36,7 @@ class BuildConfiguration:
         self.__build_dir = build_dir
         self.__open_version = None
         self.__build_c_bindings = False
+        self.__build_python_bindings = False
         self.__ros_config = None
         self.__tcp_interface_config = None
         self.__local_path = None
@@ -102,6 +103,10 @@ class BuildConfiguration:
     @property
     def build_c_bindings(self):
         return self.__build_c_bindings
+
+    @property
+    def build_python_bindings(self):
+        return self.__build_python_bindings
 
     @property
     def tcp_interface_config(self):
@@ -202,6 +207,21 @@ class BuildConfiguration:
         :return: current instance of BuildConfiguration
         """
         self.__build_c_bindings = build_c_bindings
+        return self
+
+    def with_build_python_bindings(self, build_python_bindings=True):
+        """
+        If activated, OpEn will generate python bindings for the
+        auto-generated solver
+
+        :param build_python_bindings: whether to build python bindings for
+        auto-generated solver; default: `True`, i.e., it suffices
+        to call `build_config.with_build_python_bindings()` instead of
+        `build_config.with_build_python_bindings(True)`
+
+        :return: current instance of BuildConfiguration
+        """
+        self.__build_python_bindings = build_python_bindings
         return self
 
     def with_ros(self, ros_config: RosConfiguration):

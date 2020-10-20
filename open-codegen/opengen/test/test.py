@@ -29,6 +29,27 @@ class RustBuildTestCase(unittest.TestCase):
         return solver_config
 
     @classmethod
+    def setUpPythonBindings(cls):
+        u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
+        p = cs.MX.sym("p", 2)  # parameter (np = 2)
+        phi = og.functions.rosenbrock(u, p)  # cost function
+        bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("python_bindings")
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds)
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)\
+            .with_build_python_bindings()
+        og.builder.OpEnOptimizerBuilder(problem,
+                                        metadata=meta,
+                                        build_configuration=build_config,
+                                        solver_configuration=cls.solverConfig()) \
+            .build()
+
+    @classmethod
     def setUpOnlyF1(cls):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
@@ -186,12 +207,26 @@ class RustBuildTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.setUpPythonBindings()
         cls.setUpRosPackageGeneration()
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
         cls.setUpHalfspace()
+
+    def test_python_bindings(self):
+        import sys
+        import os
+
+        # include the target directory into the path...
+        sys.path.insert(1, os.path.join(RustBuildTestCase.TEST_DIR, "python_bindings"))
+        import python_bindings  # import python_bindings.so
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2.])  # returns object of type OptimizerSolution
+        self.assertIsNotNone(result.solution)
+
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
