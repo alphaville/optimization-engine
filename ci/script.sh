@@ -2,31 +2,23 @@
 set -euxo pipefail
 
 regular_test() {
-    # Run Rust tests
-    # ------------------------------------
-    cargo test
-
-    # Run Clippy
-    # ------------------------------------
-    cargo clippy --all-targets --all-features
-
     # Run Python tests
     # ------------------------------------
 
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    virtualenv -p python$PYTHON_VERSION venv
-    
-    # --- activate venv
-    source venv/bin/activate
-    
+    # virtualenv -p python3 venv
+
+    # # --- activate venv
+    # source venv/bin/activate
+
     # --- install opengen
     python setup.py install
-    
+
     # --- uncomment to run main file
     # run opengen main.py
-    
+
     # --- run the tests
     cd opengen
     export PYTHONPATH=.
