@@ -8,7 +8,7 @@ regular_test() {
 
     # Run Clippy
     # ------------------------------------
-    cargo clippy --all-targets --all-features
+    cargo clippy --all-features
 
     # Run Python tests
     # ------------------------------------
