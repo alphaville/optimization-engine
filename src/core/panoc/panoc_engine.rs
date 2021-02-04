@@ -350,7 +350,22 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
-        self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
+
+        let scaling = 1. / self.cache.lipschitz_constant;
+
+        if scaling.is_finite() {
+            self.cache.gamma = GAMMA_L_COEFF * scaling;
+        } else {
+            // No curvature, estimate gamma scaling with the current gradient and cost
+            let scale = self.cache.cost_value / matrix_operations::norm2(&self.cache.gradient_u);
+
+            if scale.is_finite() && scale > 0.0 {
+                self.cache.gamma = GAMMA_L_COEFF * scale;
+            } else {
+                self.cache.gamma = GAMMA_L_COEFF;
+            }
+
+        }
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
