@@ -143,8 +143,8 @@ fn t_test_panoc_rosenbrock() {
 
 #[test]
 fn test_panoc_1norm() {
-    let tolerance = 1e-10;
-    let mut panoc_cache = PANOCCache::new(1, 1e-10, 10);
+    let tolerance = 1e-8;
+    let mut panoc_cache = PANOCCache::new(1, tolerance, 10);
     let u = &mut [1e4];
 
     let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
@@ -162,15 +162,16 @@ fn test_panoc_1norm() {
     // Problem statement.
     let problem = Problem::new(&bounds, df, f);
 
-    let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(20);
+    let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(2000);
 
     // Invoke the solver.
     let status = panoc.solve(u);
+
+    println!("Solver status: {:#?}", status);
 
     assert!(status.is_ok());
     assert!(status.unwrap().has_converged());
     assert!(status.unwrap().norm_fpr() <= tolerance);
 
-    println!("Solver status: {:#?}", status);
     println!("u: {:?}", u);
 }

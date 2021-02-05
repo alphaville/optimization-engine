@@ -216,7 +216,10 @@ where
             .for_each(|(out, a)| *out -= *a);
 
         let norm_workspace = matrix_operations::norm2(&self.workspace);
-        Ok(norm_workspace / norm_h)
+
+        // Note: in case the Lipschitz constant turns out to be zero (or extremely small),
+        // the returned Lipschitz constant is set to a small positive constant
+        Ok(f64::max(f64::EPSILON, norm_workspace / norm_h))
     }
 }
 
