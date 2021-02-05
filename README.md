@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://alphaville.github.io/optimization-engine/">
-    <img alt="OpEn logo" src="design/new_open_logo.png">
+    <img alt="OpEn logo" src="design/optimization-engine.png">
   </a>
 </p>
 
