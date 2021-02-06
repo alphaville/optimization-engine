@@ -1,13 +1,14 @@
 <p align="center">
   <a href="https://alphaville.github.io/optimization-engine/">
-    <img alt="OpEn logo" src="design/new_open_logo.png">
+    <img alt="OpEn logo" src="design/optimization-engine.png" width="400">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://www.codefactor.io/repository/github/alphaville/optimization-engine"><img src="https://www.codefactor.io/repository/github/alphaville/optimization-engine/badge" alt="CodeFactor" /></a> 
-  <a href="https://travis-ci.org/alphaville/optimization-engine">
-    <img alt="build status" src="https://travis-ci.org/alphaville/optimization-engine.svg?branch=master">
+  <a href="https://www.codefactor.io/repository/github/alphaville/optimization-engine"><img src="https://www.codefactor.io/repository/github/alphaville/optimization-engine/badge" alt="CodeFactor" />
+  </a> 
+  <a href="https://github.com/alphaville/optimization-engine/actions?query=branch%3Amaster">
+    <img alt="GHA continuous integration" src="https://github.com/alphaville/optimization-engine/workflows/Continuous%20integration/badge.svg">
   </a>
   <a href="https://ci.appveyor.com/project/alphaville/optimization-engine/branch/master">
     <img alt="build status" src="https://ci.appveyor.com/api/projects/status/fy9tr4xmqq3ka4aj/branch/master?svg=true">
