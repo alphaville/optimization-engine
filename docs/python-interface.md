@@ -108,8 +108,7 @@ the above table, it is
 ```python
 # Segments: [0, 1], [2, 3, 4]
 segment_ids = [1, 4]
-dim = 5
-bounds = og.constraints.CartesianProduct(dim, segment_ids, [ball, rect])
+bounds = og.constraints.CartesianProduct(segment_ids, [ball, rect])
 ```
 
 We may now define the optimization problem as follows:
