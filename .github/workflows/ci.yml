@@ -15,6 +15,7 @@ jobs:
       DO_DOCKER: 0
     steps:
       - uses: actions/checkout@v2
+      - uses: egor-tensin/setup-clang@v1
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
