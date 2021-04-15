@@ -29,3 +29,24 @@ jobs:
           python-version: '3.x'
           architecture: 'x64'
       - run: bash ./ci/script.sh
+  
+  ci_macos:
+    runs-on: macos-latest
+    env:
+      DO_DOCKER: 0
+    steps:
+      - uses: actions/checkout@v2
+      - run: brew install llvm
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+      - run: bash ./ci/script.sh
