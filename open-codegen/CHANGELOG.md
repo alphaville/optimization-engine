@@ -13,7 +13,9 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 * `# Safety` section in unsafe auto-generated Rust code
 
+### Removed 
 
+* Unnecessary `#[no_mangle]`s in auto-generated Rust code
 
 
 ## [0.6.5] - 2020-04-16
@@ -21,7 +23,6 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Changed
 
 * Include `VERSION` file in `MANIFEST.in` (included in Python package)
-
 
 
 ## [0.6.4] - 2020-10-21
@@ -33,6 +34,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Fixed
 
 * List of authors in `Cargo.toml` is generated properly
+* Fixed bug when curvature is zero
 
 ### Changed
 
