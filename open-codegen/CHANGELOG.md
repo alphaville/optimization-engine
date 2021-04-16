@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
-## [0.6.5] - 2021-04-16
-
-### Changed
-
-* File `VERSION` is now included in `MANIFEST.in`
-
 
 ## [0.6.4] - 2020-10-21
 
@@ -24,7 +18,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 * List of authors in `Cargo.toml` is generated properly
 
-### Changed
+# Changed
 
 * `enable_tcp_interface` previously gave a `DeprecationWarning`; now it raises it. In a future version, it will be removed. 
 
@@ -98,8 +92,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
-[0.6.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.4...opengen-0.6.5
-[0.6.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
+[0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
 [0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3
 [0.6.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.1...opengen-0.6.2
 [0.6.1]: https://github.com/alphaville/optimization-engine/compare/opengen-v0.6.0...opengen-0.6.1
