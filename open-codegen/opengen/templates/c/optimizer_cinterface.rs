@@ -4,7 +4,6 @@
 /// Solver cache (structure `{{meta.optimizer_name}}Cache`)
 ///
 #[allow(non_camel_case_types)]
-#[no_mangle]
 pub struct {{meta.optimizer_name}}Cache {
     cache: AlmCache,
 }
@@ -19,7 +18,6 @@ impl {{meta.optimizer_name}}Cache {
 /// Structure: `{{meta.optimizer_name}}ExitStatus`
 #[allow(non_camel_case_types)]
 #[repr(C)]
-#[no_mangle]
 pub enum {{meta.optimizer_name}}ExitStatus {
     /// The algorithm has converged
     ///
@@ -40,7 +38,6 @@ pub enum {{meta.optimizer_name}}ExitStatus {
 /// Structure: `{{meta.optimizer_name}}SolverStatus`
 ///
 #[repr(C)]
-#[no_mangle]
 pub struct {{meta.optimizer_name}}SolverStatus {
     /// Exit status
     exit_status: {{meta.optimizer_name}}ExitStatus,
