@@ -10,12 +10,20 @@ regular_test() {
     export PYTHONPATH=.
     pip install --upgrade pip
 
+    # --- install virtualenv
     pip install virtualenv
+    
+    # --- create virtualenv
     virtualenv -p python3 venv
+
+    # --- activate venv
+    source venv/bin/activate
+
+    # --- install opengen
     pip install .
 
-    # # --- activate venv
-    #source venv/bin/activate
+    
+    #
 
     # --- install opengen
     #pip install cython # <-- tentative
