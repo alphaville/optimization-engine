@@ -8,8 +8,6 @@ regular_test() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    python -m pip install --upgrade pip
-    pip install --upgrade pip
 
     # --- install virtualenv
     pip install virtualenv
@@ -19,6 +17,9 @@ regular_test() {
 
     # --- activate venv
     source venv/bin/activate
+
+    # --- upgrade pip within venv
+    pip install --upgrade pip
 
     # --- install opengen
     pip install .
