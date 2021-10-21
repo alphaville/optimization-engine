@@ -1,4 +1,5 @@
 from .constraint import Constraint
+import numpy as np
 
 
 class Simplex(Constraint):
@@ -33,28 +34,26 @@ class Simplex(Constraint):
         raise NotImplementedError()
 
     def project(self, y):
-
+        """TODO: Write documentation here
+        """
         def __pop_all(z, indices):
             for index in sorted(indices, reverse=True):
                 del z[index]
             return z
 
         # inputs ----
-        len_y = len(y)
-        a = self.__alpha
-        # outputs ----
-        x = [0] * len_y
+        len_y, a = len(y), self.__alpha
 
         # 1 ----
         v = [y[0]]
-        v_size_old = len(v)
+        v_size_old = -1
         v_tilda = []
         rho = y[0] - a
 
         # 2 ----
         for yn in y[1:]:
             if yn > rho:
-                rho = rho + (yn - rho) / (len(v) + 1)
+                rho += (yn - rho) / (len(v) + 1)
                 if rho > yn - a:
                     v.append(yn)
                 else:
@@ -67,7 +66,7 @@ class Simplex(Constraint):
             for v_tilda_i in v_tilda:
                 if v_tilda_i > rho:
                     v.append(v_tilda_i)
-                    rho = rho + (v_tilda_i - rho) / len(v)
+                    rho += (v_tilda_i - rho) / len(v)
 
         # 4 ----
         keep_running = True
@@ -78,18 +77,14 @@ class Simplex(Constraint):
                 if vj <= rho:
                     hit_list += [j]
                     current_len_v -= 1
-                    rho = rho + (rho - vj) / current_len_v
+                    rho += (rho - vj) / current_len_v
             v = __pop_all(v, hit_list)
             keep_running = len(v) != v_size_old
             v_size_old = len(v)
 
-        # 5 ----
-        tau = rho
-        K = len(v)
-
         # 6 ----
-        for k in range(len_y):
-            x[k] = max(y[k] - tau, 0)
+        ufunc = np.vectorize(lambda s: max(s - rho, 0), otypes=[np.float64])
+        x = ufunc(np.array(y, dtype=np.float64))
 
         # result ----
         return x
