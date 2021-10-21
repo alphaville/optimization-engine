@@ -383,10 +383,10 @@ class ConstraintsTestCase(unittest.TestCase):
     # -----------------------------------------------------------------------
 
     def test_simplex_projection(self):
-        simplex = og.constraints.Simplex()
-        y = [1, 8, 0]
+        simplex = og.constraints.Simplex(alpha=2)
+        y = [1, 8, 0, -4]
         z = simplex.project(y)
-        self.assertAlmostEqual(sum(z), 1, 12, "WT!£$%&^%&^")
+        self.assertAlmostEqual(sum(z), 2, 12, "Simplex projection sum not equal to positive alpha.")
 
 
 if __name__ == '__main__':

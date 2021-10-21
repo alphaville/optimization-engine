@@ -2,24 +2,22 @@ from .constraint import Constraint
 
 
 class Simplex(Constraint):
-    """A Simplex constraint
+    """Simplex constraint
 
-    A constraint of the form ||u-u0|| <= r, where u0 is the center
-    of the ball and r is its radius
+    A constraint of the form sum(y) = a, where y is the input vector
+    and a is the simplex value alpha. The simplex constraint set is
+    defined by alpha and the length of the input vector.
 
     """
 
-    def __init__(self, alpha: float = 1.0):
-        """Constructor for a Euclidean ball constraint
+    def __init__(self, alpha: float = 1.0):  # unless specified, alpha is unit vector
+        """Constructor for a Simplex constraint
 
         Args:
-            center: center of the ball; if this is equal to Null, the
-            ball is centered at the origin
-
-            radius: radius of the ball
+            alpha: unit vector multiplier
 
         Returns:
-            New instance of Ball2 with given center and radius
+            New instance of Simplex with given alpha.
         """
         if alpha <= 0:
             raise Exception("Alpha must be a positive number")
@@ -28,7 +26,7 @@ class Simplex(Constraint):
 
     @property
     def alpha(self):
-        """Returns the simplex alpha"""
+        """Returns the simplex value alpha"""
         return self.__alpha
 
     def distance_squared(self, u):
