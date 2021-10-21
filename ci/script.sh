@@ -5,7 +5,7 @@ regular_test() {
     # Run Python tests
     # ------------------------------------
 
-    # Create virtual environment
+    # --- create virtual environment
     cd open-codegen
     export PYTHONPATH=.
 
@@ -24,15 +24,8 @@ regular_test() {
     # --- install opengen
     pip install .
 
-    
-    #
-
-    # --- install opengen
-    #pip install cython # <-- tentative
-    # python setup.py install
-
     # --- uncomment to run main file
-    # run opengen main.py
+    # python main.py
 
     # --- run the tests
     cd opengen
