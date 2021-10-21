@@ -15,6 +15,7 @@ regular_test() {
     source venv/bin/activate
 
     # --- install opengen
+    pip install cython # <-- tentative
     python setup.py install
 
     # --- uncomment to run main file
