@@ -378,6 +378,16 @@ class ConstraintsTestCase(unittest.TestCase):
     # Set Y (from C)
     # -----------------------------------------------------------------------
 
+    # -----------------------------------------------------------------------
+    # Simplex
+    # -----------------------------------------------------------------------
+
+    def test_simplex_projection(self):
+        simplex = og.constraints.Simplex()
+        y = [1, 8, 0]
+        z = simplex.project(y)
+        self.assertAlmostEqual(sum(z), 1, 12, "WT!£$%&^%&^")
+
 
 if __name__ == '__main__':
     unittest.main()

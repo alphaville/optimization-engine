@@ -8,3 +8,4 @@ from .cartesian import *
 from .zero import *
 from .finite_set import *
 from .halfspace import *
+from .simplex import *
