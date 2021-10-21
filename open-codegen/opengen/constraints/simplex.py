@@ -54,15 +54,15 @@ class Simplex(Constraint):
         rho = y[0] - a
 
         # 2 ----
-        for n in range(1, len_y):
-            if y[n] > rho:
-                rho = rho + (y[n] - rho) / (len(v) + 1)
-                if rho > y[n] - a:
-                    v.append(y[n])
+        for yn in y[1:]:
+            if yn > rho:
+                rho = rho + (yn - rho) / (len(v) + 1)
+                if rho > yn - a:
+                    v.append(yn)
                 else:
                     v_tilda.extend(v)
-                    v = [y[n]]
-                    rho = y[n] - a
+                    v = [yn]
+                    rho = yn - a
 
         # 3 ----
         if len(v_tilda) > 0:
@@ -76,11 +76,11 @@ class Simplex(Constraint):
         while keep_running:
             hit_list = []
             current_len_v = len(v)
-            for j in range(len(v)):
-                if v[j] <= rho:
+            for j, vj in enumerate(v):
+                if vj <= rho:
                     hit_list += [j]
                     current_len_v -= 1
-                    rho = rho + (rho - v[j]) / current_len_v
+                    rho = rho + (rho - vj) / current_len_v
             v = __pop_all(v, hit_list)
             keep_running = len(v) != v_size_old
             v_size_old = len(v)
