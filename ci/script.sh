@@ -8,14 +8,14 @@ regular_test() {
     # Create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    pip install virtualenv
-    virtualenv -p python3 venv
+    #pip install virtualenv
+    #virtualenv -p python3 venv
 
     # # --- activate venv
-    source venv/bin/activate
+    #source venv/bin/activate
 
     # --- install opengen
-    pip install cython # <-- tentative
+    #pip install cython # <-- tentative
     python setup.py install
 
     # --- uncomment to run main file
