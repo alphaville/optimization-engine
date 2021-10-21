@@ -32,26 +32,26 @@ setup(name=NAME,
       author_email='p.sopasakis@gmail.com',
       license='MIT License',
       packages=find_packages(
-            exclude=["tests", "icasadi", "templates"]),
+          exclude=["tests", "icasadi", "templates"]),
       include_package_data=True,
       install_requires=[
-          'jinja2', 'casadi', 'numpy', 'pyyaml', 'retry'
+          'jinja2', 'casadi', 'cython', 'numpy', 'pyyaml', 'retry'
       ],
       classifiers=[
-            'Development Status :: 4 - Beta',
-            'License :: OSI Approved :: MIT License',
-            'License :: OSI Approved :: Apache Software License',
-            'Programming Language :: Python',
-            'Programming Language :: Rust',
-            'Intended Audience :: Science/Research',
-            'Topic :: Software Development :: Libraries',
-            'Topic :: Scientific/Engineering',
-            'Topic :: Scientific/Engineering :: Mathematics',
-            'Topic :: Software Development :: Code Generators',
-            'Topic :: Software Development :: Embedded Systems'
+          'Development Status :: 4 - Beta',
+          'License :: OSI Approved :: MIT License',
+          'License :: OSI Approved :: Apache Software License',
+          'Programming Language :: Python',
+          'Programming Language :: Rust',
+          'Intended Audience :: Science/Research',
+          'Topic :: Software Development :: Libraries',
+          'Topic :: Scientific/Engineering',
+          'Topic :: Scientific/Engineering :: Mathematics',
+          'Topic :: Software Development :: Code Generators',
+          'Topic :: Software Development :: Embedded Systems'
       ],
       keywords=['optimization', 'nonconvex', 'embedded'],
       url=(
-            'https://github.com/alphaville/optimization-engine'
+          'https://github.com/alphaville/optimization-engine'
       ),
       zip_safe=False)
