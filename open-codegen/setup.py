@@ -34,9 +34,8 @@ setup(name=NAME,
       packages=find_packages(
           exclude=["tests", "icasadi", "templates"]),
       include_package_data=True,
-      setup_requires=['cython'],
       install_requires=[
-          'jinja2', 'casadi', 'numpy', 'pyyaml', 'retry'
+          'jinja2', 'casadi', 'pyyaml', 'retry', 'numpy'
       ],
       classifiers=[
           'Development Status :: 4 - Beta',
