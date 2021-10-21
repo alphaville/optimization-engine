@@ -31,7 +31,10 @@ jobs:
       - run: bash ./ci/script.sh
 
   ci_macos:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-11, macos-10.15]
     env:
       DO_DOCKER: 0
     steps:
