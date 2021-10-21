@@ -10,9 +10,9 @@ regular_test() {
     export PYTHONPATH=.
     pip install --upgrade pip
 
+    pip install virtualenv
+    virtualenv -p python3 venv
     pip install .
-    #pip install virtualenv
-    #virtualenv -p python3 venv
 
     # # --- activate venv
     #source venv/bin/activate
