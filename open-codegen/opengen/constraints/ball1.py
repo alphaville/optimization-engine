@@ -31,16 +31,16 @@ class Ball1(Constraint):
         raise NotImplementedError()
 
     def project(self, u):
-        if np.linalg.norm(u, 1) <= self.__radius:
+        if np.linalg.norm(u, 1) <= self.radius:
             return u
-        else:
-            n = len(u)
-            simplex = Simplex(self.__radius)
-            x = simplex.project(abs(u))
-            z = np.zeros(n)
-            for i, (ui, xi) in enumerate(zip(u, x)):
-                z[i] = np.sign(ui) * xi
-            return z
+
+        n = len(u)
+        simplex = Simplex(self.radius)
+        x = simplex.project(abs(u))
+        z = np.zeros(n)
+        for i, (ui, xi) in enumerate(zip(u, x)):
+            z[i] = np.sign(ui) * xi
+        return z
 
     def is_convex(self):
         return True
