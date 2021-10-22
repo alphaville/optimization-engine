@@ -36,8 +36,8 @@ class Simplex(Constraint):
     def project(self, y):
         """Computes the projection of a given point `y` (in R^n) on the simplex defined by n and alpha.
 
-            :param y: given point; must be a list of numbers (floats, ints)
-            ?? at the moment can only take a list ????????????????????????????a numpy n-dim array (`ndarray`) or a CasADi SX/MX symbol
+            :param y: given point; must be a list of numbers (float, int) or
+            a numpy n-dim array (`ndarray`)
 
             :return: the projection point in R^n as a numpy array of float64s
         """
