@@ -41,13 +41,12 @@ class Simplex(Constraint):
                 del z[index]
             return z
 
-        # inputs ----
-        len_y, a = len(y), self.__alpha
+        a = self.__alpha
 
         # 1 ----
         v = [y[0]]
         v_size_old = -1
-        v_tilda = []
+        v_tilde = []
         rho = y[0] - a
 
         # 2 ----
@@ -57,16 +56,16 @@ class Simplex(Constraint):
                 if rho > yn - a:
                     v.append(yn)
                 else:
-                    v_tilda.extend(v)
+                    v_tilde.extend(v)
                     v = [yn]
                     rho = yn - a
 
         # 3 ----
-        if len(v_tilda) > 0:
-            for v_tilda_i in v_tilda:
-                if v_tilda_i > rho:
-                    v.append(v_tilda_i)
-                    rho += (v_tilda_i - rho) / len(v)
+        if len(v_tilde) > 0:
+            for v_tilde_i in v_tilde:
+                if v_tilde_i > rho:
+                    v.append(v_tilde_i)
+                    rho += (v_tilde_i - rho) / len(v)
 
         # 4 ----
         keep_running = True
@@ -79,8 +78,8 @@ class Simplex(Constraint):
                     current_len_v -= 1
                     rho += (rho - vj) / current_len_v
             v = __pop_all(v, hit_list)
-            keep_running = len(v) != v_size_old
-            v_size_old = len(v)
+            keep_running = current_len_v != v_size_old
+            v_size_old = current_len_v
 
         # 6 ----
         ufunc = np.vectorize(lambda s: max(s - rho, 0), otypes=[np.float64])

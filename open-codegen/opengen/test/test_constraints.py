@@ -413,17 +413,17 @@ class ConstraintsTestCase(unittest.TestCase):
         # iff <x - x_star, x - x_star> <= 0, for all x in C. Here we are testing whehter
         # this holds for all x which are extreme points of C
         simplex = og.constraints.Simplex(alpha=2)
-        n = 10
-        for i in range(5000):
-            x = np.random.uniform(low=-100, high=100, size=n)
-            alpha = np.random.uniform(low=1e-4, high=100)
-            simplex = og.constraints.Simplex(alpha)
-            x_star = simplex.project(x)
-            for j in range(n):
-                ei = np.zeros((n,))
-                ei[j] = alpha
-                self.assertLessEqual(
-                    np.dot(ei-x_star, x-x_star), 1e-10, "Simplex optimality conditions failed")
+        for n in range(5, 60, 5):
+            for i in range(10*n):
+                x = np.random.uniform(low=-100, high=100, size=n)
+                alpha = np.random.uniform(low=1e-4, high=100)
+                simplex = og.constraints.Simplex(alpha)
+                x_star = simplex.project(x)
+                for j in range(n):
+                    ei = np.zeros((n,))
+                    ei[j] = alpha
+                    self.assertLessEqual(
+                        np.dot(ei-x_star, x-x_star), 1e-10, "Simplex optimality conditions failed")
 
 
 if __name__ == '__main__':
