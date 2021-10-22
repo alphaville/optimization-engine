@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+
+## Unreleased
+
+### Added
+
+- Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+
+
 ## [0.6.5] - 2020-10-21
 
 ### Changed
 
 * Include `VERSION` file in `MANIFEST.in` (included in Python package)
-
 
 
 ## [0.6.4] - 2020-10-21
@@ -70,9 +77,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Issue #185: ROS config parameters are ignored
 
 
-
 ## [0.5.0] - 2020-05-12
-
 
 ### Fixed
 
@@ -99,6 +104,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.6.6a1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.5...opengen-0.6.6a1
 [0.6.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.4...opengen-0.6.5
 [0.6.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
 [0.6.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3

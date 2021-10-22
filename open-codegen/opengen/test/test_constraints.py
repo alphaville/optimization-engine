@@ -394,7 +394,7 @@ class ConstraintsTestCase(unittest.TestCase):
         y = [1, 8, 0, -4]
         z = simplex.project(y)
         self.assertAlmostEqual(
-            sum(z), 2, 12, "Simplex projection sum not equal to positive alpha.")
+            sum(z), 2, 12, "Simplex projection sum not equal to alpha")
 
     def test_simplex_projection_random_spam(self):
         simplex = og.constraints.Simplex(alpha=2)
@@ -405,25 +405,25 @@ class ConstraintsTestCase(unittest.TestCase):
             simplex = og.constraints.Simplex(alpha)
             z = simplex.project(x)
             self.assertAlmostEqual(
-                sum(z), alpha, 10, "Simplex projection sum not equal to positive alpha.")
+                sum(z), alpha, 10, "Simplex projection sum not equal to alpha")
             self.assertTrue(min(z) >= -1e-12, "Simplex projection is negative")
 
     def test_simplex_projection_random_optimality(self):
-        # According to the projection theorem, x_star is the projection of x on a set C
-        # iff <x - x_star, x - x_star> <= 0, for all x in C. Here we are testing whehter
-        # this holds for all x which are extreme points of C
-        simplex = og.constraints.Simplex(alpha=2)
+        # According to the projection theorem, x_star is the projection of z on a set C
+        # iff <x - x_star, z - x_star> <= 0, for all x in C. Here we are testing whether
+        # this holds for all x which are extreme points of C.
         for n in range(5, 60, 5):
             for i in range(10*n):
-                x = np.random.uniform(low=-100, high=100, size=n)
+                z = np.random.uniform(low=-100, high=100, size=n)
                 alpha = np.random.uniform(low=1e-4, high=100)
                 simplex = og.constraints.Simplex(alpha)
-                x_star = simplex.project(x)
+                x_star = simplex.project(z)
+                # test optimality conditions:
                 for j in range(n):
-                    ei = np.zeros((n,))
-                    ei[j] = alpha
+                    x = np.zeros((n,))
+                    x[j] = alpha
                     self.assertLessEqual(
-                        np.dot(ei-x_star, x-x_star), 1e-10, "Simplex optimality conditions failed")
+                        np.dot(x-x_star, z-x_star), 1e-10, "Simplex optimality conditions failed")
 
 
 if __name__ == '__main__':

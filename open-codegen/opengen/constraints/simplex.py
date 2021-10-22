@@ -34,7 +34,12 @@ class Simplex(Constraint):
         raise NotImplementedError()
 
     def project(self, y):
-        """TODO: Write documentation here
+        """Computes the projection of a given point `y` (in R^n) on the simplex defined by n and alpha.
+
+            :param y: given point; must be a list of numbers (float, int) or
+            a numpy n-dim array (`ndarray`)
+
+            :return: the projection point in R^n as a numpy array of float64s
         """
         def __pop_all(z, indices):
             for index in sorted(indices, reverse=True):
