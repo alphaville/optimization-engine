@@ -5,17 +5,15 @@ import numpy as np
 class Simplex(Constraint):
     """Simplex constraint
 
-    A constraint of the form sum(y) = a, where y is the input vector
-    and a is the simplex value alpha. The simplex constraint set is
-    defined by alpha and the length of the input vector.
+    A set of the form {x: sum(x) = a, x>=0} where alpha is a positive constant.
 
     """
 
-    def __init__(self, alpha: float = 1.0):  # unless specified, alpha is unit vector
+    def __init__(self, alpha: float = 1.0):  # unless specified, alpha=1
         """Constructor for a Simplex constraint
 
         Args:
-            alpha: unit vector multiplier
+            alpha: size parameter of simplex (default: 1)
 
         Returns:
             New instance of Simplex with given alpha.
@@ -34,11 +32,13 @@ class Simplex(Constraint):
         raise NotImplementedError()
 
     def project(self, y):
-        """Computes the projection of a given point `y` (in R^n) on the simplex defined by n and alpha.
+        """Computes the projection of a given point `y` (in R^n) on the current simplex.
 
+        Args:
             :param y: given point; must be a list of numbers (float, int) or
             a numpy n-dim array (`ndarray`)
 
+        Returns:
             :return: the projection point in R^n as a numpy array of float64s
         """
         def __pop_all(z, indices):
