@@ -25,7 +25,8 @@ class ConstraintsTestCase(unittest.TestCase):
         x_sym_mx = cs.MX.sym("xmx", 2)
         sqdist_mx = ball.distance_squared(x_sym_mx)
         sqdist_mx_fun = cs.Function('sqd', [x_sym_mx], [sqdist_mx])
-        self.assertAlmostEqual(correct_squared_distance, sqdist_mx_fun(x)[0], 5)
+        self.assertAlmostEqual(correct_squared_distance,
+                               sqdist_mx_fun(x)[0], 5)
 
     def test_ball_inf_origin_inside(self):
         ball = og.constraints.BallInf(None, 1)
@@ -77,7 +78,8 @@ class ConstraintsTestCase(unittest.TestCase):
         x = np.array([1, 1, 1])
         d_num = ball.distance_squared(x)
         correct_squared_distance = 0.535898384862246
-        self.assertAlmostEqual(correct_squared_distance, d_num, 12, "computation of distance")
+        self.assertAlmostEqual(correct_squared_distance,
+                               d_num, 12, "computation of distance")
 
     def test_ball_euclidean_origin_inside(self):
         ball = og.constraints.Ball2(None, 1)
@@ -138,7 +140,8 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertAlmostEqual(5, rect.distance_squared([5, 1]), 8)
         # symbolic
         x_sym = cs.SX.sym("x", 2)
-        d_sym = float(cs.substitute(rect.distance_squared(x_sym), x_sym, [5, 1]))
+        d_sym = float(cs.substitute(
+            rect.distance_squared(x_sym), x_sym, [5, 1]))
         self.assertAlmostEqual(5, d_sym, 8)
 
     def test_rectangle_pos_quant(self):
@@ -151,8 +154,10 @@ class ConstraintsTestCase(unittest.TestCase):
         # some squared distances
         self.assertAlmostEqual(0.0, rect.distance_squared([0.0]*n), 8)
         self.assertAlmostEqual(0.0, rect.distance_squared([1.0] * n), 8)
-        self.assertAlmostEqual(1.0, rect.distance_squared([-1.0] + [1.0] * (n-1)), 8)
-        self.assertAlmostEqual(5.0, rect.distance_squared([-1.0, -2.0, 5.0]), 8)
+        self.assertAlmostEqual(
+            1.0, rect.distance_squared([-1.0] + [1.0] * (n-1)), 8)
+        self.assertAlmostEqual(
+            5.0, rect.distance_squared([-1.0, -2.0, 5.0]), 8)
 
     def test_rectangle_semiinf_corridor(self):
         rect = og.constraints.Rectangle([-1.0, -2.0], [float('inf'), 3.0])
@@ -279,7 +284,8 @@ class ConstraintsTestCase(unittest.TestCase):
         # [0, 1]
         # [2, 3, 4]
         # [5, 6, 7, 8]
-        cartesian = og.constraints.CartesianProduct([1, 4, 8], [ball_inf, ball_eucl, rect])
+        cartesian = og.constraints.CartesianProduct(
+            [1, 4, 8], [ball_inf, ball_eucl, rect])
         sq_dist = cartesian.distance_squared([5, 10, 1, 1, 1, 0.5, -1, 0, 11])
         correct_sq_distance = 102.0 + (math.sqrt(3)-1.0)**2
         self.assertAlmostEqual(correct_sq_distance, sq_dist, 12)
@@ -290,7 +296,8 @@ class ConstraintsTestCase(unittest.TestCase):
         ball_eucl = og.constraints.Ball2(None, 1)
         rect = og.constraints.Rectangle(xmin=[0.0, 1.0, -inf, 2.0],
                                         xmax=[1.0, inf, 10.0, 10.0])
-        cartesian = og.constraints.CartesianProduct([1, 4, 8], [ball_inf, ball_eucl, rect])
+        cartesian = og.constraints.CartesianProduct(
+            [1, 4, 8], [ball_inf, ball_eucl, rect])
         u_sx = cs.SX.sym("u", 9, 1)
         _sqd_sx = cartesian.distance_squared(u_sx)
         u_mx = cs.SX.sym("u", 9, 1)
@@ -377,6 +384,46 @@ class ConstraintsTestCase(unittest.TestCase):
     # -----------------------------------------------------------------------
     # Set Y (from C)
     # -----------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------
+    # Simplex
+    # -----------------------------------------------------------------------
+
+    def test_simplex_projection(self):
+        simplex = og.constraints.Simplex(alpha=2)
+        y = [1, 8, 0, -4]
+        z = simplex.project(y)
+        self.assertAlmostEqual(
+            sum(z), 2, 12, "Simplex projection sum not equal to alpha")
+
+    def test_simplex_projection_random_spam(self):
+        simplex = og.constraints.Simplex(alpha=2)
+        n = 10
+        for i in range(5000):
+            x = np.random.uniform(low=-100, high=100, size=n)
+            alpha = np.random.uniform(low=1e-4, high=100)
+            simplex = og.constraints.Simplex(alpha)
+            z = simplex.project(x)
+            self.assertAlmostEqual(
+                sum(z), alpha, 10, "Simplex projection sum not equal to alpha")
+            self.assertTrue(min(z) >= -1e-12, "Simplex projection is negative")
+
+    def test_simplex_projection_random_optimality(self):
+        # According to the projection theorem, x_star is the projection of z on a set C
+        # iff <x - x_star, z - x_star> <= 0, for all x in C. Here we are testing whether
+        # this holds for all x which are extreme points of C.
+        for n in range(5, 60, 5):
+            for i in range(10*n):
+                z = np.random.uniform(low=-100, high=100, size=n)
+                alpha = np.random.uniform(low=1e-4, high=100)
+                simplex = og.constraints.Simplex(alpha)
+                x_star = simplex.project(z)
+                # test optimality conditions:
+                for j in range(n):
+                    x = np.zeros((n,))
+                    x[j] = alpha
+                    self.assertLessEqual(
+                        np.dot(x-x_star, z-x_star), 1e-10, "Simplex optimality conditions failed")
 
 
 if __name__ == '__main__':

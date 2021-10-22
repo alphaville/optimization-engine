@@ -7,18 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+
 ## [Unreleased]
 
 ### Added
 
-* `# Safety` section in unsafe auto-generated Rust code
+* Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+* `# Safety` section in auto-generated unsafe auto-generated Rust code
 
 ### Removed 
 
 * Unnecessary `#[no_mangle]`s in auto-generated Rust code
 
 
-## [0.6.5] - 2020-04-16
+## [0.6.5] - 2021-04-16
 
 ### Changed
 
@@ -81,9 +83,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Issue #185: ROS config parameters are ignored
 
 
-
 ## [0.5.0] - 2020-05-12
-
 
 ### Fixed
 
