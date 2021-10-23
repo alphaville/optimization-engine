@@ -162,7 +162,7 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 Some({% if problem.dim_constraints_aug_lagrangian() == 0 %}_{% endif %}y) => {
                 {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
                     let mut y_array : [f64; {{meta.optimizer_name|upper}}_N1] = [0.0; {{meta.optimizer_name|upper}}_N1];
-                    y_array.copy_from_slice(&y);
+                    y_array.copy_from_slice(y);
                     y_array
                 {% else %}
                     std::ptr::null::<c_double>()
