@@ -589,7 +589,7 @@ where
         let alm_cache = &mut self.alm_cache; // ALM cache
         if let (Some(y_plus), Some(xi)) = (&alm_cache.y_plus, &alm_cache.xi) {
             // compute ||y_plus - y||
-            let norm_diff_squared = matrix_operations::norm2_squared_diff(&y_plus, &xi[1..]);
+            let norm_diff_squared = matrix_operations::norm2_squared_diff(y_plus, &xi[1..]);
             alm_cache.delta_y_norm_plus = norm_diff_squared.sqrt();
         }
         Ok(())
@@ -714,11 +714,11 @@ where
         // psi(u) = psi(u; xi) and psi_grad(u) = phi_grad(u; xi)
         // psi: R^nu --> R
         let psi = |u: &[f64], psi_val: &mut f64| -> FunctionCallResult {
-            (alm_problem.parametric_cost)(u, &xi, psi_val)
+            (alm_problem.parametric_cost)(u, xi, psi_val)
         };
         // psi_grad: R^nu --> R^nu
         let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> FunctionCallResult {
-            (alm_problem.parametric_gradient)(u, &xi, psi_grad)
+            (alm_problem.parametric_gradient)(u, xi, psi_grad)
         };
         // define the inner problem
         let inner_problem = Problem::new(&self.alm_problem.constraints, psi_grad, psi);
@@ -732,7 +732,7 @@ where
             .with_max_duration(
                 alm_cache
                     .available_time
-                    .unwrap_or(std::time::Duration::from_secs(std::u64::MAX)),
+                    .unwrap_or_else(|| std::time::Duration::from_secs(std::u64::MAX)),
             )
             // Set the maximum number of inner iterations
             .with_max_iter(self.max_inner_iterations);
@@ -817,7 +817,7 @@ where
         cache.delta_y_norm = cache.delta_y_norm_plus;
         cache.f2_norm = cache.f2_norm_plus;
         if let (Some(xi), Some(y_plus)) = (&mut cache.xi, &cache.y_plus) {
-            xi[1..].copy_from_slice(&y_plus);
+            xi[1..].copy_from_slice(y_plus);
         }
         cache.panoc_cache.reset();
     }
@@ -979,8 +979,7 @@ where
             .with_cost(cost);
         if self.alm_problem.n1 > 0 {
             let status = status.with_lagrange_multipliers(
-                &self
-                    .alm_cache
+                self.alm_cache
                     .y_plus
                     .as_ref()
                     .expect("Although n1 > 0, there is no vector y (Lagrange multipliers)"),

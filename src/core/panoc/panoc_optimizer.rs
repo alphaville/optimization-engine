@@ -153,7 +153,7 @@ where
         }
 
         // check for possible NaN/inf
-        if !matrix_operations::is_finite(&u) {
+        if !matrix_operations::is_finite(u) {
             return Err(SolverError::NotFiniteComputation);
         }
 
