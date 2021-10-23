@@ -19,6 +19,10 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 * Unnecessary `#[no_mangle]`s in auto-generated Rust code
 
+### Changed
+
+* Took care of most clippy warnings
+
 
 ## [0.6.5] - 2021-04-16
 
@@ -110,7 +114,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/master...opengen-0.6.5
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.5...master
 [0.6.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.4...opengen-0.6.5
 [0.6.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
 [0.6.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3
