@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-## Unreleased
+## [Unreleased]
 
 ### Added
 
 - Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+- Implementation/testing of projection on Ball-1 (`ball1.py`) (addresses #238)
 
 
 ## [0.6.5] - 2020-10-21

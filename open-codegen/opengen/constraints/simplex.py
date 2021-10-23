@@ -13,10 +13,10 @@ class Simplex(Constraint):
         """Constructor for a Simplex constraint
 
         Args:
-            alpha: size parameter of simplex (default: 1)
+            :param alpha: size parameter of simplex (default: 1)
 
         Returns:
-            New instance of Simplex with given alpha.
+            :return: new instance of Simplex with given alpha
         """
         if alpha <= 0:
             raise Exception("Alpha must be a positive number")

@@ -447,7 +447,9 @@ class ConstraintsTestCase(unittest.TestCase):
                 radius=r)
             x = np.random.uniform(low=-50, high=50, size=n)
             x_star = ball1.project(x)
+            # Check whether the projection is inside the set
             self.assertLessEqual(np.linalg.norm(x_star, 1), r * (1 + 1e-10))
+            # Check the optimality conditions
             for j in range(n):
                 e = np.zeros((n,))
                 e[j] = r
