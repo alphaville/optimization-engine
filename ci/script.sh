@@ -36,12 +36,47 @@ regular_test() {
 
     # Run Clippy for generated optimizers
     # ------------------------------------
-    cd .python_test_build/only_f1/tcp_iface_only_f1
+
+    #TODO: Make a function...
+
+    # CLIPPY @only_f1
+    # ...............
+    # Test auto-generated code (main)
+    cd .python_test_build/only_f1
     cargo clippy --all-targets --all-features
-    cd ../../only_f2/tcp_iface_only_f2
+    # Test auto-generated TCP interface
+    cd ./tcp_iface_only_f1
     cargo clippy --all-targets --all-features
+    # Test auto-generated CasADi interface
+    cd ../icasadi_only_f1/
+    cargo clippy --all-targets --all-features
+    
+    # CLIPPY @only_f2
+    # ...............
+    cd ../../only_f2
+    cargo clippy --all-targets --all-features
+    cd ./tcp_iface_only_f2
+    cargo clippy --all-targets --all-features
+    cd ../icasadi_only_f2
+    cargo clippy --all-targets --all-features
+
+    # CLIPPY @rosenbrock_ros
+    # ...............
     cd ../../rosenbrock_ros
     cargo clippy --all-targets --all-features
+    cd ./icasadi_rosenbrock_ros
+    cargo clippy --all-targets --all-features
+
+
+    # CLIPPY @halfspace_optimizer
+    # ...............
+    cd ../../halfspace_optimizer
+    cargo clippy --all-targets --all-features
+    cd ./icasadi_halfspace_optimizer
+    cargo clippy --all-targets --all-features
+    cd ../tcp_iface_halfspace_optimizer/
+    cargo clippy --all-targets --all-features
+
 }
 
 test_docker() {
