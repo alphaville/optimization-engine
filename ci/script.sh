@@ -1,25 +1,45 @@
 #!/bin/bash
 set -euxo pipefail
 
+function run_clippy_test() {
+    cd $1
+    cargo clippy --all-targets --all-features
+    if [ -d "./tcp_iface_$1" ] 
+    then
+        # Test auto-generated TCP interface
+        cd ./tcp_iface_$1
+        cargo clippy --all-targets --all-features 
+        cd ..
+    fi
+    if [ -d "./tcp_iface_$1" ] 
+    then
+        # Test auto-generated CasADi interface
+        cd icasadi_$1
+        cargo clippy --all-targets --all-features
+        cd ..
+    fi
+    cd ..
+}
+
 regular_test() {
     # Run Python tests
     # ------------------------------------
 
     # --- create virtual environment
     cd open-codegen
-    export PYTHONPATH=.
+    # export PYTHONPATH=.
 
     # --- install virtualenv
-    pip install virtualenv
+    # pip install virtualenv
 
     # --- create virtualenv
-    virtualenv -p python3.8 venv
+    # virtualenv -p python3.8 venv
 
     # --- activate venv
     source venv/bin/activate
 
     # --- upgrade pip within venv
-    pip install --upgrade pip
+    # pip install --upgrade pip
 
     # --- install opengen
     pip install .
@@ -39,44 +59,15 @@ regular_test() {
 
     #TODO: Make a function...
 
-    # CLIPPY @only_f1
-    # ...............
-    # Test auto-generated code (main)
-    cd .python_test_build/only_f1
-    cargo clippy --all-targets --all-features
-    # Test auto-generated TCP interface
-    cd ./tcp_iface_only_f1
-    cargo clippy --all-targets --all-features
-    # Test auto-generated CasADi interface
-    cd ../icasadi_only_f1/
-    cargo clippy --all-targets --all-features
+    cd .python_test_build
+    run_clippy_test "only_f1"
+    run_clippy_test "only_f2"
+    run_clippy_test "halfspace_optimizer"
+    run_clippy_test "parametric_f2"
+    run_clippy_test "plain"
+    run_clippy_test "python_bindings"
+    run_clippy_test "rosenbrock_ros"
     
-    # CLIPPY @only_f2
-    # ...............
-    cd ../../only_f2
-    cargo clippy --all-targets --all-features
-    cd ./tcp_iface_only_f2
-    cargo clippy --all-targets --all-features
-    cd ../icasadi_only_f2
-    cargo clippy --all-targets --all-features
-
-    # CLIPPY @rosenbrock_ros
-    # ...............
-    cd ../../rosenbrock_ros
-    cargo clippy --all-targets --all-features
-    cd ./icasadi_rosenbrock_ros
-    cargo clippy --all-targets --all-features
-
-
-    # CLIPPY @halfspace_optimizer
-    # ...............
-    cd ../../halfspace_optimizer
-    cargo clippy --all-targets --all-features
-    cd ./icasadi_halfspace_optimizer
-    cargo clippy --all-targets --all-features
-    cd ../tcp_iface_halfspace_optimizer/
-    cargo clippy --all-targets --all-features
-
 }
 
 test_docker() {
