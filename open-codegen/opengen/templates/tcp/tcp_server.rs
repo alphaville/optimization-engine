@@ -154,7 +154,7 @@ fn execution_handler(
                 write_error_message(stream, 1600, "Initial guess has incompatible dimensions");
                 return;
             }
-            u.copy_from_slice(&u0);
+            u.copy_from_slice(u0);
         }
     }
 
@@ -176,8 +176,8 @@ fn execution_handler(
         write_error_message(stream, 3003, "wrong number of parameters");
         return;
     }
-    p.copy_from_slice(&parameter);
-    let status = solve(&p,
+    p.copy_from_slice(parameter);
+    let status = solve(p,
                        cache,
                        u,
                        &execution_parameter.initial_lagrange_multipliers,

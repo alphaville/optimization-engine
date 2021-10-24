@@ -21,7 +21,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Changed
 
-* Took care of most clippy warnings
+* Took care of most clippy warnings in Rust and auto-generated Rust code
 
 
 ## [0.6.5] - 2021-04-16
