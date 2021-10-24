@@ -27,19 +27,19 @@ regular_test() {
 
     # --- create virtual environment
     cd open-codegen
-    # export PYTHONPATH=.
+    export PYTHONPATH=.
 
     # --- install virtualenv
-    # pip install virtualenv
+    pip install virtualenv
 
     # --- create virtualenv
-    # virtualenv -p python3.8 venv
+    virtualenv -p python3.8 venv
 
     # --- activate venv
     source venv/bin/activate
 
     # --- upgrade pip within venv
-    # pip install --upgrade pip
+    pip install --upgrade pip
 
     # --- install opengen
     pip install .
@@ -56,8 +56,6 @@ regular_test() {
 
     # Run Clippy for generated optimizers
     # ------------------------------------
-
-    #TODO: Make a function...
 
     cd .python_test_build
     run_clippy_test "only_f1"
