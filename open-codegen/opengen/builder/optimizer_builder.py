@@ -488,7 +488,7 @@ class OpEnOptimizerBuilder:
             raise Exception('Rust build of TCP interface failed')
 
     def __initialize(self):
-        self.__logger.info("Initialising builder: '%s'" %
+        self.__logger.info("--- Initialising builder: '%s'" %
                            self.__meta.optimizer_name)
 
     def __check_user_provided_parameters(self):
