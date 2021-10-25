@@ -26,10 +26,10 @@ optimization_engine = "{{build_config.open_version or '*'}}{%- if build_config.a
 
 icasadi_{{meta.optimizer_name}} = {path = "./icasadi_{{meta.optimizer_name}}/"}
 {% if activate_clib_generation -%}
-libc = "0.2.0"
+libc = "0.2"
 
 [build-dependencies]
-cbindgen = "0.8.0"
+cbindgen = "0.20"
 {% endif %}
 
 
