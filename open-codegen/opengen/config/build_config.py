@@ -2,6 +2,13 @@ from opengen.config.tcp_server_config import TcpServerConfiguration
 from opengen.config.ros_config import RosConfiguration
 import random
 import string
+from enum import Enum
+
+
+class RustAllocator(Enum):
+    DefaultAllocator = 0
+    JemAlloc = 1
+    RpAlloc = 2
 
 
 class BuildConfiguration:
@@ -23,7 +30,8 @@ class BuildConfiguration:
         :return: A new instance of BuildConfiguration
 
         """
-        random_string = ''.join(random.choice(string.ascii_letters) for _i in range(20))
+        random_string = ''.join(random.choice(
+            string.ascii_letters) for _i in range(20))
 
         self.__target_system = None
         self.__build_mode = BuildConfiguration.RELEASE_MODE
@@ -40,6 +48,7 @@ class BuildConfiguration:
         self.__ros_config = None
         self.__tcp_interface_config = None
         self.__local_path = None
+        self.__allocator = RustAllocator.DefaultAllocator
 
     # ---------- GETTERS ---------------------------------------------
 
@@ -119,6 +128,13 @@ class BuildConfiguration:
         :return: instance of RosConfiguration
         """
         return self.__ros_config
+
+    @property
+    def allocator(self) -> RustAllocator:
+        """
+        Memory allocator for generated Rust solver
+        """
+        return self.__allocator
 
     # ---------- SETTERS ---------------------------------------------
 
@@ -244,4 +260,15 @@ class BuildConfiguration:
         :return: current instance of BuildConfiguration
         """
         self.__tcp_interface_config = tcp_interface_config
+        return self
+
+    def with_allocator(self, allocator: RustAllocator):
+        """
+        Specify a Rust memory allocator
+
+        :param allocator: allocator; instance of `RustAllocator`
+
+        :return: current instance of BuildConfiguration
+        """
+        self.__allocator = allocator
         return self
