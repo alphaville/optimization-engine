@@ -108,11 +108,11 @@ Note that you need to install the necessary target first.
 | `with_build_directory`        | Target build directory; the default is `.`  |
 | `with_build_mode`             | `release` or `debug`; the default option is `release`, which requires more time to compile, but leads to high performance executables; use `debug` for faster compilation, at the cost of lower performance (this is useful when experimenting with OpEn)  |
 | `with_tcp_interface_config`   | Enable TCP server; provide configuration    |
-| `with_target_system`          | Target system                               |
+| `with_target_system`          | Target system (to be used when you need to cross-compile) |
 | `with_build_c_bindings`       | Enalbe generation of C/C++ bindings         |
 | `with_rebuild`                | Whether to do a clean build                 |
 | `with_open_version`           | Use a certain version of OpEn (see [all versions]), e.g., `with_open_version("0.6.0")`, or a local version of OpEn (this is useful when you want to download the latest version of OpEn from github). You can do so using `with_open_version(local_path="/path/to/open/")`. |
-|`witth_allocator`              | Available in `opengen >= 0.6.6`. Compile with a different memory allocator. The available allocators are the entries of `RustAllocator`. OpEn currently supports [Jemalloc](https://github.com/gnzlbg/jemallocator) and [Rpmalloc](https://github.com/EmbarkStudios/rpmalloc-rs).|
+|`with_allocator`               | Available in `opengen >= 0.6.6`. Compile with a different memory allocator. The available allocators are the entries of `RustAllocator`. OpEn currently supports [Jemalloc](https://github.com/gnzlbg/jemallocator) and [Rpmalloc](https://github.com/EmbarkStudios/rpmalloc-rs).|
 
 [all versions]: https://crates.io/crates/optimization_engine/versions
 
