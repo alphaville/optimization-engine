@@ -12,7 +12,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Added
 
-- Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+* Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+* Support for [`rpmalloc`](https://github.com/EmbarkStudios/rpmalloc-rs) and [`jemalloc`](https://github.com/gnzlbg/jemallocator) using `BuildConfiguration.with_allocator`
 
 
 ## [0.6.5] - 2020-10-21
@@ -20,6 +21,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Changed
 
 * Include `VERSION` file in `MANIFEST.in` (included in Python package)
+* Bump versions: `cbindgen`: `0.8 --> 0.20.*` and `libc`: `0.2.0 -> 0.2.*` 
 
 
 ## [0.6.4] - 2020-10-21
