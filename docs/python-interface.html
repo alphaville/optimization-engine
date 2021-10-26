@@ -109,6 +109,8 @@ following types of constraints:</p>
 <tbody>
 <tr><td><code>Ball2</code></td><td>Euclidean ball: <code>Ball2(None, r)</code> creates a Euclidean ball of radius <code>r</code> centered at the origin, and <code>Ball2(xc, r)</code> is a ball centered at point <code>xc</code> (list)</td></tr>
 <tr><td><code>BallInf</code></td><td>Ball of infinity norm:<code>BallInf(None, r)</code> creates an infinity-norm ball of radius <code>r</code> centered at the origin, and <code>BallInf(xc, r)</code> is an infinity ball centered at point <code>xc</code> (list)</td></tr>
+<tr><td><code>Ball1</code></td><td>Coming Soon (see <a href="https://github.com/alphaville/optimization-engine/issues/238">#238</a>)</td></tr>
+<tr><td><code>Simplex</code></td><td>Simplex Soon (see <a href="https://github.com/alphaville/optimization-engine/issues/234">#234</a>)</td></tr>
 <tr><td><code>Halfspace</code></td><td>A halfspace is a set of the form $\{u \in \mathbb{R}^{n_u} {}:{} \langle c, u\rangle \leq b \}$, for a vector $c$ and a scalar $b$. The syntax is straightforwarrd: <code>Halfspace(c, b)</code>.</td></tr>
 <tr><td><code>FiniteSet</code></td><td>Finite set, $\{u^{(1)},\ldots,u^{(m)}\}$; the set of point is provided as a list of lists, for example, <code>FiniteSet([[1,2],[2,3],[4,5]])</code>. The commonly used set of binary numbers, $\{0, 1\}$, is created with <code>FiniteSet([[0], [1]])</code>.</td></tr>
 <tr><td><code>NoConstraints</code></td><td>No constraints - the whole $\mathbb{R}^{n}$</td></tr>
