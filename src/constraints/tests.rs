@@ -606,3 +606,11 @@ fn t_hyperplane_is_convex() {
     let hyperplane = Hyperplane::new(&normal_vector, offset);
     assert!(hyperplane.is_convex());
 }
+
+#[test]
+fn t_simplex_projection() {
+    let mut x = [1., 2., 3.];
+    let alpha = 3.0;
+    let my_simplex = Simplex::new(alpha);
+    my_simplex.project(&mut x);
+}

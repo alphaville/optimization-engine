@@ -8,6 +8,7 @@
 //!
 //! [`Constraint`]: trait.Constraint.html
 
+mod simplex;
 mod ball2;
 mod ballinf;
 mod cartesian_product;
@@ -19,6 +20,7 @@ mod rectangle;
 mod soc;
 mod zero;
 
+pub use simplex::Simplex;
 pub use ball2::Ball2;
 pub use ballinf::BallInf;
 pub use cartesian_product::CartesianProduct;
