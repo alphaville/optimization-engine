@@ -233,7 +233,7 @@ where
         if let Some(f2) = &self.mapping_f2 {
             let c = xi[0];
             let mut z = vec![0.0; self.n2];
-            f2(&u, &mut z)?;
+            f2(u, &mut z)?;
             *cost += 0.5 * c * matrix_operations::norm2_squared(&z);
         }
         Ok(())
@@ -281,8 +281,8 @@ where
             let mut s_aux_var = vec![0.0; ny]; // auxiliary variable `s`
             let y_lagrange_mult = &xi[1..];
             let mut jac_prod = vec![0.0; nu];
-            mapping_f1(&u, &mut f1_u_plus_y_over_c)?; // f1_u_plus_y_over_c = F1(u)
-                                                      // f1_u_plus_y_over_c = F1(u) + y/c
+            mapping_f1(u, &mut f1_u_plus_y_over_c)?; // f1_u_plus_y_over_c = F1(u)
+                                                     // f1_u_plus_y_over_c = F1(u) + y/c
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(y_lagrange_mult.iter())
@@ -296,7 +296,7 @@ where
                 .zip(s_aux_var.iter())
                 .for_each(|(ti, si)| *ti -= si);
 
-            jf1t(&u, &f1_u_plus_y_over_c, &mut jac_prod)?;
+            jf1t(u, &f1_u_plus_y_over_c, &mut jac_prod)?;
 
             // grad += c*t
             grad.iter_mut()
@@ -309,9 +309,9 @@ where
             let c = xi[0];
             let mut f2u_aux = vec![0.0; self.n2];
             let mut jf2u_times_f2u_aux = vec![0.0; self.n2];
-            f2(&u, &mut f2u_aux)?; // f2u_aux = F2(u)
-            jf2(&u, &f2u_aux, &mut jf2u_times_f2u_aux)?; // jf2u_times_f2u_aux = JF2(u)'*f2u_aux
-                                                         //                    = JF2(u)'*F2(u)
+            f2(u, &mut f2u_aux)?; // f2u_aux = F2(u)
+            jf2(u, &f2u_aux, &mut jf2u_times_f2u_aux)?; // jf2u_times_f2u_aux = JF2(u)'*f2u_aux
+                                                        //                    = JF2(u)'*F2(u)
 
             // grad += c * jf2u_times_f2u_aux
             grad.iter_mut()

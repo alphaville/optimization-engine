@@ -4,7 +4,6 @@
 /// Solver cache (structure `{{meta.optimizer_name}}Cache`)
 ///
 #[allow(non_camel_case_types)]
-#[no_mangle]
 pub struct {{meta.optimizer_name}}Cache {
     cache: AlmCache,
 }
@@ -19,7 +18,6 @@ impl {{meta.optimizer_name}}Cache {
 /// Structure: `{{meta.optimizer_name}}ExitStatus`
 #[allow(non_camel_case_types)]
 #[repr(C)]
-#[no_mangle]
 pub enum {{meta.optimizer_name}}ExitStatus {
     /// The algorithm has converged
     ///
@@ -40,7 +38,6 @@ pub enum {{meta.optimizer_name}}ExitStatus {
 /// Structure: `{{meta.optimizer_name}}SolverStatus`
 ///
 #[repr(C)]
-#[no_mangle]
 pub struct {{meta.optimizer_name}}SolverStatus {
     /// Exit status
     exit_status: {{meta.optimizer_name}}ExitStatus,
@@ -80,7 +77,7 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 /// Solve the parametric optimization problem for a given parameter
 /// .
 /// .
-/// Arguments:
+/// # Arguments:
 /// - `instance`: re-useable instance of AlmCache, which should be created using
 ///   `{{meta.optimizer_name|lower}}_new` (and should be destroyed once it is not
 ///   needed using `{{meta.optimizer_name|lower}}_free`
@@ -94,10 +91,15 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 ///   penalty parameter
 /// .
 /// .
-/// Returns:
+/// # Returns:
 /// Instance of `{{meta.optimizer_name}}SolverStatus`, with the solver status
 /// (e.g., number of inner/outer iterations, measures of accuracy, solver time,
 /// and the array of Lagrange multipliers at the solution).
+/// .
+/// .
+/// .
+/// # Safety
+/// All arguments must have been properly initialised
 #[no_mangle]
 pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
     instance: *mut {{meta.optimizer_name}}Cache,
@@ -160,7 +162,7 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 Some({% if problem.dim_constraints_aug_lagrangian() == 0 %}_{% endif %}y) => {
                 {%- if problem.dim_constraints_aug_lagrangian() > 0 %}
                     let mut y_array : [f64; {{meta.optimizer_name|upper}}_N1] = [0.0; {{meta.optimizer_name|upper}}_N1];
-                    y_array.copy_from_slice(&y);
+                    y_array.copy_from_slice(y);
                     y_array
                 {% else %}
                     std::ptr::null::<c_double>()
@@ -197,6 +199,10 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
 
 /// Deallocate the solver's memory, which has been previously allocated
 /// using `{{meta.optimizer_name|lower}}_new`
+/// 
+/// 
+/// # Safety
+/// All arguments must have been properly initialised
 #[no_mangle]
 pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optimizer_name}}Cache) {
     // Add impl
