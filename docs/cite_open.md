@@ -11,8 +11,26 @@ description: How to cite OpEn
   };
 </script>
 <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script type="text/javascript">
+function toggleCollapseExpand(buttonId, containerId, theText) {
+    conditionsElement = document.getElementById(containerId);
+    techhConditionsButtonElement = document.getElementById(buttonId);
+    conditionsDisplay = getComputedStyle(conditionsElement, null).display
+    if (conditionsDisplay === "none") {
+        conditionsElement.style.display = "block";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-up"></i> Collapse ' + theText;
+    } else {
+        conditionsElement.style.display = "none";
+        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-down"></i> Expand ' + theText;
+    }
+}
+</script>
 
-Please, cite OpEn as follows:
+### Main Paper
+
+Please, cite OpEn as follows (read the paper on <a href="https://arxiv.org/abs/2003.00292">arXiv</a>):
 ```bibtex
 @inproceedings{open2020,
   author = "P. Sopasakis and E. Fresk and P. Patrinos",
@@ -23,7 +41,23 @@ Please, cite OpEn as follows:
 }
 ```
 
-Cite the original PANOC paper as follows:
+<button onclick="toggleCollapseExpand('videoOpenButton', 'videoOpen', 'Video')" id="videoOpenButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Show Video
+</button>
+
+<div class="mycontainer" id="videoOpen">
+<iframe width='600' 
+	height='315' 
+	src='https://www.youtube.com/embed/bHZ6eyhj3LM' 
+	title='YouTube video player' 
+	frameborder='0' 
+	allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' 
+	allowfullscreen></iframe>
+</div>
+<br/><br/>
+
+Cite the original PANOC paper as follows (read on <a href="https://arxiv.org/abs/1709.06487">arXiv</a>):
 ```bibtex
 @inproceedings{panoc2017,
   author    = {Stella, L. and Themelis, A. 
@@ -37,6 +71,9 @@ Cite the original PANOC paper as follows:
   doi       = {10.1109/CDC.2017.8263933}
 }
 ```
+
+
+### Application papers
 
 You may also cite the following papers where we use PANOC in lab experiments - first, for obstacle avoidance on an autonomous ground vehicle carrying a trailer:
 
@@ -54,6 +91,7 @@ You may also cite the following papers where we use PANOC in lab experiments - f
   doi       = {10.23919/ECC.2018.8550253}
 }
 ```
+
 ```bibtex
 @inproceedings{sina:ifac20,
   author    = {Mansouri, S. S. and Kanellakis, C. and 
@@ -68,7 +106,19 @@ You may also cite the following papers where we use PANOC in lab experiments - f
 }
 ```
 
-and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
+<button onclick="toggleCollapseExpand('videoSubterraneanButton', 'videoSubterranean', 'Video')" id="videoSubterraneanButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Show Video
+</button>
+
+<div class="mycontainer" id="videoSubterranean">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/-MP4Sn6Q1uo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+<br/><br/>
+
+
+
+and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle (read on <a href="https://arxiv.org/abs/1812.04755">arXiv</a>):
 
 ```bibtex
 @inproceedings{mav2019,
@@ -83,3 +133,37 @@ and our recent work on obstacle avoidance of an autonomous micro-aerial vehicle:
   doi       = {10.23919/ECC.2019.8796236}
 }
 ```
+
+<button onclick="toggleCollapseExpand('videoAerialObstructedButton', 'videoAerialObstructed', 'Video')" id="videoAerialObstructedButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Show Video
+</button>
+
+<div class="mycontainer" id="videoAerialObstructed">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/E4vCSJw97FQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+<br/><br/>
+
+and our work for controlling multiple UAVs (read on <a href="https://arxiv.org/abs/2104.03783">arXiv</a>):
+
+```bibtex
+@inproceedings{iros2021,
+  author    = {Lindqvist, B. and Sopasakis, P. and Nikolakopoulos, G.},
+  title     = {A Scalable Distributed Collision Avoidance Scheme 
+               for Multi-agent {UAV} systems},
+  booktitle = {Int Conf on Intelligent Robots and Systems (IROS)},
+  year      = {2021},
+  month     = {Sep-Oct}
+}
+```
+
+<button onclick="toggleCollapseExpand('videoMultiAgentButton', 'videoMultiAgent', 'Video')" id="videoMultiAgentButton">
+  <i class="fa fa-cog fa-spin"></i> 
+  Show Video
+</button>
+
+<div class="mycontainer" id="videoMultiAgent">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/3kyiL6MZaag" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+
