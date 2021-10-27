@@ -399,7 +399,7 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_simplex_projection_random_spam(self):
         simplex = og.constraints.Simplex(alpha=2)
         n = 10
-        for i in range(5000):
+        for _ in range(5000):
             x = np.random.uniform(low=-100, high=100, size=n)
             alpha = np.random.uniform(low=1e-4, high=100)
             simplex = og.constraints.Simplex(alpha)
@@ -413,7 +413,7 @@ class ConstraintsTestCase(unittest.TestCase):
         # iff <x - x_star, z - x_star> <= 0, for all x in C. Here we are testing whether
         # this holds for all x which are extreme points of C.
         for n in range(5, 60, 5):
-            for i in range(10*n):
+            for _ in range(10*n):
                 z = np.random.uniform(low=-100, high=100, size=n)
                 alpha = np.random.uniform(low=1e-4, high=100)
                 simplex = og.constraints.Simplex(alpha)
@@ -424,6 +424,40 @@ class ConstraintsTestCase(unittest.TestCase):
                     x[j] = alpha
                     self.assertLessEqual(
                         np.dot(x-x_star, z-x_star), 1e-10, "Simplex optimality conditions failed")
+
+    # -----------------------------------------------------------------------
+    # Ball1
+    # -----------------------------------------------------------------------
+
+    def test_ball1_project_inside_points(self):
+        n = 5
+        ball1 = og.constraints.Ball1(radius=1)
+        for _ in range(100):
+            x = np.random.uniform(low=-1, high=1, size=n)
+            x /= sum(abs(x))
+            x *= 1 - 1e-10
+            x_star = ball1.project(x)
+            self.assertLessEqual(np.linalg.norm(x - x_star, np.inf), 1e-10)
+
+    def test_ball1_project_random_points(self):
+        n = 5
+        for _ in range(5000):
+            r = np.random.uniform(low=1e-3, high=10)
+            ball1 = og.constraints.Ball1(
+                radius=r)
+            x = np.random.uniform(low=-50, high=50, size=n)
+            x_star = ball1.project(x)
+            # Check whether the projection is inside the set
+            self.assertLessEqual(np.linalg.norm(x_star, 1), r * (1 + 1e-10))
+            # Check the optimality conditions
+            for j in range(n):
+                e = np.zeros((n,))
+                e[j] = r
+                self.assertLessEqual(
+                    np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (1)")
+                e[j] = -r
+                self.assertLessEqual(
+                    np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (2)")
 
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Added
 
 * Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+*-* Implementation/testing of projection on Ball-1 (`ball1.py`) (addresses #238)
 * `# Safety` section in auto-generated unsafe auto-generated Rust code
 
 ### Removed 
