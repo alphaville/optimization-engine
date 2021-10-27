@@ -79,8 +79,6 @@ class HomeSplash extends React.Component {
       <SplashContainer>
         <div className="inner">
           <ProjectTitle />
-<h2><a href="https://twitter.com/hashtag/BlackLivesMatter">#BlackLivesMatter</a> - Optimization Engine stands in solidarity with the black community in the US and worldwide and all	 people's struggle for justice and freedom from oppression.</h2>
-<h2>Racism cannot be tolerated!</h2>
           <PromoSection>
             <Button href={docUrl("open-intro")}>
               Get Started
@@ -253,11 +251,22 @@ class Index extends React.Component {
                   <p>You can install OpEn in Python using <code>pip</code> (read the <a href="docs/installation">installation instructions</a>) and generate your first optimizer in a few minutes!</p>
                   <img src="img/open-promo.gif" alt="showcase of OpEn functionality in Python via a code generation example"/>
                   <p/>
-              </div>
+              </div>	    
             <Container background="light">
               <FeaturesTop />
               <FeaturesTopTwo />
             </Container>
+	      <div id="">
+		<h3>Presentation at IFAC 2020</h3>
+		<p>Watch a short presentation of OpEn at IFAC2020: what it does, how it works, and how you can use it in practice. You may read the paper on <a href="https://arxiv.org/abs/2003.00292">arXiv</a>.</p>
+		<iframe width='600' 
+			height='315' 
+			src='https://www.youtube.com/embed/bHZ6eyhj3LM' 
+			title='YouTube video player' 
+			frameborder='0' 
+			allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' 
+		allowfullscreen></iframe>
+	      </div>
           </div>
           <Container>
               <SuperFastBlock />
