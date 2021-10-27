@@ -8,15 +8,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-## Unreleased
+## [Unreleased]
 
 ### Added
 
-* Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
 * Support for [`rpmalloc`](https://github.com/EmbarkStudios/rpmalloc-rs) and [`jemalloc`](https://github.com/gnzlbg/jemallocator) using `BuildConfiguration.with_allocator`
+* Implementation/testing of projection on simplices (`simplex.py`) (addresses #234)
+* Implementation/testing of projection on Ball-1 (`ball1.py`) (addresses #238)
+* `# Safety` section in auto-generated unsafe auto-generated Rust code
 
 
-## [0.6.5] - 2020-10-21
+### Removed 
+
+* Unnecessary `#[no_mangle]`s in auto-generated Rust code
+
+### Changed
+
+* Took care of most clippy warnings in Rust and auto-generated Rust code
+
+
+## [0.6.5] - 2021-04-16
 
 ### Changed
 
@@ -33,6 +44,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Fixed
 
 * List of authors in `Cargo.toml` is generated properly
+* Fixed bug when curvature is zero
 
 ### Changed
 
@@ -106,7 +118,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
-[0.6.6a1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.5...opengen-0.6.6a1
+[Unreleased]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.5...master
 [0.6.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.4...opengen-0.6.5
 [0.6.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.3...opengen-0.6.4
 [0.6.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.2...opengen-0.6.3
