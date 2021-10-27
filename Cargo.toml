@@ -82,10 +82,25 @@ num = "0.2.0"
 # Our own stuff - L-BFGS: limited-memory BFGS directions
 lbfgs = "0.2"
 
+# sc-allocator provides an implementation of a bump allocator
+rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = true }
+
+# jemallocator is an optional feature; it will only be loaded if the feature 
+# `jem` is used (i.e., if we compile with `cargo build --features jem`)
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = {version = "0.3.2", optional = true}
 
 
 
 
+# --------------------------------------------------------------------------
+# F.E.A.T.U.R.E.S.
+# --------------------------------------------------------------------------
+[features]
+# Use `jemallocator` as a global memory allocator (requires the dependency 
+# `jemallocator` - see above)
+jem = ["jemallocator"]
+rp = ["rpmalloc"]
 
 # --------------------------------------------------------------------------
 # T.E.S.T.   D.E.P.E.N.D.E.N.C.I.E.S

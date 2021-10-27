@@ -28,6 +28,8 @@ jobs:
         with:
           python-version: '3.8'
           architecture: 'x64'
+      - run: cargo test --features rp
+      - run: cargo test --features jem
       - run: bash ./ci/script.sh
 
   ci_macos:
@@ -52,4 +54,6 @@ jobs:
         with:
           python-version: '3.8'
           architecture: 'x64'
+      - run: cargo test --features rp
+      - run: cargo test --features jem
       - run: bash ./ci/script.sh

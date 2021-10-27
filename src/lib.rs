@@ -62,6 +62,20 @@ pub use crate::core::fbs;
 pub use crate::core::panoc;
 pub use crate::core::{AlgorithmEngine, Optimizer, Problem};
 
+/* Use Jemalloc if the feature `jem` is activated */
+#[cfg(not(target_env = "msvc"))]
+#[cfg(feature = "jem")]
+use jemallocator::Jemalloc;
+
+#[cfg(not(target_env = "msvc"))]
+#[cfg(feature = "jem")]
+#[global_allocator]
+static JEMALLOC_GLOBAL: Jemalloc = Jemalloc;
+
+#[cfg(feature = "rp")]
+#[global_allocator]
+static RPMALLOC_GLOBAL: rpmalloc::RpMalloc = rpmalloc::RpMalloc;
+
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */

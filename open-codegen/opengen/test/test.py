@@ -1,3 +1,4 @@
+import os
 import unittest
 import casadi.casadi as cs
 import opengen as og
@@ -8,6 +9,11 @@ import logging
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
+
+    @staticmethod
+    def get_open_local_absolute_path():
+        cwd = os.getcwd()
+        return cwd.split('open-codegen')[0]
 
     # Which version of OpEn Rust library to test against
     OPEN_RUSTLIB_VERSION = "*"
@@ -54,7 +60,8 @@ class RustBuildTestCase(unittest.TestCase):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         f1 = cs.vertcat(1.5 * u[0] - u[1], u[2] - u[3])
-        set_c = og.constraints.Rectangle(xmin=[-0.01, -0.01], xmax=[0.02, 0.03])
+        set_c = og.constraints.Rectangle(
+            xmin=[-0.01, -0.01], xmax=[0.02, 0.03])
         phi = og.functions.rosenbrock(u, p)  # cost function
         bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
         tcp_config = og.config.TcpServerConfiguration(bind_port=3301)
@@ -64,11 +71,12 @@ class RustBuildTestCase(unittest.TestCase):
             .with_aug_lagrangian_constraints(f1, set_c) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path())  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
-            .with_build_c_bindings()
+            .with_build_c_bindings()  \
+            .with_allocator(og.config.RustAllocator.JemAlloc)
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
@@ -158,7 +166,8 @@ class RustBuildTestCase(unittest.TestCase):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 3)  # parameter (np = 3)
         f2 = u[0] - p[2]
-        phi = og.functions.rosenbrock(u, cs.vertcat(p[0], p[1]))  # cost function
+        phi = og.functions.rosenbrock(
+            u, cs.vertcat(p[0], p[1]))  # cost function
         bounds = og.constraints.Ball2(None, 1.5)  # ball centered at origin
         tcp_config = og.config.TcpServerConfiguration(bind_port=4599)
         meta = og.config.OptimizerMeta() \
@@ -176,7 +185,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_tolerance(1e-6) \
             .with_initial_tolerance(1e-4) \
             .with_delta_tolerance(1e-5)
-        og.builder.OpEnOptimizerBuilder(problem, meta, build_config, solver_config).build()
+        og.builder.OpEnOptimizerBuilder(
+            problem, meta, build_config, solver_config).build()
 
     @classmethod
     def setUpHalfspace(cls):
@@ -220,13 +230,14 @@ class RustBuildTestCase(unittest.TestCase):
         import os
 
         # include the target directory into the path...
-        sys.path.insert(1, os.path.join(RustBuildTestCase.TEST_DIR, "python_bindings"))
+        sys.path.insert(1, os.path.join(
+            RustBuildTestCase.TEST_DIR, "python_bindings"))
         import python_bindings  # import python_bindings.so
 
         solver = python_bindings.solver()
-        result = solver.run([1., 2.])  # returns object of type OptimizerSolution
+        # returns object of type OptimizerSolution
+        result = solver.run([1., 2.])
         self.assertIsNotNone(result.solution)
-
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]
@@ -343,7 +354,8 @@ class RustBuildTestCase(unittest.TestCase):
         mng.kill()
 
     def test_rust_build_only_f2(self):
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f2')
+        mng = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f2')
         mng.start()
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
@@ -397,7 +409,8 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_rust_build_parametric_f2(self):
         # introduced to tackle issue #123
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/parametric_f2')
+        mng = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/parametric_f2')
         mng.start()
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
@@ -411,7 +424,8 @@ class RustBuildTestCase(unittest.TestCase):
         mng.kill()
 
     def test_rust_build_parametric_halfspace(self):
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/halfspace_optimizer')
+        mng = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/halfspace_optimizer')
         mng.start()
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
@@ -436,7 +450,8 @@ class RustBuildTestCase(unittest.TestCase):
                               RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
                               "-I" + RustBuildTestCase.TEST_DIR + "/" + optimizer_name,
                               "-pthread",
-                              RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/target/debug/lib" + optimizer_name + ".a",
+                              RustBuildTestCase.TEST_DIR + "/" + optimizer_name +
+                              "/target/debug/lib" + optimizer_name + ".a",
                               "-lm",
                               "-ldl",
                               "-std=c99",
@@ -458,11 +473,13 @@ class RustBuildTestCase(unittest.TestCase):
         return rc1, rc2
 
     def test_c_bindings(self):
-        rc1, rc2 = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f1")
+        rc1, rc2 = RustBuildTestCase.c_bindings_helper(
+            optimizer_name="only_f1")
         self.assertEqual(0, rc1)
         self.assertEqual(0, rc2)
 
-        rc1, rc2 = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f2")
+        rc1, rc2 = RustBuildTestCase.c_bindings_helper(
+            optimizer_name="only_f2")
         self.assertEqual(0, rc1)
         self.assertEqual(0, rc2)
 
@@ -471,7 +488,8 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual(0, rc2)
 
     def test_tcp_manager_remote_cannot_start(self):
-        remote_tcp_manager = og.tcp.OptimizerTcpManager(ip='10.8.0.1', port=3345)
+        remote_tcp_manager = og.tcp.OptimizerTcpManager(
+            ip='10.8.0.1', port=3345)
         with self.assertRaises(Exception) as __context:
             remote_tcp_manager.start()
 

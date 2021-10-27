@@ -15,9 +15,16 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 ### Changed
 
-* Removed unnecessary #[no_mangle] annotations
+* Removed unnecessary `#[no_mangle]` annotations
 * Took care of additional clippy warnings
 
+### Added
+
+* Support for [`rpmalloc`](https://github.com/EmbarkStudios/rpmalloc-rs) and [`jemalloc`](https://github.com/gnzlbg/jemallocator) using the features `jem` and `rp`
+
+### Changed
+
+* Bump versions: `cbindgen`: `0.8 --> 0.20` and `libc`: `0.2.0 -> 0.2.*` 
 
 <!-- ---------------------
       v0.7.1-alpha.1
