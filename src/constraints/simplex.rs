@@ -15,10 +15,12 @@ impl Simplex {
 }
 
 impl Constraint for Simplex {
-    fn project(&self, x: &mut [f64]) {}
+    fn project(&self, x: &mut [f64]) {
+        let _a = self.alpha;
+        let _b = x;
+    }
 
     fn is_convex(&self) -> bool {
         true
     }
 }
-

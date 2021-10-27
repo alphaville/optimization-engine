@@ -609,7 +609,7 @@ fn t_hyperplane_is_convex() {
 
 #[test]
 fn t_simplex_projection() {
-    let mut x = [1., 2., 3.];
+    let mut x = [1.0, 2.0, 3.0];
     let alpha = 3.0;
     let my_simplex = Simplex::new(alpha);
     my_simplex.project(&mut x);
