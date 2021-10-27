@@ -538,7 +538,7 @@ fn t_alm_numeric_test_out_of_time() {
         .with_delta_tolerance(1e-4)
         .with_epsilon_tolerance(1e-5)
         .with_initial_inner_tolerance(1e-4)
-        .with_max_duration(std::time::Duration::from_micros(400));
+        .with_max_duration(std::time::Duration::from_micros(50));
 
     let mut u = vec![0.0; nx];
     let solver_result = alm_optimizer.solve(&mut u);

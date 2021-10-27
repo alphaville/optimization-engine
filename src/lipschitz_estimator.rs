@@ -144,7 +144,7 @@ where
     /// If `estimate_local_lipschitz` has not been computed, the result
     /// will point to a zero vector.
     pub fn get_function_value(&self) -> &[f64] {
-        &self.function_value_at_u
+        self.function_value_at_u
     }
 
     ///

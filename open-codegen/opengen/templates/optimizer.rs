@@ -149,7 +149,7 @@ fn make_constraints() -> impl Constraint {
     // - Halfspace:
     let offset: f64 = {{problem.constraints.offset}};
     let normal_vector: &[f64] = &[{{problem.constraints.normal_vector | join(', ')}}];
-    Halfspace::new(&normal_vector, offset)
+    Halfspace::new(normal_vector, offset)
     {% elif 'NoConstraints' == problem.constraints.__class__.__name__ -%}
     // - No constraints (whole Rn):
     NoConstraints::new()
@@ -302,20 +302,20 @@ pub fn solve(
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
     let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::cost(&u, &xi, &p, cost);
+        icasadi_{{meta.optimizer_name}}::cost(u, xi, p, cost);
         Ok(())
     };
     let grad_psi = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::grad(&u, &xi, &p, grad);
+        icasadi_{{meta.optimizer_name}}::grad(u, xi, p, grad);
         Ok(())
     };
     {% if problem.dim_constraints_aug_lagrangian() > 0 %}
     let f1 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::mapping_f1(&u, &p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f1(u, p, res);
         Ok(())
     };{% endif %}
     {% if problem.dim_constraints_penalty() %}let f2 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::mapping_f2(&u, &p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f2(u, p, res);
         Ok(())
     };{% endif -%}
     let bounds = make_constraints();
@@ -353,7 +353,7 @@ pub fn solve(
     // initial vector of Lagrange multipliers, if provided;
     // returns the problem status (instance of `AlmOptimizerStatus`)
     if let Some(y0_) = y0 {
-        let mut alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(&y0_);
+        let mut alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(y0_);
         alm_optimizer.solve(u)
     } else {
         alm_optimizer.solve(u)

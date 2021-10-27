@@ -94,7 +94,7 @@ impl<'a> Constraint for FiniteSet<'a> {
                 best_distance = dist;
             }
         }
-        x.copy_from_slice(&self.data[idx]);
+        x.copy_from_slice(self.data[idx]);
     }
 
     fn is_convex(&self) -> bool {

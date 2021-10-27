@@ -123,7 +123,7 @@ where
         let mut cost_value: f64 = 0.0;
         (self.fbs_engine.problem.cost)(u, &mut cost_value)?;
 
-        if !matrix_operations::is_finite(&u) || !cost_value.is_finite() {
+        if !matrix_operations::is_finite(u) || !cost_value.is_finite() {
             return Err(SolverError::NotFiniteComputation);
         }
 

@@ -19,17 +19,17 @@ publish=false
 
 [dependencies]
 {% if build_config.local_path is not none -%}
-optimization_engine = {path = "{{build_config.local_path}}"}
+optimization_engine = {path = "{{build_config.local_path}}"{%- if build_config.allocator.value == 1%}, features=["jem"]{% elif build_config.allocator.value == 2 %}, features=["rp"]{% endif %}}
 {% else -%}
-optimization_engine = "{{build_config.open_version or '*'}}"
+optimization_engine = "{{build_config.open_version or '*'}}{%- if build_config.allocator.value == 1%}, features=["jem"]{% elif build_config.allocator.value == 2 %}, features=["rp"]{% endif %}"
 {% endif %}
 
 icasadi_{{meta.optimizer_name}} = {path = "./icasadi_{{meta.optimizer_name}}/"}
 {% if activate_clib_generation -%}
-libc = "0.2.0"
+libc = "0.2"
 
 [build-dependencies]
-cbindgen = "0.8.0"
+cbindgen = "0.20"
 {% endif %}
 
 

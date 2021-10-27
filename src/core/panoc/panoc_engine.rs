@@ -237,7 +237,7 @@ where
         let gamma = self.cache.gamma;
 
         // u_plus ← u - (1-tau)*gamma_fpr + tau*direction
-        self.compute_u_plus(&u);
+        self.compute_u_plus(u);
 
         // Note: Here `cache.cost_value` and `cache.gradient_u` are overwritten
         // with the values of the cost and its gradient at the next (candidate)

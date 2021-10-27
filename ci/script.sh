@@ -1,23 +1,51 @@
 #!/bin/bash
 set -euxo pipefail
 
+function run_clippy_test() {
+    cd $1
+    cargo clippy --all-targets --all-features
+    if [ -d "./tcp_iface_$1" ] 
+    then
+        # Test auto-generated TCP interface
+        cd ./tcp_iface_$1
+        cargo clippy --all-targets --all-features 
+        cd ..
+    fi
+    if [ -d "./tcp_iface_$1" ] 
+    then
+        # Test auto-generated CasADi interface
+        cd icasadi_$1
+        cargo clippy --all-targets --all-features
+        cd ..
+    fi
+    cd ..
+}
+
 regular_test() {
     # Run Python tests
     # ------------------------------------
 
-    # Create virtual environment
+    # --- create virtual environment
     cd open-codegen
     export PYTHONPATH=.
-    # virtualenv -p python3 venv
 
-    # # --- activate venv
-    # source venv/bin/activate
+    # --- install virtualenv
+    pip install virtualenv
+
+    # --- create virtualenv
+    virtualenv -p python3.8 venv
+
+    # --- activate venv
+    source venv/bin/activate
+
+    # --- upgrade pip within venv
+    pip install --upgrade pip
 
     # --- install opengen
-    python setup.py install
+    pip install .
 
     # --- uncomment to run main file
-    # run opengen main.py
+    # python main.py
 
     # --- run the tests
     cd opengen
@@ -28,12 +56,16 @@ regular_test() {
 
     # Run Clippy for generated optimizers
     # ------------------------------------
-    cd .python_test_build/only_f1/tcp_iface_only_f1
-    cargo clippy --all-targets --all-features
-    cd ../../only_f2/tcp_iface_only_f2
-    cargo clippy --all-targets --all-features
-    cd ../../rosenbrock_ros
-    cargo clippy --all-targets --all-features
+
+    cd .python_test_build
+    run_clippy_test "only_f1"
+    run_clippy_test "only_f2"
+    run_clippy_test "halfspace_optimizer"
+    run_clippy_test "parametric_f2"
+    run_clippy_test "plain"
+    run_clippy_test "python_bindings"
+    run_clippy_test "rosenbrock_ros"
+    
 }
 
 test_docker() {
