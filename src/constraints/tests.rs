@@ -1,6 +1,5 @@
 use super::*;
 use rand;
-use rand::Rng;
 
 #[test]
 fn t_zero_set() {
@@ -650,4 +649,28 @@ fn t_simplex_projection_random_spam() {
 }
 
 #[test]
-fn t_simplex_projection_random_optimality() {}
+fn t_simplex_projection_random_optimality() {
+    for n in (10..=60).step_by(10) {
+        for _ in 0..10 * n {
+            let mut z = vec![0.0; n];
+            let scale = 1000.;
+            z.iter_mut()
+                .for_each(|xi| *xi = scale * (2. * rand::random::<f64>() - 1.));
+            let alpha_scale = 100.;
+            let alpha = alpha_scale * rand::random::<f64>();
+            let simplex = Simplex::new(alpha);
+            let y = z.clone();
+            simplex.project(&mut z);
+            for j in 0..n {
+                let w = alpha * (y[j] - z[j]) - crate::matrix_operations::inner_product(&z, &y)
+                    + crate::matrix_operations::norm2_squared(&z);
+                let norm_z = crate::matrix_operations::norm_inf(&z);
+                let norm_diff_y_z = crate::matrix_operations::norm_inf_diff(&y, &z);
+                assert!(
+                    w <= 1e-11 * (1. + f64::max(norm_z, norm_diff_y_z)),
+                    "optimality conditions failed for simplex"
+                );
+            }
+        }
+    }
+}
