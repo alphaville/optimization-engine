@@ -1,4 +1,6 @@
 use super::*;
+use rand;
+use rand::Rng;
 
 #[test]
 fn t_zero_set() {
@@ -613,4 +615,39 @@ fn t_simplex_projection() {
     let alpha = 3.0;
     let my_simplex = Simplex::new(alpha);
     my_simplex.project(&mut x);
+    unit_test_utils::assert_nearly_equal(
+        crate::matrix_operations::sum(&x),
+        alpha,
+        1e-8,
+        1e-10,
+        "sum of projected vector not equal to alpha",
+    );
 }
+
+#[test]
+fn t_simplex_projection_random_spam() {
+    let n = 2;
+    let n_trials = 1000;
+    for _ in 0..n_trials {
+        let mut x = vec![0.0; n];
+        let scale = 10.;
+        x.iter_mut()
+            .for_each(|xi| *xi = scale * (2. * rand::random::<f64>() - 1.));
+        let alpha_scale = 20.;
+        let alpha = alpha_scale * rand::random::<f64>();
+        let simplex = Simplex::new(alpha);
+        simplex.project(&mut x);
+        println!("x = {:?}", x);
+        assert!(x.iter().all(|&xi| xi >= -1e-12));
+        unit_test_utils::assert_nearly_equal(
+            crate::matrix_operations::sum(&x),
+            alpha,
+            1e-8,
+            1e-10,
+            "sum of projected vector not equal to alpha",
+        );
+    }
+}
+
+#[test]
+fn t_simplex_projection_random_optimality() {}
