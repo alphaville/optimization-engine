@@ -40,7 +40,7 @@ impl Constraint for Simplex {
         });
 
         // ---- step 3
-        if v_tilde.len() > 0 {
+        if !v_tilde.is_empty() {
             v_tilde.iter().for_each(|v_t_n| {
                 if *v_t_n > rho {
                     v.push(*v_t_n);
