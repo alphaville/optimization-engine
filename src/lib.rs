@@ -38,7 +38,6 @@
 //! - $C\subseteq\mathbb{R}^{n_1}$ is a convex closed set on which we can easily compute projections.
 //!
 
-extern crate cfg_if;
 extern crate num;
 
 /// Exceptions/Errors that may arise while solving a problem
