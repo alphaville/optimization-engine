@@ -11,8 +11,12 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       Unreleased
      --------------------- -->
+## [Unreleased]
 
+### Added 
 
+* Implementation of Simplex constraints in Rust
+* Fix issue with simultaneous use of features `jem` and `rp`
 
 
 <!-- ---------------------
