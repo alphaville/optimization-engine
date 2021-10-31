@@ -236,7 +236,7 @@ $\mathbb{P}(p, c_{\nu}, y^{\nu})$, which is obtained using PANOC.
 
 
 
-**Inputs:** $\epsilon, \delta > 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 > 0$ (initial penalty parameter), $\epsilon_0 > \epsilon$ (initial tolerance), $\rho > 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq C^*$ (compact set)
+**Inputs:** $\epsilon, \delta > 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 > 0$ (initial penalty parameter), $\epsilon_0 > \epsilon$ (initial tolerance), $\rho > 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq \mathrm{dom}\ \delta_C^*$ (compact set)
 
 **Procedure:** The <abbr title="Augmented Lagrangian Method">ALM</abbr>/<abbr title="Penalty Method">PM</abbr> algorithm performs the following iterations:
 
