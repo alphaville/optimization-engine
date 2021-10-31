@@ -90,7 +90,10 @@ rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = {version = "0.3.2", optional = true}
 
+# Control the activation of features with `cfg-if`
 cfg-if = "0.1"
+
+
 
 
 # --------------------------------------------------------------------------

@@ -11,7 +11,7 @@ function run_clippy_test() {
         cargo clippy --all-targets --all-features 
         cd ..
     fi
-    if [ -d "./tcp_iface_$1" ] 
+    if [ -d "./icasadi_$1" ] 
     then
         # Test auto-generated CasADi interface
         cd icasadi_$1

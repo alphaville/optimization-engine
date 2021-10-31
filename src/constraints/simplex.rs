@@ -1,21 +1,29 @@
 use super::Constraint;
 
 #[derive(Copy, Clone)]
-/// A simplex with alpha 'a', that is,
-/// a set of the form {x: sum(x) = a, x>=0} where alpha is a positive constant.
+/// A simplex with level $\alpha$ is a set of the form
+/// $\Delta_\alpha^n = \\{x \in \mathbb{R}^n {}:{} x \geq 0, \sum_i x_i = \alpha\\}$,
+/// where $\alpha$ is a positive constant.
 pub struct Simplex {
+    /// Simplex level
     alpha: f64,
 }
 
 impl Simplex {
-    /// Construct a new simplex with given (positive) alpha
+    /// Construct a new simplex with given (positive) $\alpha$. The user does not need
+    /// to specify the dimension of the simplex.
     pub fn new(alpha: f64) -> Self {
-        assert!(alpha > 0.0);
+        assert!(alpha > 0.0, "alpha is nonpositive");
         Simplex { alpha }
     }
 }
 
 impl Constraint for Simplex {
+    /// Project onto $\Delta_\alpha^n$ using Condat's fast projection algorithm.
+    ///
+    /// See: Laurent Condat. Fast Projection onto the Simplex and the $\ell_1$ Ball.
+    /// <em>Mathematical Programming, Series A,</em> Springer, 2016, 158 (1), pp.575-585.
+    /// ⟨<a href="https://dx.doi.org/10.1007/s10107-015-0946-6">10.1007/s10107-015-0946-6</a>⟩.
     fn project(&self, x: &mut [f64]) {
         let a = &self.alpha;
 

@@ -674,3 +674,15 @@ fn t_simplex_projection_random_optimality() {
         }
     }
 }
+
+#[test]
+#[should_panic]
+fn t_simplex_alpha_zero() {
+    let _ = Simplex::new(0.);
+}
+
+#[test]
+#[should_panic]
+fn t_simplex_alpha_negative() {
+    let _ = Simplex::new(-1.);
+}

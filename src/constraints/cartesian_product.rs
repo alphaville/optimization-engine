@@ -18,7 +18,7 @@ use super::Constraint;
 ///
 /// where $x_i$ has dimension $n_i$.
 ///
-/// The constraint $x \in C$ is interpreted as $x_i in C_i$
+/// The constraint $x \in C$ is interpreted as $x_i \in C_i$
 /// for all $i=0,\ldots, n-1$.
 ///
 #[derive(Default)]
