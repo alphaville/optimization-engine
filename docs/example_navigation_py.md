@@ -277,10 +277,9 @@ and second update the problem definition to use `p` as the parameter vector:
 problem = og.builder.Problem(u, p, cost).with_constraints(bounds)
 ```
 
-Then, when we use the optimiser we to provide the vector `p`. For example, if `z0 = (-1, 2, 0)` and `xref = 1`, `yref = 2`, `thetaref = 0.05` we use
+Then, when we use the optimiser we to provide the vector `p`. For example, if `z0 = (-1, 2, 0)` and `xref = 1`, `yref = 0.6`, `thetaref = 0.05` we use
 
 ```python
-result = solver.run(p=[-1.0, 2.0, 0.0, 1.0, 0.5, 0.05],
-                    initial_guess=[1.0] * (nu*N))
+result = solver.run(p=[-1.0, 2.0, 0.0, 1.0, 0.6, 0.05])
 ```
 
