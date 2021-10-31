@@ -62,20 +62,19 @@ pub use crate::core::fbs;
 pub use crate::core::panoc;
 pub use crate::core::{AlgorithmEngine, Optimizer, Problem};
 
-cfg_if::cfg_if! {
-    // 1. The features "jem" and "rp" cannot be activated simultaneously
-    // 2. jemalloc cannot be used with MSVC!
-    if #[cfg(all(target_env = "msvc", feature = "jem"))] {
-        compile_error!("The feature `jemalloc` cannot be activated on MSVC");
-    } else if #[cfg(feature = "jem")] {
-        use jemallocator::Jemalloc;
-        #[global_allocator]
-        static JEMALLOC_GLOBAL: Jemalloc = Jemalloc;
-    } else if #[cfg(feature = "rp")] {
-        #[global_allocator]
-        static RPMALLOC_GLOBAL: rpmalloc::RpMalloc = rpmalloc::RpMalloc;
-    }
-}
+/* Use Jemalloc if the feature `jem` is activated */
+#[cfg(not(target_env = "msvc"))]
+#[cfg(feature = "jem")]
+use jemallocator::Jemalloc;
+
+#[cfg(not(target_env = "msvc"))]
+#[cfg(feature = "jem")]
+#[global_allocator]
+static JEMALLOC_GLOBAL: Jemalloc = Jemalloc;
+
+#[cfg(all(feature = "rp", not(feature = "jem")))]
+#[global_allocator]
+static RPMALLOC_GLOBAL: rpmalloc::RpMalloc = rpmalloc::RpMalloc;
 
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
