@@ -234,7 +234,7 @@ for t in range(0, N):
     theta_dot = (1/L) * (u_t[1] * cs.cos(theta) - u_t[0] * cs.sin(theta))
     cost += r * cs.dot(u_t, u_t)
     x += ts * (u_t[0] + L * cs.sin(theta) * theta_dot)
-    y += ts * (u_t[1] - L * cs.cos(theta) * theta_dot)    
+    y += ts * (u_t[1] - L * cs.cos(theta) * theta_dot)
     theta += ts * theta_dot
     # ADD THIS LINE:
     c += cs.fmax(0, 1 - x**2 - y**2)
@@ -277,4 +277,10 @@ and second update the problem definition to use `p` as the parameter vector:
 problem = og.builder.Problem(u, p, cost).with_constraints(bounds)
 ```
 
+Then, when we use the optimiser we to provide the vector `p`. For example, if `z0 = (-1, 2, 0)` and `xref = 1`, `yref = 2`, `thetaref = 0.05` we use
+
+```python
+result = solver.run(p=[-1.0, 2.0, 0.0, 1.0, 0.5, 0.05],
+                    initial_guess=[1.0] * (nu*N))
+```
 
