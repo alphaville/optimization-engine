@@ -136,6 +136,8 @@ fn make_constraints() -> impl Constraint {
     {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
     // - Infinity ball:
     BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
+    {% elif 'Simplex' == problem.constraints.__class__.__name__ -%}
+    Simplex::new({{problem.constraints.alpha}})
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     // - Rectangle:
     Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX)
@@ -165,6 +167,10 @@ fn make_constraints() -> impl Constraint {
         let radius_{{loop.index}} = {{set_i.radius}};
         let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
         let set_{{loop.index}} = Ball2::new(center_{{loop.index}}, radius_{{loop.index}});
+        let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+        {% elif 'Simplex' == set_i.__class__.__name__ -%}
+        let alpha_{{loop.index}} = {{set_i.alpha}};        
+        let set_{{loop.index}} = Simplex::new(alpha_{{loop.index}});
         let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
         {% elif 'BallInf' == set_i.__class__.__name__ -%}
         let radius_{{loop.index}} = {{set_i.radius}};
