@@ -60,7 +60,17 @@
 <p>Consider the navigation problem for an autonomous ground vehicle which
 carries a trailer as illustrated in the following figure.</p>
 <p><img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400"/></p>
-<p>This is non-holonomic vehicle.</p>
+<p>This is non-holonomic vehicle governed by the dynamical equations [<a href="https://core.ac.uk/download/pdf/153430972.pdf">Ref</a>, Section IV]:</p>
+<div class="math">
+\[
+    \begin{align}
+    \theta_{t+1} {}={}& \theta_t + t_s\tfrac{1}{L}(u_{y,t} \cos \theta_t - u_{x,t} \sin \theta_t),
+    \\
+    x_{t+1} {}={}& x_t + t_s [u_x + \sin\theta_t(u_{y,t} \cos \theta_t - u_{x,t} \sin \theta_t)],
+    \\
+    y_{t+1} {}={}& y_t - t_s [u_y + \cos\theta_t(u_{y,t} \cos \theta_t - u_{x,t} \sin \theta_t)].
+    \end{align}
+\]</div>
 <p>We want to solve the following optimal control problem</p>
 <div class="math">
 \[
@@ -81,9 +91,9 @@ the vehicle dynamics, which in this example is</p>
 <div class="math">
 \[
     f(z, u) = \begin{bmatrix}
-    x + t_s [x +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
+    x + t_s [u_x +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
     \\
-    y + t_s [y +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
+    y + t_s [u_y +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
     \\
     \theta + t_s L^{-1} (u_y \cos\theta - u_x \sin\theta)
     \end{bmatrix}
@@ -95,19 +105,16 @@ the vehicle dynamics, which in this example is</p>
 
 <span class="hljs-comment"># Build parametric optimizer</span>
 <span class="hljs-comment"># ------------------------------------</span>
-(nu, nx, N) = (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">20</span>)
-L = <span class="hljs-number">0.5</span>
-ts = <span class="hljs-number">0.1</span>
-(xref , yref, thetaref) = (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)
+(nu, nx, N, L, ts) = (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">20</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.1</span>)
+(xref, yref, thetaref) = (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)
 (q, qtheta, r, qN, qthetaN) = (<span class="hljs-number">10</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">200</span>, <span class="hljs-number">2</span>)
 
 u = cs.SX.sym(<span class="hljs-string">'u'</span>, nu*N)
 z0 = cs.SX.sym(<span class="hljs-string">'z0'</span>, nx)
 
 (x, y, theta) = (z0[<span class="hljs-number">0</span>], z0[<span class="hljs-number">1</span>], z0[<span class="hljs-number">2</span>])
+
 cost = <span class="hljs-number">0</span>
-
-
 <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> range(<span class="hljs-number">0</span>, nu*N, nu):
     cost += q*((x-xref)**<span class="hljs-number">2</span> + (y-yref)**<span class="hljs-number">2</span>) + qtheta*(theta-thetaref)**<span class="hljs-number">2</span>
     u_t = u[t:t+<span class="hljs-number">2</span>]
@@ -132,40 +139,16 @@ meta = og.config.OptimizerMeta()\
     .with_optimizer_name(<span class="hljs-string">"navigation"</span>)
 solver_config = og.config.SolverConfiguration()\
     .with_tolerance(<span class="hljs-number">1e-5</span>)
-builder = og.builder.OpEnOptimizerBuilder(problem, 
+builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
-                                          build_config, 
-                                          solver_config) \
-    .with_verbosity_level(<span class="hljs-number">1</span>)
+                                          build_config,
+                                          solver_config)
 builder.build()
-
-
-<span class="hljs-comment"># Use TCP server</span>
-<span class="hljs-comment"># ------------------------------------</span>
-mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_test_build/navigation'</span>)
-mng.start()
-
-mng.ping()
-solution = mng.call([<span class="hljs-number">-1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>], initial_guess=[<span class="hljs-number">1.0</span>] * (nu*N))
-mng.kill()
-
-
-<span class="hljs-comment"># Plot solution</span>
-<span class="hljs-comment"># ------------------------------------</span>
-time = np.arange(<span class="hljs-number">0</span>, ts*N, ts)
-u_star = solution[<span class="hljs-string">'solution'</span>]
-ux = u_star[<span class="hljs-number">0</span>:nu*N:<span class="hljs-number">2</span>]
-uy = u_star[<span class="hljs-number">1</span>:nu*N:<span class="hljs-number">2</span>]
-
-plt.subplot(<span class="hljs-number">211</span>)
-plt.plot(time, ux, <span class="hljs-string">'-o'</span>)
-plt.ylabel(<span class="hljs-string">'u_x'</span>)
-plt.subplot(<span class="hljs-number">212</span>)
-plt.plot(time, uy, <span class="hljs-string">'-o'</span>)
-plt.ylabel(<span class="hljs-string">'u_y'</span>)
-plt.xlabel(<span class="hljs-string">'Time'</span>)
-plt.show()
 </code></pre>
+<p>We may now use the optimiser:</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-1-tab-2" class="nav-link active" data-group="group_1" data-tab="tab-group-1-content-2">TCP Interface</div><div id="tab-group-1-tab-3" class="nav-link" data-group="group_1" data-tab="tab-group-1-content-3">Direct Interface</div></div><div class="tab-content"><div id="tab-group-1-content-2" class="tab-pane active" data-group="group_1" tabindex="-1"><div><span><pre><code class="hljs css language-python"><span class="hljs-comment"># Use TCP server</span><br /><span class="hljs-comment"># ------------------------------------</span><br />mng = og.tcp.OptimizerTcpManager(<span class="hljs-string">'python_test_build/navigation'</span>)<br />mng.start()<br /><br />mng.ping()<br />solution = mng.call([<span class="hljs-number">-1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>], initial_guess=[<span class="hljs-number">1.0</span>] * (nu*N))<br />mng.kill()<br /><br /><br /><span class="hljs-comment"># Plot solution</span><br /><span class="hljs-comment"># ------------------------------------</span><br />time = np.arange(<span class="hljs-number">0</span>, ts*N, ts)<br />u_star = solution[<span class="hljs-string">'solution'</span>]<br />ux = u_star[<span class="hljs-number">0</span>:nu*N:<span class="hljs-number">2</span>]<br />uy = u_star[<span class="hljs-number">1</span>:nu*N:<span class="hljs-number">2</span>]<br /><br />plt.subplot(<span class="hljs-number">211</span>)<br />plt.plot(time, ux, <span class="hljs-string">'-o'</span>)<br />plt.ylabel(<span class="hljs-string">'u_x'</span>)<br />plt.subplot(<span class="hljs-number">212</span>)<br />plt.plot(time, uy, <span class="hljs-string">'-o'</span>)<br />plt.ylabel(<span class="hljs-string">'u_y'</span>)<br />plt.xlabel(<span class="hljs-string">'Time'</span>)<br />plt.show()<br /></code></pre>
+</span></div></div><div id="tab-group-1-content-3" class="tab-pane" data-group="group_1" tabindex="-1"><div><span><pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> sys<br /><br /><span class="hljs-comment"># Use Direct Interface</span><br /><span class="hljs-comment"># ------------------------------------</span><br />sys.path.insert(<span class="hljs-number">1</span>, <span class="hljs-string">'./python_test_build/navigation'</span>)<br /><span class="hljs-keyword">import</span> navigation<br /><br />solver = navigation.solver()<br />result = solver.run(p=[<span class="hljs-number">-1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>],<br />                    initial_guess=[<span class="hljs-number">1.0</span>] * (nu*N))<br />u_star = result.solution<br /><br /><br /><span class="hljs-comment"># Plot solution</span><br /><span class="hljs-comment"># ------------------------------------</span><br />time = np.arange(<span class="hljs-number">0</span>, ts*N, ts)<br />ux = u_star[<span class="hljs-number">0</span>:nu*N:<span class="hljs-number">2</span>]<br />uy = u_star[<span class="hljs-number">1</span>:nu*N:<span class="hljs-number">2</span>]<br /><br />plt.subplot(<span class="hljs-number">211</span>)<br />plt.plot(time, ux, <span class="hljs-string">'-o'</span>)<br />plt.ylabel(<span class="hljs-string">'u_x'</span>)<br />plt.subplot(<span class="hljs-number">212</span>)<br />plt.plot(time, uy, <span class="hljs-string">'-o'</span>)<br />plt.ylabel(<span class="hljs-string">'u_y'</span>)<br />plt.xlabel(<span class="hljs-string">'Time'</span>)<br />plt.show()<br /></code></pre>
+</span></div></div></div></div>
 <p>This will produce the following plot:</p>
 <p><img src="/optimization-engine/img/unobstructed_navigation_python.png" alt="Matplotlib unobstructed navigation" /></p>
 <p>If you would like to plot the (x, y)-trajectories of the vehicle,
@@ -215,7 +198,7 @@ line in the above code:</p>
     theta_dot = (<span class="hljs-number">1</span>/L) * (u_t[<span class="hljs-number">1</span>] * cs.cos(theta) - u_t[<span class="hljs-number">0</span>] * cs.sin(theta))
     cost += r * cs.dot(u_t, u_t)
     x += ts * (u_t[<span class="hljs-number">0</span>] + L * cs.sin(theta) * theta_dot)
-    y += ts * (u_t[<span class="hljs-number">1</span>] - L * cs.cos(theta) * theta_dot)    
+    y += ts * (u_t[<span class="hljs-number">1</span>] - L * cs.cos(theta) * theta_dot)
     theta += ts * theta_dot
     <span class="hljs-comment"># ADD THIS LINE:</span>
     c += cs.fmax(<span class="hljs-number">0</span>, <span class="hljs-number">1</span> - x**<span class="hljs-number">2</span> - y**<span class="hljs-number">2</span>)
@@ -234,4 +217,18 @@ and the initial weights (<code>with_initial_penalty_weights</code>):</p>
 </code></pre>
 <p>Here is a trajectory of the system with $N=60$.</p>
 <p><img src="/optimization-engine/img/obstructed_navigation_trajectories_python.png" alt="Matplotlib obstructed navigation" /></p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_rosenbrock_py"><span class="arrow-prev">← </span><span>Rosenbrock Function</span></a><a class="docs-next button" href="/optimization-engine/docs/example_estimation_py"><span>Nonlinear State Estimation</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#unobstructed-navigation">Unobstructed navigation</a></li><li><a href="#obstructed-navigation">Obstructed navigation</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2021 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
+<h2><a class="anchor" aria-hidden="true" id="update-reference-in-real-time"></a><a href="#update-reference-in-real-time" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Update reference in real time</h2>
+<p>We may update the reference, $z^{\mathrm{ref}}$, in real time. If suffices to define $p = (z_0, z^{\mathrm{ref}})$. In other words, we use the parameter vector, $p$, to pass to the optimiser both the initial condition and the target.</p>
+<p>We need to introduce the following changes. Firstly, we define the parameter vector:</p>
+<pre><code class="hljs css language-python">p = cs.SX.sym(<span class="hljs-string">'p'</span>, <span class="hljs-number">2</span>*nx)
+(x, y, theta) = (p[<span class="hljs-number">0</span>], p[<span class="hljs-number">1</span>], p[<span class="hljs-number">2</span>])
+(xref, yref, thetaref) = (p[<span class="hljs-number">3</span>], p[<span class="hljs-number">4</span>], p[<span class="hljs-number">5</span>])
+</code></pre>
+<p>and second update the problem definition to use <code>p</code> as the parameter vector:</p>
+<pre><code class="hljs css language-python">problem = og.builder.Problem(u, p, cost).with_constraints(bounds)
+</code></pre>
+<p>Then, when we use the optimiser we to provide the vector <code>p</code>. For example, if <code>z0 = (-1, 2, 0)</code> and <code>xref = 1</code>, <code>yref = 2</code>, <code>thetaref = 0.05</code> we use</p>
+<pre><code class="hljs css language-python">result = solver.run(p=[<span class="hljs-number">-1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.05</span>],
+                    initial_guess=[<span class="hljs-number">1.0</span>] * (nu*N))
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_rosenbrock_py"><span class="arrow-prev">← </span><span>Rosenbrock Function</span></a><a class="docs-next button" href="/optimization-engine/docs/example_estimation_py"><span>Nonlinear State Estimation</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#unobstructed-navigation">Unobstructed navigation</a></li><li><a href="#obstructed-navigation">Obstructed navigation</a></li><li><a href="#update-reference-in-real-time">Update reference in real time</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2021 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>

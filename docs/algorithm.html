@@ -200,7 +200,7 @@ according to</p>
 </div>
 <p>where $u^{\nu}$ is an (approximate) solution of the inner problem,
 $\mathbb{P}(p, c_{\nu}, y^{\nu})$, which is obtained using PANOC.</p>
-<p><strong>Inputs:</strong> $\epsilon, \delta &gt; 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 &gt; 0$ (initial penalty parameter), $\epsilon_0 &gt; \epsilon$ (initial tolerance), $\rho &gt; 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq C^*$ (compact set)</p>
+<p><strong>Inputs:</strong> $\epsilon, \delta &gt; 0$ (tolerance), $\nu_{\max}$ (maximum number of iterations), $c_0 &gt; 0$ (initial penalty parameter), $\epsilon_0 &gt; \epsilon$ (initial tolerance), $\rho &gt; 1$ (update factor for the penalty parameter), $\beta \in (0, 1)$ (decrease factor for the inner tolerance), $\theta \in (0, 1)$ (sufficient decrease coefficient), $u^0 \in \mathbb{R}^n$ (initial guess), $y^0 \in \mathbb{R}^{n_1}$ (initial guess for the Lagrange multipliers), $Y \subseteq \mathrm{dom}\ \delta_C^*$ (compact set)</p>
 <p><strong>Procedure:</strong> The <abbr title="Augmented Lagrangian Method">ALM</abbr>/<abbr title="Penalty Method">PM</abbr> algorithm performs the following iterations:</p>
 <ul>
 <li>$\bar{\epsilon} = \epsilon_0$, $y\gets{}y^0$, $u\gets{}u^0$, $t,z\gets{}0$</li>
