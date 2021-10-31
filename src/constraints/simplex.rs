@@ -20,7 +20,8 @@ impl Constraint for Simplex {
         let a = &self.alpha;
 
         // ---- step 1
-        let mut v = vec![x[0]]; // vector containing x[0]
+        let mut v = Vec::<f64>::with_capacity(x.len()); // vector containing x[0]
+        v.push(x[0]);
         let mut v_size_old: i64 = -1; // 64 bit signed int
         let mut v_tilde: Vec<f64> = Vec::new(); // empty vector of f64
         let mut rho: f64 = x[0] - a; // 64 bit float
@@ -52,7 +53,7 @@ impl Constraint for Simplex {
         // ---- step 4
         let mut keep_running = true;
         while keep_running {
-            let mut hit_list: Vec<usize> = Vec::new();
+            let mut hit_list: Vec<usize> = Vec::with_capacity(x.len());
             let mut current_len_v = v.len() as i64;
             v.iter().enumerate().for_each(|(n, v_n)| {
                 if *v_n <= rho {
