@@ -10,7 +10,7 @@ class Ball1(Constraint):
 
     """
 
-    def __init__(self, center=None, radius: float = 1.0, ):  # unless specified, alpha=1
+    def __init__(self, center=None, radius: float = 1.0, ):  # unless specified, radius=1
         """Constructor for a Ball1
 
         Args:
