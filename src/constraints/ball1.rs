@@ -48,7 +48,6 @@ impl<'a> Constraint for Ball1<'a> {
                 .zip(center.iter())
                 .for_each(|(xi, &ci)| *xi += ci);
         } else {
-            println!("no centre");
             self.project_on_ball1_centered_at_origin(x);
         }
     }

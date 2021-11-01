@@ -64,7 +64,7 @@ pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_pe
 
 // ---Parameters of the constraints----------------------------------------------------------------------
 
-{% if 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ -%}
+{% if 'Ball1' == problem.constraints.__class__.__name__ or 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ -%}
 /// Constraints: Centre of Ball
 const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
 
@@ -136,6 +136,9 @@ fn make_constraints() -> impl Constraint {
     {% elif 'BallInf' == problem.constraints.__class__.__name__ -%}
     // - Infinity ball:
     BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
+    {% elif 'Ball1' == problem.constraints.__class__.__name__ -%}
+    // - Ball1:
+    Ball1::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
     {% elif 'Simplex' == problem.constraints.__class__.__name__ -%}
     // - Simplex:
     let alpha_simplex : f64 = {{problem.constraints.alpha}};
@@ -178,6 +181,11 @@ fn make_constraints() -> impl Constraint {
         let radius_{{loop.index}} = {{set_i.radius}};
         let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
         let set_{{loop.index}} = BallInf::new(center_{{loop.index}}, radius_{{loop.index}});
+        let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+        {% elif 'Ball1' == set_i.__class__.__name__ -%}
+        let radius_{{loop.index}} = {{set_i.radius}};
+        let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
+        let set_{{loop.index}} = Ball1::new(center_{{loop.index}}, radius_{{loop.index}});
         let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
         {% elif 'Rectangle' == set_i.__class__.__name__ -%}
         let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
