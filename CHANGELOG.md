@@ -19,7 +19,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 ### Added 
 
-* Implementation of Simplex constraints in Rust
+* Implementation of Simplex and Ball1 constraints in Rust
 * Fix issue with simultaneous use of features `jem` and `rp`
 
 

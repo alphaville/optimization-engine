@@ -11,7 +11,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Added
 
-* Support for simplices via code generation
+* Support for simplices and ell1 balls via code generation
 
 
 ## [0.6.6] - 2021-10-27

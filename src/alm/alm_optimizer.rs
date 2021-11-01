@@ -1183,7 +1183,7 @@ mod tests {
         println!("F2(u_plus) = {:#?}", f2_u_plus);
         unit_test_utils::assert_nearly_equal_array(
             &[7., 147.],
-            &f2_u_plus,
+            f2_u_plus,
             1e-10,
             1e-12,
             "F2(u) is wrong",
@@ -1241,7 +1241,7 @@ mod tests {
         let d_psi = void_parameteric_gradient;
         let f1 = Some(|u: &[f64], res: &mut [f64]| -> FunctionCallResult {
             res[0] = matrix_operations::sum(u);
-            res[1] = matrix_operations::norm2_squared(&u);
+            res[1] = matrix_operations::norm2_squared(u);
             Ok(())
         });
         let set_c = Some(Ball2::new(None, 1.5));
@@ -1259,7 +1259,7 @@ mod tests {
         println!("xi = {:#?}", alm_optimizer.alm_cache.w_alm_aux);
         unit_test_utils::assert_nearly_equal_array(
             &[350.163_243_585_489, 2_838.112_880_538_07],
-            &alm_optimizer
+            alm_optimizer
                 .alm_cache
                 .y_plus
                 .as_ref()
