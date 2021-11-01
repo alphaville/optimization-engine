@@ -323,7 +323,7 @@ impl<T> CostFunction for T where T: Fn(&[f64], &[f64], &mut f64) -> FunctionCall
 // return closures from a function, (ii) moving the context of the function
 // (using `move`), (iii) `param` should leave at least as long as the box
 // See: https://bit.ly/36icE5r
-fn make_mockito_f0<'a>(c: f64, param: &'a [f64]) -> impl CostFunction + 'a {
+fn make_mockito_f0(c: f64, param: &[f64]) -> impl CostFunction + '_ {
     Box::new(
         move |_u: &[f64], _xi: &[f64], cost: &mut f64| -> FunctionCallResult {
             *cost = c + param[0];

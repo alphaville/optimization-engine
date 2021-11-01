@@ -1,7 +1,7 @@
 use super::Constraint;
 
 #[derive(Copy, Clone)]
-/// A Eucledian ball, that is, a set given by $B_2^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert \leq r\\}$
+/// A Euclidean ball, that is, a set given by $B_2^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert \leq r\\}$
 /// or a Euclidean ball centered at a point $x_c$, that is, $B_2^{x_c, r} = \\{x \in \mathbb{R}^n {}:{} \Vert{}x-x_c{}\Vert \leq r\\}$
 pub struct Ball2<'a> {
     center: Option<&'a [f64]>,
@@ -9,7 +9,7 @@ pub struct Ball2<'a> {
 }
 
 impl<'a> Ball2<'a> {
-    /// Construct a new Eucledian ball with given center and radius
+    /// Construct a new Euclidean ball with given center and radius
     /// If no `center` is given, then it is assumed to be in the origin
     pub fn new(center: Option<&'a [f64]>, radius: f64) -> Self {
         assert!(radius > 0.0);

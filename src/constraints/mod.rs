@@ -8,6 +8,7 @@
 //!
 //! [`Constraint`]: trait.Constraint.html
 
+mod ball1;
 mod ball2;
 mod ballinf;
 mod cartesian_product;
@@ -16,9 +17,11 @@ mod halfspace;
 mod hyperplane;
 mod no_constraints;
 mod rectangle;
+mod simplex;
 mod soc;
 mod zero;
 
+pub use ball1::Ball1;
 pub use ball2::Ball2;
 pub use ballinf::BallInf;
 pub use cartesian_product::CartesianProduct;
@@ -27,6 +30,7 @@ pub use halfspace::Halfspace;
 pub use hyperplane::Hyperplane;
 pub use no_constraints::NoConstraints;
 pub use rectangle::Rectangle;
+pub use simplex::Simplex;
 pub use soc::SecondOrderCone;
 pub use zero::Zero;
 

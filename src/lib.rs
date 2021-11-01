@@ -72,7 +72,7 @@ use jemallocator::Jemalloc;
 #[global_allocator]
 static JEMALLOC_GLOBAL: Jemalloc = Jemalloc;
 
-#[cfg(feature = "rp")]
+#[cfg(all(feature = "rp", not(feature = "jem")))]
 #[global_allocator]
 static RPMALLOC_GLOBAL: rpmalloc::RpMalloc = rpmalloc::RpMalloc;
 

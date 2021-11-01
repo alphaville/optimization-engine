@@ -459,6 +459,27 @@ class ConstraintsTestCase(unittest.TestCase):
                 self.assertLessEqual(
                     np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (2)")
 
+    def test_ball1_project_random_points_center(self):
+        n = 5
+        for _ in range(5000):
+            xc = np.random.uniform(low=-20, high=20, size=n)
+            r = np.random.uniform(low=1e-3, high=10)
+            ball1 = og.constraints.Ball1(xc, r)
+            x = np.random.uniform(low=-50, high=50, size=n)
+            x_star = ball1.project(x)
+            # Check whether the projection is inside the set
+            self.assertLessEqual(np.linalg.norm(x_star - xc, 1),
+                                 r * (1 + 1e-10))
+            # Check the optimality conditions
+            for j in range(n):
+                e = ball1.center.copy()
+                e[j] += r
+                self.assertLessEqual(
+                    np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (1)")
+                e[j] -= 2*r
+                self.assertLessEqual(
+                    np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (2)")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.7.2"
+version = "0.7.3"
 
 edition = "2018"
 
@@ -114,6 +114,8 @@ unit_test_utils = "0.1.3"
 # icasadi_test = { path = "test/icasadi_test/" }
 #       instead, use:
 icasadi_test = "0.0.2"
+# Random number generators for unit tests:
+rand = "0.8"
 
 
 

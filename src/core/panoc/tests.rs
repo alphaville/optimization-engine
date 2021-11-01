@@ -36,8 +36,8 @@ fn t_panoc_init() {
     println!("cache = {:#?}", &panoc_cache);
 }
 
-fn print_panoc_engine<'a, GradientType, ConstraintType, CostType>(
-    panoc_engine: &PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+fn print_panoc_engine<GradientType, ConstraintType, CostType>(
+    panoc_engine: &PANOCEngine<GradientType, ConstraintType, CostType>,
 ) where
     GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
     CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
