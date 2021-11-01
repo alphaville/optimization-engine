@@ -309,7 +309,7 @@ mod tests {
 
             unit_test_utils::assert_nearly_equal_array(
                 &[0.0; 10],
-                &computed_gradient,
+                computed_gradient,
                 1e-10,
                 1e-14,
                 "computed gradient",
@@ -326,7 +326,7 @@ mod tests {
         f(&u, &mut actual_gradient).unwrap();
 
         unit_test_utils::assert_nearly_equal_array(
-            &computed_gradient,
+            computed_gradient,
             &actual_gradient,
             1e-10,
             1e-14,

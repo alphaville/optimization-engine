@@ -67,8 +67,8 @@ class Ball1(Constraint):
         """
         if self.center is None:
             return self.__proj_on_ball_centered_at_origin(u)
-        else:
-            return self.__proj_on_ball_centered_at_origin(u - self.center) + self.center
+
+        return self.__proj_on_ball_centered_at_origin(u - self.center) + self.center
 
     def is_convex(self):
         return True
