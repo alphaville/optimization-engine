@@ -76,10 +76,10 @@ following types of constraints:
 
 | Constraint         | Explanation                                    |
 |--------------------|------------------------------------------------|
-| `Ball2`            | Euclidean ball: `Ball2(None, r)` creates a Euclidean ball of radius `r` centered at the origin, and `Ball2(xc, r)` is a ball centered at point `xc` (list) |
-| `BallInf`          | Ball of infinity norm:`BallInf(None, r)` creates an infinity-norm ball of radius `r` centered at the origin, and `BallInf(xc, r)` is an infinity ball centered at point `xc` (list) |
-| `Ball1`            | Coming Soon (see [#238](https://github.com/alphaville/optimization-engine/issues/238))|
-| `Simplex`            | A simplex of <em>size</em> $\alpha$ is a set of the form $\Delta_\alpha = \\{x \in \mathbb{R}^n {}:{} x_i \geq 0, \sum_i x_i = \alpha\\}$. Projections are computed using Condat's [fast projection method](https://link.springer.com/article/10.1007/s10107-015-0946-6).  |
+| `Ball2`            | Euclidean ball: `Ball2(None, r)` creates a Euclidean ball of radius `r` centered at the origin, and `Ball2(xc, r)` is a ball centered at point `xc` (list/np.array) |
+| `BallInf`          | Ball of infinity norm:`BallInf(None, r)` creates an infinity-norm ball of radius `r` centered at the origin, and `BallInf(xc, r)` is an infinity ball centered at point `xc` (list/np.array) |
+| `Ball1`            | L1 ball: `Ball(None, r)` creates an ell1-ball of radius `r` centered at the origin, and `BallInf(xc, r)` is an ell1-ball centered at point `xc` (list/np.array)|
+| `Simplex`            | A simplex of <em>size</em> $\alpha$ is a set of the form $\Delta_\alpha = \\{x \in \mathbb{R}^n {}:{} x_i \geq 0, \sum_i x_i = \alpha\\}$. Create one with `Simplex(alpha)`. Projections are computed using Condat's [fast projection method](https://link.springer.com/article/10.1007/s10107-015-0946-6).  |
 | `Halfspace`        | A halfspace is a set of the form $\\{u \in \mathbb{R}^{n_u} {}:{} \langle c, u\rangle \leq b \\}$, for a vector $c$ and a scalar $b$. The syntax is straightforwarrd: `Halfspace(c, b)`. |
 | `FiniteSet`        | Finite set, $\\{u^{(1)},\ldots,u^{(m)}\\}$; the set of point is provided as a list of lists, for example, `FiniteSet([[1,2],[2,3],[4,5]])`. The commonly used set of binary numbers, $\\{0, 1\\}$, is created with `FiniteSet([[0], [1]])`. |
 | `NoConstraints`    | No constraints - the whole $\mathbb{R}^{n}$|
