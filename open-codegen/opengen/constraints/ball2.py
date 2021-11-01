@@ -30,7 +30,8 @@ class Ball2(Constraint):
         if center is not None and not isinstance(center, (list, np.ndarray)):
             raise Exception("center is neither None nor a list nor np.ndarray")
 
-        self.__center = None if center is None else np.array([float(i) for i in center])
+        self.__center = None if center is None else np.array(
+            [float(i) for i in center])
         self.__radius = float(radius)
 
     @property

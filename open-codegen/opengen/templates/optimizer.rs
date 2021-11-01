@@ -137,7 +137,9 @@ fn make_constraints() -> impl Constraint {
     // - Infinity ball:
     BallInf::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
     {% elif 'Simplex' == problem.constraints.__class__.__name__ -%}
-    Simplex::new({{problem.constraints.alpha}})
+    // - Simplex:
+    let alpha_simplex : f64 = {{problem.constraints.alpha}};
+    Simplex::new(alpha_simplex)
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     // - Rectangle:
     Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX)

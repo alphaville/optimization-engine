@@ -625,7 +625,7 @@ fn t_simplex_projection() {
 
 #[test]
 fn t_simplex_projection_random_spam() {
-    let n = 2;
+    let n = 10;
     let n_trials = 1000;
     for _ in 0..n_trials {
         let mut x = vec![0.0; n];
@@ -685,4 +685,86 @@ fn t_simplex_alpha_zero() {
 #[should_panic]
 fn t_simplex_alpha_negative() {
     let _ = Simplex::new(-1.);
+}
+
+#[test]
+fn t_ball1_random_optimality_conditions() {
+    for n in (10..=60).step_by(10) {
+        let n_trials = 1000;
+        for _ in 0..n_trials {
+            let mut x = vec![0.0; n];
+            let mut x_star = vec![0.0; n];
+            let scale = 20.;
+            x_star
+                .iter_mut()
+                .for_each(|xi| *xi = scale * (2. * rand::random::<f64>() - 1.));
+            x.copy_from_slice(&x_star);
+            let radius = 5. * rand::random::<f64>();
+            let ball1 = Ball1::new(None, radius);
+            ball1.project(&mut x_star);
+            // make sure |x|_1 <= radius
+            assert!(
+                crate::matrix_operations::norm1(&x_star) <= radius * (1. + 1e-10),
+                "norm(x, 1) > radius"
+            );
+            // check the optimality conditions
+            for j in 0..n {
+                let w = radius * (x[j] - x_star[j])
+                    - crate::matrix_operations::inner_product(&x, &x_star)
+                    + crate::matrix_operations::norm2_squared(&x_star);
+                let norm_x_star = crate::matrix_operations::norm_inf(&x_star);
+                let norm_diff_x_x_star = crate::matrix_operations::norm_inf_diff(&x, &x_star);
+                assert!(
+                    w <= 1e-11 * (1. + f64::max(norm_x_star, norm_diff_x_x_star)),
+                    "optimality conditions failed for ball1"
+                );
+            }
+            // and of course...
+            for j in 0..n {
+                let w = -radius * (x[j] - x_star[j])
+                    - crate::matrix_operations::inner_product(&x, &x_star)
+                    + crate::matrix_operations::norm2_squared(&x_star);
+                let norm_x_star = crate::matrix_operations::norm_inf(&x_star);
+                let norm_diff_x_x_star = crate::matrix_operations::norm_inf_diff(&x, &x_star);
+                assert!(
+                    w <= 1e-11 * (1. + f64::max(norm_x_star, norm_diff_x_x_star)),
+                    "optimality conditions failed for ball1"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn t_ball1_random_optimality_conditions_centered() {
+    for n in (10..=60).step_by(10) {
+        let n_trials = 1000;
+        for _ in 0..n_trials {
+            let mut x = vec![0.0; n];
+            let mut xc = vec![0.0; n];
+            let scale = 60.;
+            let scale_xc = 20.;
+            x.iter_mut()
+                .for_each(|xi| *xi = scale * (2. * rand::random::<f64>() - 1.));
+            xc.iter_mut()
+                .for_each(|xi| *xi = scale_xc * (2. * rand::random::<f64>() - 1.));
+            let radius = 5. * rand::random::<f64>();
+            let ball1 = Ball1::new(Some(&xc), radius);
+            ball1.project(&mut x);
+            // x = x - xc
+            x.iter_mut()
+                .zip(xc.iter())
+                .for_each(|(xi, &xci)| *xi = *xi - xci);
+            assert!(
+                crate::matrix_operations::norm1(&x) <= radius * (1. + 1e-10),
+                "norm(x - xc, 1) > radius"
+            );
+        }
+    }
+}
+
+#[test]
+#[should_panic]
+fn t_ball1_alpha_negative() {
+    let _ = Ball1::new(None, -1.);
 }
