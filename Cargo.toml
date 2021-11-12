@@ -85,13 +85,15 @@ lbfgs = "0.2"
 # sc-allocator provides an implementation of a bump allocator
 rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = true }
 
+
+instant = { version = "0.1" }
+wasm-bindgen = { version = "0.2.74", optional = true }
+
 # jemallocator is an optional feature; it will only be loaded if the feature 
 # `jem` is used (i.e., if we compile with `cargo build --features jem`)
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = {version = "0.3.2", optional = true}
 
-instant = { version = "0.1" }
-wasm-bindgen = { version = "0.2.74", optional = true }
 
 # --------------------------------------------------------------------------
 # F.E.A.T.U.R.E.S.
