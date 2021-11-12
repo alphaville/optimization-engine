@@ -90,8 +90,8 @@ rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = {version = "0.3.2", optional = true}
 
+instant = { version = "0.1" }
 wasm-bindgen = { version = "0.2.74", optional = true }
-instant = { version = "0.1", features = [ "wasm-bindgen", "inaccurate" ], optional = true }
 
 # --------------------------------------------------------------------------
 # F.E.A.T.U.R.E.S.
@@ -105,7 +105,7 @@ jem = ["jemallocator"]
 rp = ["rpmalloc"]
 
 # WebAssembly
-wasm = ["wasm-bindgen", "instant"]
+wasm = ["wasm-bindgen", "instant/wasm-bindgen", "instant/inaccurate"]
 
 # --------------------------------------------------------------------------
 # T.E.S.T.   D.E.P.E.N.D.E.N.C.I.E.S
