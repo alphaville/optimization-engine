@@ -90,8 +90,8 @@ rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = {version = "0.3.2", optional = true}
 
-
-
+wasm-bindgen = { version = "0.2.74", optional = true }
+instant = { version = "0.1", features = [ "wasm-bindgen", "inaccurate" ], optional = true }
 
 # --------------------------------------------------------------------------
 # F.E.A.T.U.R.E.S.
@@ -100,7 +100,12 @@ jemallocator = {version = "0.3.2", optional = true}
 # Use `jemallocator` as a global memory allocator (requires the dependency 
 # `jemallocator` - see above)
 jem = ["jemallocator"]
+
+# RPMalloc
 rp = ["rpmalloc"]
+
+# WebAssembly
+wasm = ["wasm-bindgen", "instant"]
 
 # --------------------------------------------------------------------------
 # T.E.S.T.   D.E.P.E.N.D.E.N.C.I.E.S
@@ -128,5 +133,3 @@ travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
 
 # Actively maintained badge
 maintenance = { status = "actively-developed" }
-
-
