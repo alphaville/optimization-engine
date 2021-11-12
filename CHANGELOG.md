@@ -11,6 +11,11 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       Unreleased
      --------------------- -->
+## [Unreleased]
+
+### Added 
+
+* Support for Wasm (#248)
 
 <!-- ---------------------
       v0.7.3
