@@ -1,6 +1,6 @@
 ---
 id: openrust-basic
-title: Basic usage
+title: Introduction
 description: How to use OpEn directly in Rust
 ---
 
