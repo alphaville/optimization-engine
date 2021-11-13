@@ -4,7 +4,7 @@
         <title>OpEn Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>The best place to stay up-to-date with the latest OpEn news and events.</description>
-        <lastBuildDate>Mon, 14 Oct 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 21 Mar 2019 06:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,27 +13,6 @@
             <link>https://alphaville.github.io/optimization-engine/blog</link>
         </image>
         <copyright>Copyright © 2021 Pantelis Sopasakis and Emil Fresk</copyright>
-        <item>
-            <title><![CDATA[Augmented Lagrangian Method: New Releases!]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/10/14/augmented-lagrangian.html</guid>
-            <pubDate>Mon, 14 Oct 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[  <p><strong>OpEn</strong> can now solve problems of the very general form</p> <div class="math"> \[\begin{split}\mathbb{P}(p) {}:{} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}&amp;\ \ f(u, p)\\ \mathrm{subject\ to}\ \ &amp;u \in U\\ &amp; F_1(u, p) \in C\\ &amp; F_2(u, p) = 0\end{...</div>]]></description>
-        </item>
-        <item>
-            <title><![CDATA[Python interface]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/06/03/python-interface-out.html</guid>
-            <pubDate>Mon, 03 Jun 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[  <p>The new Python interface is finally out and the solver now supports generic constraints of the form</p> <div class="math"> \[\begin{split} \operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{n_u}}& \ f(u; p)\\ \mathrm{subject\ to}\, &u \in U, \\ &c(u; p) = 0,\end{split}\]</div> <p>w...</p>]]></description>
-        </item>
-        <item>
-            <title><![CDATA[One shot two hares]]></title>
-            <link>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</link>
-            <guid>https://alphaville.github.io/optimization-engine/blog/2019/05/23/python-interface.html</guid>
-            <pubDate>Thu, 23 May 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>Hi there! Soon OpEn will support the <a href="https://github.com/alphaville/optimization-engine/issues/6">penalty method</a> and will be able to accommodate general constraints of the form <code>c_i(x) = 0</code> and <code>c_i(x) &lt;= 0</code>.</p> <p>The penalty method is in fact implemented in the more general context of the homotopy method.</p> <p>At the sa...</p>]]></description>
-        </item>
         <item>
             <title><![CDATA[Faster UDP connection]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</link>
