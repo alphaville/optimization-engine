@@ -3,22 +3,22 @@
 # --------------------------------------------------------------------------
 [package]
 # Authors of this package
-authors = ["Emil Fresk <emil.fresk@gmail.com>",
-           "Pantelis Sopasakis (https://alphaville.github.io)"]
+authors = [
+    "Emil Fresk <emil.fresk@gmail.com>",
+    "Pantelis Sopasakis (https://alphaville.github.io)",
+]
 
 # Crate categories (chosed from a list of valid categories at https://crates.io/categories)
-categories = ["embedded",
-              "algorithms",
-              "science::robotics",
-              "development-tools",
-              "simulation"]
+categories = [
+    "embedded",
+    "algorithms",
+    "science::robotics",
+    "development-tools",
+    "simulation",
+]
 
 # Keywords
-keywords = ["embedded",
-            "optimization",
-            "solver",
-            "NMPC",
-            "MPC"]
+keywords = ["embedded", "optimization", "solver", "NMPC", "MPC"]
 
 # Short description
 description = "A pure Rust framework for embedded nonconvex optimization. Ideal for robotics!"
@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.7.3"
+version = "0.7.4"
 
 edition = "2018"
 
@@ -70,7 +70,7 @@ exclude = [
 # D.O.C.S
 # --------------------------------------------------------------------------
 [package.metadata.docs.rs]
-rustdoc-args = [ "--html-in-header", "katex-header.html" ]
+rustdoc-args = ["--html-in-header", "katex-header.html"]
 
 
 # --------------------------------------------------------------------------
@@ -83,14 +83,15 @@ num = "0.2.0"
 lbfgs = "0.2"
 
 # sc-allocator provides an implementation of a bump allocator
-rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = true }
+rpmalloc = { version = "0.2.0", features = [
+    "guards",
+    "statistics",
+], optional = true }
 
 # jemallocator is an optional feature; it will only be loaded if the feature 
 # `jem` is used (i.e., if we compile with `cargo build --features jem`)
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = {version = "0.3.2", optional = true}
-
-
+jemallocator = { version = "0.3.2", optional = true }
 
 
 # --------------------------------------------------------------------------
@@ -118,7 +119,6 @@ icasadi_test = "0.0.2"
 rand = "0.8"
 
 
-
 # --------------------------------------------------------------------------
 # B.A.D.G.E.S.
 # --------------------------------------------------------------------------
@@ -128,5 +128,3 @@ travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
 
 # Actively maintained badge
 maintenance = { status = "actively-developed" }
-
-
