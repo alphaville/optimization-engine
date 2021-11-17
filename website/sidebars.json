@@ -19,7 +19,8 @@
     ],
     "Rust": [
       "openrust-basic",
-      "openrust-alm"
+      "openrust-alm",
+      "openrust-features"
     ],
     "Docker": [
       "docker"
