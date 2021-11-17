@@ -1,6 +1,6 @@
 ---
 id: example_navigation_ros_codegen
-title: Navigation of ground vehicle using ROS codegen
+title: Husky robot with ROS
 description: Nonlinear model predictive control with OpEn using ROS
 ---
 
@@ -58,7 +58,7 @@ the vehicle dynamics, which in this example is
 
 The auto generated controller will allow you to move the vehicle to any point of the simulation grid, as shown in the following video
 
-<video width="960" height="540" controls>
+<video width="672" height="378" controls>
   <source src="/optimization-engine/img/husky_video.mp4" type="video/mp4">
 </video>
 

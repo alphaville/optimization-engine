@@ -71,6 +71,7 @@ p = cs.SX.sym("p", 2)                 # parameter (np = 2)
 phi = og.functions.rosenbrock(u, p)   # cost function
 ```
 
+### Constraints
 Next, we need to define the constraints. **OpEn** supports the
 following types of constraints:
 
@@ -85,8 +86,16 @@ following types of constraints:
 | `NoConstraints`    | No constraints - the whole $\mathbb{R}^{n}$|
 | `Rectangle`        | Rectangle, $$R = \\{u \in \mathbb{R}^{n_u} {}:{} f_{\min} \leq u \leq f_{\max}\\},$$ for example, `Rectangle(fmin, fmax)` |
 | `SecondOrderCone`  | Second-order aka "ice cream" aka "Lorenz" cone |
-| `CartesianProduct` | Cartesian product of any of the above. In $\mathbb{R}^n$, a vector $x$ can segmented as $$x=(x_{(0)}, x_{(1)}, \ldots, x_{(s)}),$$ into $s$ segments, $x_{(i)}\in\mathbb{R}^{m_i}$. Consider the constraint $$x \in C \Leftrightarrow x_{(i)} \in C_i,$$ for all $i=1,\ldots, s$. For example, consider the vector $x = ({\color{blue}{x_0}}, {\color{blue}{x_1}}, {\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$; define the segments $$x_{(0)} = ({\color{blue}{x_0}}, {\color{blue}{x_1}}),\ x_{(1)} = ({\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$$ These can be identified by the indices `1` and `4` (last indices of segments). An example is given below.|
+| `CartesianProduct` | Cartesian product of any of the above. See more information below. |
 
+
+
+#### Cartesian Product 
+
+A Cartesian product is a set $C = C_0 \times C_1 \times \ldots \times C_{s}$. In $\mathbb{R}^n$, a vector $x$ can segmented as $$x=(x_{(0)}, x_{(1)}, \ldots, x_{(s)}),$$ into $s$ segments, $x_{(i)}\in\mathbb{R}^{m_i}$. The constraint $x \in C$ means $$x_{(i)} \in C_i,$$ for all $i=0,\ldots, s$. For example, consider the vector $x = ({\color{blue}{x_0}}, {\color{blue}{x_1}}, {\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$; define the segments $$x_{(0)} = ({\color{blue}{x_0}}, {\color{blue}{x_1}}),\ x_{(1)} = ({\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$$ These can be identified by the indices `1` and `4` (last indices of segments). 
+
+
+Let us give an example: we will define the Cartesian product of a ball with a rectangle. 
 Suppose that $U$ is a Euclidean ball with radius $r=1.5$ centered at
 the origin,
 
@@ -113,6 +122,8 @@ segment_ids = [1, 4]
 bounds = og.constraints.CartesianProduct(segment_ids, [ball, rect])
 ```
 
+
+### Problem Formulation
 We may now define the optimization problem as follows:
 
 ```python
