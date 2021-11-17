@@ -1,6 +1,6 @@
 ---
 id: openrust-alm
-title: Advanced Rust
+title: ALM/PM
 description: OpEn in Rust and the augmented Lagrangian method
 ---
 

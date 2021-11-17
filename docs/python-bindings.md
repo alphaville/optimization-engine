@@ -9,7 +9,7 @@ description: How to access the auto-generated optimizer from Python
 
 <div class="alert alert-warning">
 <b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.6.4</code>.
-The API is still young and is likely to change in versions <code>0.7.X</code>.
+The API is still young and is likely to change in versions <code>0.8.X</code>.
 </div>
 
 
