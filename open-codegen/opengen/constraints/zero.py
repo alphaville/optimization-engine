@@ -5,10 +5,9 @@ import opengen.functions as fn
 
 
 class Zero(Constraint):
-    """A Euclidean ball constraint
-
-    A constraint of the form ||u-u0|| <= r, where u0 is the center
-    of the ball and r is its radius
+    """
+    A constraint to the zero set, that is 
+    the set that contains only zero(es) ({0}).
 
     """
 

@@ -19,6 +19,7 @@ _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
+_AUTOGEN_ALM_MAPPING_JF1_FNAME = 'auto_casadi_mapping_jf1.c'
 _PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
@@ -361,6 +362,24 @@ class OpEnOptimizerBuilder:
             [u, p], [penalty_constraints])
 
         return alm_mapping_f2_fun
+    
+    def __construct_mapping_jacobian_f1_function(self) -> cs.Function:
+        self.__logger.info("Defining function J(F1(u, p))")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n1 = problem.dim_constraints_aug_lagrangian()
+        f1 = problem.penalty_mapping_f1
+
+        if n1 > 0:
+            mapping_jf1 = cs.jacobian(f1, u)
+        else:
+            mapping_jf1 = 0
+
+        alm_mapping_jf1_fun = cs.Function(
+            self.__build_config.alm_mapping_f1_function_name,
+            [u, p], [mapping_jf1])
+        return alm_mapping_jf1_fun
 
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
@@ -389,6 +408,15 @@ class OpEnOptimizerBuilder:
         # Move auto-generated file to target folder
         shutil.move(f1_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_F1_FNAME))
+        
+        # -----------------------------------------------------------------------
+        mapping_jf1_fun = self.__construct_mapping_jacobian_f1_function()
+        jf1_file_name = bconfig.alm_mapping_jf1_function_name + ".c"
+        self.__logger.info("Mapping JF1 (C code)")
+        mapping_jf1_fun.generate(jf1_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(jf1_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_JF1_FNAME))
 
         # -----------------------------------------------------------------------
         mapping_f2_fun = self.__construct_mapping_f2_function()
@@ -464,8 +492,9 @@ class OpEnOptimizerBuilder:
                                   'win32': ('.dll', '.pyd')}
         (original_lib_extension,
          target_lib_extension) = pltform_extension_dict[sys.platform]
+        optimizer_prefix = "lib" if sys.platform != "win32" else ""
         generated_bindings = os.path.join(
-            build_dir, f"lib{optimizer_name}{original_lib_extension}")
+            build_dir, f"{optimizer_prefix}{optimizer_name}{original_lib_extension}")
         target_bindings = os.path.join(
             target_dir, f"{optimizer_name}{target_lib_extension}")
         shutil.copyfile(generated_bindings, target_bindings)

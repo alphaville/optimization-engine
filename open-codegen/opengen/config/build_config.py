@@ -55,6 +55,7 @@ class BuildConfiguration:
         self.__grad_cost_function_name = 'grad_phi_' + random_string
         self.__constraint_penalty_function = 'mapping_f2_' + random_string
         self.__alm_constraints_mapping_f1 = 'mapping_f1_' + random_string
+        self.__alm_constraints_mapping_jf1 = 'mapping_jf1_' + random_string
         self.__rebuild = False
         self.__build_dir = build_dir
         self.__open_version = None
@@ -92,6 +93,10 @@ class BuildConfiguration:
     @property
     def alm_mapping_f1_function_name(self):
         return self.__alm_constraints_mapping_f1
+
+    @property
+    def alm_mapping_jf1_function_name(self):
+        return self.__alm_constraints_mapping_jf1
 
     @property
     def target_system(self):
