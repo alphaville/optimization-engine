@@ -11,6 +11,13 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       Unreleased
      --------------------- -->
+## [v0.7.4] - 2021-11-15
+
+### Added 
+
+- Optional feature `wasm` in `Cargo.toml` (WebAssembly support); see https://alphaville.github.io/optimization-engine/docs/openrust-features for details
+- Using `instant::Instant` instead of `std::Instant` (Wasm-compatible)
+- Fixed Rust documentation of `Ball1` 
 
 <!-- ---------------------
       v0.7.3
@@ -207,6 +214,7 @@ This is a breaking API change.
 
 <!-- Releases -->
 [Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.7.3...master 
+[v0.7.4]: https://github.com/alphaville/optimization-engine/compare/v0.7.3...v0.7.4
 [v0.7.3]: https://github.com/alphaville/optimization-engine/compare/v0.7.2...v0.7.3
 [v0.7.2]: https://github.com/alphaville/optimization-engine/compare/v0.7.1...v0.7.2
 [v0.7.1]: https://github.com/alphaville/optimization-engine/compare/v0.7.0...v0.7.1

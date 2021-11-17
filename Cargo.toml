@@ -82,6 +82,12 @@ num = "0.2.0"
 # Our own stuff - L-BFGS: limited-memory BFGS directions
 lbfgs = "0.2"
 
+# Instant is a generic timer that works on Wasm (with wasm-bindgen)
+instant = { version = "0.1" }
+
+# Wasm-bindgen is only activated if OpEn is compiled with `--features wasm`
+wasm-bindgen = { version = "0.2.74", optional = true }
+
 # sc-allocator provides an implementation of a bump allocator
 rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = true }
 
@@ -91,8 +97,6 @@ rpmalloc = { version = "0.2.0", features = ["guards", "statistics"], optional = 
 jemallocator = {version = "0.3.2", optional = true}
 
 
-
-
 # --------------------------------------------------------------------------
 # F.E.A.T.U.R.E.S.
 # --------------------------------------------------------------------------
@@ -100,7 +104,12 @@ jemallocator = {version = "0.3.2", optional = true}
 # Use `jemallocator` as a global memory allocator (requires the dependency 
 # `jemallocator` - see above)
 jem = ["jemallocator"]
+
+# RPMalloc
 rp = ["rpmalloc"]
+
+# WebAssembly
+wasm = ["wasm-bindgen", "instant/wasm-bindgen", "instant/inaccurate"]
 
 # --------------------------------------------------------------------------
 # T.E.S.T.   D.E.P.E.N.D.E.N.C.I.E.S
@@ -128,5 +137,3 @@ travis-ci = { repository = "alphaville/optimization-engine", branch = "master" }
 
 # Actively maintained badge
 maintenance = { status = "actively-developed" }
-
-

@@ -913,7 +913,8 @@ where
     ///
     pub fn solve(&mut self, u: &mut [f64]) -> Result<AlmOptimizerStatus, SolverError> {
         let mut num_outer_iterations = 0;
-        let tic = std::time::Instant::now();
+        // let tic = std::time::Instant::now();
+        let tic = instant::Instant::now();
         let mut exit_status = ExitStatus::Converged;
         self.alm_cache.reset(); // first, reset the cache
         self.alm_cache.available_time = self.max_duration;
