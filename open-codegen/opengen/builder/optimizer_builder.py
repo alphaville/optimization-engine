@@ -701,6 +701,7 @@ class OpEnOptimizerBuilder:
         #                                        #   - auto_casadi_grad.c
         #                                        #   - auto_casadi_mapping_f1.c
         #                                        #   - auto_casadi_mapping_f2.c
+        #                                        #   - auto_casadi_mapping_jf1.c
         #                                        #   - casadi_memory.h
         self.__generate_icasadi_c_interface()    # generate icasadi/extern/interface.c
         # generate main part of code (at build/{name}/src/main.rs)
