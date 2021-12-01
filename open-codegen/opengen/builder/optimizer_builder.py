@@ -377,7 +377,7 @@ class OpEnOptimizerBuilder:
             mapping_jf1 = 0
 
         alm_mapping_jf1_fun = cs.Function(
-            self.__build_config.alm_mapping_f1_function_name,
+            self.__build_config.alm_mapping_jf1_function_name,
             [u, p], [mapping_jf1])
         return alm_mapping_jf1_fun
 
