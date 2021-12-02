@@ -20,6 +20,8 @@ _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
 _AUTOGEN_ALM_MAPPING_JF1_FNAME = 'auto_casadi_mapping_jf1.c'
+_AUTOGEN_ALM_SCALING_WF_FNAME = 'auto_casadi_scaling_wf.c'
+_AUTOGEN_ALM_SCALING_WC_FNAME = 'auto_casadi_scaling_wc.c'
 _PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
@@ -258,7 +260,8 @@ class OpEnOptimizerBuilder:
         with open(cargo_toml_path, "w") as fh:
             fh.write(cargo_output_template)
 
-    def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None):
+    def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None, 
+                               jf1=None, wf=None, wc=None):
         """
         Creates file casadi_memory.h with memory sizes
 
@@ -266,6 +269,9 @@ class OpEnOptimizerBuilder:
         :param grad: grad function (cs.Function)
         :param f1: mapping F1  (cs.Function)
         :param f2: mapping F2  (cs.Function)
+        :param jf1: mapping JF1  (cs.Function)
+        :param wf: mapping Wf  (cs.Function)
+        :param wf: mapping Wc  (cs.Function)
         """
         self.__logger.info("Generating casadi_memory.h")
         casadi_mem_template = OpEnOptimizerBuilder.__get_template(
@@ -273,6 +279,7 @@ class OpEnOptimizerBuilder:
         casadi_mem_output_template = casadi_mem_template.render(
             cost=cost, grad=grad,
             f1=f1, f2=f2,
+            jf1=jf1, wf=wf, wc=wc,
             build_config=self.__build_config,
             meta=self.__meta,
             timestamp_created=datetime.datetime.now())
@@ -380,6 +387,46 @@ class OpEnOptimizerBuilder:
             self.__build_config.alm_mapping_jf1_function_name,
             [u, p], [mapping_jf1])
         return alm_mapping_jf1_fun
+    
+    def __construct_objective_scaling_factor_function(self) -> cs.Function:
+        self.__logger.info("Defining objective scaling factor Wf")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n1 = problem.dim_constraints_aug_lagrangian()
+        f1 = problem.penalty_mapping_f1
+
+        # NEEDS IMPLEMENTED
+        #########################################################################################
+        if n1 > 0:
+            scaling_wf = 0 
+        else:
+            scaling_wf = 0
+
+        alm_scaling_wf_fun = cs.Function(
+            self.__build_config.alm_scaling_wf_function_name,
+            [u, p], [scaling_wf])
+        return alm_scaling_wf_fun
+    
+    def __construct_constraint_scaling_factor_function(self) -> cs.Function:
+        self.__logger.info("Defining constraint(s) scaling factor Wc")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        n1 = problem.dim_constraints_aug_lagrangian()
+        f1 = problem.penalty_mapping_f1
+
+        # NEEDS IMPLEMENTED
+        #########################################################################################
+        if n1 > 0:
+            scaling_wc = 0 
+        else:
+            scaling_wc = 0
+
+        alm_scaling_wc_fun = cs.Function(
+            self.__build_config.alm_scaling_wc_function_name,
+            [u, p], [scaling_wc])
+        return alm_scaling_wc_fun
 
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
@@ -408,15 +455,6 @@ class OpEnOptimizerBuilder:
         # Move auto-generated file to target folder
         shutil.move(f1_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_F1_FNAME))
-        
-        # -----------------------------------------------------------------------
-        mapping_jf1_fun = self.__construct_mapping_jacobian_f1_function()
-        jf1_file_name = bconfig.alm_mapping_jf1_function_name + ".c"
-        self.__logger.info("Mapping JF1 (C code)")
-        mapping_jf1_fun.generate(jf1_file_name)
-        # Move auto-generated file to target folder
-        shutil.move(jf1_file_name,
-                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_JF1_FNAME))
 
         # -----------------------------------------------------------------------
         mapping_f2_fun = self.__construct_mapping_f2_function()
@@ -426,9 +464,37 @@ class OpEnOptimizerBuilder:
         # Move auto-generated file to target folder
         shutil.move(f2_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
+        
+        # -----------------------------------------------------------------------
+        mapping_jf1_fun = self.__construct_mapping_jacobian_f1_function()
+        jf1_file_name = bconfig.alm_mapping_jf1_function_name + ".c"
+        self.__logger.info("Mapping JF1 (C code)")
+        mapping_jf1_fun.generate(jf1_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(jf1_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_MAPPING_JF1_FNAME))
+        
+        # -----------------------------------------------------------------------
+        scaling_wf_fun = self.__construct_objective_scaling_factor_function()
+        wf_file_name = bconfig.alm_scaling_wf_function_name + ".c"
+        self.__logger.info("Scaling objective (C code)")
+        scaling_wf_fun.generate(wf_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(wf_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_SCALING_WF_FNAME))
+        
+        # -----------------------------------------------------------------------
+        scaling_wc_fun = self.__construct_constraint_scaling_factor_function()
+        wc_file_name = bconfig.alm_scaling_wc_function_name + ".c"
+        self.__logger.info("Scaling constraint(s) (C code)")
+        scaling_wc_fun.generate(wc_file_name)
+        # Move auto-generated file to target folder
+        shutil.move(wc_file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_ALM_SCALING_WC_FNAME))
 
         self.__generate_memory_code(psi_fun, grad_psi_fun,
-                                    mapping_f1_fun, mapping_f2_fun)
+                                    mapping_f1_fun, mapping_f2_fun, mapping_jf1_fun,
+                                    scaling_wf_fun, scaling_wc_fun)
 
     def __generate_main_project_code(self):
         self.__logger.info(
@@ -631,7 +697,9 @@ class OpEnOptimizerBuilder:
                          'cost_function_name': build_config.cost_function_name,
                          'grad_function_name': build_config.grad_function_name,
                          'mapping_f2': build_config.constraint_penalty_function_name,
-                         'mapping_f1': build_config.alm_mapping_f1_function_name
+                         'mapping_f1': build_config.alm_mapping_f1_function_name,
+                         'scaling_wf': build_config.alm_scaling_wf_function_name,
+                         'scaling_wc': build_config.alm_scaling_wc_function_name
                          }
         solver_details = {'lbfgs_memory': solver_config.lbfgs_memory,
                           'tolerance': solver_config.tolerance,
@@ -702,6 +770,8 @@ class OpEnOptimizerBuilder:
         #                                        #   - auto_casadi_mapping_f1.c
         #                                        #   - auto_casadi_mapping_f2.c
         #                                        #   - auto_casadi_mapping_jf1.c
+        #                                        #   - auto_casadi_scaling_wf.c
+        #                                        #   - auto_casadi_scaling_wc.c
         #                                        #   - casadi_memory.h
         self.__generate_icasadi_c_interface()    # generate icasadi/extern/interface.c
         # generate main part of code (at build/{name}/src/main.rs)
