@@ -464,10 +464,11 @@ class OpEnOptimizerBuilder:
                                   'win32': ('.dll', '.pyd')}
         (original_lib_extension,
          target_lib_extension) = pltform_extension_dict[sys.platform]
+        optimizer_prefix = "lib" if sys.platform != "win32" else ""
         generated_bindings = os.path.join(
-            build_dir, f"lib{optimizer_name}{original_lib_extension}")
+            build_dir, f"{optimizer_prefix}{optimizer_name}{original_lib_extension}")
         target_bindings = os.path.join(
-            target_dir, f"{optimizer_name}{target_lib_extension}")
+            target_dir, f"{optimizer_prefix}{optimizer_name}{target_lib_extension}")
         shutil.copyfile(generated_bindings, target_bindings)
         self.__logger.info(f"To use the Python bindings do:\n\n"
                            f"       import sys\n"
