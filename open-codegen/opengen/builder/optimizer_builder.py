@@ -468,7 +468,7 @@ class OpEnOptimizerBuilder:
         generated_bindings = os.path.join(
             build_dir, f"{optimizer_prefix}{optimizer_name}{original_lib_extension}")
         target_bindings = os.path.join(
-            target_dir, f"{optimizer_prefix}{optimizer_name}{target_lib_extension}")
+            target_dir, f"{optimizer_name}{target_lib_extension}")
         shutil.copyfile(generated_bindings, target_bindings)
         self.__logger.info(f"To use the Python bindings do:\n\n"
                            f"       import sys\n"
