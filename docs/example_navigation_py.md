@@ -166,6 +166,8 @@ plt.show()
 
 <!--Direct Interface-->
 ```python
+# Note: to use the direct interface you need to build using
+#       .with_build_pythong_bindings()
 import sys
 
 # Use Direct Interface
