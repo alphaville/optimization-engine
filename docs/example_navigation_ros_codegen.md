@@ -6,6 +6,32 @@ description: Nonlinear model predictive control with OpEn using ROS
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #4CAF50;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+
+<a href="https://github.com/gmsanchez/open_ros_codegen" target="_blank"><button class="but but1" >See Complete Project</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a>
 
 Example contributed by Guido Sanchez ([Github](https://github.com/gmsanchez/))
 
