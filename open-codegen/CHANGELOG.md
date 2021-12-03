@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.8] - 2021-12-3
+
+### Fixed
+
+* Fixed bug in python code file generation for Windows users
+
 ## [0.6.7] - 2021-11-1
 
 ### Added
