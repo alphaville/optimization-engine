@@ -1,5 +1,86 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Navigation of ground vehicle using ROS codegen · OpEn</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Nonlinear model predictive control with OpEn using ROS"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Navigation of ground vehicle using ROS codegen · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="Nonlinear model predictive control with OpEn using ROS"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Navigation of ground vehicle using ROS codegen</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Husky robot with ROS · OpEn</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Nonlinear model predictive control with OpEn using ROS"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Husky robot with ROS · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="Nonlinear model predictive control with OpEn using ROS"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Python</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Python<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_rosenbrock_py">Rosenbrock Function</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_navigation_py">Navigation of ground vehicle</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_estimation_py">Nonlinear State Estimation</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_bnp_py">Ball and Plate</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_tanks_py">Tandem tanks</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/example_invpend_py">Inverted Pendulum</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/example_navigation_ros_codegen">Husky robot with ROS</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Husky robot with ROS</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #4CAF50;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+<p><a href="https://github.com/gmsanchez/open_ros_codegen" target="_blank"><button class="but but1" >See Complete Project</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a></p>
 <p>Example contributed by Guido Sanchez (<a href="https://github.com/gmsanchez/">Github</a>)</p>
 <h2><a class="anchor" aria-hidden="true" id="auto-generated-ground-vehicle-navigation-for-ros"></a><a href="#auto-generated-ground-vehicle-navigation-for-ros" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Auto-generated ground vehicle navigation for ROS</h2>
 <p>We will create a MPC controller for position tracking of a <a href="https://clearpathrobotics.com/husky-unmanned-ground-vehicle-robot/">Husky</a> ground vehicle. Husky is a medium sized robotic development platform fully supported in ROS with community driven Open Source code and examples.</p>
@@ -40,7 +121,7 @@ the vehicle dynamics, which in this example is</p>
     \end{bmatrix}
 \]</div>
 <p>The auto generated controller will allow you to move the vehicle to any point of the simulation grid, as shown in the following video</p>
-<video width="960" height="540" controls>
+<video width="672" height="378" controls>
   <source src="/optimization-engine/img/husky_video.mp4" type="video/mp4">
 </video>
 <h3><a class="anchor" aria-hidden="true" id="code-generation-for-the-mpc-controller"></a><a href="#code-generation-for-the-mpc-controller" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code generation for the MPC controller</h3>
@@ -484,4 +565,4 @@ pose:
     w: 0.0"</span>
 </code></pre>
 <p>The source code of this example is available at <a href="https://github.com/gmsanchez/open_ros_codegen">open_ros_codegen</a> Github repository.</p>
-</span></div></article></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#auto-generated-ground-vehicle-navigation-for-ros">Auto-generated ground vehicle navigation for ROS</a><ul class="toc-headings"><li><a href="#code-generation-for-the-mpc-controller">Code generation for the MPC controller</a></li><li><a href="#install-opengen-050-in-a-virtual-environment">Install opengen 0.5.0 in a virtual environment</a></li><li><a href="#run-the-example-code-generation-program">Run the example code generation program</a></li></ul></li><li><a href="#create-a-ros-workspace-for-our-new-package">Create a ROS workspace for our new package</a></li><li><a href="#download-and-run-husky-packages">Download and run Husky packages</a></li><li><a href="#edit-the-auto-generated-node">Edit the auto-generated node</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2021 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/example_invpend_py"><span class="arrow-prev">← </span><span>Inverted Pendulum</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#auto-generated-ground-vehicle-navigation-for-ros">Auto-generated ground vehicle navigation for ROS</a><ul class="toc-headings"><li><a href="#code-generation-for-the-mpc-controller">Code generation for the MPC controller</a></li><li><a href="#install-opengen-050-in-a-virtual-environment">Install opengen 0.5.0 in a virtual environment</a></li><li><a href="#run-the-example-code-generation-program">Run the example code generation program</a></li></ul></li><li><a href="#create-a-ros-workspace-for-our-new-package">Create a ROS workspace for our new package</a></li><li><a href="#download-and-run-husky-packages">Download and run Husky packages</a></li><li><a href="#edit-the-auto-generated-node">Edit the auto-generated node</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2021 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
