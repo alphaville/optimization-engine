@@ -2,7 +2,8 @@ use super::Constraint;
 use super::Simplex;
 
 #[derive(Copy, Clone)]
-/// Docs
+/// A norm-1 ball, that is, a set given by $B_1^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert_1 \leq r\\}$
+/// or a ball-1 centered at a point $x_c$, that is, $B_1^{x_c, r} = \\{x \in \mathbb{R}^n {}:{} \Vert{}x-x_c{}\Vert_1 \leq r\\}$
 pub struct Ball1<'a> {
     center: Option<&'a [f64]>,
     radius: f64,
@@ -10,7 +11,8 @@ pub struct Ball1<'a> {
 }
 
 impl<'a> Ball1<'a> {
-    /// Docs
+    /// Construct a new ball-1 with given center and radius.
+    /// If no `center` is given, then it is assumed to be in the origin
     pub fn new(center: Option<&'a [f64]>, radius: f64) -> Self {
         assert!(radius > 0.0);
         let simplex = Simplex::new(radius);
