@@ -19,7 +19,8 @@ tcp_config = og.config.TcpServerConfiguration(bind_port=3305)
 build_config = og.config.BuildConfiguration() \
     .with_build_directory(optimizers_dir) \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-    .with_build_python_bindings()
+    .with_build_python_bindings() \
+    .with_tcp_interface_config()
 
 builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
