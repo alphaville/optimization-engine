@@ -136,6 +136,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.6.9]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.8...opengen-0.6.9
 [0.6.8]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.7...opengen-0.6.8
 [0.6.7]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.6...opengen-0.6.7
 [0.6.6]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.5...opengen-0.6.6
