@@ -6,6 +6,33 @@ description: Minimization of the Rosenbrock function using OpEn
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #4CAF50;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+
+<a href="https://colab.research.google.com/drive/14F6IQWo8Q65mIz5Ru4FGxRPqyFMRMyzE?usp=sharing" target="_blank"><button class="but but1" >Try this on Google Colab</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a>
+
 
 This is the example we presented in the previous section. You can copy
 it and experiment. The problem we need to solve is:
