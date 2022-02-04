@@ -10,7 +10,7 @@
 //! (e.g., Raspberry Pi, Atom, Odroid, etc).
 //!
 //! Note that this is the **API documentation** of **Optimization Engine**; to get started,
-//! you would rather check out the [documentation]().
+//! you would rather check out the [documentation](https://alphaville.github.io/optimization-engine/).
 //!
 //! # Optimization Problems
 //!
