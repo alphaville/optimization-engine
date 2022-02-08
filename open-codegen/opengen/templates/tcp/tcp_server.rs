@@ -210,7 +210,7 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
         while read_data_length != 0 {
             read_data_length = stream
                 .read(&mut bytes_buffer)
-                .expect("count not read stream");
+                .expect("could not read stream");
             let new_string = String::from_utf8(bytes_buffer[0..read_data_length].to_vec())
                 .expect("sent data is not UFT-8");
             buffer.push_str(&new_string);

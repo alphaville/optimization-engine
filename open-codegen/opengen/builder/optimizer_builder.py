@@ -466,15 +466,15 @@ class OpEnOptimizerBuilder:
          target_lib_extension) = pltform_extension_dict[sys.platform]
         optimizer_prefix = "lib" if sys.platform != "win32" else ""
         generated_bindings = os.path.join(
-            build_dir, f"{optimizer_prefix}{optimizer_name}{original_lib_extension}")
+            build_dir, "{}{}{}".format(optimizer_prefix, optimizer_name, original_lib_extension))
         target_bindings = os.path.join(
-            target_dir, f"{optimizer_name}{target_lib_extension}")
+            target_dir, "{}{}".format(optimizer_name, target_lib_extension))
         shutil.copyfile(generated_bindings, target_bindings)
-        self.__logger.info(f"To use the Python bindings do:\n\n"
-                           f"       import sys\n"
-                           f"       sys.path.insert(1, \"{target_dir}\")\n"
-                           f"       import {optimizer_name}\n"
-                           f"       solver = {optimizer_name}.solver()")
+        self.__logger.info("To use the Python bindings do:\n\n"
+                           "       import sys\n"
+                           "       sys.path.insert(1, \"{}\")\n"
+                           "       import {}\n"
+                           "       solver = {}.solver()".format(target_dir, optimizer_name, optimizer_name))
 
     def __build_tcp_iface(self):
         self.__logger.info("Building the TCP interface")
@@ -503,7 +503,7 @@ class OpEnOptimizerBuilder:
             target_dir, python_bindings_dir_name)
         python_bindings_source_dir = os.path.join(python_bindings_dir, "src")
         self.__logger.info(
-            f"Generating code for Python bindings in {python_bindings_dir}")
+            "Generating code for Python bindings in {}".format(python_bindings_dir))
 
         # make python_bindings/ and python_bindings/src
         make_dir_if_not_exists(python_bindings_dir)
