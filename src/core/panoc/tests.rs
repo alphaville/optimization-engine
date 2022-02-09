@@ -140,3 +140,35 @@ fn t_test_panoc_rosenbrock() {
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
     println!("u = {:?}", u_solution);
 }
+
+#[test]
+fn zero_gamma_l() {
+    let tolerance = 1e-12;
+    let mut panoc_cache = PANOCCache::new(1, tolerance, 10);
+    let u = &mut [1e6];
+
+    // Define the cost function and its gradient.
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        grad[0] = u[0].signum();
+
+        Ok(())
+    };
+
+    let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+        *c = u[0].abs();
+        Ok(())
+    };
+
+    let bounds = constraints::NoConstraints::new();
+
+    // Problem statement.
+    let problem = Problem::new(&bounds, df, f);
+
+    let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(1000);
+
+    // Invoke the solver.
+    let _status = panoc_engine.solve(u);
+
+    assert!(panoc_cache.norm_gamma_fpr <= tolerance);
+    println!("u = {:?}", u);
+}
