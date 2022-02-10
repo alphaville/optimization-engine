@@ -21,7 +21,7 @@ publish=false
 
 
 [dependencies]
-clap = "*"
+clap = "2"
 {% if build_config.local_path is not none -%}
 optimization_engine = {path = "{{build_config.local_path}}"}
 {% else -%}

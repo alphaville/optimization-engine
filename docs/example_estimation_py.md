@@ -7,6 +7,32 @@ description: Nonlinear optimization-based estimation, Moving Horizon Estimation 
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #4CAF50;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+
+<a href="https://colab.research.google.com/drive/10iXHByBG9LrSRvA_6db7FbRzDFo5vFpy?usp=sharing" target="_blank"><button class="but but1" >Try this on Google Colab</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a>
 
 ### Problem statement
 Consider a dynamical system, for simplicity, but without loss of generality
@@ -125,7 +151,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Generate data
 # ------------------------------------
 (rho, sigma, beta, ts) = (28.0, 10.0, 8.0/3.0, 0.02)
-nx = 3
+nx = ny = 3
 Tsim = 100
 
 
@@ -213,7 +239,7 @@ for i in range(Tsim-1):
 # ------------------------------------
 problem = og.builder.Problem(X_hat, Y, V)
 build_config = og.config.BuildConfiguration()  \
-    .with_build_directory("python_test_build") \
+    .with_build_directory("my_optimizers") \
     .with_tcp_interface_config()
 meta = og.config.OptimizerMeta()               \
     .with_optimizer_name("estimator")
@@ -226,7 +252,7 @@ The generated solver can be consumed over its TCP interface:
 ```python
 # Use TCP server
 # ------------------------------------
-mng = og.tcp.OptimizerTcpManager('python_test_build/estimator')
+mng = og.tcp.OptimizerTcpManager('my_optimizers/estimator')
 mng.start()
 
 mng.ping()
