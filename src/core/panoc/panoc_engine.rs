@@ -350,7 +350,7 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
-        self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, 1e-12);
+        self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, 1e-8);
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step

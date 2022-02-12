@@ -142,9 +142,9 @@ fn t_test_panoc_rosenbrock() {
 }
 
 #[test]
-fn zero_gamma_l() {
-    let tolerance = 1e-12;
-    let mut panoc_cache = PANOCCache::new(1, tolerance, 10);
+fn t_zero_gamma_l() {
+    let tolerance = 1e-8;
+    let mut panoc_cache = PANOCCache::new(1, tolerance, 5);
     let u = &mut [1e6];
 
     // Define the cost function and its gradient.
@@ -164,11 +164,55 @@ fn zero_gamma_l() {
     // Problem statement.
     let problem = Problem::new(&bounds, df, f);
 
-    let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(1000);
+    let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(100);
 
     // Invoke the solver.
     let _status = panoc_engine.solve(u);
-
-    assert!(panoc_cache.norm_gamma_fpr <= tolerance);
+    println!("norm_gamma_fpr = {}", panoc_cache.norm_gamma_fpr);
     println!("u = {:?}", u);
+    println!("iters = {}", panoc_cache.iteration);
+    assert!(panoc_cache.norm_gamma_fpr <= tolerance);
+}
+
+#[test]
+fn t_zero_gamma_huber() {
+    let tolerance = 1e-8;
+    let mut panoc_cache = PANOCCache::new(1, tolerance, 10);
+    let u = &mut [1e6];
+    let huber_delta = 0.5;
+
+    // Define the cost function and its gradient.
+    let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+        let u_abs = u[0].abs();
+        if u_abs >= huber_delta {
+            grad[0] = huber_delta * u[0].signum();
+        } else {
+            grad[0] = u[0];
+        }
+        Ok(())
+    };
+
+    let huber_norm = |u: &[f64], y: &mut f64| -> Result<(), SolverError> {
+        let u_abs = u[0].abs();
+        if u_abs <= huber_delta {
+            *y = 0.5 * u[0].powi(2);
+        } else {
+            *y = huber_delta * (u_abs - 0.5 * huber_delta);
+        }
+        Ok(())
+    };
+
+    let bounds = constraints::Rectangle(&[0.1], &[10]);
+
+    // Problem statement.
+    let problem = Problem::new(&bounds, df, huber_norm);
+
+    let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(100);
+
+    // Invoke the solver.
+    let _status = panoc_engine.solve(u);
+    println!("norm_gamma_fpr = {}", panoc_cache.norm_gamma_fpr);
+    println!("u = {:?}", u);
+    println!("iters = {}", panoc_cache.iteration);
+    assert!(panoc_cache.norm_gamma_fpr <= tolerance);
 }
