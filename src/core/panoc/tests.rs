@@ -179,7 +179,7 @@ fn t_zero_gamma_huber() {
     let tolerance = 1e-8;
     let mut panoc_cache = PANOCCache::new(1, tolerance, 10);
     let u = &mut [1e6];
-    let huber_delta = 0.5;
+    let huber_delta = 1e-6;
 
     // Define the cost function and its gradient.
     let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
@@ -202,7 +202,7 @@ fn t_zero_gamma_huber() {
         Ok(())
     };
 
-    let bounds = constraints::Rectangle(&[0.1], &[10]);
+    let bounds = constraints::BallInf::new(None, 10000.);
 
     // Problem statement.
     let problem = Problem::new(&bounds, df, huber_norm);
