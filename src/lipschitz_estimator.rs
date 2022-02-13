@@ -182,7 +182,7 @@ where
     ///
     pub fn estimate_local_lipschitz(&mut self) -> Result<f64, SolverError> {
         // function_value = gradient(u, p)
-        (self.function)(self.u_decision_var, &mut self.function_value_at_u)?;
+        (self.function)(self.u_decision_var, self.function_value_at_u)?;
         let epsilon_lip = self.epsilon_lip;
         let delta_lip = self.delta_lip;
 
