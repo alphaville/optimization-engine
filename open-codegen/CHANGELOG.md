@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.10] - 2022-3-8
+
+### Fixed
+
+* Changed f-strings (`f"{variable}"`) to `.format` for python3.5 compatibility
+* Fixed typo in `tcp_server.rs`
+
 ## [0.6.9] - 2022-1-24
 
 ### Fixed
