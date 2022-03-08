@@ -111,6 +111,16 @@ switch constraints.get_type()
         if ~(isfield(cstr_params, 'centre') && isempty(cstr_params.centre))
             fprintf(fid_main, '\n\t\tlet bounds = Ball2::new(None, %f);\n', cstr_params.radius);
         end
+    case 'rectangle'
+      
+        cstr_params = constraints.get_params();
+        umin = cstr_params.umin;
+        umax = cstr_params.umax;
+        s_min = sprintf('%.12f,', umin);
+        s_max = sprintf('%.12f,', umax);
+        fprintf(fid_main, '\n\t\tconst CONSTRAINTS_UMIN :Option<&[f64]> = Some(&[%s]); \n', s_min);
+        fprintf(fid_main, '\n\t\tconst CONSTRAINTS_UMAX :Option<&[f64]> = Some(&[%s]); \n', s_max);
+        fprintf(fid_main, '\n\t\tlet bounds = Rectangle::new(CONSTRAINTS_UMIN,CONSTRAINTS_UMAX);\n');
     case 'no_constraints'
         fprintf(fid_main, '\n\t\tlet bounds = NoConstraints::new();\n');
     otherwise
