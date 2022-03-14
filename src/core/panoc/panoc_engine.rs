@@ -4,6 +4,9 @@ use crate::{
     matrix_operations, FunctionCallResult, SolverError,
 };
 
+/// Mimum estimated Lipschitz constant (initial estimate)
+const MIN_L_ESTIMATE: f64 = 1e-10;
+
 /// gamma = GAMMA_L_COEFF/L
 const GAMMA_L_COEFF: f64 = 0.95;
 
@@ -350,7 +353,7 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
-        self.cache.gamma = GAMMA_L_COEFF / self.cache.lipschitz_constant;
+        self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, MIN_L_ESTIMATE);
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step

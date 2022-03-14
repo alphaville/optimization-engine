@@ -44,6 +44,13 @@ classdef OpEnConstraints
             o.type = 'no_constraints';
             o.params = [];
         end
+
+        function o = make_rectangle(umin, umax)
+            o = OpEnConstraints();
+            o.type = 'rectangle';
+            o.params.umin = umin;
+            o.params.umax = umax;
+        end
     end
     
 end
