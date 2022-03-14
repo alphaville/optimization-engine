@@ -1,8 +1,9 @@
 /* ---------------------------------------------------------------------------- */
 /* ALM FACTORY                                                                  */
 /*                                                                              */
-/* About: The user provides f, df, F1, JF1'*d, F2 and C and MockAlmFactory      */
-/*        prepares psi and d_psi, which can be used to define an AlmOptimizer   */
+/* About: The user provides f, df, F1, JF1'*d, F2, C, wf, w1 and w2             */
+/*        and MockAlmFactory prepares psi and d_psi, which can be used          */
+/*        to define an AlmOptimizer                                             */
 /* ---------------------------------------------------------------------------- */
 
 use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
