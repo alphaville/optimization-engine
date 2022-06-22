@@ -12,11 +12,12 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
       Unreleased (... 0.7.5)
      --------------------- -->
 
-## [Unreleased]
+## [v0.7.5]
 
 ### Fixed
 
 - Fixed estimation of initial Lipschitz constnat, `L`, when it is close to or equal to zero (e.g., Huber loss function)
+- Fixed issue in `alm_factor` related to penalty constraints
 
 
 <!-- ---------------------

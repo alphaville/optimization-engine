@@ -308,7 +308,7 @@ where
         if let (Some(f2), Some(jf2)) = (&self.mapping_f2, &self.jacobian_mapping_f2_trans) {
             let c = xi[0];
             let mut f2u_aux = vec![0.0; self.n2];
-            let mut jf2u_times_f2u_aux = vec![0.0; self.n2];
+            let mut jf2u_times_f2u_aux = vec![0.0; nu];
             f2(u, &mut f2u_aux)?; // f2u_aux = F2(u)
             jf2(u, &f2u_aux, &mut jf2u_times_f2u_aux)?; // jf2u_times_f2u_aux = JF2(u)'*f2u_aux
                                                         //                    = JF2(u)'*F2(u)
