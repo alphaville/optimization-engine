@@ -16,8 +16,8 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 ### Fixed
 
-- Fixed estimation of initial Lipschitz constnat, `L`, when it is close to or equal to zero (e.g., Huber loss function)
-- Fixed issue in `alm_factor` related to penalty constraints
+- Fixed estimation of initial Lipschitz constant, `L`, when it is close to or equal to zero (e.g., Huber loss function)
+- Fixed issue in `AlmFactory` related to (F2) penalty constraints
 
 
 <!-- ---------------------
@@ -225,7 +225,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[Unreleased]: https://github.com/alphaville/optimization-engine/compare/v0.7.4...master 
+[v0.7.5]: https://github.com/alphaville/optimization-engine/compare/v0.7.4...v0.7.5 
 [v0.7.4]: https://github.com/alphaville/optimization-engine/compare/v0.7.3...v0.7.4
 [v0.7.3]: https://github.com/alphaville/optimization-engine/compare/v0.7.2...v0.7.3
 [v0.7.2]: https://github.com/alphaville/optimization-engine/compare/v0.7.1...v0.7.2
