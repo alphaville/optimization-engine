@@ -9,10 +9,15 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      Unreleased (... 0.7.5)
+      Unreleased
      --------------------- -->
 
-## [v0.7.5]
+
+<!-- ---------------------
+      v0.7.5
+     --------------------- -->
+
+## [v0.7.5] - 2022-06-22
 
 ### Fixed
 
