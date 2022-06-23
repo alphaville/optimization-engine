@@ -11,7 +11,115 @@ Here we shall go through a complete example on how to use Optimization Engine to
 more general problems that involve constraints of the general form $F_1(u) \in C$ and 
 $F_2(u) = 0$.
 
-## Problem Definition 
+## Penalty Method
+
+### Problem Statement
+Suppose we need to solve the problem 
+<div class="math">
+\[\begin{split}\operatorname*{Minimize}_{u {}\in{} \mathbb{R}^{3}}&amp;\ \ f(u) := \tfrac{1}{2}\|u\|^2 + \sum_{i=1}^{3}u_i\\
+\mathrm{subject\ to} &amp;\ \ F_2(u) = \|u\|^2 - 1,\end{split}\]</div>
+using the penalty method. To that end we first need to define $f$ and its gradient, $\nabla f(u) = u + 1_3$.
+
+```rust
+pub fn f(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+    *cost = 0.5 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+    Ok(())
+}
+
+pub fn df(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+    grad.iter_mut()
+        .zip(u.iter())
+        .for_each(|(grad_i, u_i)| *grad_i = u_i + 1.0);
+    Ok(())
+}
+```
+
+Next, we need to define the function $F_2$ and the operator $JF_2(u)^\intercal d$, where $d$ is a scalar and $JF_2(u)$ is the Jacobian matrix of $F_2$, which is $JF_2(u) = u^\intercal$, therefore, $JF_2(u)^\intercal d = ud$. We have
+
+```rust
+pub fn f2(u: &[f64], res: &mut [f64]) -> Result<(), SolverError> {
+    res[0] = matrix_operations::norm2_squared(u) - 1.;
+    Ok(())
+}
+
+pub fn jf2t(u: &[f64], d: &[f64], res: &mut [f64]) -> Result<(), crate::SolverError> {
+    res.iter_mut()
+        .zip(u.iter())
+        .for_each(|(res_i, u_i)| *res_i = u_i * d[0]);
+    Ok(())
+}
+```
+
+Having defined these components, we can construct and solve the above optimisation problem as follows:
+
+```rust
+fn main() {
+    let tolerance = 1e-4;
+    let nx = 3;
+    let n1 = 0;
+    let n2 = 1;
+    let lbfgs_mem = 5;
+    let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
+
+    let bounds = NoConstraints::new();
+
+    // In order to solve the problem we need to define the function psi.
+    // This is done by the AlmFactory
+    // Note that there is no F1 here, so we use NO_MAPPING, NO_JACOBIAN_MAPPING
+    // and NO_SET
+    let factory = AlmFactory::new(
+        f,
+        df,
+        NO_MAPPING,
+        NO_JACOBIAN_MAPPING,
+        Some(f2),
+        Some(jf2t),
+        NO_SET,
+        n2,
+    );
+
+    // We can now define the problem, which is an instance of AlmProblem. Note that
+    // psi and its derivative are obtained by the above factory
+    let alm_problem = AlmProblem::new(
+        bounds,
+        NO_SET,
+        NO_SET,
+        |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        NO_MAPPING,
+        Some(f2),
+        n1,
+        n2,
+    );
+
+    // Construct an optimiser and configure it
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-6)
+        .with_epsilon_tolerance(1e-5)
+        .with_max_outer_iterations(20)
+        .with_max_inner_iterations(1000)
+        .with_initial_penalty(5000.0)
+        .with_penalty_update_factor(2.2);
+
+    // Solve the problem
+    let mut u = vec![0.1; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    let r = solver_result.unwrap();
+    println!("\n\nSolver result : {:#.7?}\n", r);
+    println!("Solution u = {:#.6?}", u);
+}
+```
+
+A complete example is available at [`pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/pm.rs).
+
+## Augmented Lagrangian 
+
+### Problem Statement 
 Let us start by defining the smooth cost function $f:\mathbb{R}^{3}\to\mathbb{R}$ 
 and its gradient. Suppose that 
 $$f(u) = \tfrac{1}{2}\Vert{}u\Vert^2 + u_1+u_2+u_3$$
@@ -42,7 +150,7 @@ pub fn df(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
 Suppose we need to impose the constraint $F_1(u) \in C$, where $C=\\{z\in\mathbb{R}^2: \Vert{}z{}\Vert \leq 1\\}$
 and $F_1$ is the mapping 
 $$
-F_1(u)=\begin{bmatrix}2u_1 + u_3 + 0.5 \\\\ u_1+3u_2\end{bmatrix}
+F_1(u)=\begin{bmatrix}2u_1 + u_1 + 0.5 \\\\ u_1+3u_2\end{bmatrix}
 $$
 
 ```rust
@@ -87,7 +195,7 @@ The problem we need to solve is
 &amp; F_1(u, p) \in C\end{split}\]</div>
 
 
-## Invoking the ALM/PM solver
+### Invoking the ALM/PM solver
 
 We have now defined all problem components and we can solve the problem using the
 ALM/PM solver ([`AlmOptimizer`]). However, the solver requires that we provide the 
@@ -163,7 +271,7 @@ let r = solver_result.unwrap();
 println!("\n\n{:#.7?}\n", r);
 ```
 
-## Result
+### Result
 
 The above program will print
 
@@ -213,7 +321,7 @@ $$
 Lastly, we see that `delta_y_norm` is equal to `0.0000038`; this is equal to 
 the norm-distance of $F_1(u)$ from $C$. We see that this is indeed below $\delta=10^{-5}$.
 
-## Examples
+## Additional Examples
 
 See [`alm_pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/alm_pm.rs).
 

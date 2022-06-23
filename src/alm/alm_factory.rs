@@ -121,6 +121,14 @@ where
     /// Construct a new instance of `MockFactory`
     ///
     /// # Arguments
+    /// - `f` cost function $f$
+    /// - `df` gradient of the cost function
+    /// - `mapping_f1` (optional) mapping $F_1$ or `NO_MAPPING`
+    /// - `jacobian_mapping_f1_trans` (optional) $JF_1(u)^\intercal d$ or `NO_JACOBIAN_MAPPING`
+    /// - `mapping_f2` (optional) mapping $F_2$ or `NO_MAPPING`
+    /// - `jacobian_mapping_f2_trans` $JF_2(u)^\intercal d$ or `NO_JACOBIAN_MAPPING`
+    /// - `set_c` (optional) set $C$ or `NO_SET`
+    /// - `n2` image dimension of $F_2$ (can be 0)
     ///
     /// # Example
     ///
@@ -308,7 +316,7 @@ where
         if let (Some(f2), Some(jf2)) = (&self.mapping_f2, &self.jacobian_mapping_f2_trans) {
             let c = xi[0];
             let mut f2u_aux = vec![0.0; self.n2];
-            let mut jf2u_times_f2u_aux = vec![0.0; self.n2];
+            let mut jf2u_times_f2u_aux = vec![0.0; nu];
             f2(u, &mut f2u_aux)?; // f2u_aux = F2(u)
             jf2(u, &f2u_aux, &mut jf2u_times_f2u_aux)?; // jf2u_times_f2u_aux = JF2(u)'*f2u_aux
                                                         //                    = JF2(u)'*F2(u)

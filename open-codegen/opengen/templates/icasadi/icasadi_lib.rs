@@ -30,7 +30,7 @@ const NUM_CONSTRAINTS_TYPE_PENALTY: usize = {{ problem.dim_constraints_penalty()
 
 use libc::{c_double, c_int};  // might need to include: c_longlong, c_void
 
-/// C interface (Function API exactly as provided by CasADi)
+// C interface (Function API exactly as provided by CasADi)
 extern "C" {
     fn cost_function_{{ meta.optimizer_name }}(
         arg: *const *const c_double,

@@ -706,7 +706,7 @@ where
         // `None`
         let xi_empty = Vec::new();
         let xi = if let Some(xi_cached) = &alm_cache.xi {
-            &xi_cached
+            xi_cached
         } else {
             &xi_empty
         };
