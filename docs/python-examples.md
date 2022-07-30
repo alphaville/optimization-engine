@@ -26,3 +26,11 @@ description: List of OpEn examples in Python
 
 <p>OpEn generates a complete ROS package that can run on the robot. To build your own ROS package <a href="python-ros">read the documentation first</a>.</p>
 </div>
+
+<div class="alert alert-success">
+<p><b>OpEn+F1TENTH:</b> this <a href="https://github.com/vittoriocataffo/A-Nonlinear-Model-Predictive-Control-Strategy-for-Autonomous-Racing-of-Scale-Vehicles">complete example</a> on how to use OpEn to build an NMPC controller for autonomous racing cars competitions using the <a href="https://github.com/f1tenth-dev/simulator"><b>F1TENTH simulator</b></a> ground vehicle.</p>
+
+<a href="example_navigation_ros_codegen"><img src="/optimization-engine/img/f1-10-main-car_orig.png" alt="An example of a F1/10 car model"/></a>
+
+<p>OpEn generates a complete ROS package that can run along with the simulator. To build your own ROS package <a href="python-ros">read the documentation first</a>.</p>
+</div>
