@@ -99,23 +99,23 @@ $p\in\mathbb{R}^{n_p}$ is a vector of parameters.</p>
 <p>This is a very flexible problem formulation that allows the user to model a very broad
 class of optimization problems.</p>
 <button onclick="toggleCollapseExpand('techConditionsButton', 'containerTechnicalConditions', 'Technical Conditions')" id="techConditionsButton">
-  <i class="fa fa-cog fa-spin"></i> 
+  <i class="fa fa-cog fa-spin"></i>
   Click to expand technical conditions
 </button>
 <div class="mycontainer" id="containerTechnicalConditions">
 <ul>
 <li>$f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
   Function $f$ can be nonconvex.</li>
-<li>$U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
-  can compute projections. Examples, include norm balls, rectangles, 
+<li>$U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we
+  can compute projections. Examples, include norm balls, rectangles,
   finite sets and a lot more.</li>
-<li>$F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping 
+<li>$F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping
   with Lipschitz-continuous Jacobian matrix which is bounded on $U$</li>
-<li>$C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
+<li>$C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute
   distances. Examples, are: (i) the positive orthant, (ii) norm balls, and (iii)
   second-order cones.</li>
 <li>$F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a mapping
-  such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function 
+  such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function
   with Lipschitz-continuous gradient</li>
 </ul>
 </div>
@@ -144,8 +144,11 @@ It cannot guarantee that the solutions will be global.</p>
 <h2><a class="anchor" aria-hidden="true" id="what-can-open-do"></a><a href="#what-can-open-do" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What can OpEn do?</h2>
 <p><strong>Optimization Engine</strong> can be embedded on simple hardware devices and provide autonomy and reliability while it boosts the system's performance.</p>
 <p>Here is a lab demonstration of Optimization Engine in action.</p>
-<p><img src="/optimization-engine/img/e8f236af8d38.gif" alt="Aerial Navigation Video"></p>
+<p><img src="/optimization-engine/img/e8f236af8d38.gif" alt="Aerial Navigation Video" width="70%"/></p>
 <p>In this video we demonstrate that <strong>Optimization Engine</strong> can solve an obstacle avoidance problem as fast as 20 times per second.</p>
+<p><strong>Optimization Engine</strong> can also be used along with the Gazebo simulator to exploit the advantages of Software-In-The-Loop (SIL) simulations. Here is a simulation using the F1TENTH simulator to mirror the behavior of autonomous scale race cars.</p>
+<p><img src="/optimization-engine/img/track.gif" alt="Autonomous Race Car Video" width="70%"/></p>
+<p>In this video we demonstrate that <strong>Optimization Engine</strong> can solve the problem where a small-scale racing car is required to race along a track minimizing the lap time and remaining within the track boundaries. The car is required to safely avoid static obstacles in the track. In addition, the control system is demanded to comply with the vehicle's actuation limits while fulfilling the mission objectives.</p>
 <h2><a class="anchor" aria-hidden="true" id="how-does-it-work"></a><a href="#how-does-it-work" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How does it work?</h2>
 <h3><a class="anchor" aria-hidden="true" id="the-power-of-rust"></a><a href="#the-power-of-rust" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>The power of Rust</h3>
 <p>Rust is exactly the right language for making efficient and reliable software. It combines high-level abstractions with low-level authority on the system without the need for a garbage collector or complex memory management.</p>
@@ -155,7 +158,7 @@ It cannot guarantee that the solutions will be global.</p>
 <p>What makes OpEn so fast?</p>
 <p>The typical approach for solving nonconvex optimization problems in real time is the use of <em>Sequential Quadratic Programming</em> (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for <em>interior point methods</em> - they require heavyweight inner iteration procedures.</p>
 <button onclick="toggleCollapseExpand('panocButton', 'containerPanoc', 'PANOC details')" id="panocButton">
-  <i class="fa fa-cog fa-spin"></i> 
+  <i class="fa fa-cog fa-spin"></i>
   Click to learn more about PANOC
 </button>
 <div class="mycontainer" id="containerPanoc">

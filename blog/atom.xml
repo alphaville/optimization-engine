@@ -2,12 +2,23 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://alphaville.github.io/optimization-engine/blog</id>
     <title>OpEn Blog</title>
-    <updated>2019-03-21T06:00:00.000Z</updated>
+    <updated>2022-07-30T06:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest OpEn news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/box.png</logo>
     <rights>Copyright © 2022 Pantelis Sopasakis and Emil Fresk</rights>
+    <entry>
+        <title type="html"><![CDATA[Autonomous Racing of Scale Vehicles at SMC22]]></title>
+        <id>https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog.html</id>
+        <link href="https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog.html"/>
+        <updated>2022-07-30T06:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/f1-10-main-car_orig.png" alt="Autonomous Racing of Scale Vehicles"></p> <p>Our paper titled &quot;A Nonlinear Model Predictive Control Strategy for Autonomous Racing of Scale Vehicles&quot; (authors: V. Cataffo, G. Silano, L. Iannelli, V. Puig and G. Glielmo) has been accepted for publication in IEEE International Conferen...</p>]]></summary>
+        <author>
+            <name>Giuseppe Silano</name>
+            <uri>https://giuseppesilano.net</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Faster UDP connection]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection.html</id>
