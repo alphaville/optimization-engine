@@ -121,17 +121,16 @@ It cannot guarantee that the solutions will be global.
 
 Here is a lab demonstration of Optimization Engine in action.
 
-![Aerial Navigation Video](/optimization-engine/img/e8f236af8d38.gif)
-
-
+<img src="/optimization-engine/img/e8f236af8d38.gif" alt="Aerial Navigation Video" width="70%"/>
 
 In this video we demonstrate that **Optimization Engine** can solve an obstacle avoidance problem as fast as 20 times per second.
 
 **Optimization Engine** can also be used along with the Gazebo simulator to exploit the advantages of Software-In-The-Loop (SIL) simulations. Here is a simulation using the F1TENTH simulator to mirror the behavior of autonomous scale race cars.
 
-![Autonomous Race Car Video](/optimization-engine/img/track.gif)
+<img src="/optimization-engine/img/track.gif" alt="Autonomous Race Car Video" width="70%"/>
 
-In this video we demonstrate that **Optimization Engine** can solve the problem where a small-scale racing car is required to race along a track minimizing the lap time and remaining within the track boundaries. Meanwhile, the car is required to safely compete avoiding static obstacles populating the track. In addition, the control system is demanded to comply with the vehicle's actuation limits while fulfilling the mission objectives.
+
+In this video we demonstrate that **Optimization Engine** can solve the problem where a small-scale racing car is required to race along a track minimizing the lap time and remaining within the track boundaries. The car is required to safely avoid static obstacles in the track. In addition, the control system is demanded to comply with the vehicle's actuation limits while fulfilling the mission objectives.
 
 
 ## How does it work?
