@@ -25,7 +25,7 @@ function toggleCollapseExpand(buttonId, containerId, theText) {
 
 ## What is Optimization Engine (OpEn)?
 
-Embedded optimization is of great importance in a wide range of engineering applications. For example, **model predictive control** is becoming all the more popular in highly dynamical systems with sampling times of a few milliseconds. 
+Embedded optimization is of great importance in a wide range of engineering applications. For example, **model predictive control** is becoming all the more popular in highly dynamical systems with sampling times of a few milliseconds.
 
 Relevant application domains include
 
@@ -59,14 +59,14 @@ OpEn solves parametric nonconvex optimization problems of the form
 &amp; F_1(u, p) \in C\\
 &amp; F_2(u, p) = 0\end{split}\]</div>
 
-where $u\in\mathbb{R}^{n_u}$ is the vector decision variables of the problem and 
+where $u\in\mathbb{R}^{n_u}$ is the vector decision variables of the problem and
 $p\in\mathbb{R}^{n_p}$ is a vector of parameters.
 
-This is a very flexible problem formulation that allows the user to model a very broad 
+This is a very flexible problem formulation that allows the user to model a very broad
 class of optimization problems.
 
 <button onclick="toggleCollapseExpand('techConditionsButton', 'containerTechnicalConditions', 'Technical Conditions')" id="techConditionsButton">
-  <i class="fa fa-cog fa-spin"></i> 
+  <i class="fa fa-cog fa-spin"></i>
   Click to expand technical conditions
 </button>
 
@@ -74,27 +74,27 @@ class of optimization problems.
 <ul>
 <li>$f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
   Function $f$ can be nonconvex.</li>
-<li>$U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we 
-  can compute projections. Examples, include norm balls, rectangles, 
+<li>$U\subseteq\mathbb{R}^{n_u}$ is a closed, possibly nonconvex set, on which we
+  can compute projections. Examples, include norm balls, rectangles,
   finite sets and a lot more.</li>
-<li>$F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping 
+<li>$F_1:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_1}$ is a differentiable mapping
   with Lipschitz-continuous Jacobian matrix which is bounded on $U$</li>
-<li>$C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute 
+<li>$C\subseteq\mathbb{R}^{n_1}$ is a closed, convex set, from which we can compute
   distances. Examples, are: (i) the positive orthant, (ii) norm balls, and (iii)
   second-order cones.</li>
 <li>$F_2:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}^{n_2}$ is a mapping
-  such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function 
+  such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function
   with Lipschitz-continuous gradient</li>
 </ul>
 </div>
 <br/><br/>
 
-We will explain the difference between the constraints $F_1(u, p) \in C$ and 
-$F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using 
-**augmented Lagrangian updates**, while the constraint $F_2(u, p) = 0$ will be 
+We will explain the difference between the constraints $F_1(u, p) \in C$ and
+$F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using
+**augmented Lagrangian updates**, while the constraint $F_2(u, p) = 0$ will be
 imposed using the **quadratic penalty method**.
 
-The user provides the problem data and OpEn **generates code** for a parametric 
+The user provides the problem data and OpEn **generates code** for a parametric
 optimizer where the user can pass a value $p$ and obtain a solution $u^\star$
 (more on that later).
 
@@ -104,8 +104,8 @@ optimizer where the user can pass a value $p$ and obtain a solution $u^\star$
 OpEn can solve problems of the form $\mathbb{P}(p)$ given above. A few examples
 of problems that can be modelled this way are
 
-- Nonlinear optimal control problems with applications in nonlinear model 
-  predictive control (MPC) and MPC problems with nonconvex constraints (e.g., 
+- Nonlinear optimal control problems with applications in nonlinear model
+  predictive control (MPC) and MPC problems with nonconvex constraints (e.g.,
   obstacle avoidance problems)
 - Nonlinear estimation formulations using nonlinear moving horizon estimation
 - Mixed integer problems
@@ -113,13 +113,13 @@ of problems that can be modelled this way are
 - Bilinear problems and optimization problems with complementarity constraints
 
 
-**Note:** OpEn solves the optimality conditions of given nonconvex optimization problems. 
-It cannot guarantee that the solutions will be global. 
+**Note:** OpEn solves the optimality conditions of given nonconvex optimization problems.
+It cannot guarantee that the solutions will be global.
 
 ## What can OpEn do?
-**Optimization Engine** can be embedded on simple hardware devices and provide autonomy and reliability while it boosts the system's performance. 
+**Optimization Engine** can be embedded on simple hardware devices and provide autonomy and reliability while it boosts the system's performance.
 
-Here is a lab demonstration of Optimization Engine in action. 
+Here is a lab demonstration of Optimization Engine in action.
 
 ![Aerial Navigation Video](/optimization-engine/img/e8f236af8d38.gif)
 
@@ -127,12 +127,18 @@ Here is a lab demonstration of Optimization Engine in action.
 
 In this video we demonstrate that **Optimization Engine** can solve an obstacle avoidance problem as fast as 20 times per second.
 
+**Optimization Engine** can also be used along with the Gazebo simulator to exploit the advantages of Software-In-The-Loop (SIL) simulations. Here is a simulation using the F1TENTH simulator to mirror the behavior of autonomous scale race cars.
+
+![Autonomous Race Car Video](/optimization-engine/img/track.gif)
+
+In this video we demonstrate that **Optimization Engine** can solve the problem where a small-scale racing car is required to race along a track minimizing the lap time and remaining within the track boundaries. Meanwhile, the car is required to safely compete avoiding static obstacles populating the track. In addition, the control system is demanded to comply with the vehicle's actuation limits while fulfilling the mission objectives.
+
 
 ## How does it work?
 
 ### The power of Rust
 
-Rust is exactly the right language for making efficient and reliable software. It combines high-level abstractions with low-level authority on the system without the need for a garbage collector or complex memory management. 
+Rust is exactly the right language for making efficient and reliable software. It combines high-level abstractions with low-level authority on the system without the need for a garbage collector or complex memory management.
 
 Most importantly, Rust is memory-safe and thread-safe by design! If something can go wrong during runtime, the software won't compile!
 
@@ -145,7 +151,7 @@ What makes OpEn so fast?
 <p>The typical approach for solving nonconvex optimization problems in real time is the use of <em>Sequential Quadratic Programming</em> (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for <em>interior point methods</em> - they require heavyweight inner iteration procedures.</p>
 
 <button onclick="toggleCollapseExpand('panocButton', 'containerPanoc', 'PANOC details')" id="panocButton">
-  <i class="fa fa-cog fa-spin"></i> 
+  <i class="fa fa-cog fa-spin"></i>
   Click to learn more about PANOC
 </button>
 
@@ -166,12 +172,12 @@ What makes OpEn so fast?
 
 PANOC can solve problems that involve a smooth cost function, $f(u,p)$ and simple
 constraints of the form $u\in U$, where $U$ is a set on which we can compute
-projections. In order to solve problems with more complex constraints such as 
-$F_1(u, p)\in C$ or $F_2(u, p) = 0$, we resort to the augmented Lagrangian and 
+projections. In order to solve problems with more complex constraints such as
+$F_1(u, p)\in C$ or $F_2(u, p) = 0$, we resort to the augmented Lagrangian and
 penalty methods respectively.
 
 Essentially, PANOC solves a simple "inner problem", while it is wrapped in an outer loop
-which takes care of the satisfaction of these constraints. For technical details, the 
+which takes care of the satisfaction of these constraints. For technical details, the
 reader may refer to [this page](./algorithm).
 
 
@@ -186,10 +192,10 @@ A code generation tool will create Rust code which can be used for maximum effic
 
 **OpEn** comprises the following components:
 
-- In Rust: the [`optimization-engine`] crate (downloaded automatically when using the 
+- In Rust: the [`optimization-engine`] crate (downloaded automatically when using the
   Python/MATLAB interfaces)
-- In [Python](./python-interface) and [MATLAB](./matlab-interface): 
-  code generation libraries and interfaces 
+- In [Python](./python-interface) and [MATLAB](./matlab-interface):
+  code generation libraries and interfaces
 
 ## Next steps
 First, you need to [install rust]. Then, you can either learn how to use [OpEn in rust](./openrust-basic), or how to generate and use parametric optimizers [from MATLAB](./matlab-interface) or [Python](./python-interface).
