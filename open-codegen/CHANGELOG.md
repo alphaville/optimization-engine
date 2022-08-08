@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.6.12] - 2022-8-8
+
+### Fixed 
+
+* Got rid of Rust warnings for generated code
+
+
 ## [0.6.11] - 2022-3-10
 
 ### Fixed
@@ -143,6 +150,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.6.12]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.11...opengen-0.6.12
 [0.6.11]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.9...opengen-0.6.11
 [0.6.9]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.8...opengen-0.6.9
 [0.6.8]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.7...opengen-0.6.8
