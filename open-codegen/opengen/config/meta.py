@@ -39,6 +39,14 @@ class OptimizerMeta:
         self.__optimizer_version = optimizer_version
         self.__optimizer_licence = optimizer_licence
         self.__optimizer_author_list = optimizer_authors
+        self.__cost_function_name = None
+        self.__grad_cost_function_name = None
+        self.__constraint_penalty_function = None
+        self.__alm_constraints_mapping_f1 = None
+        self.__update_function_names()
+
+    def __update_function_names(self):
+        optimizer_name = self.__optimizer_name
         self.__cost_function_name = 'open_phi_' + optimizer_name
         self.__grad_cost_function_name = 'open_grad_phi_' + optimizer_name
         self.__constraint_penalty_function = 'open_mapping_f2_' + optimizer_name
@@ -93,6 +101,7 @@ class OptimizerMeta:
 
         if re.match(r"^[a-zA-Z_]+[\w]*$", optimizer_name):
             self.__optimizer_name = optimizer_name
+            self.__update_function_names()
             return self
         raise ValueError("invalid optimizer name")
 
