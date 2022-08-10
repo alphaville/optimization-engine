@@ -22,8 +22,6 @@
  *   + n1: {{ problem.dim_constraints_aug_lagrangian() }}
  *   + n2: {{ problem.dim_constraints_penalty() }}
  *
- * Generated at: {{timestamp_created}}
- *
  */
 #include <stdlib.h>
 #include "casadi_memory.h"

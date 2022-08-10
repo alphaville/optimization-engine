@@ -594,6 +594,9 @@ class OpEnOptimizerBuilder:
                             'version': metadata.version,
                             'authors': metadata.authors,
                             'licence': metadata.licence}
+        if build_config.id is not None:
+            # If mangling has not been suppressed, include the current timestamp
+            metadata_details["timestamp"] = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         build_details = {'id': build_config.id,
                          'open_version': build_config.open_version,
                          'opengen_version': opengen_version,
