@@ -39,6 +39,26 @@ class OptimizerMeta:
         self.__optimizer_version = optimizer_version
         self.__optimizer_licence = optimizer_licence
         self.__optimizer_author_list = optimizer_authors
+        self.__cost_function_name = 'open_phi_' + optimizer_name
+        self.__grad_cost_function_name = 'open_grad_phi_' + optimizer_name
+        self.__constraint_penalty_function = 'open_mapping_f2_' + optimizer_name
+        self.__alm_constraints_mapping_f1 = 'open_mapping_f1_' + optimizer_name
+
+    @property
+    def cost_function_name(self):
+        return self.__cost_function_name
+
+    @property
+    def grad_function_name(self):
+        return self.__grad_cost_function_name
+
+    @property
+    def constraint_penalty_function_name(self):
+        return self.__constraint_penalty_function
+
+    @property
+    def alm_mapping_f1_function_name(self):
+        return self.__alm_constraints_mapping_f1
 
     def with_version(self, optimizer_version):
         """Specify version

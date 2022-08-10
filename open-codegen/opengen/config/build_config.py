@@ -46,14 +46,8 @@ class BuildConfiguration:
 
         """
 
-
         self.__target_system = None
         self.__build_mode = BuildConfiguration.RELEASE_MODE
-        self.__id = None
-        self.__cost_function_name = None
-        self.__grad_cost_function_name = None
-        self.__constraint_penalty_function = None
-        self.__alm_constraints_mapping_f1 = None
         self.__rebuild = False
         self.__build_dir = build_dir
         self.__open_version = None
@@ -64,25 +58,6 @@ class BuildConfiguration:
         self.__local_path = None
         self.__allocator = RustAllocator.DefaultAllocator
         self.__do_mangle = True
-        self.__fnct_names()
-
-    # ---------- "PRIVATE" METHODS  ----------------------------------
-
-    def __fnct_names(self):
-        if self.__do_mangle:
-            random_string = ''.join(random.choice(
-                string.ascii_letters) for _i in range(20))
-            self.__id = random_string
-            self.__cost_function_name = 'phi_' + random_string
-            self.__grad_cost_function_name = 'grad_phi_' + random_string
-            self.__constraint_penalty_function = 'mapping_f2_' + random_string
-            self.__alm_constraints_mapping_f1 = 'mapping_f1_' + random_string
-        else:
-            self.__id = None
-            self.__cost_function_name = 'open_phi'
-            self.__grad_cost_function_name = 'open_grad_phi'
-            self.__constraint_penalty_function = 'open_mapping_f2'
-            self.__alm_constraints_mapping_f1 = 'open_mapping_f1'
 
     # ---------- GETTERS ---------------------------------------------
 
@@ -90,27 +65,6 @@ class BuildConfiguration:
     def rebuild(self):
         """Whether to re-build the optimizer from scratch"""
         return self.__rebuild
-
-    @property
-    def id(self):
-        """Unique identifier of build configuration"""
-        return self.__id
-
-    @property
-    def cost_function_name(self):
-        return self.__cost_function_name
-
-    @property
-    def grad_function_name(self):
-        return self.__grad_cost_function_name
-
-    @property
-    def constraint_penalty_function_name(self):
-        return self.__constraint_penalty_function
-
-    @property
-    def alm_mapping_f1_function_name(self):
-        return self.__alm_constraints_mapping_f1
 
     @property
     def target_system(self):
@@ -171,17 +125,6 @@ class BuildConfiguration:
         return self.__allocator
 
     # ---------- SETTERS ---------------------------------------------
-
-    def with_no_mangle(self, no_mangle=True):
-        """
-        Use this method so that OpEn does not mangle function names in the
-        generated code (use this only if you know what you are doing)
-
-        :param no_mangle: if set to True, no mangling will take place
-        """
-        self.__do_mangle = not no_mangle
-        self.__fnct_names()
-        return self
 
     def with_rebuild(self, do_rebuild):
         """

@@ -212,8 +212,7 @@ class OpEnOptimizerBuilder:
         cint_output_template = cint_template.render(
             meta=self.__meta,
             problem=self.__problem,
-            build_config=self.__build_config,
-            timestamp_created=datetime.datetime.now())
+            build_config=self.__build_config)
         cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
@@ -230,8 +229,7 @@ class OpEnOptimizerBuilder:
             'icasadi_lib.rs', 'icasadi')
         icasadi_lib_output_template = icasadi_lib_template.render(meta=self.__meta,
                                                                   problem=self.__problem,
-                                                                  build_config=self.__build_config,
-                                                                  timestamp_created=datetime.datetime.now())
+                                                                  build_config=self.__build_config)
         icasadi_lib_rs_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "src", "lib.rs"))
         with open(icasadi_lib_rs_path, "w") as fh:
@@ -250,8 +248,7 @@ class OpEnOptimizerBuilder:
             meta=self.__meta,
             build_config=self.__build_config,
             activate_tcp_server=self.__build_config.tcp_interface_config is not None,
-            activate_clib_generation=self.__build_config.build_c_bindings,
-            timestamp_created=datetime.datetime.now())
+            activate_clib_generation=self.__build_config.build_c_bindings)
         cargo_toml_path = os.path.abspath(
             os.path.join(target_dir, "Cargo.toml"))
         with open(cargo_toml_path, "w") as fh:
@@ -273,8 +270,7 @@ class OpEnOptimizerBuilder:
             cost=cost, grad=grad,
             f1=f1, f2=f2,
             build_config=self.__build_config,
-            meta=self.__meta,
-            timestamp_created=datetime.datetime.now())
+            meta=self.__meta)
         memory_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "casadi_memory.h"))
         with open(memory_path, "w") as fh:
@@ -288,7 +284,7 @@ class OpEnOptimizerBuilder:
         """
         self.__logger.info("Defining function psi(u, xi, p) and its gradient")
         problem = self.__problem
-        bconfig = self.__build_config
+        meta = self.__meta
         u = problem.decision_variables
         p = problem.parameter_variables
         n2 = problem.dim_constraints_penalty()
@@ -321,9 +317,9 @@ class OpEnOptimizerBuilder:
 
         jac_psi = cs.gradient(psi, u)
 
-        psi_fun = cs.Function(bconfig.cost_function_name, [u, xi, p], [psi])
+        psi_fun = cs.Function(meta.cost_function_name, [u, xi, p], [psi])
         grad_psi_fun = cs.Function(
-            bconfig.grad_function_name, [u, xi, p], [jac_psi])
+            meta.grad_function_name, [u, xi, p], [jac_psi])
         return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
@@ -340,7 +336,7 @@ class OpEnOptimizerBuilder:
             mapping_f1 = 0
 
         alm_mapping_f1_fun = cs.Function(
-            self.__build_config.alm_mapping_f1_function_name,
+            self.__meta.alm_mapping_f1_function_name,
             [u, p], [mapping_f1])
         return alm_mapping_f1_fun
 
@@ -357,7 +353,7 @@ class OpEnOptimizerBuilder:
             penalty_constraints = 0
 
         alm_mapping_f2_fun = cs.Function(
-            self.__build_config.constraint_penalty_function_name,
+            self.__meta.constraint_penalty_function_name,
             [u, p], [penalty_constraints])
 
         return alm_mapping_f2_fun
@@ -366,11 +362,12 @@ class OpEnOptimizerBuilder:
         """Generates CasADi C code"""
         self.__logger.info("Defining CasADi functions and generating C code")
         bconfig = self.__build_config
+        meta = self.__meta
 
         # -----------------------------------------------------------------------
         psi_fun, grad_psi_fun = self.__construct_function_psi()
-        cost_file_name = bconfig.cost_function_name + ".c"
-        grad_file_name = bconfig.grad_function_name + ".c"
+        cost_file_name = meta.cost_function_name + ".c"
+        grad_file_name = meta.grad_function_name + ".c"
         self.__logger.info("Function psi and its gradient (C code)")
         psi_fun.generate(cost_file_name)
         grad_psi_fun.generate(grad_file_name)
@@ -383,7 +380,7 @@ class OpEnOptimizerBuilder:
 
         # -----------------------------------------------------------------------
         mapping_f1_fun = self.__construct_mapping_f1_function()
-        f1_file_name = bconfig.alm_mapping_f1_function_name + ".c"
+        f1_file_name = meta.alm_mapping_f1_function_name + ".c"
         self.__logger.info("Mapping F1 (C code)")
         mapping_f1_fun.generate(f1_file_name)
         # Move auto-generated file to target folder
@@ -392,7 +389,7 @@ class OpEnOptimizerBuilder:
 
         # -----------------------------------------------------------------------
         mapping_f2_fun = self.__construct_mapping_f2_function()
-        f2_file_name = bconfig.constraint_penalty_function_name + ".c"
+        f2_file_name = meta.constraint_penalty_function_name + ".c"
         self.__logger.info("Mapping F2 (C code)")
         mapping_f2_fun.generate(f2_file_name)
         # Move auto-generated file to target folder
@@ -412,7 +409,6 @@ class OpEnOptimizerBuilder:
             solver_config=self.__solver_config,
             meta=self.__meta,
             problem=self.__problem,
-            timestamp_created=datetime.datetime.now(),
             activate_clib_generation=self.__build_config.build_c_bindings,
             float=float)
         target_source_path = os.path.join(target_dir, "src")
@@ -513,8 +509,7 @@ class OpEnOptimizerBuilder:
         python_rs_template = OpEnOptimizerBuilder.__get_template(
             'python_bindings.rs', 'python')
         python_rs_output_template = python_rs_template.render(
-            meta=self.__meta,
-            timestamp_created=datetime.datetime.now())
+            meta=self.__meta)
         target_python_rs_path = os.path.join(
             python_bindings_source_dir, "lib.rs")
         with open(target_python_rs_path, "w") as fh:
@@ -525,8 +520,7 @@ class OpEnOptimizerBuilder:
             'python_bindings_cargo.toml', 'python')
         python_rs_output_template = python_rs_template.render(
             meta=self.__meta,
-            build_config=self.__build_config,
-            timestamp_created=datetime.datetime.now())
+            build_config=self.__build_config)
         target_python_rs_path = os.path.join(python_bindings_dir, "Cargo.toml")
         with open(target_python_rs_path, "w") as fh:
             fh.write(python_rs_output_template)
@@ -559,8 +553,7 @@ class OpEnOptimizerBuilder:
             'tcp_server.rs', 'tcp')
         tcp_rs_output_template = tcp_rs_template.render(
             meta=self.__meta,
-            tcp_server_config=self.__build_config.tcp_interface_config,
-            timestamp_created=datetime.datetime.now())
+            tcp_server_config=self.__build_config.tcp_interface_config)
         target_tcp_rs_path = os.path.join(tcp_iface_source_dir, "main.rs")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
@@ -570,8 +563,7 @@ class OpEnOptimizerBuilder:
             'tcp_server_cargo.toml', 'tcp')
         tcp_rs_output_template = tcp_rs_template.render(
             meta=self.__meta,
-            build_config=self.__build_config,
-            timestamp_created=datetime.datetime.now())
+            build_config=self.__build_config)
         target_tcp_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
@@ -594,19 +586,11 @@ class OpEnOptimizerBuilder:
                             'version': metadata.version,
                             'authors': metadata.authors,
                             'licence': metadata.licence}
-        if build_config.id is not None:
-            # If mangling has not been suppressed, include the current timestamp
-            metadata_details["timestamp"] = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-        build_details = {'id': build_config.id,
-                         'open_version': build_config.open_version,
+        build_details = {'open_version': build_config.open_version,
                          'opengen_version': opengen_version,
                          'build_dir': build_config.build_dir,
                          'build_mode': build_config.build_mode,
-                         'target_system': build_config.target_system,
-                         'cost_function_name': build_config.cost_function_name,
-                         'grad_function_name': build_config.grad_function_name,
-                         'mapping_f2': build_config.constraint_penalty_function_name,
-                         'mapping_f1': build_config.alm_mapping_f1_function_name
+                         'target_system': build_config.target_system
                          }
         solver_details = {'lbfgs_memory': solver_config.lbfgs_memory,
                           'tolerance': solver_config.tolerance,

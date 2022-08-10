@@ -48,7 +48,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)\
-            .with_build_python_bindings().with_no_mangle(True)
+            .with_build_python_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
@@ -76,7 +76,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()  \
-            .with_allocator(og.config.RustAllocator.JemAlloc).with_no_mangle(True)
+            .with_allocator(og.config.RustAllocator.JemAlloc)
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
@@ -101,7 +101,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
-            .with_build_c_bindings().with_no_mangle(True)
+            .with_build_c_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
