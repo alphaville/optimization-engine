@@ -57,7 +57,6 @@ class BuildConfiguration:
         self.__tcp_interface_config = None
         self.__local_path = None
         self.__allocator = RustAllocator.DefaultAllocator
-        self.__do_mangle = True
 
     # ---------- GETTERS ---------------------------------------------
 
