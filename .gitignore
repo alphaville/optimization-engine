@@ -73,3 +73,17 @@ open-clib/Cargo.lock
 *private*
 .DS_Store
 /img/
+*.rs
+*.lock
+*.toml
+*.txt
+*.md
+*.yml
+open-codegen/opengen/my_optimizers_tcp/navigation/navigation.pyd
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/src/PLACEHOLDER
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/interface.c
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/casadi_memory.h
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/auto_casadi_mapping_f2.c
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/auto_casadi_mapping_f1.c
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/auto_casadi_grad.c
+open-codegen/opengen/my_optimizers_tcp/navigation/icasadi_navigation/extern/auto_casadi_cost.c
