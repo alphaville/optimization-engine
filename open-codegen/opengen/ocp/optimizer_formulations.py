@@ -69,7 +69,7 @@ def set_exclusion_formulation(user_ocp, x):
     return set_exclusion_fn
 
 
-def single_shooting_formulation(user_ocp, u, nu, x, nx, horion):
+def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     cost = 0
     x_t = x[0:nx]
     x_t_buffer = []
@@ -81,12 +81,12 @@ def single_shooting_formulation(user_ocp, u, nu, x, nx, horion):
 
     for t in range(horion):
         u_t = u[nu * t:nu * (t + 1)]
-        cost += user_ocp.stage_cost_fn(x_t, u_t)
-        x_t = user_ocp.sys_dyn_fn(x_t, u_t)
+        cost += user_ocp.stage_cost_fn(x_t, u_t, p)
+        x_t = user_ocp.sys_dyn_fn(x_t, u_t, p)
         for i in range(0, nx):
             x_t_buffer = cs.vertcat(x_t_buffer, x_t[i])
 
-    cost += user_ocp.terminal_cost_fn(x_t, u_t)
+    cost += user_ocp.terminal_cost_fn(x_t, u_t, p)
 
     (bounds, decision_var) = input_constraint_single_shooting(user_ocp, u)
 
@@ -104,7 +104,7 @@ def single_shooting_formulation(user_ocp, u, nu, x, nx, horion):
 
     return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints
 
-def multiple_shooting_formulation(user_ocp, u, nu, x, nx, horion):
+def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     cost = 0
     alm_constraints = []
     pm_constraints = []
@@ -114,14 +114,14 @@ def multiple_shooting_formulation(user_ocp, u, nu, x, nx, horion):
         x_next = x[nx * (t + 1):nx * (t + 2)]
         u_t = u[nu * t:nu * (t + 1)]
 
-        cost += user_ocp.stage_cost_fn(x_t, u_t)
+        cost += user_ocp.stage_cost_fn(x_t, u_t, p)
 
-        x_dyn = user_ocp.sys_dyn_fn(x_t, u_t)
+        x_dyn = user_ocp.sys_dyn_fn(x_t, u_t, p)
 
         for i in range(0, nx):
             system_dynamics = cs.vertcat(system_dynamics, (x_next[i] - x_dyn[i]))
 
-    cost += user_ocp.terminal_cost_fn(x_t, u_t)
+    cost += user_ocp.terminal_cost_fn(x_t, u_t, p)
 
     (bounds, decision_var) = state_input_constraint(user_ocp, u, x[nx:])
 

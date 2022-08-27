@@ -4,7 +4,7 @@ import opengen.functions as fn
 from enum import Enum
 from opengen.constraints import Constraint
 from .optimizer_formulations import FormulationType, single_shooting_formulation, multiple_shooting_formulation
-from .ocp_build_interface import OcpInterfaceType
+from .ocp_build_interface import OcpInterfaceType, tcp_interface, direct_interface
 
 
 class ConstraintMethod(Enum):
@@ -13,7 +13,8 @@ class ConstraintMethod(Enum):
 
 
 class OptimalControlProblem:
-    def __init__(self, nx, nu, sys_dyn_fn, stage_cost_fn, terminal_cost_fn):
+    def __init__(self, p_symb, nx, nu, sys_dyn_fn, stage_cost_fn, terminal_cost_fn):
+        self.__p_symb = p_symb
         self.__nx = nx
         self.__nu = nu
         self.__horizon = 15
@@ -26,7 +27,6 @@ class OptimalControlProblem:
         self.sys_dyn_fn = sys_dyn_fn
         self.stage_cost_fn = stage_cost_fn
         self.terminal_cost_fn = terminal_cost_fn
-        self.problem_formulation = multiple_shooting_formulation
 
     def with_horizon(self, horizon):
         self.__horizon = horizon
@@ -41,12 +41,6 @@ class OptimalControlProblem:
         return self
 
     def with_formulation_type(self, formulation):
-        if formulation is FormulationType.MULTIPLE_SHOOTING:
-            self.problem_formulation = multiple_shooting_formulation
-        elif formulation is FormulationType.SINGLE_SHOOTING:
-            self.problem_formulation = single_shooting_formulation
-        else:
-            raise Exception("Formulation type not Supported")
         self.__formulation_type = formulation
         return self
 
@@ -93,6 +87,70 @@ class OptimalControlProblem:
 
     def get_OCP(self):
         return self.__problem
+
+    def build(self):
+        nu = self.__nu
+        nx = self.__nx
+        N = self.__horizon
+        x_init = self.__p_symb[0:nx]
+        ocp_build_interface = self.__ocp_build_interface
+
+        u = cs.SX.sym('u', nu * N)
+        # x = cs.SX.sym('x', nx * (N + 1))
+        x = cs.vertcat(x_init, cs.SX.sym('x', nx * N))
+
+        if self.__formulation_type is FormulationType.MULTIPLE_SHOOTING:
+            problem_formulation = multiple_shooting_formulation
+        elif self.__formulation_type is FormulationType.SINGLE_SHOOTING:
+            problem_formulation = single_shooting_formulation
+        else:
+            raise Exception("Formulation type not Supported")
+        (cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints) = problem_formulation(self, self.__p_symb, u, nu, x, nx, N)
+
+        self.__problem = og.builder.Problem(decision_var, self.__p_symb, cost) \
+            .with_constraints(bounds) \
+
+        if fn.is_symbolic(alm_mapping):
+            self.__problem.with_aug_lagrangian_constraints(alm_mapping, alm_set)
+
+        if fn.is_symbolic(pm_constraints):
+            self.__problem.with_penalty_constraints(pm_constraints)
+
+        build_config = og.config.BuildConfiguration() \
+            .with_build_mode("debug") \
+            .with_build_python_bindings()
+
+        if ocp_build_interface is OcpInterfaceType.TCP:
+            build_config.with_build_directory("my_optimizers_tcp")
+            build_config.with_tcp_interface_config()
+        else:
+            build_config.with_build_directory("my_optimizers")
+            # build_config.with_build_c_bindings()
+
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("navigation")
+        solver_config = og.config.SolverConfiguration() \
+            .with_tolerance(1e-3) \
+            .with_initial_tolerance(1e-2) \
+            .with_initial_penalty(1000) \
+            .with_penalty_weight_update_factor(1.25) \
+            .with_max_outer_iterations(65) \
+            .with_max_inner_iterations(2000) \
+            .with_delta_tolerance(1e-3)
+        builder = og.builder.OpEnOptimizerBuilder(self.__problem,
+                                                  meta,
+                                                  build_config,
+                                                  solver_config)
+        builder.build()
+
+    def solve(self, p_init, print_result):
+
+        if self.__ocp_build_interface is OcpInterfaceType.TCP:
+            ocp_build_function = tcp_interface
+        else:
+            ocp_build_function = direct_interface
+
+        return ocp_build_function(p_init, print_result)
 
 
 class BallExclusionSet(Constraint):
