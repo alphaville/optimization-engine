@@ -1,15 +1,11 @@
 import opengen as og
 import casadi.casadi as cs
 import opengen.functions as fn
-from enum import Enum
 from opengen.constraints import Constraint
-from .optimizer_formulations import FormulationType, single_shooting_formulation, multiple_shooting_formulation
-from .ocp_build_interface import OcpInterfaceType, tcp_interface, direct_interface
+from .optimizer_formulations import single_shooting_formulation, multiple_shooting_formulation
+from .ocp_build_interface import tcp_interface, direct_interface
+from .type_enums import *
 
-
-class ConstraintMethod(Enum):
-    ALM = 1
-    PM = 2
 
 
 class OptimalControlProblem:

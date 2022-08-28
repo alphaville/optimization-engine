@@ -11,3 +11,6 @@ class Constraint:
 
     def is_compact(self):
         return False
+
+    def sup_level_set(self, x):
+        raise NotImplementedError("Method `sup_level_set` is not implemented")

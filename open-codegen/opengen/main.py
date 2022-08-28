@@ -1,42 +1,35 @@
-import opengen as og
+import constraints
 import casadi.casadi as cs
 import opengen.functions as fn
 import numpy as np
-from ocp.optimizer_formulations import FormulationType
-from ocp.optimal_control_problem import OptimalControlProblem, BallExclusionSet
-from ocp.ocp_build_interface import OcpInterfaceType
+from ocp.optimal_control_problem import OptimalControlProblem
 import matplotlib.pyplot as plt
+from ocp.set_exclusion import ExclusionSet
+from ocp.type_enums import *
 
 
 # Build parametric optimizer
 # ------------------------------------
 (nx, nu, N) = (3, 2, 30)
-(xref, yref, thetaref) = (1, 1, 0)
 
 umin = [-3.0, -2.0]
 umax = [3.0] * nu
 
-xmin = [-np.Inf, -np.Inf, -0.6]*N
-xmax = [np.Inf, np.Inf, 0.6]*N
-# xmin = [-1000, -1000, -0.6]*N
-# xmax = [1000, 1000, 0.6]*N
+# xmin = [-np.Inf, -np.Inf, -0.6]*N
+# xmax = [np.Inf, np.Inf, 0.6]*N
+xmin = [-1000, -1000, -0.6]*N
+xmax = [1000, 1000, 0.6]*N
 
-u_set = [og.constraints.Rectangle(umin, umax)]*N
+u_set = [constraints.Rectangle(umin, umax)]*N
 
-x_set = og.constraints.Rectangle(xmin, xmax)
+x_set = constraints.Rectangle(xmin, xmax)
 # x_set = og.constraints.NoConstraints()
-
-formulation_type = FormulationType.SINGLE_SHOOTING
 
 c1_centre = [0, 1.5]
 c1_radius = 0.25
-c1_type = og.constraints.Ball2()
-c1_state_indices = [0, 1]
-c1_obj = BallExclusionSet(c1_type, c1_centre, c1_radius, c1_state_indices)
+c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
 
-exclusion_set = [c1_obj]
-
-ocp_build_interface = OcpInterfaceType.DIRECT
+exclusion_set_list = [c1]
 
 x_init = cs.SX.sym('x_init', nx)
 ts = cs.SX.sym('ts', 1)
@@ -46,11 +39,26 @@ qtheta = cs.SX.sym('qtheta', 1)
 r = cs.SX.sym('r', 1)
 qN = cs.SX.sym('qN', 1)
 qthetaN = cs.SX.sym('qthetaN', 1)
-p_symb = cs.vertcat(x_init, ts, L, q, qtheta, r, qN, qthetaN)
+x_ref = cs.SX.sym('x_ref', nx)
+p_symb = cs.vertcat(x_init, ts, L, q, qtheta, r, qN, qthetaN, x_ref)
 
+p_idx = {
+    "x_init": 0,
+    "ts": nx,
+    "L": nx + 1,
+    "q": nx + 2,
+    "qtheta": nx + 3,
+    "r": nx + 4,
+    "qN": nx + 5,
+    "qthetaN": nx + 6,
+    "x_ref": nx + 7
+}
 
-def system_dynamics_function(x, u, p_symb):
+def system_dynamics_fn(x, u, p_symb):
     x_tp1 = [None]*nx
+    L = p_symb[p_idx["L"]]
+    ts = p_symb[p_idx["ts"]]
+
     if fn.is_symbolic(x) or fn.is_symbolic(u):
         theta_dot = (1 / L) * (u[1] * cs.cos(x[2]) - u[0] * cs.sin(x[2]))
         x_tp1[0] = x[0] + ts * (u[0] + L * cs.sin(x[2]) * theta_dot)
@@ -65,22 +73,32 @@ def system_dynamics_function(x, u, p_symb):
 
 
 def stage_cost_fn(x, u, p_symb):
+    q = p_symb[p_idx["q"]]
+    qtheta = p_symb[p_idx["qtheta"]]
+    xref = p_symb[p_idx["x_ref"]]
+    yref = p_symb[p_idx["x_ref"] + 1]
+    thetaref = p_symb[p_idx["x_ref"] + 2]
     stage_cost = q * ((x[0] - xref) ** 2 + (x[1] - yref) ** 2) + qtheta * (x[2] - thetaref) ** 2 + r * cs.dot(u, u)
     return stage_cost
 
 
 def terminal_cost_fn(x, u, p_symb):
+    qN = p_symb[p_idx["qN"]]
+    qthetaN = p_symb[p_idx["qthetaN"]]
+    xref = p_symb[p_idx["x_ref"]]
+    yref = p_symb[p_idx["x_ref"] + 1]
+    thetaref = p_symb[p_idx["x_ref"] + 2]
     terminal_cost = qN*((x[-3]-xref)**2 + (x[-2]-yref)**2) + qthetaN*(x[-1]-thetaref)**2
     return terminal_cost
 
 
-user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_function, stage_cost_fn, terminal_cost_fn) \
+user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_fn, terminal_cost_fn) \
     .with_horizon(N) \
     .with_state_constraint(x_set) \
     .with_input_constraint(u_set) \
-    .with_formulation_type(formulation_type) \
-    .with_exclusion_set(exclusion_set) \
-    .with_build_interface(ocp_build_interface)
+    .with_formulation_type(FormulationType.SINGLE_SHOOTING) \
+    .with_exclusion_set(exclusion_set_list) \
+    .with_build_interface(OcpInterfaceType.DIRECT)
 
 user_ocp.build()
 
@@ -89,17 +107,6 @@ def plot_solution(user_ocp, u_star, p_val):
     nx = user_ocp.get_nx()
     nu = user_ocp.get_nu()
     N = user_ocp.get_horizon()
-
-    p_idx = {
-        "x_init": 0,
-        "ts": nx,
-        "L": nx + 1,
-        "q": nx + 2,
-        "qtheta": nx + 4,
-        "r": nx + 5,
-        "qN": nx + 6,
-        "qthetaN": nx + 7
-    }
 
     ts = p_val[p_idx["ts"]]
 
@@ -152,6 +159,10 @@ def plot_solution(user_ocp, u_star, p_val):
     x_circle = c1_centre[0] + c1_radius * np.sin(t)
     y_circle = c1_centre[1] + c1_radius * np.cos(t)
     plt.plot(x_circle, y_circle)
+
+    plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.1, np.sin(ztheta[0]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
+    plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.1, np.sin(ztheta[-1]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
+
     plt.show()
 
     # print(f"z_theta minimum:{min(ztheta)}")
@@ -161,15 +172,23 @@ x_init = [-1.0, 2.0, 0.0]
 ts = 0.03
 L = 0.5
 (q, qtheta, r) = (10, 0.1, 1)
-(qN, qthetaN) = (2000, 2)
-p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN]
+(qN, qthetaN) = (2000, 200)
+(xref, yref, thetaref) = (1, 1, 0)
+p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
 
 u_star = user_ocp.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
 
 ts = 0.05
-p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN]
+p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
+
+u_star = user_ocp.solve(p_val, print_result=True)
+plot_solution(user_ocp, u_star, p_val)
+
+
+(xref, yref, thetaref) = (1, 0, 0)
+p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
 
 u_star = user_ocp.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)

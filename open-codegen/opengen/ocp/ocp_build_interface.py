@@ -1,11 +1,4 @@
 import opengen as og
-from enum import Enum
-
-
-class OcpInterfaceType(Enum):
-    DIRECT = 1
-    TCP = 2
-
 
 def tcp_interface(z_initial, print_result=False):
     # Use TCP server

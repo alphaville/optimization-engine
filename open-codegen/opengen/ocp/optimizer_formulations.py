@@ -1,12 +1,6 @@
 import opengen as og
 import casadi.casadi as cs
-from enum import Enum
-
-
-class FormulationType(Enum):
-    SINGLE_SHOOTING = 1
-    MULTIPLE_SHOOTING = 2
-    COLLOCATION = 3
+from .type_enums import ConstraintMethod
 
 
 def combine_cartesian_bounds(input_set, bounds_combined, segment_ids, size, horizon):
@@ -58,13 +52,20 @@ def input_constraint_single_shooting(user_ocp, u):
 
 
 def set_exclusion_formulation(user_ocp, x):
-    exclusion_set = user_ocp.get_exclusion_set()
+    exclusion_set_list = user_ocp.get_exclusion_set()
     N = user_ocp.get_horizon()
     nx = user_ocp.get_nx()
 
     set_exclusion_fn = []
 
-    set_exclusion_fn = exclusion_set[0].append_exclusion_set(set_exclusion_fn, x, nx, N)
+    if exclusion_set_list is None:
+        return set_exclusion_fn
+
+    for exclusion_set in exclusion_set_list:
+        if not exclusion_set.get_exclusion_mode() is ConstraintMethod.PM:
+            raise NotImplementedError("Only Penlaty Method supported for Set Exclusion Constraints")
+
+        set_exclusion_fn = cs.vertcat(set_exclusion_fn, exclusion_set.exclude_set(x, nx, N))
 
     return set_exclusion_fn
 

@@ -93,3 +93,19 @@ class Ball2(Constraint):
 
     def is_compact(self):
         return True
+
+    def sup_level_set(self, u):
+        """ Computes incursion of point u inside the ball
+
+            :param u: given point; implemented only for CasADi SX/MX symbol
+
+            :return: Penalty if point u inside Ball-2, else zero
+        """
+        if fn.is_symbolic(u):
+            # Case I: `u` is a CasADi SX symbol
+            v = u if self.__center is None else u - self.__center
+        else:
+            raise NotImplementedError()
+
+        return fn.fmax(0.0, self.__radius ** 2 - cs.dot(v, v))
+
