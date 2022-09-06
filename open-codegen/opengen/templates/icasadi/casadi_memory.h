@@ -13,7 +13,6 @@
  *   + version: {{ meta.version }}
  *   + licence: {{ meta.licence }}
  *
- * Generated at: {{timestamp_created}}
  *
  */
 

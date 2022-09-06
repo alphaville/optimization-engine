@@ -45,16 +45,9 @@ class BuildConfiguration:
         :return: A new instance of BuildConfiguration
 
         """
-        random_string = ''.join(random.choice(
-            string.ascii_letters) for _i in range(20))
 
         self.__target_system = None
         self.__build_mode = BuildConfiguration.RELEASE_MODE
-        self.__id = random_string
-        self.__cost_function_name = 'phi_' + random_string
-        self.__grad_cost_function_name = 'grad_phi_' + random_string
-        self.__constraint_penalty_function = 'mapping_f2_' + random_string
-        self.__alm_constraints_mapping_f1 = 'mapping_f1_' + random_string
         self.__rebuild = False
         self.__build_dir = build_dir
         self.__open_version = None
@@ -71,27 +64,6 @@ class BuildConfiguration:
     def rebuild(self):
         """Whether to re-build the optimizer from scratch"""
         return self.__rebuild
-
-    @property
-    def id(self):
-        """Unique identifier of build configuration"""
-        return self.__id
-
-    @property
-    def cost_function_name(self):
-        return self.__cost_function_name
-
-    @property
-    def grad_function_name(self):
-        return self.__grad_cost_function_name
-
-    @property
-    def constraint_penalty_function_name(self):
-        return self.__constraint_penalty_function
-
-    @property
-    def alm_mapping_f1_function_name(self):
-        return self.__alm_constraints_mapping_f1
 
     @property
     def target_system(self):
