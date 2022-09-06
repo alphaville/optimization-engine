@@ -27,7 +27,8 @@ x_set = constraints.Rectangle(xmin, xmax)
 
 c1_centre = [0, 1.5]
 c1_radius = 0.25
-c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
+c1 = ExclusionSet(constraint=constraints.BallInf(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
+# c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
 
 exclusion_set_list = [c1]
 
@@ -114,14 +115,14 @@ def plot_solution(user_ocp, u_star, p_val):
     ux = u_star[0:nu * N:nu]
     uy = u_star[1:nu * N:nu]
 
-    plt.subplot(211)
-    plt.plot(time, ux, '-o')
-    plt.ylabel('u_x')
-    plt.subplot(212)
-    plt.plot(time, uy, '-o')
-    plt.ylabel('u_y')
-    plt.xlabel('Time')
-    plt.show()
+    # plt.subplot(211)
+    # plt.plot(time, ux, '-o')
+    # plt.ylabel('u_x')
+    # plt.subplot(212)
+    # plt.plot(time, uy, '-o')
+    # plt.ylabel('u_y')
+    # plt.xlabel('Time')
+    # plt.show()
 
     z_star = [None] * (nx * (N + 1))
     z_star[:nx] = p_val[:nx]
@@ -139,26 +140,32 @@ def plot_solution(user_ocp, u_star, p_val):
     zy = z_star[1:nx * (N + 1):nx]
     ztheta = z_star[2:nx * (N + 1):nx]
 
-    plt.subplot(311)
-    plt.plot(time, zx, '-o')
-    plt.ylabel('z_x')
-    plt.subplot(312)
-    plt.plot(time, zy, '-o')
-    plt.ylabel('z_y')
-    plt.subplot(313)
-    plt.plot(time, ztheta, '-o')
-    plt.ylabel('z_theta')
-    plt.xlabel('Time')
-    plt.show()
+    # plt.subplot(311)
+    # plt.plot(time, zx, '-o')
+    # plt.ylabel('z_x')
+    # plt.subplot(312)
+    # plt.plot(time, zy, '-o')
+    # plt.ylabel('z_y')
+    # plt.subplot(313)
+    # plt.plot(time, ztheta, '-o')
+    # plt.ylabel('z_theta')
+    # plt.xlabel('Time')
+    # plt.show()
 
     plt.plot(zx, zy, '-o')
     plt.ylabel('y')
     plt.xlabel('x')
 
-    t = np.linspace(0, 6.3, 120)
-    x_circle = c1_centre[0] + c1_radius * np.sin(t)
-    y_circle = c1_centre[1] + c1_radius * np.cos(t)
-    plt.plot(x_circle, y_circle)
+    # t = np.linspace(0, 6.3, 120)
+    # x_circle = c1_centre[0] + c1_radius * np.sin(t)
+    # y_circle = c1_centre[1] + c1_radius * np.cos(t)
+    # plt.plot(x_circle, y_circle)
+
+    xp = [c1_centre[0] - c1_radius, c1_centre[0] + c1_radius]
+    yp = [c1_centre[1] - c1_radius, c1_centre[1] + c1_radius]
+    x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
+    y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
+    plt.plot(x, y)
 
     plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.1, np.sin(ztheta[0]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
     plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.1, np.sin(ztheta[-1]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
@@ -180,18 +187,18 @@ u_star = user_ocp.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
 
-ts = 0.05
-p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
-
-u_star = user_ocp.solve(p_val, print_result=True)
-plot_solution(user_ocp, u_star, p_val)
-
-
-(xref, yref, thetaref) = (1, 0, 0)
-p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
-
-u_star = user_ocp.solve(p_val, print_result=True)
-plot_solution(user_ocp, u_star, p_val)
+# ts = 0.05
+# p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
+#
+# u_star = user_ocp.solve(p_val, print_result=True)
+# plot_solution(user_ocp, u_star, p_val)
+#
+#
+# (xref, yref, thetaref) = (1, 0, 0)
+# p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
+#
+# u_star = user_ocp.solve(p_val, print_result=True)
+# plot_solution(user_ocp, u_star, p_val)
 
 
 # # -----------------------------------------------

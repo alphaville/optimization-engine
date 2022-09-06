@@ -90,3 +90,22 @@ class BallInf(Constraint):
 
     def is_compact(self):
         return True
+
+    def sup_level_set(self, u):
+        """ Computes incursion of point u inside the Infinity Ball
+
+            :param u: given point; implemented only for CasADi SX/MX symbol
+
+            :return: Penalty if point u inside Ball-Inf, else zero
+        """
+        if fn.is_symbolic(u):
+            # Case I: `u` is a CasADi SX symbol
+            v = u if self.__center is None else u - self.__center
+        else:
+            raise NotImplementedError()
+
+        sup_lev_set = []
+        for i in range(v.size(1)):
+            sup_lev_set = cs.vertcat(sup_lev_set, fn.fmax(0.0, self.__radius ** 2 - v[i] ** 2))
+
+        return sup_lev_set

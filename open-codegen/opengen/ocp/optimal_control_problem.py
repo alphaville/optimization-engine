@@ -24,6 +24,10 @@ class OptimalControlProblem:
         self.stage_cost_fn = stage_cost_fn
         self.terminal_cost_fn = terminal_cost_fn
 
+    @property
+    def x_set(self):
+        return self.__x_set
+
     def with_horizon(self, horizon):
         self.__horizon = horizon
         return self
