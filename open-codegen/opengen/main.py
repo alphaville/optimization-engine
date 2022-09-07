@@ -11,98 +11,124 @@ from ocp.type_enums import *
 
 # Build parametric optimizer
 # ------------------------------------
-(nx, nu, N) = (3, 2, 30)
-
-umin = [-3.0, -2.0]
-umax = [3.0] * nu
-
-# xmin = [-np.Inf, -np.Inf, -0.6]*N
-# xmax = [np.Inf, np.Inf, 0.6]*N
-xmin = [-1000, -1000, -0.6]*N
-xmax = [1000, 1000, 0.6]*N
-
-u_set = [constraints.Rectangle(umin, umax)]*N
-
-x_set = constraints.Rectangle(xmin, xmax)
-# x_set = og.constraints.NoConstraints()
-
-c1_centre = [0, 1.5]
-c1_radius = 0.25
-c1 = ExclusionSet(constraint=constraints.BallInf(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
-# c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
-
-exclusion_set_list = [c1]
+(nx, nu, N) = (4, 2, 50)
+#
+# umin = [-3.0, -2.0]
+# umax = [3.0] * nu
+#
+# # xmin = [-np.Inf, -np.Inf, -0.6]*N
+# # xmax = [np.Inf, np.Inf, 0.6]*N
+# xmin = [-1000, -1000, -0.6]*N
+# xmax = [1000, 1000, 0.6]*N
+#
+# u_set = [constraints.Rectangle(umin, umax)]*N
+#
+# x_set = constraints.Rectangle(xmin, xmax)
+# # x_set = og.constraints.NoConstraints()
+#
+# c1_centre = [0, 1.5]
+# c1_radius = 0.25
+# c1 = ExclusionSet(constraint=constraints.BallInf(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
+# # c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
+#
+# exclusion_set_list = [c1]
 
 x_init = cs.SX.sym('x_init', nx)
 ts = cs.SX.sym('ts', 1)
 L = cs.SX.sym('L', 1)
-q = cs.SX.sym('q', 1)
+alpha = cs.SX.sym('alpha', 1)
+qp = cs.SX.sym('qp', 1)
 qtheta = cs.SX.sym('qtheta', 1)
-r = cs.SX.sym('r', 1)
-qN = cs.SX.sym('qN', 1)
+qv = cs.SX.sym('qv', 1)
+ra = cs.SX.sym('ra', 1)
+rdelta = cs.SX.sym('rdelta', 1)
+qpN = cs.SX.sym('qpN', 1)
 qthetaN = cs.SX.sym('qthetaN', 1)
+qvN = cs.SX.sym('qvN', 1)
 x_ref = cs.SX.sym('x_ref', nx)
-p_symb = cs.vertcat(x_init, ts, L, q, qtheta, r, qN, qthetaN, x_ref)
+p_symb = cs.vertcat(x_init, ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, x_ref)
 
 p_idx = {
     "x_init": 0,
     "ts": nx,
     "L": nx + 1,
-    "q": nx + 2,
-    "qtheta": nx + 3,
-    "r": nx + 4,
-    "qN": nx + 5,
-    "qthetaN": nx + 6,
-    "x_ref": nx + 7
+    "alpha": nx + 2,
+    "qp": nx + 3,
+    "qtheta": nx + 4,
+    "qv": nx + 5,
+    "ra": nx + 6,
+    "rdelta": nx + 7,
+    "qpN": nx + 8,
+    "qthetaN": nx + 9,
+    "qvN": nx + 10,
+    "x_ref": nx + 11
 }
+
+u_previous = [0]*nu
 
 def system_dynamics_fn(x, u, p_symb):
     x_tp1 = [None]*nx
     L = p_symb[p_idx["L"]]
     ts = p_symb[p_idx["ts"]]
+    alpha = p_symb[p_idx["alpha"]]
 
     if fn.is_symbolic(x) or fn.is_symbolic(u):
-        theta_dot = (1 / L) * (u[1] * cs.cos(x[2]) - u[0] * cs.sin(x[2]))
-        x_tp1[0] = x[0] + ts * (u[0] + L * cs.sin(x[2]) * theta_dot)
-        x_tp1[1] = x[1] + ts * (u[1] - L * cs.cos(x[2]) * theta_dot)
-        x_tp1[2] = x[2] + ts * theta_dot
+        x_tp1[0] = x[0] + ts * (x[3] * cs.cos(x[2]))
+        x_tp1[1] = x[1] + ts * (x[3] * cs.sin(x[2]))
+        x_tp1[2] = x[2] + ts * ((x[3] * cs.tan(u[1]))/L)
+        x_tp1[3] = x[3] + ts * (alpha * (u[0] - x[3]))
     else:
-        theta_dot = (1 / L) * (u[1] * np.cos(x[2]) - u[0] * np.sin(x[2]))
-        x_tp1[0] = x[0] + ts * (u[0] + L * np.sin(x[2]) * theta_dot)
-        x_tp1[1] = x[1] + ts * (u[1] - L * np.cos(x[2]) * theta_dot)
-        x_tp1[2] = x[2] + ts * theta_dot
+        x_tp1[0] = x[0] + ts * (x[3] * np.cos(x[2]))
+        x_tp1[1] = x[1] + ts * (x[3] * np.sin(x[2]))
+        x_tp1[2] = x[2] + ts * ((x[3] * np.tan(u[1])) / L)
+        x_tp1[3] = x[3] + ts * (alpha * (u[0] - x[3]))
     return x_tp1
 
 
 def stage_cost_fn(x, u, p_symb):
-    q = p_symb[p_idx["q"]]
+    qp = p_symb[p_idx["qp"]]
     qtheta = p_symb[p_idx["qtheta"]]
+    qv = p_symb[p_idx["qv"]]
+    ra = p_symb[p_idx["ra"]]
+    rdelta = p_symb[p_idx["rdelta"]]
     xref = p_symb[p_idx["x_ref"]]
     yref = p_symb[p_idx["x_ref"] + 1]
     thetaref = p_symb[p_idx["x_ref"] + 2]
-    stage_cost = q * ((x[0] - xref) ** 2 + (x[1] - yref) ** 2) + qtheta * (x[2] - thetaref) ** 2 + r * cs.dot(u, u)
+    vref = p_symb[p_idx["x_ref"] + 3]
+    global u_previous
+
+    stage_cost = qp * ((x[0] - xref) ** 2 + (x[1] - yref) ** 2) \
+                 + qtheta * (x[2] - thetaref) ** 2 \
+                 + qv * (x[3] - vref) ** 2 \
+                 + ra * (u[0] - u_previous[0]) ** 2 \
+                 + rdelta * (u[1] - u_previous[1]) ** 2
+    u_previous = u
+
     return stage_cost
 
 
 def terminal_cost_fn(x, p_symb):
-    qN = p_symb[p_idx["qN"]]
+    qpN = p_symb[p_idx["qpN"]]
     qthetaN = p_symb[p_idx["qthetaN"]]
+    qvN = p_symb[p_idx["qvN"]]
     xref = p_symb[p_idx["x_ref"]]
     yref = p_symb[p_idx["x_ref"] + 1]
     thetaref = p_symb[p_idx["x_ref"] + 2]
-    terminal_cost = qN*((x[-3]-xref)**2 + (x[-2]-yref)**2) + qthetaN*(x[-1]-thetaref)**2
+    vref = p_symb[p_idx["x_ref"] + 3]
+
+    terminal_cost = qpN*((x[0]-xref)**2 + (x[1]-yref)**2) \
+                    + qthetaN*(x[2]-thetaref)**2 \
+                    + qvN*(x[3]-vref)**2
+
     return terminal_cost
 
 
 user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_fn, terminal_cost_fn) \
     .with_horizon(N) \
-    .with_state_constraint(x_set) \
-    .with_input_constraint(u_set) \
-    .with_formulation_type(FormulationType.SINGLE_SHOOTING) \
-    .with_exclusion_set(exclusion_set_list) \
-    .with_build_interface(OcpInterfaceType.DIRECT)
+    .with_formulation_type(FormulationType.SINGLE_SHOOTING)
 
-builder = OCPBuilder(user_ocp)
+builder = OCPBuilder(user_ocp)\
+            .with_build_interface(OcpInterfaceType.TCP)
 
 builder.build()
 
@@ -114,9 +140,9 @@ def plot_solution(user_ocp, u_star, p_val):
 
     ts = p_val[p_idx["ts"]]
 
-    time = np.arange(0, ts * N, ts)
-    ux = u_star[0:nu * N:nu]
-    uy = u_star[1:nu * N:nu]
+    # time = np.arange(0, ts * N, ts)
+    # ux = u_star[0:nu * N:nu]
+    # uy = u_star[1:nu * N:nu]
 
     # plt.subplot(211)
     # plt.plot(time, ux, '-o')
@@ -138,10 +164,11 @@ def plot_solution(user_ocp, u_star, p_val):
                                                                     u_star[nu * t:nu * (t + 1)], p_val)
 
     # plot system states x, y and theta
-    time = np.arange(0, ts * (N + 1), ts)
+    time = np.arange(0, (N*ts + ts), ts)
     zx = z_star[0:nx * (N + 1):nx]
     zy = z_star[1:nx * (N + 1):nx]
     ztheta = z_star[2:nx * (N + 1):nx]
+    zv = z_star[3:nx * (N + 1):nx]
 
     # plt.subplot(311)
     # plt.plot(time, zx, '-o')
@@ -152,8 +179,11 @@ def plot_solution(user_ocp, u_star, p_val):
     # plt.subplot(313)
     # plt.plot(time, ztheta, '-o')
     # plt.ylabel('z_theta')
-    # plt.xlabel('Time')
-    # plt.show()
+
+    plt.plot(time, zv, '-o')
+    plt.ylabel('z_v')
+    plt.xlabel('Time')
+    plt.show()
 
     plt.plot(zx, zy, '-o')
     plt.ylabel('y')
@@ -164,11 +194,11 @@ def plot_solution(user_ocp, u_star, p_val):
     # y_circle = c1_centre[1] + c1_radius * np.cos(t)
     # plt.plot(x_circle, y_circle)
 
-    xp = [c1_centre[0] - c1_radius, c1_centre[0] + c1_radius]
-    yp = [c1_centre[1] - c1_radius, c1_centre[1] + c1_radius]
-    x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
-    y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
-    plt.plot(x, y)
+    # xp = [c1_centre[0] - c1_radius, c1_centre[0] + c1_radius]
+    # yp = [c1_centre[1] - c1_radius, c1_centre[1] + c1_radius]
+    # x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
+    # y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
+    # plt.plot(x, y)
 
     plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.1, np.sin(ztheta[0]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
     plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.1, np.sin(ztheta[-1]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
@@ -178,13 +208,14 @@ def plot_solution(user_ocp, u_star, p_val):
     # print(f"z_theta minimum:{min(ztheta)}")
 
 
-x_init = [-1.0, 2.0, 0.0]
-ts = 0.03
+x_init = [-4.5, 0.5, 0.0, 0.0]
+ts = 0.05
 L = 0.5
-(q, qtheta, r) = (10, 0.1, 1)
-(qN, qthetaN) = (2000, 200)
-(xref, yref, thetaref) = (1, 1, 0)
-p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
+alpha = 0.25
+(qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 100, 30)
+(qpN, qthetaN, qvN) = (1500, 500, 10)
+(xref, yref, thetaref, vref) = (0, 0, 0, 0)
+p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
 
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)

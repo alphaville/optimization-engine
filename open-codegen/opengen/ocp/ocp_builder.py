@@ -10,6 +10,7 @@ class OCPBuilder:
         self.__build_config = build_config
         self.__meta = meta
         self.__solver_config = solver_config
+        self.__ocp_build_interface = OcpInterfaceType.TCP
 
     def with_build_config(self, build_config):
         self.__build_config = build_config
@@ -23,6 +24,13 @@ class OCPBuilder:
         self.__solver_config = solver_config
         return self
 
+    def with_build_interface(self, ocp_build_interface):
+        if ocp_build_interface in (OcpInterfaceType.TCP, OcpInterfaceType.DIRECT):
+            self.__ocp_build_interface = ocp_build_interface
+        else:
+            raise Exception("Build Interface type not Supported")
+        return self
+
     def build(self):
         ocp = self.__ocp
         nu = ocp.nu
@@ -30,7 +38,7 @@ class OCPBuilder:
         N = ocp.horizon
         p_symb = ocp.p_symb
         x_init = p_symb[0:nx]
-        ocp_build_interface = ocp.ocp_build_interface
+        ocp_build_interface = self.__ocp_build_interface
 
         u = cs.SX.sym('u', nu * N)
         x = cs.vertcat(x_init, cs.SX.sym('x', nx * N))
@@ -72,12 +80,12 @@ class OCPBuilder:
 
         if self.__solver_config is None:
             self.__solver_config = og.config.SolverConfiguration() \
-                .with_tolerance(1e-3) \
+                .with_tolerance(1e-5) \
                 .with_initial_tolerance(1e-2) \
-                .with_initial_penalty(1000) \
+                .with_initial_penalty(10000) \
                 .with_penalty_weight_update_factor(1.25) \
                 .with_inner_tolerance_update_factor(0.1) \
-                .with_max_outer_iterations(65) \
+                .with_max_outer_iterations(30) \
                 .with_max_inner_iterations(2000) \
                 .with_delta_tolerance(1e-3)
 
@@ -89,7 +97,7 @@ class OCPBuilder:
 
     def solve(self, p_init, print_result):
 
-        if self.__ocp.ocp_build_interface is OcpInterfaceType.TCP:
+        if self.__ocp_build_interface is OcpInterfaceType.TCP:
             ocp_build_function = tcp_interface
         else:
             ocp_build_function = direct_interface

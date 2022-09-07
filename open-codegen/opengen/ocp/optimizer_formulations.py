@@ -20,11 +20,11 @@ def combine_cartesian_bounds(input_set, bounds_combined, segment_ids, size, hori
 
 
 def state_input_constraint(user_ocp, u, x):
-    u_set = user_ocp.get_input_constraint()
-    x_set = user_ocp.get_state_constraint()
-    nu = user_ocp.get_nu()
-    nx = user_ocp.get_nx()
-    N = user_ocp.get_horizon()
+    u_set = user_ocp.u_set
+    x_set = user_ocp.x_set
+    nu = user_ocp.nu
+    nx = user_ocp.nx
+    N = user_ocp.horizon
     bounds_combined = []
     segment_ids = []
 
@@ -76,7 +76,6 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     x_t_buffer = []
     alm_mapping = []
     pm_constraints = []
-    x_set = user_ocp.x_set
     bounds_combined = []
     segment_ids = []
 
@@ -97,9 +96,9 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
 
     set_exclusion_fn = set_exclusion_formulation(user_ocp, x_t_buffer)
 
-    alm_mapping = cs.vertcat(alm_mapping, x_t_buffer)
+    # alm_mapping = cs.vertcat(alm_mapping, x_t_buffer)
     # alm_set = x_cartesian_bounds
-    alm_set = x_set
+    alm_set = og.constraints.Zero()
 
     pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
