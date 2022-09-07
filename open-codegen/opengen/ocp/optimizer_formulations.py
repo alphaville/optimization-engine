@@ -38,9 +38,9 @@ def state_input_constraint(user_ocp, u, x):
 
 
 def input_constraint_single_shooting(user_ocp, u):
-    u_set = user_ocp.get_input_constraint()
-    nu = user_ocp.get_nu()
-    N = user_ocp.get_horizon()
+    u_set = user_ocp.u_set
+    nu = user_ocp.nu
+    N = user_ocp.horizon
     bounds_combined = []
     segment_ids = []
 
@@ -52,9 +52,9 @@ def input_constraint_single_shooting(user_ocp, u):
 
 
 def set_exclusion_formulation(user_ocp, x):
-    exclusion_set_list = user_ocp.get_exclusion_set()
-    N = user_ocp.get_horizon()
-    nx = user_ocp.get_nx()
+    exclusion_set_list = user_ocp.exclusion_set
+    N = user_ocp.horizon
+    nx = user_ocp.nx
 
     set_exclusion_fn = []
 
@@ -76,7 +76,7 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     x_t_buffer = []
     alm_mapping = []
     pm_constraints = []
-    x_set = user_ocp.get_state_constraint()
+    x_set = user_ocp.x_set
     bounds_combined = []
     segment_ids = []
 
@@ -84,10 +84,10 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
         u_t = u[nu * t:nu * (t + 1)]
         cost += user_ocp.stage_cost_fn(x_t, u_t, p)
         x_t = user_ocp.sys_dyn_fn(x_t, u_t, p)
-        for i in range(0, nx):
+        for i in range(nx):
             x_t_buffer = cs.vertcat(x_t_buffer, x_t[i])
 
-    cost += user_ocp.terminal_cost_fn(x_t, u_t, p)
+    cost += user_ocp.terminal_cost_fn(x_t, p)
 
     (bounds, decision_var) = input_constraint_single_shooting(user_ocp, u)
 
@@ -119,10 +119,12 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
 
         x_dyn = user_ocp.sys_dyn_fn(x_t, u_t, p)
 
-        for i in range(0, nx):
+        for i in range(nx):
             system_dynamics = cs.vertcat(system_dynamics, (x_next[i] - x_dyn[i]))
 
-    cost += user_ocp.terminal_cost_fn(x_t, u_t, p)
+    x_t = x[nx * horion:nx * (horion + 1)]
+
+    cost += user_ocp.terminal_cost_fn(x_t, p)  #check if terminal cost is correct
 
     (bounds, decision_var) = state_input_constraint(user_ocp, u, x[nx:])
 

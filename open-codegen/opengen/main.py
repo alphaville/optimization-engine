@@ -3,6 +3,7 @@ import casadi.casadi as cs
 import opengen.functions as fn
 import numpy as np
 from ocp.optimal_control_problem import OptimalControlProblem
+from ocp.ocp_builder import OCPBuilder
 import matplotlib.pyplot as plt
 from ocp.set_exclusion import ExclusionSet
 from ocp.type_enums import *
@@ -83,7 +84,7 @@ def stage_cost_fn(x, u, p_symb):
     return stage_cost
 
 
-def terminal_cost_fn(x, u, p_symb):
+def terminal_cost_fn(x, p_symb):
     qN = p_symb[p_idx["qN"]]
     qthetaN = p_symb[p_idx["qthetaN"]]
     xref = p_symb[p_idx["x_ref"]]
@@ -101,13 +102,15 @@ user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_
     .with_exclusion_set(exclusion_set_list) \
     .with_build_interface(OcpInterfaceType.DIRECT)
 
-user_ocp.build()
+builder = OCPBuilder(user_ocp)
+
+builder.build()
 
 
 def plot_solution(user_ocp, u_star, p_val):
-    nx = user_ocp.get_nx()
-    nu = user_ocp.get_nu()
-    N = user_ocp.get_horizon()
+    nx = user_ocp.nx
+    nu = user_ocp.nu
+    N = user_ocp.horizon
 
     ts = p_val[p_idx["ts"]]
 
@@ -127,9 +130,9 @@ def plot_solution(user_ocp, u_star, p_val):
     z_star = [None] * (nx * (N + 1))
     z_star[:nx] = p_val[:nx]
 
-    if user_ocp.get_formulation_type() is FormulationType.MULTIPLE_SHOOTING:
+    if user_ocp.formulation_type is FormulationType.MULTIPLE_SHOOTING:
         z_star[nx:] = u_star[nu * N:]
-    elif user_ocp.get_formulation_type() is FormulationType.SINGLE_SHOOTING:
+    elif user_ocp.formulation_type is FormulationType.SINGLE_SHOOTING:
         for t in range(N):
             z_star[nx * (t + 1):nx * (t + 2)] = user_ocp.sys_dyn_fn(z_star[nx * t:nx * (t + 1)],
                                                                     u_star[nu * t:nu * (t + 1)], p_val)
@@ -183,7 +186,7 @@ L = 0.5
 (xref, yref, thetaref) = (1, 1, 0)
 p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
 
-u_star = user_ocp.solve(p_val, print_result=True)
+u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
 
