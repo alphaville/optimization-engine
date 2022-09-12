@@ -7,31 +7,33 @@ from ocp.ocp_builder import OCPBuilder
 import matplotlib.pyplot as plt
 from ocp.set_exclusion import ExclusionSet
 from ocp.type_enums import *
+import math
 
 
 # Build parametric optimizer
 # ------------------------------------
-(nx, nu, N) = (4, 2, 50)
-#
-# umin = [-3.0, -2.0]
-# umax = [3.0] * nu
-#
-# # xmin = [-np.Inf, -np.Inf, -0.6]*N
-# # xmax = [np.Inf, np.Inf, 0.6]*N
-# xmin = [-1000, -1000, -0.6]*N
-# xmax = [1000, 1000, 0.6]*N
-#
-# u_set = [constraints.Rectangle(umin, umax)]*N
-#
-# x_set = constraints.Rectangle(xmin, xmax)
-# # x_set = og.constraints.NoConstraints()
-#
-# c1_centre = [0, 1.5]
-# c1_radius = 0.25
+(nx, nu, N) = (4, 2, 35)
+
+pi = round(math.pi, 2)
+
+umin = [-3.0, -pi/6]
+umax = [3.0, pi/6]
+
+xmin = [-1000, -1000, -2*pi, -5.0]*N
+xmax = [1000, 1000, 2*pi, 5.0]*N
+
+u_set = [constraints.Rectangle(umin, umax)]*N
+
+x_set = constraints.Rectangle(xmin, xmax)
+# x_set = og.constraints.NoConstraints()
+
+c1_centre = [-1.5, 1.5]
+c1_radius = 0.5
+c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
 # c1 = ExclusionSet(constraint=constraints.BallInf(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
-# # c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
-#
-# exclusion_set_list = [c1]
+# c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
+
+exclusion_set_list = [c1]
 
 x_init = cs.SX.sym('x_init', nx)
 ts = cs.SX.sym('ts', 1)
@@ -124,11 +126,14 @@ def terminal_cost_fn(x, p_symb):
 
 
 user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_fn, terminal_cost_fn) \
-    .with_horizon(N) \
-    .with_formulation_type(FormulationType.SINGLE_SHOOTING)
+    .with_horizon(N)\
+    .with_formulation_type(FormulationType.MULTIPLE_SHOOTING)\
+    .with_input_constraint(u_set)\
+    .with_state_constraint(x_set)\
+    .with_exclusion_set(exclusion_set_list)
 
 builder = OCPBuilder(user_ocp)\
-            .with_build_interface(OcpInterfaceType.TCP)
+            .with_build_interface(OcpInterfaceType.DIRECT)
 
 builder.build()
 
@@ -139,19 +144,19 @@ def plot_solution(user_ocp, u_star, p_val):
     N = user_ocp.horizon
 
     ts = p_val[p_idx["ts"]]
+    t_max = round(ts * N, 3)
+    time = np.arange(0, t_max, ts)
+    ux = u_star[0:nu * N:nu]
+    uy = u_star[1:nu * N:nu]
 
-    # time = np.arange(0, ts * N, ts)
-    # ux = u_star[0:nu * N:nu]
-    # uy = u_star[1:nu * N:nu]
-
-    # plt.subplot(211)
-    # plt.plot(time, ux, '-o')
-    # plt.ylabel('u_x')
-    # plt.subplot(212)
-    # plt.plot(time, uy, '-o')
-    # plt.ylabel('u_y')
-    # plt.xlabel('Time')
-    # plt.show()
+    plt.subplot(211)
+    plt.plot(time, ux, '-o')
+    plt.ylabel('acceleration')
+    plt.subplot(212)
+    plt.plot(time, uy, '-o')
+    plt.ylabel('delta')
+    plt.xlabel('Time')
+    plt.show()
 
     z_star = [None] * (nx * (N + 1))
     z_star[:nx] = p_val[:nx]
@@ -164,24 +169,19 @@ def plot_solution(user_ocp, u_star, p_val):
                                                                     u_star[nu * t:nu * (t + 1)], p_val)
 
     # plot system states x, y and theta
-    time = np.arange(0, (N*ts + ts), ts)
+    t_max = round(ts * (N + 1), 3)
+    time = np.arange(0, t_max, ts)
     zx = z_star[0:nx * (N + 1):nx]
     zy = z_star[1:nx * (N + 1):nx]
     ztheta = z_star[2:nx * (N + 1):nx]
     zv = z_star[3:nx * (N + 1):nx]
 
-    # plt.subplot(311)
-    # plt.plot(time, zx, '-o')
-    # plt.ylabel('z_x')
-    # plt.subplot(312)
-    # plt.plot(time, zy, '-o')
-    # plt.ylabel('z_y')
-    # plt.subplot(313)
-    # plt.plot(time, ztheta, '-o')
-    # plt.ylabel('z_theta')
-
+    plt.subplot(211)
     plt.plot(time, zv, '-o')
-    plt.ylabel('z_v')
+    plt.ylabel('velocity')
+    plt.subplot(212)
+    plt.plot(time, ztheta, '-o')
+    plt.ylabel('theta')
     plt.xlabel('Time')
     plt.show()
 
@@ -189,10 +189,10 @@ def plot_solution(user_ocp, u_star, p_val):
     plt.ylabel('y')
     plt.xlabel('x')
 
-    # t = np.linspace(0, 6.3, 120)
-    # x_circle = c1_centre[0] + c1_radius * np.sin(t)
-    # y_circle = c1_centre[1] + c1_radius * np.cos(t)
-    # plt.plot(x_circle, y_circle)
+    t = np.linspace(0, 2*pi, 120)
+    x_circle = c1_centre[0] + c1_radius * np.sin(t)
+    y_circle = c1_centre[1] + c1_radius * np.cos(t)
+    plt.plot(x_circle, y_circle)
 
     # xp = [c1_centre[0] - c1_radius, c1_centre[0] + c1_radius]
     # yp = [c1_centre[1] - c1_radius, c1_centre[1] + c1_radius]
@@ -200,78 +200,37 @@ def plot_solution(user_ocp, u_star, p_val):
     # y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
     # plt.plot(x, y)
 
-    plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.1, np.sin(ztheta[0]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
-    plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.1, np.sin(ztheta[-1]) * 0.1, head_width=.05, color=(0.8, 0, 0.2))
+    plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.2, np.sin(ztheta[0]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
+    plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.2, np.sin(ztheta[-1]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
 
     plt.show()
 
     # print(f"z_theta minimum:{min(ztheta)}")
 
 
-x_init = [-4.5, 0.5, 0.0, 0.0]
-ts = 0.05
-L = 0.5
+x_init = [-3.0, 3.0, 0.0, 1.0]
+ts = 0.2
+L = 2.5
 alpha = 0.25
 (qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 100, 30)
-(qpN, qthetaN, qvN) = (1500, 500, 10)
+(qpN, qthetaN, qvN) = (3000, 1000, 100)
 (xref, yref, thetaref, vref) = (0, 0, 0, 0)
 p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
 
+# u_star = builder.solve(p_val, print_result=True)
+# plot_solution(user_ocp, u_star, p_val)
+
+
+(qp, qtheta, qv, ra, rdelta) = (30, 2, 10, 30, 30)
+(qpN, qthetaN, qvN) = (2000, 1000, 3000)
+p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
 
-# ts = 0.05
-# p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
-#
-# u_star = user_ocp.solve(p_val, print_result=True)
-# plot_solution(user_ocp, u_star, p_val)
-#
-#
-# (xref, yref, thetaref) = (1, 0, 0)
-# p_val = x_init + [ts, L, q, qtheta, r, qN, qthetaN, xref, yref, thetaref]
-#
-# u_star = user_ocp.solve(p_val, print_result=True)
-# plot_solution(user_ocp, u_star, p_val)
-
-
-# # -----------------------------------------------
-# x_symb = cs.SX.sym('x', 6)
-# u_symb = cs.SX.sym('u', 2)
-# x_init = cs.SX.sym('xinit', 6)
-# mass = cs.SX.sym('m', 1)
-# p_symb = cs.vertcat((x_init, mass))
-#
-#
-# def system_dynamics(x, u):
-#     x_next = x + mass*u
-#     pass
-#
-#
-# def cost(x, u, p):
-#     pass
-#
-#
-# state_constraints = og.constraints.BallInf(radius=1)
-# input_constraints = og.constraints.Ball2(radius=5)
-# obstacle1 = og.constraints.Ball1(radius=1, center=[5, 5])
-# obstacles = [obstacle1]
-#
-# problem = OptimalControlProblemBuilder(x_symb, u_symb, p_symb).with_cost(cost)\
-#     .with_dynamics(x_symb + mass * u_symb)\
-#     .with_obstacles(obstacles, state_idx=[2, 5, 9], mode=WITH_ALM)\
-#     .with_state_constraints(state_constraints, mode=WITH_PM)\
-#     .with_input_constraints(input_constraints)\
-#     .with_formulation_type(SINGLE_SHOOTING, dynamics_mode=WITH_ALM)\
-#     .build()
-#
-#
-# meta = og.config.OptimizerMeta()
-# solver_cfg = og.config.SolverConfiguration()
-#
-# builder = og.builder.OpEnOptimizerBuilder(problem,
-#                                           meta,
-#                                           build_config,
-#                                           solver_config)
-
-# -----------------------------------------------
+(qp, qtheta, qv, ra, rdelta) = (30, 5, 5, 20, 20)
+(qpN, qthetaN, qvN) = (1000, 3000, 1000)
+(xref, yref, thetaref, vref) = (0, 0, -pi/2, 0)
+p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
+u_star = builder.solve(p_val, print_result=True)
+plot_solution(user_ocp, u_star, p_val)

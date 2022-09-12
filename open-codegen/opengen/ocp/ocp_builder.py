@@ -80,9 +80,9 @@ class OCPBuilder:
 
         if self.__solver_config is None:
             self.__solver_config = og.config.SolverConfiguration() \
-                .with_tolerance(1e-5) \
+                .with_tolerance(1e-4) \
                 .with_initial_tolerance(1e-2) \
-                .with_initial_penalty(10000) \
+                .with_initial_penalty(5000) \
                 .with_penalty_weight_update_factor(1.25) \
                 .with_inner_tolerance_update_factor(0.1) \
                 .with_max_outer_iterations(30) \
@@ -123,7 +123,7 @@ def tcp_interface(z_initial, print_result=False):
         print('num_inner_iterations: \t%s' % solution["num_inner_iterations"])
         print('num_outer_iterations: \t%s' % solution["num_outer_iterations"])
         print('penalty: \t%s' % solution["penalty"])
-        print('solve_time_ms: \t%s' % solution["solve_time_ms"])
+        print('solve_time_ms: \t%s \n' % solution["solve_time_ms"])
 
     return solution['solution']
 
@@ -150,7 +150,7 @@ def direct_interface(z_initial, print_result=False):
             print('num_inner_iterations: \t%s' % result.num_inner_iterations)
             print('num_outer_iterations: \t%s' % result.num_outer_iterations)
             print('penalty: \t%s' % result.penalty)
-            print('solve_time_ms: \t%s' % result.solve_time_ms)
+            print('solve_time_ms: \t%s \n' % result.solve_time_ms)
     else:
         raise AssertionError("No Solution")
 

@@ -1,4 +1,5 @@
 import opengen as og
+from .set_exclusion import ExclusionSet
 from .type_enums import *
 
 
@@ -22,18 +23,52 @@ class OptimalControlProblem:
         return self
 
     def with_state_constraint(self, x_set):
-        self.__x_set = x_set
+        if isinstance(x_set, list):
+            # case with N constraints with each of dimension: nx
+            if not len(x_set) == self.__horizon:
+                raise Exception("Length of list must be equal to the Horizon")
+            dim = x_set[0].dimension()
+        elif x_set.dimension() == self.__nx * self.__horizon:
+            # case with single constraint with dimension: nx*N
+            dim = x_set.dimension()/self.__horizon
+        else:
+            # case with single constraint with dimension: nx
+            dim = x_set.dimension()
+
+        if (dim == self.__nx):
+            self.__x_set = x_set
+        else:
+            raise Exception("Size mismatch for state bounds")   # Check size of x_set and how handeled in single shooting
         return self
 
     def with_input_constraint(self, u_set):
-        self.__u_set = u_set
+        if isinstance(u_set, list):
+            # case with N constraints with each of dimension: nu
+            if not len(u_set) == self.__horizon:
+                raise Exception("Length of list must be equal to the Horizon")
+            dim = u_set[0].dimension()
+        elif u_set.dimension() == self.__nu * self.__horizon:
+            # case with single constraint with dimension: nu*N
+            dim = u_set.dimension() / self.__horizon
+        else:
+            # case with single constraint with dimension: nu
+            dim = u_set.dimension()
+
+        if (dim == self.__nu):
+            self.__u_set = u_set
+        else:
+            raise Exception("Size mismatch for input bounds")
         return self
 
     def with_formulation_type(self, formulation):
+        if not isinstance(formulation, FormulationType):
+            raise Exception("Formulation type must be instance of FormulationType")
         self.__formulation_type = formulation
         return self
 
     def with_exclusion_set(self, exclusion_set):
+        if not all(isinstance(x, ExclusionSet) for x in exclusion_set):
+            raise Exception("Elements of exclusion set must be of class constraint")
         self.__exclusion_set = exclusion_set
         return self
 

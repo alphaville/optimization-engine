@@ -5,17 +5,22 @@ from .type_enums import ConstraintMethod
 
 def combine_cartesian_bounds(input_set, bounds_combined, segment_ids, size, horizon):
 
-    offset = segment_ids[-1] + 1 if segment_ids else 0
+    offset = segment_ids[-1] if segment_ids else -1
 
     if isinstance(input_set, list):
+        # For list of constraints(dimension: size) of length: horizon
         bounds_combined = bounds_combined + input_set
-        segment_ids = segment_ids + [(offset + size * index - 1) for index in range(1, horizon + 1)]
-    # elif isinstance(input_set, og.constraints.NoConstraints):
-    #     bounds_combined = bounds_combined + [og.constraints.NoConstraints()]
-    #     segment_ids = segment_ids + [offset + size * horizon - 1]
+        segment_ids = segment_ids + [(offset + size * index) for index in range(1, horizon + 1)]
+    elif isinstance(input_set, og.constraints.NoConstraints) or input_set.dimension() == size * horizon:
+        # For
+        #   i. No bounds
+        #   ii. Single constraint with dimension: size*horizon
+        bounds_combined = bounds_combined + [input_set]
+        segment_ids = segment_ids + [offset + size * horizon]
     else:
+        # For single constraint with dimension: size
         bounds_combined = bounds_combined + [input_set] * horizon
-        segment_ids = segment_ids + [(offset + size * index - 1) for index in range(1, horizon + 1)]
+        segment_ids = segment_ids + [(offset + size * index) for index in range(1, horizon + 1)]
     return bounds_combined, segment_ids
 
 
@@ -78,6 +83,8 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     pm_constraints = []
     bounds_combined = []
     segment_ids = []
+    alm_set = None
+    x_set = user_ocp.x_set
 
     for t in range(horion):
         u_t = u[nu * t:nu * (t + 1)]
@@ -90,15 +97,14 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
 
     (bounds, decision_var) = input_constraint_single_shooting(user_ocp, u)
 
-    # (bounds_combined, segment_ids) = combine_cartesian_bounds(x_set, bounds_combined, segment_ids, nx, horion)
+    if not isinstance(x_set, og.constraints.NoConstraints):
+        (bounds_combined, segment_ids) = combine_cartesian_bounds(x_set, bounds_combined, segment_ids, nx, horion)
+        x_cartesian_bounds = og.constraints.CartesianProduct(segment_ids, bounds_combined)
+        alm_mapping = cs.vertcat(alm_mapping, x_t_buffer)
+        alm_set = x_cartesian_bounds
 
-    # x_cartesian_bounds = og.constraints.CartesianProduct(segment_ids, bounds_combined)
 
     set_exclusion_fn = set_exclusion_formulation(user_ocp, x_t_buffer)
-
-    # alm_mapping = cs.vertcat(alm_mapping, x_t_buffer)
-    # alm_set = x_cartesian_bounds
-    alm_set = og.constraints.Zero()
 
     pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
@@ -123,7 +129,7 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
 
     x_t = x[nx * horion:nx * (horion + 1)]
 
-    cost += user_ocp.terminal_cost_fn(x_t, p)  #check if terminal cost is correct
+    cost += user_ocp.terminal_cost_fn(x_t, p)
 
     (bounds, decision_var) = state_input_constraint(user_ocp, u, x[nx:])
 
