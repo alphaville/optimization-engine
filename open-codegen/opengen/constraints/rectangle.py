@@ -172,9 +172,9 @@ class Rectangle(Constraint):
         else:
             raise NotImplementedError()
 
-        sup_lev_set = []
+        sup_lev_set = 1
         dimension = [(max - min)/2 for max, min in zip(self.__xmax, self.__xmin)]
         for i in range(v.size(1)):
-            sup_lev_set = cs.vertcat(sup_lev_set, fn.fmax(0.0, dimension[i] ** 2 - v[i] ** 2))
+            sup_lev_set = sup_lev_set * fn.fmax(0.0, dimension[i] ** 2 - v[i] ** 2)
 
         return sup_lev_set

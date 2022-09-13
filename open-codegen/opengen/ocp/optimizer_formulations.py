@@ -75,7 +75,7 @@ def set_exclusion_formulation(user_ocp, x):
     return set_exclusion_fn
 
 
-def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
+def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
     cost = 0
     x_t = x[0:nx]
     x_t_buffer = []
@@ -86,7 +86,7 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     alm_set = None
     x_set = user_ocp.x_set
 
-    for t in range(horion):
+    for t in range(horizon):
         u_t = u[nu * t:nu * (t + 1)]
         cost += user_ocp.stage_cost_fn(x_t, u_t, p)
         x_t = user_ocp.sys_dyn_fn(x_t, u_t, p)
@@ -98,7 +98,7 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
     (bounds, decision_var) = input_constraint_single_shooting(user_ocp, u)
 
     if not isinstance(x_set, og.constraints.NoConstraints):
-        (bounds_combined, segment_ids) = combine_cartesian_bounds(x_set, bounds_combined, segment_ids, nx, horion)
+        (bounds_combined, segment_ids) = combine_cartesian_bounds(x_set, bounds_combined, segment_ids, nx, horizon)
         x_cartesian_bounds = og.constraints.CartesianProduct(segment_ids, bounds_combined)
         alm_mapping = cs.vertcat(alm_mapping, x_t_buffer)
         alm_set = x_cartesian_bounds
@@ -110,12 +110,12 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
 
     return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints
 
-def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
+def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
     cost = 0
     alm_constraints = []
     pm_constraints = []
     system_dynamics = []
-    for t in range(horion):
+    for t in range(horizon):
         x_t = x[nx * t:nx * (t + 1)]
         x_next = x[nx * (t + 1):nx * (t + 2)]
         u_t = u[nu * t:nu * (t + 1)]
@@ -127,7 +127,7 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horion):
         for i in range(nx):
             system_dynamics = cs.vertcat(system_dynamics, (x_next[i] - x_dyn[i]))
 
-    x_t = x[nx * horion:nx * (horion + 1)]
+    x_t = x[nx * horizon:nx * (horizon + 1)]
 
     cost += user_ocp.terminal_cost_fn(x_t, p)
 

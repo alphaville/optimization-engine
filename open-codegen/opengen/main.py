@@ -9,10 +9,29 @@ from ocp.set_exclusion import ExclusionSet
 from ocp.type_enums import *
 import math
 
+def plot_2D_circle(centre, radius):
+    t = np.linspace(0, 2 * pi, 120)
+    x_circle = centre[0] + radius * np.sin(t)
+    y_circle = centre[1] + radius * np.cos(t)
+    plt.plot(x_circle, y_circle)
+
+def plot_2D_ballinf(centre, radius):
+    xp = [centre[0] - radius, centre[0] + radius]
+    yp = [centre[1] - radius, centre[1] + radius]
+    x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
+    y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
+    plt.plot(x, y)
+
+def plot_2D_box(xmin, xmax):
+    xp = [xmin[0], xmax[0]]
+    yp = [xmin[1], xmax[1]]
+    x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
+    y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
+    plt.plot(x, y)
 
 # Build parametric optimizer
 # ------------------------------------
-(nx, nu, N) = (4, 2, 35)
+(nx, nu, N) = (4, 2, 40)
 
 pi = round(math.pi, 2)
 
@@ -25,15 +44,72 @@ xmax = [1000, 1000, 2*pi, 5.0]*N
 u_set = [constraints.Rectangle(umin, umax)]*N
 
 x_set = constraints.Rectangle(xmin, xmax)
-# x_set = og.constraints.NoConstraints()
 
-c1_centre = [-1.5, 1.5]
-c1_radius = 0.5
-c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
-# c1 = ExclusionSet(constraint=constraints.BallInf(center=c1_centre, radius=c1_radius), state_idx=[0, 1], mode=ConstraintMethod.PM)
-# c1 = ExclusionSet(constraint=constraints.Rectangle(xmin=[-0.2, 1.3], xmax=[0.2, 1.7]), state_idx=[0, 1], mode=ConstraintMethod.PM)
+def testcase_input_1():
+    x_init_val = [-8.0, 3.0, 0.0, 1.0]
+    x_ref_val = [0, 0, -pi/2, 0]
 
-exclusion_set_list = [c1]
+    c1_centre = [-1.5, 1.5]
+    c1_radius = 0.5
+
+    b1_centre = [-3.5, 0]
+    b1_radius = 0.8
+
+    b2_centre = [3.5, 0]
+    b2_radius = 0.8
+
+    formulation = FormulationType.MULTIPLE_SHOOTING
+
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_centre, b1_radius, b2_centre, b2_radius, formulation
+
+
+def testcase_input_2():
+    x_init_val = [-8.0, 4.0, 0.0, 1.0]
+    x_ref_val = [0, 0, 0, 0]
+
+    c1_centre = [-1.5, 1.5]
+    c1_radius = 1
+
+    b1_xmin=[-7, -1]
+    b1_xmax=[-3, 1]
+
+    b2_xmin=[3, -1]
+    b2_xmax=[7, 1]
+
+    formulation = FormulationType.MULTIPLE_SHOOTING
+
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation
+
+
+def testcase_input_3():
+    x_init_val = [-8.0, 5.0, 0.0, 1.0]
+    x_ref_val = [0, 0, -pi/2, 0]
+
+    c1_centre = [-1, 2]
+    c1_radius = 1
+
+    b1_xmin=[-5, -2]
+    b1_xmax=[-3, 2]
+
+    b2_xmin=[2, -2]
+    b2_xmax=[4, 2]
+
+    formulation = FormulationType.MULTIPLE_SHOOTING
+
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation
+
+
+# [x_init_val, x_ref_val, c1_centre, c1_radius, s1_centre, s1_radius, s2_centre, s2_radius, formulation] = testcase_input_1()
+# [x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation] = testcase_input_2()
+[x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation] = testcase_input_3()
+
+c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1])
+# b1 = ExclusionSet(constraint=constraints.BallInf(center=s1_centre, radius=s1_radius), state_idx=[0, 1])
+# b2 = ExclusionSet(constraint=constraints.BallInf(center=s2_centre, radius=s2_radius), state_idx=[0, 1])
+b1 = ExclusionSet(constraint=constraints.Rectangle(b1_xmin, b1_xmax), state_idx=[0, 1], mode=ConstraintMethod.PM)
+b2 = ExclusionSet(constraint=constraints.Rectangle(b2_xmin, b2_xmax), state_idx=[0, 1], mode=ConstraintMethod.PM)
+
+exclusion_set_list = [c1, b1, b2]
 
 x_init = cs.SX.sym('x_init', nx)
 ts = cs.SX.sym('ts', 1)
@@ -127,7 +203,7 @@ def terminal_cost_fn(x, p_symb):
 
 user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_fn, terminal_cost_fn) \
     .with_horizon(N)\
-    .with_formulation_type(FormulationType.MULTIPLE_SHOOTING)\
+    .with_formulation_type(formulation)\
     .with_input_constraint(u_set)\
     .with_state_constraint(x_set)\
     .with_exclusion_set(exclusion_set_list)
@@ -144,8 +220,8 @@ def plot_solution(user_ocp, u_star, p_val):
     N = user_ocp.horizon
 
     ts = p_val[p_idx["ts"]]
-    t_max = round(ts * N, 3)
-    time = np.arange(0, t_max, ts)
+    t_max = round(ts * (N-1), 3)
+    time = np.linspace(0, t_max, N)
     ux = u_star[0:nu * N:nu]
     uy = u_star[1:nu * N:nu]
 
@@ -169,68 +245,66 @@ def plot_solution(user_ocp, u_star, p_val):
                                                                     u_star[nu * t:nu * (t + 1)], p_val)
 
     # plot system states x, y and theta
-    t_max = round(ts * (N + 1), 3)
-    time = np.arange(0, t_max, ts)
+    t_max = round(ts * N, 3)
+    time = np.linspace(0, t_max, (N + 1))
     zx = z_star[0:nx * (N + 1):nx]
     zy = z_star[1:nx * (N + 1):nx]
     ztheta = z_star[2:nx * (N + 1):nx]
     zv = z_star[3:nx * (N + 1):nx]
 
-    plt.subplot(211)
-    plt.plot(time, zv, '-o')
-    plt.ylabel('velocity')
-    plt.subplot(212)
-    plt.plot(time, ztheta, '-o')
-    plt.ylabel('theta')
-    plt.xlabel('Time')
-    plt.show()
+    # plt.subplot(211)
+    # plt.plot(time, zv, '-o')
+    # plt.ylabel('velocity')
+    # plt.subplot(212)
+    # plt.plot(time, ztheta, '-o')
+    # plt.ylabel('theta')
+    # plt.xlabel('Time')
+    # plt.show()
 
     plt.plot(zx, zy, '-o')
     plt.ylabel('y')
     plt.xlabel('x')
 
-    t = np.linspace(0, 2*pi, 120)
-    x_circle = c1_centre[0] + c1_radius * np.sin(t)
-    y_circle = c1_centre[1] + c1_radius * np.cos(t)
-    plt.plot(x_circle, y_circle)
-
-    # xp = [c1_centre[0] - c1_radius, c1_centre[0] + c1_radius]
-    # yp = [c1_centre[1] - c1_radius, c1_centre[1] + c1_radius]
-    # x = np.concatenate((np.linspace(xp[0], xp[1], 120), np.array([xp[1]] * 120), np.linspace(xp[1], xp[0], 120), np.array([xp[0]] * 120)))
-    # y = np.concatenate((np.array([yp[1]] * 120), np.linspace(yp[1], yp[0], 120), np.array([yp[0]] * 120), np.linspace(yp[0], yp[1], 120)))
-    # plt.plot(x, y)
+    plot_2D_circle(c1_centre, c1_radius)
+    # plot_2D_ballinf(s1_centre, s1_radius)
+    # plot_2D_ballinf(s2_centre, s2_radius)
+    plot_2D_box(b1_xmin, b1_xmax)
+    plot_2D_box(b2_xmin, b2_xmax)
 
     plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.2, np.sin(ztheta[0]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
     plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.2, np.sin(ztheta[-1]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
 
+    plt.xlim([-8.5,6.5])
+    plt.ylim([-3,6])
+    plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
 
     # print(f"z_theta minimum:{min(ztheta)}")
 
 
-x_init = [-3.0, 3.0, 0.0, 1.0]
-ts = 0.2
+
+ts = 0.5
 L = 2.5
 alpha = 0.25
-(qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 100, 30)
-(qpN, qthetaN, qvN) = (3000, 1000, 100)
-(xref, yref, thetaref, vref) = (0, 0, 0, 0)
-p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
+# (qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 100, 30)
+# (qpN, qthetaN, qvN) = (3000, 1000, 100)
+# # (xref, yref, thetaref, vref) = (0, 0, 0, 0)
+# # p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
 
 # u_star = builder.solve(p_val, print_result=True)
 # plot_solution(user_ocp, u_star, p_val)
 
 
 (qp, qtheta, qv, ra, rdelta) = (30, 2, 10, 30, 30)
-(qpN, qthetaN, qvN) = (2000, 1000, 3000)
-p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
+(qpN, qthetaN, qvN) = (3000, 1000, 1000)
+p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN] + x_ref_val
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
-
-(qp, qtheta, qv, ra, rdelta) = (30, 5, 5, 20, 20)
-(qpN, qthetaN, qvN) = (1000, 3000, 1000)
-(xref, yref, thetaref, vref) = (0, 0, -pi/2, 0)
-p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
-u_star = builder.solve(p_val, print_result=True)
-plot_solution(user_ocp, u_star, p_val)
+#
+# (qp, qtheta, qv, ra, rdelta) = (30, 5, 5, 20, 20)
+# (qpN, qthetaN, qvN) = (1000, 3000, 1000)
+# (xref, yref, thetaref, vref) = (0, 0, -pi/2, 0)
+# p_val = x_init + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN, xref, yref, thetaref, vref]
+# u_star = builder.solve(p_val, print_result=True)
+# plot_solution(user_ocp, u_star, p_val)

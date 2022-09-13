@@ -104,8 +104,8 @@ class BallInf(Constraint):
         else:
             raise NotImplementedError()
 
-        sup_lev_set = []
+        sup_lev_set = 1
         for i in range(v.size(1)):
-            sup_lev_set = cs.vertcat(sup_lev_set, fn.fmax(0.0, self.__radius ** 2 - v[i] ** 2))
+            sup_lev_set = sup_lev_set * fn.fmax(0.0, self.__radius ** 2 - v[i] ** 2)
 
         return sup_lev_set
