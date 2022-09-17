@@ -22,8 +22,6 @@
  *   + n1: {{ problem.dim_constraints_aug_lagrangian() }}
  *   + n2: {{ problem.dim_constraints_penalty() }}
  *
- * Generated at: {{timestamp_created}}
- *
  */
 #include <stdlib.h>
 #include "casadi_memory.h"
@@ -57,7 +55,7 @@
 /*
  * CasADi interface for the cost function
  */
-extern int {{build_config.cost_function_name or 'phi'}}(
+extern int {{meta.cost_function_name or 'phi'}}(
     const casadi_real** arg, 
     casadi_real** res, 
     casadi_int* iw, 
@@ -67,7 +65,7 @@ extern int {{build_config.cost_function_name or 'phi'}}(
 /*
  * CasADi interface for the gradient of the cost
  */
-extern int {{build_config.grad_function_name  or 'grad_phi'}}(
+extern int {{meta.grad_function_name  or 'grad_phi'}}(
     const casadi_real** arg, 
     casadi_real** res, 
     casadi_int* iw, 
@@ -77,7 +75,7 @@ extern int {{build_config.grad_function_name  or 'grad_phi'}}(
 /*
  * CasADi interface for the gradient of mapping F1
  */
-extern int {{build_config.alm_mapping_f1_function_name}}(
+extern int {{meta.alm_mapping_f1_function_name}}(
     const casadi_real** arg, 
     casadi_real** res, 
     casadi_int* iw, 
@@ -87,7 +85,7 @@ extern int {{build_config.alm_mapping_f1_function_name}}(
 /*
  * CasADi interface for the gradient of mapping F2
  */
-extern int {{build_config.constraint_penalty_function_name}}(
+extern int {{meta.constraint_penalty_function_name}}(
     const casadi_real** arg, 
     casadi_real** res, 
     casadi_int* iw, 
@@ -231,7 +229,7 @@ int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real
     copy_args_into_uxip_space(arg);
 
     result_space_cost[0] = res[0];
-    return {{build_config.cost_function_name or 'phi'}}(
+    return {{meta.cost_function_name or 'phi'}}(
         args__,
         result_space_cost,
         allocated_i_workspace_cost,
@@ -249,7 +247,7 @@ int grad_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi
               uxip_space + NU_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}};  /* :p   */
     copy_args_into_uxip_space(arg);
     result_space_grad[0] = res[0];
-    return {{build_config.grad_function_name  or 'grad_phi'}}(
+    return {{meta.grad_function_name  or 'grad_phi'}}(
         args__,
         result_space_grad,
         allocated_i_workspace_grad,
@@ -273,10 +271,10 @@ int mapping_f1_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
      */
     result_space_f1[0] = res[0];
     /*
-     * Call auto-generated function {{build_config.alm_mapping_f1_function_name}}
+     * Call auto-generated function {{meta.alm_mapping_f1_function_name}}
      * Implemented in: icasadi/extern/auto_casadi_mapping_f1.c
      */
-    return {{build_config.alm_mapping_f1_function_name}}(
+    return {{meta.alm_mapping_f1_function_name}}(
         args__,
         result_space_f1,
         allocated_i_workspace_f1,
@@ -300,10 +298,10 @@ int mapping_f2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
      */
     result_space_f2[0] = res[0];
     /*
-     * Call auto-generated function {{build_config.constraint_penalty_function_name}}
+     * Call auto-generated function {{meta.constraint_penalty_function_name}}
      * Implemented in: icasadi/extern/auto_casadi_mapping_f2.c
      */
-    return {{build_config.constraint_penalty_function_name}}(
+    return {{meta.constraint_penalty_function_name}}(
         args__,
         result_space_f2,
         allocated_i_workspace_f2,

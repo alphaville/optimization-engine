@@ -2,7 +2,6 @@
 // Auto-generated file by OptimizationEngine
 // See https://alphaville.github.io/optimization-engine/
 //
-// Generated at: {{timestamp_created}}
 //
 
 {% if activate_clib_generation -%}

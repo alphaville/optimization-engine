@@ -45,7 +45,7 @@ class RustBuildTestCase(unittest.TestCase):
         problem = og.builder.Problem(u, p, phi) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)\
             .with_build_python_bindings()
@@ -97,7 +97,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(f2) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path())  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -120,7 +120,7 @@ class RustBuildTestCase(unittest.TestCase):
         problem = og.builder.Problem(u, p, phi) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path())  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -150,7 +150,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_rate(35) \
             .with_description("really cool ROS node")
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION)  \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path())  \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_build_c_bindings()  \
@@ -176,7 +176,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_penalty_constraints(f2) \
             .with_constraints(bounds)
         build_config = og.config.BuildConfiguration() \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
@@ -206,7 +206,7 @@ class RustBuildTestCase(unittest.TestCase):
         build_config = og.config.BuildConfiguration() \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-            .with_open_version(RustBuildTestCase.OPEN_RUSTLIB_VERSION) \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config)
 
         builder = og.builder.OpEnOptimizerBuilder(problem,

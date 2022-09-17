@@ -1,6 +1,5 @@
 ///
 /// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
-/// Generated at: {{timestamp_created}}
 ///
 use optimization_engine::alm::*;
 use serde::{Deserialize, Serialize};
