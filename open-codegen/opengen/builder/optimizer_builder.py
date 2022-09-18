@@ -4,6 +4,7 @@ import datetime
 import yaml
 import warnings
 
+from config import OptimizerMeta
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
 import casadi.casadi as cs
@@ -19,6 +20,7 @@ _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
+_AUTOGEN_PRECONDITIONING_FNAME = 'auto_preconditioning_functions.c'
 _PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
@@ -39,9 +41,10 @@ class OpEnOptimizerBuilder:
 
     def __init__(self,
                  problem,
-                 metadata=og_cfg.OptimizerMeta(),
+                 metadata=OptimizerMeta(),
                  build_configuration=og_cfg.BuildConfiguration(),
-                 solver_configuration=og_cfg.SolverConfiguration()):
+                 solver_configuration=og_cfg.SolverConfiguration(),
+                 preconditioning=True):
         """Constructor of OpEnOptimizerBuilder
 
         Args:
@@ -58,6 +61,7 @@ class OpEnOptimizerBuilder:
         self.__build_config = build_configuration
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
+        self.__preconditioning = preconditioning
         self.__logger = logging.getLogger(
             'opengen.builder.OpEnOptimizerBuilder')
         self.with_verbosity_level(1)
@@ -358,6 +362,70 @@ class OpEnOptimizerBuilder:
 
         return alm_mapping_f2_fun
 
+    def __generate_code_preconditioning(self):
+        """Generates preconfitioning functions code"""
+        meta = self.__meta
+        file_name = _AUTOGEN_PRECONDITIONING_FNAME
+        # file_name = meta.preconditioning_file_name + ".c"
+        icasadi_extern_dir = os.path.join(
+            self.__icasadi_target_dir(), "extern")
+
+        self.__logger.info("Defining preconditioning functions")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        c_f1 = problem.penalty_mapping_f1
+        n1 = problem.dim_constraints_aug_lagrangian()
+        c_f2 = problem.penalty_mapping_f2
+        n2 = problem.dim_constraints_penalty()
+        phi = problem.cost_function
+
+        gen_code = cs.CodeGenerator(file_name)
+
+        jac_cost = cs.norm_inf(cs.jacobian(phi, u).T)
+        w_cost_fn = cs.Function(meta.w_cost_function_name, [u, p], [1 / cs.fmax(1, jac_cost)])
+        gen_code.add(w_cost_fn)
+
+        if n1 > 0:
+            jac_constraint_f1 = cs.norm_inf(cs.jacobian(c_f1, u).T)
+            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [1 / cs.fmax(1, jac_constraint_f1)])
+            gen_code.add(w_constraint_f1_fn)
+        else:
+            w_constraint_f1_fn = None
+
+        if n2 > 0:
+            jac_constraint_f2 = cs.norm_inf(cs.jacobian(c_f2, u).T)
+            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [1 / cs.fmax(1, jac_constraint_f2)])
+            gen_code.add(w_constraint_f2_fn)
+        else:
+            w_constraint_f2_fn = None
+
+        w_cost = cs.SX.sym("w_cost", 1)
+        w_f1 = cs.SX.sym("w_f1", c_f1.size(1))
+        w_f2 = cs.SX.sym("w_f2", c_f2.size(1))
+
+        infeasibility_psi = 0.5 * (cs.sum1(cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))) +
+                                   cs.sum1(cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))))
+
+        init_penalty = cs.fmax(10 ** -8, (cs.fmin((10 * (cs.fmax(1, cs.norm_2(w_cost * phi))) /
+                                                   (cs.fmax(1, cs.norm_2(infeasibility_psi)))), 10 ** 8)))
+
+        init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [u, p, w_cost, w_f1, w_f2], [init_penalty])
+        gen_code.add(init_penalty_fn)
+
+        gen_code.generate()
+
+        # Move auto-generated file to target folder
+        shutil.move(file_name,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_PRECONDITIONING_FNAME))
+
+        # w_cost = w_cost_fn([0, 0, 0, 0, 0], [1., 2.])
+        # w_f1 = w_constraint_f1_fn([0, 0, 0, 0, 0], [1., 2.])
+        # w_f2 = w_constraint_f2_fn([0, 0, 0, 0, 0], [1., 2.])
+        # init_penalty = init_penalty_fn([0, 0, 0, 0, 0], [1., 2.], w_cost, w_f1, w_f2)
+
+        return w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn
+
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
         self.__logger.info("Defining CasADi functions and generating C code")
@@ -396,8 +464,18 @@ class OpEnOptimizerBuilder:
         shutil.move(f2_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
+        # -----------------------------------------------------------------------
+        if self.__preconditioning is True:
+            (w_cost_fun, w_f1_fun, w_f2_fun, initial_penalty_fun) = self.__generate_code_preconditioning()
+        else:
+            (w_cost_fun, w_f1_fun, w_f2_fun, initial_penalty_fun) = (None, None, None, None)
+
         self.__generate_memory_code(psi_fun, grad_psi_fun,
                                     mapping_f1_fun, mapping_f2_fun)
+
+        # self.__generate_memory_code(psi_fun, grad_psi_fun,
+        #                             mapping_f1_fun, mapping_f2_fun,
+        #                             w_cost_fun, w_f1_fun, w_f2_fun, initial_penalty_fun)
 
     def __generate_main_project_code(self):
         self.__logger.info(
