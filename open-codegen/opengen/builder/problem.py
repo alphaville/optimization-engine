@@ -1,6 +1,6 @@
 import casadi.casadi as cs
 from .set_y_calculator import SetYCalculator
-from constraints.no_constraints import NoConstraints
+from ..constraints.no_constraints import NoConstraints
 
 
 class Problem:

@@ -4,7 +4,6 @@ import datetime
 import yaml
 import warnings
 
-from config import OptimizerMeta
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
 import casadi.casadi as cs
@@ -41,7 +40,7 @@ class OpEnOptimizerBuilder:
 
     def __init__(self,
                  problem,
-                 metadata=OptimizerMeta(),
+                 metadata=og_cfg.OptimizerMeta(),
                  build_configuration=og_cfg.BuildConfiguration(),
                  solver_configuration=og_cfg.SolverConfiguration(),
                  preconditioning=True):
@@ -407,8 +406,8 @@ class OpEnOptimizerBuilder:
         infeasibility_psi = 0.5 * (cs.sum1(cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))) +
                                    cs.sum1(cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))))
 
-        init_penalty = cs.fmax(10 ** -8, (cs.fmin((10 * (cs.fmax(1, cs.norm_2(w_cost * phi))) /
-                                                   (cs.fmax(1, cs.norm_2(infeasibility_psi)))), 10 ** 8)))
+        init_penalty = cs.fmax(1e-8, (cs.fmin((10 * (cs.fmax(1, cs.norm_2(w_cost * phi))) /
+                                                   (cs.fmax(1, cs.norm_2(infeasibility_psi)))), 1e8)))
 
         init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [u, p, w_cost, w_f1, w_f2], [init_penalty])
         gen_code.add(init_penalty_fn)

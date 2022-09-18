@@ -2,8 +2,6 @@ import sys
 import os
 import casadi.casadi as cs
 import opengen as og
-from builder import Problem, OpEnOptimizerBuilder
-from config import OptimizerMeta
 
 optimizers_dir = "my_optimizers"
 optimizer_name = "rosenbrock"
@@ -15,11 +13,11 @@ c_f1 = cs.vertcat(1.5 * u[0] - u[1], cs.fmax(0.0, u[2] - u[3] + 0.1))
 c_f2 = cs.vertcat(1.5 * u[2] - u[4], u[1] - u[4] + 0.1)
 
 bounds = og.constraints.Halfspace([1., 2., 1., 5., 2.], -10.39)
-problem = Problem(u, p, phi)\
+problem = og.builder.Problem(u, p, phi)\
     .with_penalty_constraints(c_f2)\
     .with_aug_lagrangian_constraints(c_f1, og.constraints.Zero())\
     .with_constraints(bounds)
-meta = OptimizerMeta() \
+meta = og.config.OptimizerMeta() \
     .with_optimizer_name(optimizer_name)
 
 tcp_config = og.config.TcpServerConfiguration(bind_port=3305)
@@ -28,8 +26,9 @@ build_config = og.config.BuildConfiguration() \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
     .with_build_python_bindings() \
     .with_tcp_interface_config()
+    # .with_open_version(local_path="D:")
 
-builder = OpEnOptimizerBuilder(problem,
+builder = og.builder.OpEnOptimizerBuilder(problem,
                                meta,
                                build_config,
                                og.config.SolverConfiguration(),
