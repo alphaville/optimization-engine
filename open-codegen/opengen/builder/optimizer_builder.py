@@ -384,28 +384,30 @@ class OpEnOptimizerBuilder:
         jac_cost = cs.norm_inf(cs.jacobian(phi, u).T)
         w_cost_fn = cs.Function(meta.w_cost_function_name, [u, p], [1 / cs.fmax(1, jac_cost)])
         gen_code.add(w_cost_fn)
+        w_cost = cs.SX.sym("w_cost", 1)
 
         if n1 > 0:
             jac_constraint_f1 = cs.norm_inf(cs.jacobian(c_f1, u).T)
             w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [1 / cs.fmax(1, jac_constraint_f1)])
             gen_code.add(w_constraint_f1_fn)
+            w_f1 = cs.SX.sym("w_f1", c_f1.size(1))
+            infeasibility_psi_f1 = cs.sum1(cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2)))
         else:
             w_constraint_f1_fn = None
+            infeasibility_psi_f1 = 0
+
 
         if n2 > 0:
             jac_constraint_f2 = cs.norm_inf(cs.jacobian(c_f2, u).T)
             w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [1 / cs.fmax(1, jac_constraint_f2)])
             gen_code.add(w_constraint_f2_fn)
+            w_f2 = cs.SX.sym("w_f2", c_f2.size(1))
+            infeasibility_psi_f2 = cs.sum1(cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2)))
         else:
             w_constraint_f2_fn = None
+            infeasibility_psi_f2 = 0
 
-        w_cost = cs.SX.sym("w_cost", 1)
-        w_f1 = cs.SX.sym("w_f1", c_f1.size(1))
-        w_f2 = cs.SX.sym("w_f2", c_f2.size(1))
-
-        infeasibility_psi = 0.5 * (cs.sum1(cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))) +
-                                   cs.sum1(cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))))
-
+        infeasibility_psi = 0.5 * (infeasibility_psi_f1 + infeasibility_psi_f2)
         init_penalty = cs.fmax(1e-8, (cs.fmin((10 * (cs.fmax(1, cs.norm_2(w_cost * phi))) /
                                                    (cs.fmax(1, cs.norm_2(infeasibility_psi)))), 1e8)))
 
@@ -417,11 +419,6 @@ class OpEnOptimizerBuilder:
         # Move auto-generated file to target folder
         shutil.move(file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PRECONDITIONING_FNAME))
-
-        # w_cost = w_cost_fn([0, 0, 0, 0, 0], [1., 2.])
-        # w_f1 = w_constraint_f1_fn([0, 0, 0, 0, 0], [1., 2.])
-        # w_f2 = w_constraint_f2_fn([0, 0, 0, 0, 0], [1., 2.])
-        # init_penalty = init_penalty_fn([0, 0, 0, 0, 0], [1., 2.], w_cost, w_f1, w_f2)
 
         return w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn
 
