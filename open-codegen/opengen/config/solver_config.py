@@ -24,6 +24,7 @@ class SolverConfiguration:
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
+        self.__do_preconditioning = True
 
     # --------- GETTERS -----------------------------
 
@@ -97,6 +98,15 @@ class SolverConfiguration:
             Integer value
         """
         return self.__max_duration_micros
+
+    @property
+    def preconditioning(self):
+        """Whether an automatic preconditioning should be applied
+
+        Returns:        
+            True iff preconditioning is active
+        """
+        return self.__do_preconditioning
 
     # --------- SETTERS -----------------------------
 
@@ -179,7 +189,8 @@ class SolverConfiguration:
         :returns: The current object
         """
         if max_iters < 1:
-            raise Exception("The maximum number of inner iterations must be at least equal to 1")
+            raise Exception(
+                "The maximum number of inner iterations must be at least equal to 1")
         self.__max_inner_iterations = int(max_iters)
         return self
 
@@ -192,7 +203,8 @@ class SolverConfiguration:
         :return: the current object
         """
         if constraints_tolerance <= 0:
-            raise Exception("The constraints tolerance must be strictly positive")
+            raise Exception(
+                "The constraints tolerance must be strictly positive")
         self.__constraints_tolerance = float(constraints_tolerance)
         return self
 
@@ -202,7 +214,8 @@ class SolverConfiguration:
         :return: the current object
         """
         if max_outer_iterations < 1:
-            raise Exception("The maximum number of outer iterations must be at least equal to 1")
+            raise Exception(
+                "The maximum number of outer iterations must be at least equal to 1")
         self.__max_outer_iterations = int(max_outer_iterations)
         return self
 
@@ -220,7 +233,8 @@ class SolverConfiguration:
         """
         if penalty_weight_update_factor < 1.0:
             raise Exception("The penalty update factor needs to be >= 1")
-        self.__penalty_weight_update_factor = float(penalty_weight_update_factor)
+        self.__penalty_weight_update_factor = float(
+            penalty_weight_update_factor)
         return self
 
     def with_max_duration_micros(self, max_duration_micros):
@@ -233,7 +247,8 @@ class SolverConfiguration:
         :returns: The current object
         """
         if max_duration_micros < 1:
-            raise Exception("The maximum duration (in microseconds) must be >= 1")
+            raise Exception(
+                "The maximum duration (in microseconds) must be >= 1")
         self.__max_duration_micros = int(max_duration_micros)
         return self
 
@@ -255,4 +270,15 @@ class SolverConfiguration:
         self.__cbfgs_epsilon = epsilon
         self.__cbfgs_alpha = alpha
         self.__cbfgs_sy_epsilon = sy_epsilon
+        return self
+
+    def with_preconditioning(self, do_preconditioning):
+        """Whether to apply preconditioning
+
+        Note that this overrides the computation of the initial penalty
+
+        :param do_preconditioning: whether to precondition
+        :returns: the current object
+        """
+        self.__do_preconditioning = do_preconditioning
         return self
