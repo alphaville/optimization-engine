@@ -49,3 +49,15 @@
 #define F2_SZ_IW_{{ meta.optimizer_name | upper}} {{ f2.sz_iw() }}
 #define F2_SZ_W_{{ meta.optimizer_name | upper}} {{ f2.sz_w() }}
 #define F2_SZ_RES_{{ meta.optimizer_name | upper}} {{ f2.sz_res() }}
+
+
+/*
+ * w_cost sizes
+ */
+#define W_COST_SZ_ARG_{{ meta.optimizer_name | upper}} {{ w_cost.sz_arg() }}
+#define W_COST_SZ_IW_{{ meta.optimizer_name | upper}} {{ w_cost.sz_iw() }}
+#define W_COST_SZ_W_{{ meta.optimizer_name | upper}} {{ w_cost.sz_w() }}
+#define W_COST_SZ_RES_{{ meta.optimizer_name | upper}} {{ w_cost.sz_res() }}
+
+
+

@@ -257,7 +257,15 @@ class OpEnOptimizerBuilder:
         with open(cargo_toml_path, "w") as fh:
             fh.write(cargo_output_template)
 
-    def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None):
+    def __generate_memory_code(self,
+                               cost=None,
+                               grad=None,
+                               f1=None,
+                               f2=None,
+                               w_cost_fn=None,
+                               w_constraint_f1_fn=None,
+                               w_constraint_f2_fn=None,
+                               init_penalty_fn=None):
         """
         Creates file casadi_memory.h with memory sizes
 
@@ -272,6 +280,7 @@ class OpEnOptimizerBuilder:
         casadi_mem_output_template = casadi_mem_template.render(
             cost=cost, grad=grad,
             f1=f1, f2=f2,
+            w_cost=w_cost_fn,
             build_config=self.__build_config,
             meta=self.__meta)
         memory_path = os.path.abspath(
@@ -425,6 +434,8 @@ class OpEnOptimizerBuilder:
         shutil.move(file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PRECONDITIONING_FNAME))
 
+        return (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn)
+
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
         self.__logger.info("Defining CasADi functions and generating C code")
@@ -464,11 +475,18 @@ class OpEnOptimizerBuilder:
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
         # -----------------------------------------------------------------------
+        (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
+         init_penalty_fn) = (None, None, None, None)
         if self.__preconditioning:
-            self.__generate_code_preconditioning()
+            (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
+             init_penalty_fn) = self.__generate_code_preconditioning()
 
         self.__generate_memory_code(psi_fun, grad_psi_fun,
-                                    mapping_f1_fun, mapping_f2_fun)
+                                    mapping_f1_fun, mapping_f2_fun,
+                                    w_cost_fn,
+                                    w_constraint_f1_fn,
+                                    w_constraint_f2_fn,
+                                    init_penalty_fn)
 
     def __generate_main_project_code(self):
         self.__logger.info(
