@@ -42,8 +42,7 @@ class OpEnOptimizerBuilder:
                  problem,
                  metadata=og_cfg.OptimizerMeta(),
                  build_configuration=og_cfg.BuildConfiguration(),
-                 solver_configuration=og_cfg.SolverConfiguration(),
-                 preconditioning=True):
+                 solver_configuration=og_cfg.SolverConfiguration()):
         """Constructor of OpEnOptimizerBuilder
 
         Args:
@@ -60,7 +59,6 @@ class OpEnOptimizerBuilder:
         self.__build_config = build_configuration
         self.__solver_config = solver_configuration
         self.__generate_not_build = False
-        self.__preconditioning = preconditioning
         self.__logger = logging.getLogger(
             'opengen.builder.OpEnOptimizerBuilder')
         self.with_verbosity_level(1)
@@ -486,7 +484,7 @@ class OpEnOptimizerBuilder:
         # -----------------------------------------------------------------------
         (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
          init_penalty_fn) = (None, None, None, None)
-        if self.__preconditioning:
+        if self.__solver_config.preconditioning:
             (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
              init_penalty_fn) = self.__generate_code_preconditioning()
 
