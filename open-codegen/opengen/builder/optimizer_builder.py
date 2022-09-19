@@ -425,8 +425,8 @@ class OpEnOptimizerBuilder:
                                              1 / cs.fmax(1, jac_constraint_f2)])
             gen_code.add(w_constraint_f2_fn)
             theta = cs.vertcat(theta, w_f2)
-            infeasibility_psi += cs.dot(cs.power(w_f2,
-                                                 2), cs.power(c_f2, 2))
+            infeasibility_psi += 0.5 * \
+                cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
 
         init_penalty = cs.fmax(1, cs.norm_2(w_cost * phi))
         init_penalty /= cs.fmax(1, cs.norm_2(infeasibility_psi))
