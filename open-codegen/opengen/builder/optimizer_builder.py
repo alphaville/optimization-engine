@@ -370,9 +370,9 @@ class OpEnOptimizerBuilder:
 
     def __generate_code_preconditioning(self):
         """
-        Generates preconfitioning functions code
+        Generates C code for preconditioning functions
 
-        This function generates code for four functions:
+        This function generates C code for four functions:
         - w_cost(u, p)
         - w1(u, p)
         - w2(u, p)
