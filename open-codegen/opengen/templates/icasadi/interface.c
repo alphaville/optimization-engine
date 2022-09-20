@@ -25,6 +25,7 @@
  *
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include "casadi_memory.h"
 
 /* Number of input variables */
@@ -402,7 +403,6 @@ static void copy_args_into_up_space(const casadi_real** arg) {
  */
 static void copy_args_into_upw_space(const casadi_real** arg) {
     int i;
-    int size_uxip = NU_{{ meta.optimizer_name | upper}}+NXI_{{ meta.optimizer_name | upper}}+NP_{{ meta.optimizer_name | upper}};
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
     uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
@@ -421,7 +421,7 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
 int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG_{{ meta.optimizer_name | upper}}] =
              {uxip_space,  /* :u  */
-              uxip_space + IDX_XI_{{ meta.optimizer_name | upper}}},  /* :xi  */
+              uxip_space + IDX_XI_{{ meta.optimizer_name | upper}},  /* :xi  */
               uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :p  */
     copy_args_into_uxip_space(arg);
 
@@ -622,5 +622,22 @@ int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi
         allocated_i_workspace_init_penalty,
         allocated_r_workspace_init_penalty,
         (void*) 0);
+}
+
+
+
+int test_w_cost(void) {
+    casadi_real u[NU_{{ meta.optimizer_name | upper}}] = {0};
+    casadi_real p[NP_{{ meta.optimizer_name | upper}}] = {0};
+    casadi_real r[1];
+    const casadi_real *args[2] = {u, p};
+    casadi_real *res[1] = {r};
+    preconditioning_w_cost_function_{{ meta.optimizer_name }}(args, res);
+    printf("w_cost = %g\n", r[0]);
+    return 0;
+}
+
+int main(void) {
+    return test_w_cost();
 }
 
