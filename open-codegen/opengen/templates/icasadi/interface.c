@@ -405,19 +405,8 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
     uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
-<<<<<<< HEAD
     for (i=0; i<NW1_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
     for (i=0; i<NW2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
-=======
-
-#if N1_{{ meta.optimizer_name | upper}} > 0
-    for (i=0; i<N1_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
-#endif
-
-#if N2_{{ meta.optimizer_name | upper}}
-    for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
-#endif
->>>>>>> f4988eb3884c436d5b2a721e227f6e3a4e2465f6
 }
 
 /* ------COST------------------------------------------------------------------- */
