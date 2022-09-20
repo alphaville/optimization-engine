@@ -25,7 +25,15 @@
  *
  */
 #include <stdlib.h>
+
+/*
+ * This is to be used ONLY for DEBUG purposes
+ * Compile with -DTEST_INTERFACE
+ */
+#ifdef TEST_INTERFACE
 #include <stdio.h>
+#endif
+
 #include "casadi_memory.h"
 
 /* Number of input variables */
@@ -619,8 +627,11 @@ int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi
         (void*) 0);
 }
 
-
-
+/*
+ * This is to be used ONLY for DEBUG purposes
+ * Compile with -DTEST_INTERFACE
+ */
+#ifdef TEST_INTERFACE
 int test_w_cost(void) {
     casadi_real u[NU_{{ meta.optimizer_name | upper}}] = {0};
     casadi_real p[NP_{{ meta.optimizer_name | upper}}] = {0};
@@ -635,4 +646,4 @@ int test_w_cost(void) {
 int main(void) {
     return test_w_cost();
 }
-
+#endif /* END of TEST_INTERFACE */
