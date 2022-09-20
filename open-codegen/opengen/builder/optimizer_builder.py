@@ -401,31 +401,32 @@ class OpEnOptimizerBuilder:
         jac_cost = cs.norm_inf(cs.jacobian(phi, u).T)
         w_cost_fn = cs.Function(meta.w_cost_function_name, [
                                 u, p], [1 / cs.fmax(1, jac_cost)])
-        gen_code.add(w_cost_fn)
         w_cost = symbol_type("w_cost", 1)
 
         theta = cs.vertcat(p, w_cost)
         infeasibility_psi = 0
-        w_constraint_f1_fn, w_constraint_f2_fn = None, None
+
         if n1 > 0:
             w_f1 = symbol_type("w_f1", c_f1.size(1))
             jac_constraint_f1 = cs.norm_inf(cs.jacobian(c_f1, u).T)
             w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [
                                              1 / cs.fmax(1, jac_constraint_f1)])
-            gen_code.add(w_constraint_f1_fn)
             theta = cs.vertcat(theta, w_f1)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))
+        else:
+            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [0])
 
         if n2 > 0:
             w_f2 = symbol_type("w_f2", c_f2.size(1))
             jac_constraint_f2 = cs.norm_inf(cs.jacobian(c_f2, u).T)
             w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [
                                              1 / cs.fmax(1, jac_constraint_f2)])
-            gen_code.add(w_constraint_f2_fn)
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
+        else:
+            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [0])
 
         init_penalty = cs.fmax(1, cs.norm_2(w_cost * phi))
         init_penalty /= cs.fmax(1, cs.norm_2(infeasibility_psi))
@@ -434,8 +435,11 @@ class OpEnOptimizerBuilder:
         # Note that θ = (p, w_cost, w1, w2)
         init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [
                                       u, theta], [init_penalty])
-        gen_code.add(init_penalty_fn)
 
+        gen_code.add(w_cost_fn)
+        gen_code.add(w_constraint_f1_fn)
+        gen_code.add(w_constraint_f2_fn)
+        gen_code.add(init_penalty_fn)
         gen_code.generate()
 
         # Move auto-generated file to target folder
@@ -484,10 +488,7 @@ class OpEnOptimizerBuilder:
 
         # -----------------------------------------------------------------------
         (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
-         init_penalty_fn) = (None, None, None, None)
-        if self.__solver_config.preconditioning:
-            (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
-             init_penalty_fn) = self.__generate_code_preconditioning()
+         init_penalty_fn) = self.__generate_code_preconditioning()
 
         self.__generate_memory_code(psi_fun, grad_psi_fun,
                                     mapping_f1_fun, mapping_f2_fun,

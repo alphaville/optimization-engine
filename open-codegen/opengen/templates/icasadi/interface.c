@@ -502,7 +502,7 @@ int mapping_w1_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
      */
     result_space_w1[0] = res[0];
     /*
-     * Call auto-generated function {{meta.w1_function_name}}
+     * Call auto-generated function {{meta.w_f1_function_name}}
      * Implemented in: icasadi/extern/auto_preconditioning_functions.c
      */
     return {{meta.w_f1_function_name}}(
@@ -529,7 +529,7 @@ int mapping_w2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
      */
     result_space_w2[0] = res[0];
     /*
-     * Call auto-generated function {{meta.w2_function_name}}
+     * Call auto-generated function {{meta.w_f2_function_name}}
      * Implemented in: icasadi/extern/auto_preconditioning_functions.c
      */
     return {{meta.w_f2_function_name}}(
