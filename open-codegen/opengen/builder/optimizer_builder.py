@@ -369,6 +369,17 @@ class OpEnOptimizerBuilder:
 
         return alm_mapping_f2_fun
 
+    @staticmethod
+    def __casadi_norm_infinity(v):
+        if isinstance(v, cs.SX):
+            return cs.norm_inf(v)
+
+        nv = v.size(1)
+        nrm_inf = 0
+        for i in range(nv):
+            nrm_inf = cs.fmax(nrm_inf, cs.fabs(v[i]))
+        return nrm_inf
+
     def __generate_code_preconditioning(self):
         """
         Generates C code for preconditioning functions
@@ -398,7 +409,9 @@ class OpEnOptimizerBuilder:
 
         gen_code = cs.CodeGenerator(_AUTOGEN_PRECONDITIONING_FNAME)
 
-        jac_cost = cs.norm_inf(cs.jacobian(phi, u).T)
+        jac_cost = OpEnOptimizerBuilder.__casadi_norm_infinity(
+            cs.jacobian(phi, u).T)
+
         w_cost_fn = cs.Function(meta.w_cost_function_name, [
                                 u, p], [1 / cs.fmax(1, jac_cost)])
         w_cost = symbol_type("w_cost", 1)
@@ -408,25 +421,29 @@ class OpEnOptimizerBuilder:
 
         if n1 > 0:
             w_f1 = symbol_type("w_f1", c_f1.size(1))
-            jac_constraint_f1 = cs.norm_inf(cs.jacobian(c_f1, u).T)
+            jac_constraint_f1 = OpEnOptimizerBuilder.__casadi_norm_infinity(
+                cs.jacobian(c_f1, u).T)
             w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [
                                              1 / cs.fmax(1, jac_constraint_f1)])
             theta = cs.vertcat(theta, w_f1)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))
         else:
-            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [0])
+            w_constraint_f1_fn = cs.Function(
+                meta.w_f1_function_name, [u, p], [0])
 
         if n2 > 0:
             w_f2 = symbol_type("w_f2", c_f2.size(1))
-            jac_constraint_f2 = cs.norm_inf(cs.jacobian(c_f2, u).T)
+            jac_constraint_f2 = OpEnOptimizerBuilder.__casadi_norm_infinity(
+                cs.jacobian(c_f2, u).T)
             w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [
                                              1 / cs.fmax(1, jac_constraint_f2)])
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
         else:
-            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [0])
+            w_constraint_f2_fn = cs.Function(
+                meta.w_f2_function_name, [u, p], [0])
 
         init_penalty = cs.fmax(1, cs.norm_2(w_cost * phi))
         init_penalty /= cs.fmax(1, cs.norm_2(infeasibility_psi))
