@@ -31,7 +31,7 @@
 #define NU_{{ meta.optimizer_name | upper}} {{ problem.dim_decision_variables() }}
 
 /* Number of static parameters */
-#define NP_{{ meta.optimizer_name | upper}} {{ problem.dim_parameters() + problem.dim_constraints_penalty() }}
+#define NP_{{ meta.optimizer_name | upper}} {{ problem.dim_parameters() }}
 
 /* Dimension of F1 (number of ALM constraints) */
 #define N1_{{ meta.optimizer_name | upper}} {{ problem.dim_constraints_aug_lagrangian() }}
@@ -327,6 +327,14 @@ static casadi_real **result_space_init_penalty = NULL;
  * |                                                             |
  * |------------------- uxip_space ------------------------------|
  */
+
+#define IDX_XI_{{ meta.optimizer_name | upper}} NU_{{ meta.optimizer_name | upper}}
+#define IDX_P_{{ meta.optimizer_name | upper}}  IDX_XI_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}
+#define IDX_WC_{{ meta.optimizer_name | upper}} IDX_P_{{ meta.optimizer_name | upper}} + NP_{{ meta.optimizer_name | upper}}
+#define IDX_W1_{{ meta.optimizer_name | upper}} IDX_WC_{{ meta.optimizer_name | upper}} + 1
+#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + NW1_{{ meta.optimizer_name | upper}}
+#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + NW2_{{ meta.optimizer_name | upper}}
+
 static casadi_real uxip_space[NU_{{ meta.optimizer_name | upper}}
                               +NXI_{{ meta.optimizer_name | upper}}
                               +NP_{{ meta.optimizer_name | upper}}
