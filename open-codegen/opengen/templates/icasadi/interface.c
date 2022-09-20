@@ -360,12 +360,14 @@ static casadi_real **result_space_init_penalty = NULL;
  * | --- |
  *
  */
-static casadi_real uxip_space[NU_{{ meta.optimizer_name | upper}}
-                              +NXI_{{ meta.optimizer_name | upper}}
-                              +NP_{{ meta.optimizer_name | upper}}
-                              +NWC_{{ meta.optimizer_name | upper}}
-                              +NW1_{{ meta.optimizer_name | upper}}
-                              +NW2_{{ meta.optimizer_name | upper}}];
+
+#define IDX_XI_{{ meta.optimizer_name | upper}} NU_{{ meta.optimizer_name | upper}}
+#define IDX_P_{{ meta.optimizer_name | upper}}  IDX_XI_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}
+#define IDX_WC_{{ meta.optimizer_name | upper}} IDX_P_{{ meta.optimizer_name | upper}} + NP_{{ meta.optimizer_name | upper}}
+#define IDX_W1_{{ meta.optimizer_name | upper}} IDX_WC_{{ meta.optimizer_name | upper}} + 1
+#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + NW1_{{ meta.optimizer_name | upper}}
+#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + NW2_{{ meta.optimizer_name | upper}}
+
 static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 
 /**
