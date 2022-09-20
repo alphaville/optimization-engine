@@ -213,7 +213,8 @@ class OpEnOptimizerBuilder:
         cint_output_template = cint_template.render(
             meta=self.__meta,
             problem=self.__problem,
-            build_config=self.__build_config)
+            build_config=self.__build_config,
+            solver_config=self.__solver_config)
         cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
