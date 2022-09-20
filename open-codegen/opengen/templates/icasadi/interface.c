@@ -318,23 +318,54 @@ static casadi_real **result_space_init_penalty = NULL;
 
 /* ------U, XI, P--------------------------------------------------------------- */
 
-/*
- * Space for storing (u, xi, p, w)
- * that is, uxip_space = [u, xi, p, w]
- *
- * 0        NU-1      NU          NU+NXI-1   NU+NXI          NU+NXI+NP-1   NU+NXI+NP             NU+NXI+NP+NWC+NW1+NW2-1
- * |--- u ----|       |---- xi -------|       |----- p ----------|           |----- w_cost, w1, w2 ----------|
- * |                                                             |
- * |------------------- uxip_space ------------------------------|
- */
-
 #define IDX_XI_{{ meta.optimizer_name | upper}} NU_{{ meta.optimizer_name | upper}}
 #define IDX_P_{{ meta.optimizer_name | upper}}  IDX_XI_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}
 #define IDX_WC_{{ meta.optimizer_name | upper}} IDX_P_{{ meta.optimizer_name | upper}} + NP_{{ meta.optimizer_name | upper}}
 #define IDX_W1_{{ meta.optimizer_name | upper}} IDX_WC_{{ meta.optimizer_name | upper}} + 1
-#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + NW1_{{ meta.optimizer_name | upper}}
-#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + NW2_{{ meta.optimizer_name | upper}}
+#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + N1_{{ meta.optimizer_name | upper}}
+#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + N2_{{ meta.optimizer_name | upper}}
 
+/*
+ * Space for storing (u, xi, p, w)
+ * that is, uxip_space = [u, xi, p, w]
+ *
+ * The memory layout of the u-xi-p-w space is described below
+ *
+ * | --- | -- 0
+ * |     |
+ * |  u  |
+ * |     |
+ * | --- |
+ *
+ * | --- | -- NU
+ * |     |
+ * |  ξ  |
+ * |     |
+ * | --- |
+ *
+ * | --- | -- NU + NXI
+ * |     |
+ * |  p  |
+ * |     |
+ * | --- |
+ *
+ * | --- |
+ * | wc  | -- NU + NXI + NP
+ * | --- |
+ *
+ * | --- | -- NU + NXI + NP + 1
+ * |     |
+ * |  w1 |
+ * |     |
+ * | --- |
+ *
+ * | --- | -- NU + NXI + NP + N1 + 1
+ * |     |
+ * |  w2 |
+ * |     |
+ * | --- |
+ *
+ */
 static casadi_real uxip_space[NU_{{ meta.optimizer_name | upper}}
                               +NXI_{{ meta.optimizer_name | upper}}
                               +NP_{{ meta.optimizer_name | upper}}
@@ -351,11 +382,12 @@ static casadi_real uxip_space[NU_{{ meta.optimizer_name | upper}}
 static void copy_args_into_uxip_space(const casadi_real** arg) {
     int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++)  uxip_space[i] = arg[0][i];  /* copy u  */
-    for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++) uxip_space[NU_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy xi */
-    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++)  uxip_space[NU_{{ meta.optimizer_name | upper}}+NXI_{{ meta.optimizer_name | upper}}+i] = arg[2][i];  /* copy p  */
+    for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy xi */
+    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++)  uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[2][i];  /* copy p  */
 }
 
-/**
+
+ /**
  * Copy (u, p) into uxip_space
  */
 static void copy_args_into_up_space(const casadi_real** arg) {
@@ -366,15 +398,18 @@ static void copy_args_into_up_space(const casadi_real** arg) {
 
 /**
  * Copy (u, p, w) into uxip_space
+ *
+ * Input arguments:
+ * - `arg = {u, p, w_cost, w1, w2}`, where `u` and `p` are pointer-to-double
  */
 static void copy_args_into_upw_space(const casadi_real** arg) {
     int i;
     int size_uxip = NU_{{ meta.optimizer_name | upper}}+NXI_{{ meta.optimizer_name | upper}}+NP_{{ meta.optimizer_name | upper}};
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
-    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[NU_{{ meta.optimizer_name | upper}}+NXI_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
-    for (i=0; i<NWC_{{ meta.optimizer_name | upper}}; i++) uxip_space[size_uxip+i] = arg[2][i];  /* copy w_cost  */
-    for (i=0; i<NW1_{{ meta.optimizer_name | upper}}; i++) uxip_space[size_uxip+NWC_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
-    for (i=0; i<NW2_{{ meta.optimizer_name | upper}}; i++) uxip_space[size_uxip+NWC_{{ meta.optimizer_name | upper}}+NW1_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
+    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
+    uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
+    for (i=0; i<NW1_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
+    for (i=0; i<NW2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
 }
 
 /* ------COST------------------------------------------------------------------- */
@@ -382,8 +417,8 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
 int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG_{{ meta.optimizer_name | upper}}] =
              {uxip_space,  /* :u  */
-              uxip_space + NU_{{ meta.optimizer_name | upper}},  /* :xi  */
-              uxip_space + NU_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}};  /* :p  */
+              uxip_space + IDX_XI_{{ meta.optimizer_name | upper}},   /* :xi  */
+              uxip_space + IDX_P_{{ meta.optimizer_name | upper}} };  /* :p  */
     copy_args_into_uxip_space(arg);
 
     result_space_cost[0] = res[0];
