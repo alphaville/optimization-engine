@@ -57,10 +57,10 @@ class OptimizerMeta:
         self.__constraint_penalty_function = 'open_mapping_f2_' + optimizer_name
         self.__alm_constraints_mapping_f1 = 'open_mapping_f1_' + optimizer_name
         self.__preconditioning_file_name = 'open_preconditioning_' + optimizer_name
-        self.__w_cost_mapping_function = 'open_mapping_w_cost_' + optimizer_name
-        self.__w_f1_mapping_function = 'open_mapping_w_f1_' + optimizer_name
-        self.__w_f2_mapping_function = 'open_mapping_w_f2_' + optimizer_name
-        self.__initial_penalty_mapping_function = 'open_mapping_initial_penalty_' + optimizer_name
+        self.__w_cost_mapping_function = 'open_preconditioning_w_cost_' + optimizer_name
+        self.__w_f1_mapping_function = 'open_preconditioning_w_f1_' + optimizer_name
+        self.__w_f2_mapping_function = 'open_preconditioning_w_f2_' + optimizer_name
+        self.__initial_penalty_mapping_function = 'open_initial_penalty_' + optimizer_name
 
     @property
     def cost_function_name(self):
