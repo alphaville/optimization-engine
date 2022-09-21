@@ -621,7 +621,20 @@ int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi
  */
 #ifdef TEST_INTERFACE
 
-void print_static_array(void){
+static casadi_real u_test[NU_{{ meta.optimizer_name | upper}}];
+static casadi_real p_test[NP_{{ meta.optimizer_name | upper}}];
+
+static void init_up_test(void) {
+    int i;
+    for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
+        u_test[i] = 0.5 + 0.3 * i;
+    }
+    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
+        p_test[i] = 1 + 0.1 * i;
+    }
+}
+
+static void print_static_array(void){
     int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
         printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
@@ -633,33 +646,44 @@ void print_static_array(void){
         printf("p[%2d] = %4.2f\n", i, uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i]);
     }
 #ifdef PRECONDITIONING_{{ meta.optimizer_name | upper}}
-    printf("w_cost = %4.2f\n", uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}]);
+    printf("w_cost = %g\n", uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}]);
 #if N1_{{ meta.optimizer_name | upper}} > 0
      for (i=0; i<N1_{{ meta.optimizer_name | upper}}; i++){
-        printf("w1[%2d] = %4.2f\n", i, uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i]);
+        printf("w1[%2d] = %g\n", i, uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i]);
     }
 #endif /* IF N1 > 0 */
 #if N2_{{ meta.optimizer_name | upper}} > 0
      for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++){
-        printf("w2[%2d] = %4.2f\n", i, uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i]);
+        printf("w2[%2d] = %g\n", i, uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i]);
     }
 #endif /* IF N1 > 0 */
 #endif /* IF PRECONDITIONING */
 }
 
-int test_w_cost(void) {
-    casadi_real u[NU_{{ meta.optimizer_name | upper}}] = {0};
-    casadi_real p[NP_{{ meta.optimizer_name | upper}}] = {0};
-    casadi_real r[1];
-    const casadi_real *args[2] = {u, p};
-    casadi_real *res[1] = {r};
+static void test_w_cost(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = {uxip_space + IDX_WC_{{ meta.optimizer_name | upper}}};
     preconditioning_w_cost_function_{{ meta.optimizer_name }}(args, res);
-    print_static_array();
-    printf("w_cost = %g\n", r[0]);
-    return 0;
+}
+
+static void test_w1(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = { uxip_space + IDX_W1_{{ meta.optimizer_name | upper}} };
+    preconditioning_w1_function_{{ meta.optimizer_name }}(args, res);
+}
+
+static void test_w2(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = { uxip_space + IDX_W2_{{ meta.optimizer_name | upper}} };
+    preconditioning_w2_function_{{ meta.optimizer_name }}(args, res);
 }
 
 int main(void) {
-    return test_w_cost();
+    init_up_test();
+    test_w_cost();
+    test_w1();
+    test_w2();
+    print_static_array();
+    return 0;
 }
 #endif /* END of TEST_INTERFACE */
