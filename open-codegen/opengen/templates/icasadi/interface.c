@@ -25,14 +25,22 @@
  *
  */
 #include <stdlib.h>
+
+/*
+ * This is to be used ONLY for DEBUG purposes
+ * Compile with -DTEST_INTERFACE
+ */
+#ifdef TEST_INTERFACE
 #include <stdio.h>
+#endif
+
 #include "casadi_memory.h"
 
 /* Number of input variables */
 #define NU_{{ meta.optimizer_name | upper}} {{ problem.dim_decision_variables() }}
 
 /* Number of static parameters */
-#define NP_{{ meta.optimizer_name | upper}} {{ problem.dim_parameters() + problem.dim_constraints_penalty() }}
+#define NP_{{ meta.optimizer_name | upper}} {{ problem.dim_parameters() }}
 
 /* Dimension of F1 (number of ALM constraints) */
 #define N1_{{ meta.optimizer_name | upper}} {{ problem.dim_constraints_aug_lagrangian() }}
@@ -45,18 +53,6 @@
 
 /* Preconditioning Flag */
 {% if solver_config.preconditioning %}#define PRECONDITIONING_{{ meta.optimizer_name | upper}}{% endif %}
-
-/* Dimension of w_cost (cost preconditioning coefficient) */
-#define NWC_{{ meta.optimizer_name | upper}} 1
-
-/* Dimension of w1 (f1 preconditioning coefficient) */
-#define NW1_{{ meta.optimizer_name | upper}} N1_{{ meta.optimizer_name | upper}}
-
-/* Dimension of w2 (f2 preconditioning coefficient) */
-#define NW2_{{ meta.optimizer_name | upper}} N2_{{ meta.optimizer_name | upper}}
-
-/* Dimension of init_penalty (initial parameter) */
-#define NIP_{{ meta.optimizer_name | upper}} 1
 
 
 #ifndef casadi_real
@@ -365,8 +361,8 @@ static casadi_real **result_space_init_penalty = NULL;
 #define IDX_P_{{ meta.optimizer_name | upper}}  IDX_XI_{{ meta.optimizer_name | upper}} + NXI_{{ meta.optimizer_name | upper}}
 #define IDX_WC_{{ meta.optimizer_name | upper}} IDX_P_{{ meta.optimizer_name | upper}} + NP_{{ meta.optimizer_name | upper}}
 #define IDX_W1_{{ meta.optimizer_name | upper}} IDX_WC_{{ meta.optimizer_name | upper}} + 1
-#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + NW1_{{ meta.optimizer_name | upper}}
-#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + NW2_{{ meta.optimizer_name | upper}}
+#define IDX_W2_{{ meta.optimizer_name | upper}} IDX_W1_{{ meta.optimizer_name | upper}} + N1_{{ meta.optimizer_name | upper}}
+#define N_UXIPW_{{ meta.optimizer_name | upper}} IDX_W2_{{ meta.optimizer_name | upper}} + N2_{{ meta.optimizer_name | upper}}
 
 static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 
@@ -383,7 +379,8 @@ static void copy_args_into_uxip_space(const casadi_real** arg) {
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++)  uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[2][i];  /* copy p  */
 }
 
-/**
+
+ /**
  * Copy (u, p) into uxip_space
  *
  * Input arguments:
@@ -406,14 +403,8 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
     uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
-
-#if N1_{{ meta.optimizer_name | upper}} > 0
     for (i=0; i<N1_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
-#endif
-
-#if N2_{{ meta.optimizer_name | upper}}
     for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
-#endif
 }
 
 /* ------COST------------------------------------------------------------------- */
@@ -421,8 +412,8 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
 int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG_{{ meta.optimizer_name | upper}}] =
              {uxip_space,  /* :u  */
-              uxip_space + IDX_XI_{{ meta.optimizer_name | upper}},  /* :xi  */
-              uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :p  */
+              uxip_space + IDX_XI_{{ meta.optimizer_name | upper}},   /* :xi  */
+              uxip_space + IDX_P_{{ meta.optimizer_name | upper}} };  /* :p  */
     copy_args_into_uxip_space(arg);
 
     result_space_cost[0] = res[0];
@@ -624,20 +615,75 @@ int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi
         (void*) 0);
 }
 
+/*
+ * This is to be used ONLY for DEBUG purposes
+ * Compile with -DTEST_INTERFACE
+ */
+#ifdef TEST_INTERFACE
 
+static casadi_real u_test[NU_{{ meta.optimizer_name | upper}}];
+static casadi_real p_test[NP_{{ meta.optimizer_name | upper}}];
 
-int test_w_cost(void) {
-    casadi_real u[NU_{{ meta.optimizer_name | upper}}] = {0};
-    casadi_real p[NP_{{ meta.optimizer_name | upper}}] = {0};
-    casadi_real r[1];
-    const casadi_real *args[2] = {u, p};
-    casadi_real *res[1] = {r};
+static void init_up_test(void) {
+    int i;
+    for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
+        u_test[i] = 0.5 + 0.3 * i;
+    }
+    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
+        p_test[i] = 1 + 0.1 * i;
+    }
+}
+
+static void print_static_array(void){
+    int i;
+    for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
+        printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
+    }
+    for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++){
+        printf("ξ[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
+    }
+    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
+        printf("p[%2d] = %4.2f\n", i, uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i]);
+    }
+#ifdef PRECONDITIONING_{{ meta.optimizer_name | upper}}
+    printf("w_cost = %g\n", uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}]);
+#if N1_{{ meta.optimizer_name | upper}} > 0
+     for (i=0; i<N1_{{ meta.optimizer_name | upper}}; i++){
+        printf("w1[%2d] = %g\n", i, uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i]);
+    }
+#endif /* IF N1 > 0 */
+#if N2_{{ meta.optimizer_name | upper}} > 0
+     for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++){
+        printf("w2[%2d] = %g\n", i, uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i]);
+    }
+#endif /* IF N1 > 0 */
+#endif /* IF PRECONDITIONING */
+}
+
+static void test_w_cost(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = {uxip_space + IDX_WC_{{ meta.optimizer_name | upper}}};
     preconditioning_w_cost_function_{{ meta.optimizer_name }}(args, res);
-    printf("w_cost = %g\n", r[0]);
-    return 0;
+}
+
+static void test_w1(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = { uxip_space + IDX_W1_{{ meta.optimizer_name | upper}} };
+    preconditioning_w1_function_{{ meta.optimizer_name }}(args, res);
+}
+
+static void test_w2(void) {
+    const casadi_real *args[2] = {u_test, p_test};
+    casadi_real *res[1] = { uxip_space + IDX_W2_{{ meta.optimizer_name | upper}} };
+    preconditioning_w2_function_{{ meta.optimizer_name }}(args, res);
 }
 
 int main(void) {
-    return test_w_cost();
+    init_up_test();
+    test_w_cost();
+    test_w1();
+    test_w2();
+    print_static_array();
+    return 0;
 }
-
+#endif /* END of TEST_INTERFACE */
