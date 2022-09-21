@@ -423,7 +423,7 @@ class OpEnOptimizerBuilder:
             jac_f1 = cs.jacobian(c_f1, u)
             w1 = ()
             for i in range(n1):
-                nrm_jac_f1_i = 1 / cs.fmax(1,OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
+                nrm_jac_f1_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
                 w1 = cs.vertcat(w1, nrm_jac_f1_i)
             w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [w1])
 
