@@ -497,7 +497,6 @@ int mapping_f2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
         (void*) 0);
 }
 
-
 /**
  * Interface to auto-generated CasADi function for w_cost(u, p)
  */
@@ -524,7 +523,6 @@ int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real*
         allocated_r_workspace_w_cost,
         (void*) 0);
 }
-
 
 /**
  * Interface to auto-generated CasADi function for w1(u, p), which computes an
@@ -554,8 +552,6 @@ int preconditioning_w1_function_{{ meta.optimizer_name }}(const casadi_real** ar
         (void*) 0);
 }
 
-
-
 /**
  * Interface to auto-generated CasADi function for w2(u, p), which computes an
  * n2-dimensional vector of scaling parameters
@@ -583,8 +579,6 @@ int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_real** ar
         allocated_r_workspace_w2,
         (void*) 0);
 }
-
-
 
 /**
  * Interface to auto-generated CasADi function for rho_1(u, theta), which computes the initial
@@ -656,7 +650,7 @@ static void print_static_array(void){
      for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++){
         printf("w2[%2d] = %g\n", i, uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i]);
     }
-#endif /* IF N1 > 0 */
+#endif /* IF N2 > 0 */
 #endif /* IF PRECONDITIONING */
 }
 
