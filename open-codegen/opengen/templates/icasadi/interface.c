@@ -329,7 +329,7 @@ static casadi_real **result_space_init_penalty = NULL;
  *
  * | --- | -- NU
  * |     |
- * |  xi |
+ * |  ξ  |
  * |     |
  * | --- |
  *
@@ -369,7 +369,7 @@ static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 /**
  * This function should be called upon initialisation. The sets all w's to 1.
  */
-void init_interface(void) {
+void init_interface_{{ meta.optimizer_name }}(void) {
     unsigned int i;
     unsigned int offset = IDX_WC_{{ meta.optimizer_name | upper}};
     unsigned int len = N1_{{ meta.optimizer_name | upper}} + N2_{{ meta.optimizer_name | upper}} + 1;
@@ -511,8 +511,11 @@ int mapping_f2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
 
 /**
  * Interface to auto-generated CasADi function for w_cost(u, p)
+ *
+ * Input arguments:
+ *  - arg = {u, θ}
  */
-int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
+static int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[W_COST_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             {uxip_space,  /* :u   */
@@ -523,7 +526,7 @@ int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real*
      * The result should be written in result_space_w_cost
      * (memory has been allocated - see beginning of this file)
      */
-    result_space_w_cost[0] = res[0];
+    result_space_w_cost[0] = uxip_space + IDX_WC_{{ meta.optimizer_name | upper}};
     /*
      * Call auto-generated function {{meta.w_cost_function_name}}
      * Implemented in: icasadi/extern/auto_preconditioning_functions.c
@@ -540,7 +543,7 @@ int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real*
  * Interface to auto-generated CasADi function for w1(u, p), which computes an
  * n1-dimensional vector of scaling parameters
  */
-int preconditioning_w1_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
+static int preconditioning_w1_function_{{ meta.optimizer_name }}(const casadi_real** arg) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[W1_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             {uxip_space,  /* :u   */
@@ -551,7 +554,7 @@ int preconditioning_w1_function_{{ meta.optimizer_name }}(const casadi_real** ar
      * The result should be written in result_space_w1
      * (memory has been allocated - see beginning of this file)
      */
-    result_space_w1[0] = res[0];
+    result_space_w1[0] = uxip_space + IDX_W1_{{ meta.optimizer_name | upper}};
     /*
      * Call auto-generated function {{meta.w_f1_function_name}}
      * Implemented in: icasadi/extern/auto_preconditioning_functions.c
@@ -568,7 +571,7 @@ int preconditioning_w1_function_{{ meta.optimizer_name }}(const casadi_real** ar
  * Interface to auto-generated CasADi function for w2(u, p), which computes an
  * n2-dimensional vector of scaling parameters
  */
-int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
+static int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_real** arg) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[W2_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             {uxip_space,  /* :u   */
@@ -579,7 +582,7 @@ int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_real** ar
      * The result should be written in result_space_w2
      * (memory has been allocated - see beginning of this file)
      */
-    result_space_w2[0] = res[0];
+    result_space_w2[0] = uxip_space + IDX_W2_{{ meta.optimizer_name | upper}};
     /*
      * Call auto-generated function {{meta.w_f2_function_name}}
      * Implemented in: icasadi/extern/auto_preconditioning_functions.c
@@ -596,14 +599,23 @@ int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_real** ar
  * Interface to auto-generated CasADi function for rho_1(u, theta), which computes the initial
  * penalty parameter. Note that this is a function of u and theta = (p, w_cost, w1, w2) and the
  * caller needs to provide p, w_cost, w1 and w2
+ *
+ * Input arguments:
+ *  - (in )   arg = {u, p}     pointers to u and p (NOT θ, just p); we don't need to provide the preconditioning
+ *                             parameters because they are stored in `uxipw_space`; they are only computed once and
+ *                             we don't need to move their values around
+ *  - (out)   res = {ρ_init}   pointer to initial penalty
+ *
+ * Output arguments:
+ *  - status code (0: all good)
  */
-int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
+int init_penalty_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[INIT_PENALTY_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             {uxip_space,  /* :u   */
-             uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :p   */
+             uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :θ   */
     /* Copy given data to variable `uxip_space` */
-    copy_args_into_upw_space(arg);
+    copy_args_into_up_space(arg);
     /*
      * The result should be written in result_space_init_penalty
      * (memory has been allocated - see beginning of this file)
@@ -619,6 +631,14 @@ int preconditioning_init_penalty_function_{{ meta.optimizer_name }}(const casadi
         allocated_i_workspace_init_penalty,
         allocated_r_workspace_init_penalty,
         (void*) 0);
+}
+
+int preconditioning_www_{{ meta.optimizer_name }}(const casadi_real** arg) {
+    int status_ = 0;
+    status_ += preconditioning_w1_function_{{ meta.optimizer_name }}(arg);
+    status_ += preconditioning_w2_function_{{ meta.optimizer_name }}(arg);
+    status_ += preconditioning_w_cost_function_{{ meta.optimizer_name }}(arg);
+    return status_;
 }
 
 /*
@@ -646,7 +666,7 @@ static void print_static_array(void){
         printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
     }
     for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++){
-        printf("xi[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
+        printf("ξ[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
     }
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
         printf("p[%2d] = %4.2f\n", i, uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i]);
@@ -664,41 +684,24 @@ static void print_static_array(void){
 #endif /* IF N2 > 0 */
 }
 
-static void test_w_cost(void) {
-    const casadi_real *args[2] = {u_test, p_test};
-    casadi_real *res[1] = {uxip_space + IDX_WC_{{ meta.optimizer_name | upper}}};
-    preconditioning_w_cost_function_{{ meta.optimizer_name }}(args, res);
-}
-
-static void test_w1(void) {
-    const casadi_real *args[2] = {u_test, p_test};
-    casadi_real *res[1] = { uxip_space + IDX_W1_{{ meta.optimizer_name | upper}} };
-    preconditioning_w1_function_{{ meta.optimizer_name }}(args, res);
-}
-
-static void test_w2(void) {
-    const casadi_real *args[2] = {u_test, p_test};
-    casadi_real *res[1] = { uxip_space + IDX_W2_{{ meta.optimizer_name | upper}} };
-    preconditioning_w2_function_{{ meta.optimizer_name }}(args, res);
-}
-
 static casadi_real test_initial_penalty(void) {
-    casadi_real *wc_ptr = uxip_space + IDX_WC_{{ meta.optimizer_name | upper}};
-    casadi_real *w1_ptr = uxip_space + IDX_W1_{{ meta.optimizer_name | upper}};
-    casadi_real *w2_ptr = uxip_space + IDX_W2_{{ meta.optimizer_name | upper}};
-    const casadi_real *args[5] = {u_test, p_test, wc_ptr, w1_ptr, w2_ptr};
+    const casadi_real *args[2] = {u_test, p_test};
     casadi_real initial_penalty = -1.;
     casadi_real *res[1] = { &initial_penalty };
-    preconditioning_init_penalty_function_{{ meta.optimizer_name }}(args, res);
+    init_penalty_function_{{ meta.optimizer_name }}(args, res);
     return initial_penalty;
 }
 
 int main(void) {
-    init_interface();
+    init_interface_{{ meta.optimizer_name }}();
     init_up_test();
-    test_w_cost();
-    test_w1();
-    test_w2();
+    const casadi_real *argz[2] = {u_test, p_test};
+    preconditioning_www_{{ meta.optimizer_name }}(argz);
+
+    /*
+     * Since this is invoked after `test_w_cost`, `test_w1` and `test_w2`, the ws have been computed previously
+     * and are available in `uxipw_space`. The caller does need to provide them
+     */
     casadi_real rho1 = test_initial_penalty();
     print_static_array();
     printf("rho1 = %g\n", rho1);
