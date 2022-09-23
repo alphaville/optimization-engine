@@ -58,8 +58,6 @@
 #define W_COST_SZ_W_{{ meta.optimizer_name | upper}} {{ w_cost.sz_w() }}
 #define W_COST_SZ_RES_{{ meta.optimizer_name | upper}} {{ w_cost.sz_res() }}
 
-
-{% if w1 is not none -%}
 /*
  * w1 sizes
  * Preconditioning of F1
@@ -68,9 +66,7 @@
 #define W1_SZ_IW_{{ meta.optimizer_name | upper}} {{ w1.sz_iw() }}
 #define W1_SZ_W_{{ meta.optimizer_name | upper}} {{ w1.sz_w() }}
 #define W1_SZ_RES_{{ meta.optimizer_name | upper}} {{ w1.sz_res() }}
-{%- endif %}
 
-{% if w2 is not none -%}
 /*
  * w2 sizes
  * Preconditioning of F2
@@ -79,9 +75,7 @@
 #define W2_SZ_IW_{{ meta.optimizer_name | upper}} {{ w2.sz_iw() }}
 #define W2_SZ_W_{{ meta.optimizer_name | upper}} {{ w2.sz_w() }}
 #define W2_SZ_RES_{{ meta.optimizer_name | upper}} {{ w2.sz_res() }}
-{%- endif %}
 
-{% if init_penalty is not none  -%}
 /*
  * initial_penalty sizes
  */
@@ -89,5 +83,4 @@
 #define INIT_PENALTY_SZ_IW_{{ meta.optimizer_name | upper}} {{ init_penalty.sz_iw() }}
 #define INIT_PENALTY_SZ_W_{{ meta.optimizer_name | upper}} {{ init_penalty.sz_w() }}
 #define INIT_PENALTY_SZ_RES_{{ meta.optimizer_name | upper}} {{ init_penalty.sz_res() }}
-{%- endif %}
 

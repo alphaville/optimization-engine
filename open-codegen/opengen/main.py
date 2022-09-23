@@ -7,14 +7,19 @@ import opengen as og
 optimizers_dir = "my_optimizers"
 optimizer_name = "rosenbrock"
 
-u = cs.SX.sym("u", 5)  # decision variable (nu = 5)
+nu, np = 5, 2
+u = cs.SX.sym("u", nu)  # decision variable (nu = 5)
 p = cs.SX.sym("p", 2)  # parameter (np = 2)
-phi = og.functions.rosenbrock(u, p)  # cost function
-c_f1 = cs.vertcat(1.5 * u[0] - u[1], cs.fmax(0.0, u[2] - u[3] + 0.1))
-c_f2 = cs.vertcat(1.5 * u[2] - u[4], u[1] - u[4] + 0.1)
+phi = 0.5 * p[0] * cs.dot(u, u)
+for i in range(nu):
+    phi = phi + p[1] * cs.sin(u[i])
 
-bounds = og.constraints.Halfspace([1., 2., 1., 5., 2.], 10.39)
-problem = og.builder.Problem(u, p, phi)\
+
+c_f1 = cs.vertcat(p[0] * u[0] - u[1], p[1]*u[2] - u[3] + 0.1)
+c_f2 = cs.vertcat((u[2]+1)**2 - 8*u[4], 2*cs.sin(u[4] + 1), 5*cs.sin(u[3] + 1))
+
+bounds = og.constraints.Halfspace([1., 2.5, 1., 5., 2.], 10.39)
+problem = og.builder.Problem(u, p, phi) \
     .with_penalty_constraints(c_f2)\
     .with_aug_lagrangian_constraints(c_f1, og.constraints.Zero())\
     .with_constraints(bounds)

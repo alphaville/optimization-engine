@@ -213,7 +213,8 @@ class OpEnOptimizerBuilder:
         cint_output_template = cint_template.render(
             meta=self.__meta,
             problem=self.__problem,
-            build_config=self.__build_config)
+            build_config=self.__build_config,
+            solver_config=self.__solver_config)
         cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
@@ -368,6 +369,17 @@ class OpEnOptimizerBuilder:
 
         return alm_mapping_f2_fun
 
+    @staticmethod
+    def __casadi_norm_infinity(v):
+        if isinstance(v, cs.SX):
+            return cs.norm_inf(v)
+
+        nv = v.size(1)
+        nrm_inf = 0
+        for i in range(nv):
+            nrm_inf = cs.fmax(nrm_inf, cs.fabs(v[i]))
+        return nrm_inf
+
     def __generate_code_preconditioning(self):
         """
         Generates C code for preconditioning functions
@@ -397,51 +409,67 @@ class OpEnOptimizerBuilder:
 
         gen_code = cs.CodeGenerator(_AUTOGEN_PRECONDITIONING_FNAME)
 
-        jac_cost = cs.norm_inf(cs.jacobian(phi, u).T)
+        jac_cost = OpEnOptimizerBuilder.__casadi_norm_infinity(
+            cs.jacobian(phi, u).T)
+
         w_cost_fn = cs.Function(meta.w_cost_function_name, [
                                 u, p], [1 / cs.fmax(1, jac_cost)])
-        gen_code.add(w_cost_fn)
         w_cost = symbol_type("w_cost", 1)
 
         theta = cs.vertcat(p, w_cost)
         infeasibility_psi = 0
-        w_constraint_f1_fn, w_constraint_f2_fn = None, None
+
         if n1 > 0:
+            jac_f1 = cs.jacobian(c_f1, u)
+            w1 = ()
+            for i in range(n1):
+                nrm_jac_f1_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
+                w1 = cs.vertcat(w1, nrm_jac_f1_i)
+            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [w1])
+
             w_f1 = symbol_type("w_f1", c_f1.size(1))
-            jac_constraint_f1 = cs.norm_inf(cs.jacobian(c_f1, u).T)
-            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [
-                                             1 / cs.fmax(1, jac_constraint_f1)])
-            gen_code.add(w_constraint_f1_fn)
             theta = cs.vertcat(theta, w_f1)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))
+        else:
+            w_constraint_f1_fn = cs.Function(
+                meta.w_f1_function_name, [u, p], [0])
 
         if n2 > 0:
+            jac_f2 = cs.jacobian(c_f2, u)
+            w2 = ()
+            for i in range(n2):
+                nrm_jac_f2_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f2[i, :]))
+                w2 = cs.vertcat(w2, nrm_jac_f2_i)
+            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [w2])
+
             w_f2 = symbol_type("w_f2", c_f2.size(1))
-            jac_constraint_f2 = cs.norm_inf(cs.jacobian(c_f2, u).T)
-            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [
-                                             1 / cs.fmax(1, jac_constraint_f2)])
-            gen_code.add(w_constraint_f2_fn)
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
-                cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
+                                 cs.dot(cs.power(w_f2, 2), cs.power(cs.fmax(0, c_f2), 2))
+        else:
+            w_constraint_f2_fn = cs.Function(
+                meta.w_f2_function_name, [u, p], [0])
 
-        init_penalty = cs.fmax(1, cs.norm_2(w_cost * phi))
-        init_penalty /= cs.fmax(1, cs.norm_2(infeasibility_psi))
+        init_penalty = cs.fmax(1, cs.fabs(w_cost * phi))
+        init_penalty /= cs.fmax(1, cs.fabs(infeasibility_psi))
         init_penalty = cs.fmax(1e-8, (cs.fmin(10*init_penalty, 1e8)))
 
         # Note that θ = (p, w_cost, w1, w2)
         init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [
                                       u, theta], [init_penalty])
-        gen_code.add(init_penalty_fn)
 
+        gen_code.add(w_cost_fn)
+        gen_code.add(w_constraint_f1_fn)
+        gen_code.add(w_constraint_f2_fn)
+        gen_code.add(init_penalty_fn)
         gen_code.generate()
 
         # Move auto-generated file to target folder
         shutil.move(_AUTOGEN_PRECONDITIONING_FNAME,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PRECONDITIONING_FNAME))
 
-        return (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn)
+        return w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn
 
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
@@ -483,10 +511,7 @@ class OpEnOptimizerBuilder:
 
         # -----------------------------------------------------------------------
         (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
-         init_penalty_fn) = (None, None, None, None)
-        if self.__solver_config.preconditioning:
-            (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
-             init_penalty_fn) = self.__generate_code_preconditioning()
+         init_penalty_fn) = self.__generate_code_preconditioning()
 
         self.__generate_memory_code(psi_fun, grad_psi_fun,
                                     mapping_f1_fun, mapping_f2_fun,
