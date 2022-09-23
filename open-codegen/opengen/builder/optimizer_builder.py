@@ -451,8 +451,8 @@ class OpEnOptimizerBuilder:
             w_constraint_f2_fn = cs.Function(
                 meta.w_f2_function_name, [u, p], [0])
 
-        init_penalty = cs.fmax(1, cs.norm_2(w_cost * phi))
-        init_penalty /= cs.fmax(1, cs.norm_2(infeasibility_psi))
+        init_penalty = cs.fmax(1, cs.fabs(w_cost * phi))
+        init_penalty /= cs.fmax(1, cs.fabs(infeasibility_psi))
         init_penalty = cs.fmax(1e-8, (cs.fmin(10*init_penalty, 1e8)))
 
         # Note that θ = (p, w_cost, w1, w2)
