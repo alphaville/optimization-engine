@@ -366,6 +366,15 @@ static casadi_real **result_space_init_penalty = NULL;
 
 static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 
+static void set_all_ws_to_one(void) {
+    unsigned int i;
+    unsigned int offset = IDX_WC_{{ meta.optimizer_name | upper}};
+    unsigned int len = N1_{{ meta.optimizer_name | upper}} + N2_{{ meta.optimizer_name | upper}} + 1;
+    for (i = 0; i < len; i++) {
+        uxip_space[offset + i] = 1.0;
+    }
+}
+
 /**
  * Copy (u, xi, p) into uxip_space
  *
@@ -373,7 +382,7 @@ static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
  * - `arg = {u, xi, p}`, where `u`, `xi` and `p` are pointer-to-double
  */
 static void copy_args_into_uxip_space(const casadi_real** arg) {
-    int i;
+    unsigned int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++)  uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy xi */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++)  uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[2][i];  /* copy p  */
@@ -387,7 +396,7 @@ static void copy_args_into_uxip_space(const casadi_real** arg) {
  * - `arg = {u, p}`, where `u` and `p` are pointer-to-double
  */
 static void copy_args_into_up_space(const casadi_real** arg) {
-    int i;
+    unsigned int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
 }
@@ -399,7 +408,7 @@ static void copy_args_into_up_space(const casadi_real** arg) {
  * - `arg = {u, p, w_cost, w1, w2}`, where `u` and `p` are pointer-to-double
  */
 static void copy_args_into_upw_space(const casadi_real** arg) {
-    int i;
+    unsigned int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
     uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
@@ -619,17 +628,17 @@ static casadi_real u_test[NU_{{ meta.optimizer_name | upper}}];
 static casadi_real p_test[NP_{{ meta.optimizer_name | upper}}];
 
 static void init_up_test(void) {
-    int i;
+    unsigned int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
         u_test[i] = 20 + i;
     }
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
-        p_test[i] = 1 + 15 * i;
+        p_test[i] = 1.5 + 15 * i;
     }
 }
 
 static void print_static_array(void){
-    int i;
+    unsigned int i;
     for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++){
         printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
     }
@@ -680,8 +689,10 @@ static casadi_real test_initial_penalty(void) {
     preconditioning_init_penalty_function_{{ meta.optimizer_name }}(args, res);
     return initial_penalty;
 }
+
 int main(void) {
     init_up_test();
+    set_all_ws_to_one();
     test_w_cost();
     test_w1();
     test_w2();
@@ -690,4 +701,5 @@ int main(void) {
     printf("rho1 = %g\n", rho1);
     return 0;
 }
+
 #endif /* END of TEST_INTERFACE and PRECONDITIONING_{{ meta.optimizer_name | upper}} */
