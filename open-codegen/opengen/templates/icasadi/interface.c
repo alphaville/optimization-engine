@@ -329,7 +329,7 @@ static casadi_real **result_space_init_penalty = NULL;
  *
  * | --- | -- NU
  * |     |
- * |  ξ  |
+ * |  xi |
  * |     |
  * | --- |
  *
@@ -634,7 +634,7 @@ static void print_static_array(void){
         printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
     }
     for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++){
-        printf("ξ[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
+        printf("xi[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
     }
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
         printf("p[%2d] = %4.2f\n", i, uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i]);
