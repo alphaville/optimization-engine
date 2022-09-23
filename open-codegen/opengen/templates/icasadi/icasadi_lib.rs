@@ -26,6 +26,9 @@ const NUM_CONSTRAINTS_TYPE_ALM: usize = {{ problem.dim_constraints_aug_lagrangia
 /// Number of penalty constraints (dimension of F2, i.e., n2)
 const NUM_CONSTRAINTS_TYPE_PENALTY: usize = {{ problem.dim_constraints_penalty() or 0 }};
 
+/// Number of theta parameters (dimension of [p, phi, F1, F2])
+const NUM_THETA_PARAMETERS: usize = NUM_STATIC_PARAMETERS + 1 + NUM_CONSTRAINTS_TYPE_ALM + NUM_CONSTRAINTS_TYPE_PENALTY;
+
 use libc::{c_double, c_int};  // might need to include: c_longlong, c_void
 
 // C interface (Function API exactly as provided by CasADi)
@@ -89,7 +92,7 @@ pub fn cost(u: &[f64], xi: &[f64], static_params: &[f64], cost_value: &mut f64) 
     assert_eq!(u.len(), NUM_DECISION_VARIABLES, "wrong length of `u`");
     assert_eq!(
         static_params.len(),
-        NUM_STATIC_PARAMETERS,
+        NUM_THETA_PARAMETERS,
         "wrong length of `p`"
     );
 
@@ -129,7 +132,7 @@ pub fn grad(u: &[f64], xi: &[f64], static_params: &[f64], cost_jacobian: &mut [f
     assert_eq!(u.len(), NUM_DECISION_VARIABLES, "wrong length of `u`");
     assert_eq!(
         static_params.len(),
-        NUM_STATIC_PARAMETERS,
+        NUM_THETA_PARAMETERS,
         "wrong length of `u`"
     );
     assert_eq!(
@@ -176,7 +179,7 @@ pub fn mapping_f1(
     );
     assert_eq!(
         static_params.len(),
-        NUM_STATIC_PARAMETERS,
+        NUM_THETA_PARAMETERS,
         "Incompatible dimension of `p`"
     );
     assert!(
@@ -220,7 +223,7 @@ pub fn mapping_f2(
     );
     assert_eq!(
         static_params.len(),
-        NUM_STATIC_PARAMETERS,
+        NUM_THETA_PARAMETERS,
         "Incompatible dimension of `p`"
     );
     assert!(
@@ -308,7 +311,7 @@ pub fn preconditioning_w1(
         "Incompatible dimension of `p`"
     );
     assert!(
-        w1.len() == NUM_CONSTRAINTS_TYPE_PENALTY || NUM_CONSTRAINTS_TYPE_PENALTY == 0,
+        w1.len() == NUM_CONSTRAINTS_TYPE_ALM || NUM_CONSTRAINTS_TYPE_ALM == 0,
         "Incompatible dimension of `w1` (result)"
     );
 

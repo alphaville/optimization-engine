@@ -304,6 +304,8 @@ class OpEnOptimizerBuilder:
         alm_set_c = problem.alm_set_c
         f1 = problem.penalty_mapping_f1
         f2 = problem.penalty_mapping_f2
+        w_cost = problem.preconditioning_w_cost
+        theta = cs.vertcat(p, problem.preconditioning_coefficients())
 
         psi = phi
 
@@ -326,11 +328,13 @@ class OpEnOptimizerBuilder:
         if n2 > 0:
             psi += xi[0] * cs.dot(f2, f2) / 2
 
+        psi = w_cost * psi
+
         jac_psi = cs.gradient(psi, u)
 
-        psi_fun = cs.Function(meta.cost_function_name, [u, xi, p], [psi])
+        psi_fun = cs.Function(meta.cost_function_name, [u, xi, theta], [psi])
         grad_psi_fun = cs.Function(
-            meta.grad_function_name, [u, xi, p], [jac_psi])
+            meta.grad_function_name, [u, xi, theta], [jac_psi])
         return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
@@ -340,15 +344,17 @@ class OpEnOptimizerBuilder:
         p = problem.parameter_variables
         n1 = problem.dim_constraints_aug_lagrangian()
         f1 = problem.penalty_mapping_f1
+        w1 = problem.preconditioning_w1
+        theta = cs.vertcat(p, problem.preconditioning_coefficients())
 
         if n1 > 0:
-            mapping_f1 = f1
+            mapping_f1 = w1 * f1
         else:
             mapping_f1 = 0
 
         alm_mapping_f1_fun = cs.Function(
             self.__meta.alm_mapping_f1_function_name,
-            [u, p], [mapping_f1])
+            [u, theta], [mapping_f1])
         return alm_mapping_f1_fun
 
     def __construct_mapping_f2_function(self) -> cs.Function:
@@ -357,15 +363,17 @@ class OpEnOptimizerBuilder:
         u = problem.decision_variables
         p = problem.parameter_variables
         n2 = problem.dim_constraints_penalty()
+        w2 = problem.preconditioning_w2
+        theta = cs.vertcat(p, problem.preconditioning_coefficients())
 
         if n2 > 0:
-            penalty_constraints = problem.penalty_mapping_f2
+            penalty_constraints = w2 * problem.penalty_mapping_f2
         else:
             penalty_constraints = 0
 
         alm_mapping_f2_fun = cs.Function(
             self.__meta.constraint_penalty_function_name,
-            [u, p], [penalty_constraints])
+            [u, theta], [penalty_constraints])
 
         return alm_mapping_f2_fun
 
@@ -405,7 +413,9 @@ class OpEnOptimizerBuilder:
         c_f2 = problem.penalty_mapping_f2
         n2 = problem.dim_constraints_penalty()
         phi = problem.cost_function
-        symbol_type = cs.MX.sym if isinstance(u, cs.MX) else cs.SX.sym
+        w_cost = problem.preconditioning_w_cost
+        w_f1 = problem.preconditioning_w1
+        w_f2 = problem.preconditioning_w2
 
         gen_code = cs.CodeGenerator(_AUTOGEN_PRECONDITIONING_FNAME)
 
@@ -414,7 +424,6 @@ class OpEnOptimizerBuilder:
 
         w_cost_fn = cs.Function(meta.w_cost_function_name, [
                                 u, p], [1 / cs.fmax(1, jac_cost)])
-        w_cost = symbol_type("w_cost", 1)
 
         theta = cs.vertcat(p, w_cost)
         infeasibility_psi = 0
@@ -427,7 +436,6 @@ class OpEnOptimizerBuilder:
                 w1 = cs.vertcat(w1, nrm_jac_f1_i)
             w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [w1])
 
-            w_f1 = symbol_type("w_f1", c_f1.size(1))
             theta = cs.vertcat(theta, w_f1)
             infeasibility_psi += 0.5 * \
                 cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))
@@ -443,7 +451,6 @@ class OpEnOptimizerBuilder:
                 w2 = cs.vertcat(w2, nrm_jac_f2_i)
             w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [w2])
 
-            w_f2 = symbol_type("w_f2", c_f2.size(1))
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
                                  cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
