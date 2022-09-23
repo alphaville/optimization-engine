@@ -330,21 +330,44 @@ pub fn solve(
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
+    let w_cost= &mut [1f64];
+    {% if solver_config.preconditioning is true -%}
+    icasadi_{{meta.optimizer_name}}::preconditioning_w_cost(u, p, &mut w_cost[0]);
+    {% endif -%}
+    let pw = [p, &[w_cost[0]]].concat();
+
+    {% if problem.dim_constraints_aug_lagrangian() > 0 -%}
+    let w1 = &mut [1f64; {{meta.optimizer_name|upper}}_N1];
+    {% if solver_config.preconditioning is true -%}
+    icasadi_{{meta.optimizer_name}}::preconditioning_w1(u, p, w1);
+    {% endif -%}
+    let pw = [pw, w1.to_vec()].concat();
+    {% endif -%}
+
+    {% if problem.dim_constraints_penalty() > 0 -%}
+    let w2 = &mut [1f64; {{meta.optimizer_name|upper}}_N2];
+    {% if solver_config.preconditioning is true -%}
+    icasadi_{{meta.optimizer_name}}::preconditioning_w2(u, p, w2);
+    {% endif -%}
+    let pw = [pw, w2.to_vec()].concat();
+    {% endif -%}
+
+
     let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::cost(u, xi, p, cost);
+        icasadi_{{meta.optimizer_name}}::cost(u, xi, &pw, cost);
         Ok(())
     };
     let grad_psi = |u: &[f64], xi: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::grad(u, xi, p, grad);
+        icasadi_{{meta.optimizer_name}}::grad(u, xi, &pw, grad);
         Ok(())
     };
     {% if problem.dim_constraints_aug_lagrangian() > 0 %}
     let f1 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::mapping_f1(u, p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f1(u, &pw, res);
         Ok(())
     };{% endif %}
     {% if problem.dim_constraints_penalty() %}let f2 = |u: &[f64], res: &mut [f64]| -> Result<(), SolverError> {
-        icasadi_{{meta.optimizer_name}}::mapping_f2(u, p, res);
+        icasadi_{{meta.optimizer_name}}::mapping_f2(u, &pw, res);
         Ok(())
     };{% endif -%}
     let bounds = make_constraints();
