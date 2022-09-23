@@ -255,7 +255,7 @@ pub fn mapping_f2(
 pub fn preconditioning_w_cost(
     u: &[f64],
     static_params: &[f64],
-    w_cost: &mut [f64],
+    w_cost: &mut f64,
 ) -> i32 {
     assert_eq!(
         u.len(),
@@ -267,18 +267,14 @@ pub fn preconditioning_w_cost(
         NUM_STATIC_PARAMETERS,
         "Incompatible dimension of `p`"
     );
-    assert!(
-        w_cost.len() == 1,
-        "Incompatible dimension of `w_cost` (result)"
-    );
 
     let arguments = &[u.as_ptr(), static_params.as_ptr()];
-    let constraints = &mut [w_cost.as_mut_ptr()];
+    let wc_ = &mut [w_cost as *mut c_double];
 
     unsafe {
          preconditioning_w_cost_function_{{ meta.optimizer_name }}(
             arguments.as_ptr(),
-            constraints.as_mut_ptr()
+            wc_.as_mut_ptr(),
         ) as i32
     }
 }
@@ -407,6 +403,15 @@ mod tests {
         let p = [0.1; NUM_STATIC_PARAMETERS];
         let mut f2up = [0.0; NUM_CONSTRAINTS_TYPE_PENALTY];
         assert_eq!(0, super::mapping_f2(&u, &p, &mut f2up));
+    }
+
+    #[test]
+    fn tst_wcost() {
+        let u = [1.5; NUM_DECISION_VARIABLES];
+        let p = [0.1; NUM_STATIC_PARAMETERS];
+        let mut w_cost : f64 = 0.;
+        assert_eq!(0, super::preconditioning_w_cost(&u, &p, &mut w_cost));
+        println!("w_cost = {}", w_cost);
     }
 
 }
