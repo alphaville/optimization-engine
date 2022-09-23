@@ -366,7 +366,10 @@ static casadi_real **result_space_init_penalty = NULL;
 
 static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 
-static void set_all_ws_to_one(void) {
+/**
+ * This function should be called upon initialisation. The sets all w's to 1.
+ */
+void init_interface(void) {
     unsigned int i;
     unsigned int offset = IDX_WC_{{ meta.optimizer_name | upper}};
     unsigned int len = N1_{{ meta.optimizer_name | upper}} + N2_{{ meta.optimizer_name | upper}} + 1;
@@ -691,8 +694,8 @@ static casadi_real test_initial_penalty(void) {
 }
 
 int main(void) {
+    init_interface();
     init_up_test();
-    set_all_ws_to_one();
     test_w_cost();
     test_w1();
     test_w2();
