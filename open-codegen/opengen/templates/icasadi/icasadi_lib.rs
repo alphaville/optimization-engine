@@ -308,7 +308,7 @@ pub fn preconditioning_w1(
         "Incompatible dimension of `p`"
     );
     assert!(
-        w1.len() == NUM_CONSTRAINTS_TYPE_PENALTY || NUM_CONSTRAINTS_TYPE_PENALTY == 0,
+        w1.len() == NUM_CONSTRAINTS_TYPE_ALM || NUM_CONSTRAINTS_TYPE_ALM == 0,
         "Incompatible dimension of `w1` (result)"
     );
 
@@ -412,6 +412,24 @@ mod tests {
         let mut w_cost : f64 = 0.;
         assert_eq!(0, super::preconditioning_w_cost(&u, &p, &mut w_cost));
         println!("w_cost = {}", w_cost);
+    }
+
+    #[test]
+    fn tst_w1() {
+        let u = [1.5; NUM_DECISION_VARIABLES];
+        let p = [2.0; NUM_STATIC_PARAMETERS];
+        let mut w1 = [0.0; NUM_CONSTRAINTS_TYPE_ALM];
+        assert_eq!(0, super::preconditioning_w1(&u, &p, &mut w1));
+        println!("w1 = {:?}", w1);
+    }
+
+    #[test]
+    fn tst_w2() {
+        let u = [1.5; NUM_DECISION_VARIABLES];
+        let p = [2.0; NUM_STATIC_PARAMETERS];
+        let mut w2 = [0.0; NUM_CONSTRAINTS_TYPE_PENALTY];
+        assert_eq!(0, super::preconditioning_w2(&u, &p, &mut w2));
+        println!("w2 = {:?}", w2);
     }
 
 }
