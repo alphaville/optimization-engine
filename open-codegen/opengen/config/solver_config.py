@@ -24,6 +24,7 @@ class SolverConfiguration:
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
+        self.__do_preconditioning = True
 
     # --------- GETTERS -----------------------------
 
@@ -97,6 +98,15 @@ class SolverConfiguration:
             Integer value
         """
         return self.__max_duration_micros
+
+    @property
+    def preconditioning(self):
+        """Whether an automatic preconditioning should be applied
+
+        Returns:
+            True iff preconditioning is active
+        """
+        return self.__do_preconditioning
 
     # --------- SETTERS -----------------------------
 
@@ -255,4 +265,15 @@ class SolverConfiguration:
         self.__cbfgs_epsilon = epsilon
         self.__cbfgs_alpha = alpha
         self.__cbfgs_sy_epsilon = sy_epsilon
+        return self
+
+    def with_preconditioning(self, do_preconditioning):
+        """Whether to apply preconditioning
+
+        Note that this overrides the computation of the initial penalty
+
+        :param do_preconditioning: whether to precondition
+        :returns: the current object
+        """
+        self.__do_preconditioning = do_preconditioning
         return self

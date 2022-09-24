@@ -1,5 +1,6 @@
 import opengen as og
 import casadi.casadi as cs
+import opengen.functions as fn
 from .type_enums import ConstraintMethod
 
 
@@ -106,7 +107,8 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
 
     set_exclusion_fn = set_exclusion_formulation(user_ocp, x_t_buffer)
 
-    pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
+    if fn.is_symbolic(set_exclusion_fn):
+        pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
     return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints
 
@@ -138,6 +140,7 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
     alm_mapping = cs.vertcat(alm_constraints, system_dynamics)
     alm_set = og.constraints.Zero()
 
-    pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
+    if fn.is_symbolic(set_exclusion_fn):
+        pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
     return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints

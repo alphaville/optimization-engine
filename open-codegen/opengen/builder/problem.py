@@ -50,6 +50,10 @@ class Problem:
         self.__penalty_mapping_f2 = None
         # penalty function - default (and most commonly used): squared 2-norm
         self.__penalty_function = None
+        symbol_type = cs.MX.sym if isinstance(u, cs.MX) else cs.SX.sym
+        self.__w_cost = symbol_type("w_cost", 1)
+        self.__w1 = None
+        self.__w2 = None
 
     # ---------- SETTERS -----------------------------------------------
 
@@ -83,6 +87,8 @@ class Problem:
         """
 
         self.__penalty_mapping_f2 = penalty_constraints
+        symbol_type = cs.MX.sym if isinstance(penalty_constraints, cs.MX) else cs.SX.sym
+        self.__w2 = symbol_type("w2", penalty_constraints.size(1))
         return self
 
     def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y=None):
@@ -106,6 +112,8 @@ class Problem:
             # Y not provided
             c = SetYCalculator(set_c)
             self.__alm_set_y = c.obtain()
+        symbol_type = cs.MX.sym if isinstance(mapping_f1, cs.MX) else cs.SX.sym
+        self.__w1 = symbol_type("w1", mapping_f1.size(1))
         return self
 
     # ---------- DIMENSIONS --------------------------------------------
@@ -130,6 +138,15 @@ class Problem:
         """Not implemented yet"""
         return 0 if self.__alm_mapping_f1 is None \
             else self.__alm_mapping_f1.size(1)
+
+    def preconditioning_coefficients(self):
+        """preconditioning coefficients w_cost, w1 and w2 concatenated"""
+        theta = self.__w_cost
+        if self.__alm_mapping_f1 is not None:
+            theta = cs.vertcat(theta, self.__w1)
+        if self.__penalty_mapping_f2 is not None:
+            theta = cs.vertcat(theta, self.__w2)
+        return theta
 
     # ---------- OTHER GETTERS -----------------------------------------
 
@@ -177,3 +194,33 @@ class Problem:
     def parameter_variables(self):
         """Parameter variables (CasADi symbol)"""
         return self.__p
+
+    @property
+    def preconditioning_w_cost(self):
+        """cost preconditioning coefficient (CasADi symbol)"""
+        return self.__w_cost
+
+    @property
+    def preconditioning_w1(self):
+        """F1 preconditioning coefficients (CasADi symbol)"""
+        return self.__w1
+
+    @property
+    def preconditioning_w2(self):
+        """F2 preconditioning coefficients (CasADi symbol)"""
+        return self.__w2
+
+    def update_problem_with_preconditioning(self):
+        w_cost = self.__w_cost
+        self.__cost = w_cost * self.__cost
+        self.__p = cs.vertcat(self.__p, w_cost)
+
+        w1 = self.__w1
+        if w1 is not None:
+            self.__alm_mapping_f1 = self.__alm_mapping_f1 * w1
+            self.__p = cs.vertcat(self.__p, w1)
+
+        w2 = self.__w2
+        if w2 is not None:
+            self.__penalty_mapping_f2 = self.__penalty_mapping_f2 * w2
+            self.__p = cs.vertcat(self.__p, w2)
