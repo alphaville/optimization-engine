@@ -25,6 +25,8 @@ class SolverConfiguration:
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
         self.__do_preconditioning = True
+        self.__optimize_initial_penalty = True
+        self.__max_penalty_allowed = 1e20
 
     # --------- GETTERS -----------------------------
 
@@ -107,6 +109,24 @@ class SolverConfiguration:
             True iff preconditioning is active
         """
         return self.__do_preconditioning
+
+    @property
+    def optimize_initial_penalty(self):
+        """Whether an automatic calculation of initial penalty should be applied
+
+        Returns:
+            True iff calculation of initial penalty is active
+        """
+        return self.__optimize_initial_penalty
+
+    @property
+    def max_penalty_allowed(self):
+        """Whether an automatic calculation of initial penalty should be applied
+
+        Returns:
+            True iff calculation of initial penalty is active
+        """
+        return self.__max_penalty_allowed
 
     # --------- SETTERS -----------------------------
 
@@ -276,4 +296,32 @@ class SolverConfiguration:
         :returns: the current object
         """
         self.__do_preconditioning = do_preconditioning
+        return self
+
+    def with_optimized_initial_penalty(self, optimize_initial_penalty):
+        """Whether to apply preconditioning
+
+        Note that this overrides the default initial penalty and rebuilds the ocp
+
+        :param optimize_initial_penalty: whether to apply optimized initial penalty
+        :returns: the current object
+        """
+        if optimize_initial_penalty is True and self.__do_preconditioning is False:
+            raise Exception("optimized_initial_penalty feature can only be used with preconditioning ON")
+        self.__optimize_initial_penalty = optimize_initial_penalty
+        return self
+
+    def with_max_penalty_allowed(self, max_penalty_allowed):
+        """Whether to apply preconditioning
+
+        Note that this overrides the penalty_weight_update_factor and rebuilds the ocp
+
+        :param optimize_initial_penalty: whether to apply optimized initial penalty
+        :returns: the current object
+        """
+        if self.__optimize_initial_penalty is False:
+            raise Exception("max_penalty_allowed can only be used only with optimized_initial_penalty feature ON")
+        if self.__max_penalty_allowed < 1e5 or self.__max_penalty_allowed > 1e20:
+            raise Exception("Maintain 10^5 < max_penalty_allowed < 10^20")
+        self.__max_penalty_allowed = max_penalty_allowed
         return self

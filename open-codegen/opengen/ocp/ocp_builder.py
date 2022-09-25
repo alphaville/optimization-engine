@@ -2,15 +2,17 @@ import opengen as og
 import casadi.casadi as cs
 import opengen.functions as fn
 from .optimizer_formulations import single_shooting_formulation, multiple_shooting_formulation
+import numpy as np
 from .type_enums import *
 
 class OCPBuilder:
-    def __init__(self, ocp, build_config=None, meta=None, solver_config=None):
+    def __init__(self, ocp):
         self.__ocp = ocp
-        self.__build_config = build_config
-        self.__meta = meta
-        self.__solver_config = solver_config
+        self.__build_config = None
+        self.__meta = None
+        self.__solver_config = None
         self.__ocp_build_interface = OcpInterfaceType.TCP
+        self.__default_max_outer_iterations = 30
 
     def with_build_config(self, build_config):
         self.__build_config = build_config
@@ -22,6 +24,7 @@ class OCPBuilder:
 
     def with_solver_config(self, solver_config):
         self.__solver_config = solver_config
+        self.__default_max_outer_iterations = solver_config.max_outer_iterations
         return self
 
     def with_build_interface(self, ocp_build_interface):
@@ -35,7 +38,7 @@ class OCPBuilder:
         ocp_build_interface = self.__ocp_build_interface
         if self.__build_config is None:
             self.__build_config = og.config.BuildConfiguration() \
-                .with_build_mode("debug") \
+                .with_build_mode("release") \
                 .with_build_python_bindings()
 
             if ocp_build_interface is OcpInterfaceType.TCP:
@@ -59,7 +62,8 @@ class OCPBuilder:
                 .with_max_outer_iterations(30) \
                 .with_max_inner_iterations(2000) \
                 .with_delta_tolerance(1e-3) \
-                .with_preconditioning(True)
+                .with_preconditioning(True) \
+                .with_optimized_initial_penalty(True)
 
     def build(self):
         ocp = self.__ocp
@@ -94,6 +98,10 @@ class OCPBuilder:
 
         if self.__solver_config.preconditioning is True:
             problem.update_problem_with_preconditioning()
+
+        if self.__solver_config.optimize_initial_penalty is True:
+            self.__solver_config.with_max_outer_iterations(1)
+            self.__meta.with_optimizer_name(self.__meta.optimizer_name + "_init")
 
         ocp.save_OCP(problem)
 
@@ -152,7 +160,6 @@ class OCPBuilder:
                 w1_symb = cs.vertcat(w1_symb, nrm_jac_f1_i)
             w_constraint_f1_fn = cs.Function('w_constraint_f1_fn', [u, p], [w1_symb])
             w1 = w_constraint_f1_fn(u_val, theta_val_raw)
-
             theta_val = theta_val + [w1[i].__float__() for i in range(w1.size(1))]
 
         w2_symb = []
@@ -163,9 +170,41 @@ class OCPBuilder:
                 w2_symb = cs.vertcat(w2_symb, nrm_jac_f2_i)
             w_constraint_f2_fn = cs.Function('w_constraint_f2_fn', [u, p], [w2_symb])
             w2 = w_constraint_f2_fn(u_val, theta_val_raw)
-
             theta_val = theta_val + [w2[i].__float__() for i in range(w2.size(1))]
+
         return theta_val
+
+    def __calculate_initial_penalty(self, u_initial_guess, theta_val):
+        """
+                Computes the values of initial penalty and max_outer_iterations
+
+                This function computes the values of preconditioning coefficients:
+                - initial_penalty
+                - max_outer_iterations
+
+                :returns: (initial_penalty, max_outer_iterations)
+                """
+        problem = self.__ocp.problem
+        u = problem.decision_variables
+        theta = problem.parameter_variables
+        phi = problem.cost_function
+        infeasibility_psi = problem.infeasibility_psi
+
+        init_penalty_symb = cs.fmax(1, cs.fabs(phi))
+        init_penalty_symb /= cs.fmax(1, cs.fabs(infeasibility_psi))
+        init_penalty_symb = cs.fmax(1e-8, (cs.fmin(10 * init_penalty_symb, 1e8)))
+
+        # Note that theta = (p, w_cost, w1, w2)
+        init_penalty_fn = cs.Function('init_penalty_fn', [u, theta], [init_penalty_symb])
+        init_penalty = init_penalty_fn(u_initial_guess, theta_val)
+
+        solver_config = self.__solver_config
+        max_penalty = solver_config.max_penalty_allowed
+        max_outer_iterations = self.__default_max_outer_iterations
+        penalty_weight_update_factor = 10**(np.log10(max_penalty/init_penalty)/max_outer_iterations)
+
+        return init_penalty[0].__float__(), penalty_weight_update_factor
+
 
     def solve(self, p_init, print_result):
 
@@ -173,17 +212,32 @@ class OCPBuilder:
             p_init = self.__calculate_preconditioning_coefficients(p_val=p_init)
 
         if self.__ocp_build_interface is OcpInterfaceType.TCP:
-            ocp_build_function = tcp_interface
+            ocp_solve_function = tcp_interface
         else:
-            ocp_build_function = direct_interface
+            ocp_solve_function = direct_interface
 
-        return ocp_build_function(p_init, print_result)
+        if self.__solver_config.optimize_initial_penalty is True:
+            u_initial_guess = ocp_solve_function(p_init, self.__meta.optimizer_name, print_result=False)
+            (init_penalty, penalty_weight_update_factor) = self.__calculate_initial_penalty(u_initial_guess, p_init)
+            self.__solver_config.with_initial_penalty(init_penalty)
+            self.__solver_config.with_penalty_weight_update_factor(penalty_weight_update_factor)
+            self.__solver_config.with_max_outer_iterations(self.__default_max_outer_iterations)
+            self.__solver_config.with_optimized_initial_penalty(False)
+            self.__meta.with_optimizer_name(self.__meta.optimizer_name[:-5])
+            self.__build_config.with_rebuild(False)
+            builder = og.builder.OpEnOptimizerBuilder(self.__ocp.problem,
+                                                      self.__meta,
+                                                      self.__build_config,
+                                                      self.__solver_config)
+            builder.build()
+
+        return ocp_solve_function(p_init, self.__meta.optimizer_name, print_result)
 
 
-def tcp_interface(z_initial, print_result=False):
+def tcp_interface(z_initial, optimizer_name, print_result=False):
     # Use TCP server
     # ------------------------------------
-    mng = og.tcp.OptimizerTcpManager('my_optimizers_tcp/navigation')
+    mng = og.tcp.OptimizerTcpManager('my_optimizers_tcp/' + optimizer_name)
     mng.start()
 
     mng.ping()
@@ -203,17 +257,17 @@ def tcp_interface(z_initial, print_result=False):
     return solution['solution']
 
 
-def direct_interface(z_initial, print_result=False):
+def direct_interface(z_initial, optimizer_name, print_result=False):
     # Note: to use the direct interface you need to build using
     #       .with_build_python_bindings()
     import sys
 
     # Use Direct Interface
     # ------------------------------------
-    sys.path.insert(1, './my_optimizers/navigation')
-    import navigation
+    sys.path.insert(1, './my_optimizers/' + optimizer_name)
+    optimizer = __import__(optimizer_name)
 
-    solver = navigation.solver()
+    solver = optimizer.solver()
     result = solver.run(z_initial)
 
     if result:

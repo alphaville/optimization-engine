@@ -54,6 +54,7 @@ class Problem:
         self.__w_cost = symbol_type("w_cost", 1)
         self.__w1 = None
         self.__w2 = None
+        self.__infeasibility = 0
 
     # ---------- SETTERS -----------------------------------------------
 
@@ -210,6 +211,11 @@ class Problem:
         """F2 preconditioning coefficients (CasADi symbol)"""
         return self.__w2
 
+    @property
+    def infeasibility_psi(self):
+        """constraint infeasibility (CasADi symbol)"""
+        return self.__infeasibility
+
     def update_problem_with_preconditioning(self):
         w_cost = self.__w_cost
         self.__cost = w_cost * self.__cost
@@ -217,10 +223,12 @@ class Problem:
 
         w1 = self.__w1
         if w1 is not None:
-            self.__alm_mapping_f1 = self.__alm_mapping_f1 * w1
+            self.__infeasibility += 0.5 * cs.sumsqr(w1 * cs.fmax(0, self.__alm_mapping_f1))
+            self.__alm_mapping_f1 = w1 * self.__alm_mapping_f1
             self.__p = cs.vertcat(self.__p, w1)
 
         w2 = self.__w2
         if w2 is not None:
-            self.__penalty_mapping_f2 = self.__penalty_mapping_f2 * w2
+            self.__infeasibility += 0.5 * cs.sumsqr(w2 * self.__penalty_mapping_f2)
+            self.__penalty_mapping_f2 = w2 * self.__penalty_mapping_f2
             self.__p = cs.vertcat(self.__p, w2)
