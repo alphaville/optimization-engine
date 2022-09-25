@@ -111,17 +111,6 @@ class OCPBuilder:
                                                   self.__solver_config)
         builder.build()
 
-    @staticmethod
-    def __casadi_norm_infinity(v):
-        if isinstance(v, cs.SX):
-            return cs.norm_inf(v)
-
-        nv = v.size(1)
-        nrm_inf = 0
-        for i in range(nv):
-            nrm_inf = cs.fmax(nrm_inf, cs.fabs(v[i]))
-        return nrm_inf
-
 
     def __calculate_preconditioning_coefficients(self, p_val, u_val = None):
         """
@@ -146,8 +135,8 @@ class OCPBuilder:
             u_val = [0] * self.__ocp.problem.dim_decision_variables()
         theta_val_raw = p_val + [1] * (1 + n1 + n2)
 
-        jac_cost = self.__casadi_norm_infinity(cs.jacobian(phi, u).T)
-        w_cost_fn = cs.Function('w_cost_fn', [u, p], [1 / cs.fmax(1, jac_cost)])
+        w_cost_symb = [1 / cs.fmax(1, cs.norm_inf(cs.jacobian(phi, u)))]
+        w_cost_fn = cs.Function('w_cost_fn', [u, p], w_cost_symb)
         w_cost = w_cost_fn(u_val, theta_val_raw)
 
         theta_val = p_val + [w_cost[0].__float__()]
@@ -156,8 +145,8 @@ class OCPBuilder:
         if n1 > 0:
             jac_f1 = cs.jacobian(c_f1, u)
             for i in range(n1):
-                nrm_jac_f1_i = 1 / cs.fmax(1, self.__casadi_norm_infinity(jac_f1[i, :]))
-                w1_symb = cs.vertcat(w1_symb, nrm_jac_f1_i)
+                w1_symb_i = 1 / cs.fmax(1, cs.norm_inf(jac_f1[i, :]))
+                w1_symb = cs.vertcat(w1_symb, w1_symb_i)
             w_constraint_f1_fn = cs.Function('w_constraint_f1_fn', [u, p], [w1_symb])
             w1 = w_constraint_f1_fn(u_val, theta_val_raw)
             theta_val = theta_val + [w1[i].__float__() for i in range(w1.size(1))]
@@ -166,8 +155,8 @@ class OCPBuilder:
         if n2 > 0:
             jac_f2 = cs.jacobian(c_f2, u)
             for i in range(n2):
-                nrm_jac_f2_i = 1 / cs.fmax(1, self.__casadi_norm_infinity(jac_f2[i, :]))
-                w2_symb = cs.vertcat(w2_symb, nrm_jac_f2_i)
+                w2_symb_i = 1 / cs.fmax(1, cs.norm_inf(jac_f2[i, :]))
+                w2_symb = cs.vertcat(w2_symb, w2_symb_i)
             w_constraint_f2_fn = cs.Function('w_constraint_f2_fn', [u, p], [w2_symb])
             w2 = w_constraint_f2_fn(u_val, theta_val_raw)
             theta_val = theta_val + [w2[i].__float__() for i in range(w2.size(1))]
@@ -187,23 +176,23 @@ class OCPBuilder:
         problem = self.__ocp.problem
         u = problem.decision_variables
         theta = problem.parameter_variables
-        phi = problem.cost_function
-        infeasibility_psi = problem.infeasibility_psi
+        cost_fn = cs.Function('cost_fn', [u, theta], [problem.cost_function])
+        cost = cost_fn(u_initial_guess, theta_val)
+        cost = cost.__float__()
+        infeasibility_psi_fn = cs.Function('infeasibility_psi_fn', [u, theta], [problem.infeasibility_psi])
+        infeasibility_psi = infeasibility_psi_fn(u_initial_guess, theta_val)
+        infeasibility_psi = infeasibility_psi.__float__()
 
-        init_penalty_symb = cs.fmax(1, cs.fabs(phi))
-        init_penalty_symb /= cs.fmax(1, cs.fabs(infeasibility_psi))
-        init_penalty_symb = cs.fmax(1e-8, (cs.fmin(10 * init_penalty_symb, 1e8)))
-
-        # Note that theta = (p, w_cost, w1, w2)
-        init_penalty_fn = cs.Function('init_penalty_fn', [u, theta], [init_penalty_symb])
-        init_penalty = init_penalty_fn(u_initial_guess, theta_val)
+        init_penalty = 10 * max(1, abs(cost))
+        init_penalty /= max(1, abs(infeasibility_psi))
+        init_penalty = max(1e3, min(init_penalty, 1e8))
 
         solver_config = self.__solver_config
         max_penalty = solver_config.max_penalty_allowed
         max_outer_iterations = self.__default_max_outer_iterations
         penalty_weight_update_factor = 10**(np.log10(max_penalty/init_penalty)/max_outer_iterations)
 
-        return init_penalty[0].__float__(), penalty_weight_update_factor
+        return init_penalty, penalty_weight_update_factor
 
 
     def solve(self, p_init, print_result):

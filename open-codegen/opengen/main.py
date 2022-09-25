@@ -1,6 +1,7 @@
-import constraints
+import opengen.constraints as constraints
 import casadi.casadi as cs
 import opengen.functions as fn
+import opengen.config as cfg
 import numpy as np
 from ocp.optimal_control_problem import OptimalControlProblem
 from ocp.ocp_builder import OCPBuilder
@@ -31,19 +32,19 @@ def plot_2D_box(xmin, xmax):
 
 # Build parametric optimizer
 # ------------------------------------
-(nx, nu, N) = (4, 2, 40)
+(nx, nu, N) = (4, 2, 30)
 
 pi = round(math.pi, 2)
 
 umin = [-3.0, -pi/6]
 umax = [3.0, pi/6]
 
-xmin = [-1000, -1000, -2*pi, -5.0]*N
-xmax = [1000, 1000, 2*pi, 5.0]*N
+xmin = [-1000, -1000, -2*pi, -5.0]
+xmax = [1000, 1000, 2*pi, 5.0]
 
 u_set = [constraints.Rectangle(umin, umax)]*N
 
-x_set = constraints.Rectangle(xmin, xmax)
+x_set = [constraints.Rectangle(xmin, xmax)]*N
 
 def testcase_input_1():
     x_init_val = [-8.0, 3.0, 0.0, 1.0]
@@ -208,8 +209,16 @@ user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_
     .with_state_constraint(x_set)\
     .with_exclusion_set(exclusion_set_list)
 
+solver_config = cfg.SolverConfiguration() \
+                .with_max_outer_iterations(30) \
+                .with_tolerance(1e-5) \
+                .with_delta_tolerance(1e-3) \
+                .with_preconditioning(True) \
+                .with_optimized_initial_penalty(False)
+
 builder = OCPBuilder(user_ocp)\
-            .with_build_interface(OcpInterfaceType.DIRECT)
+            .with_build_interface(OcpInterfaceType.DIRECT) \
+            .with_solver_config(solver_config)
 
 builder.build()
 
@@ -252,14 +261,14 @@ def plot_solution(user_ocp, u_star, p_val):
     ztheta = z_star[2:nx * (N + 1):nx]
     zv = z_star[3:nx * (N + 1):nx]
 
-    # plt.subplot(211)
-    # plt.plot(time, zv, '-o')
-    # plt.ylabel('velocity')
-    # plt.subplot(212)
-    # plt.plot(time, ztheta, '-o')
-    # plt.ylabel('theta')
-    # plt.xlabel('Time')
-    # plt.show()
+    plt.subplot(211)
+    plt.plot(time, zv, '-o')
+    plt.ylabel('velocity')
+    plt.subplot(212)
+    plt.plot(time, ztheta, '-o')
+    plt.ylabel('theta')
+    plt.xlabel('Time')
+    plt.show()
 
     plt.plot(zx, zy, '-o')
     plt.ylabel('y')
@@ -271,8 +280,8 @@ def plot_solution(user_ocp, u_star, p_val):
     plot_2D_box(b1_xmin, b1_xmax)
     plot_2D_box(b2_xmin, b2_xmax)
 
-    plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.2, np.sin(ztheta[0]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
-    plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.2, np.sin(ztheta[-1]) * 0.1, head_width=.1, color=(0.8, 0, 0.2))
+    plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.2, np.sin(ztheta[0]) * 0.2, head_width=.5, color=(0.8, 0, 0.2))
+    plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.2, np.sin(ztheta[-1]) * 0.2, head_width=.5, color=(0.8, 0, 0.2))
 
     plt.xlim([-8.5,6.5])
     plt.ylim([-3,6])
@@ -295,8 +304,8 @@ alpha = 0.25
 # plot_solution(user_ocp, u_star, p_val)
 
 
-(qp, qtheta, qv, ra, rdelta) = (30, 2, 10, 30, 30)
-(qpN, qthetaN, qvN) = (3000, 1000, 1000)
+(qp, qtheta, qv, ra, rdelta) = (3, 2, 1, 3, 3)
+(qpN, qthetaN, qvN) = (1000, 3000, 1000)
 p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN] + x_ref_val
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
