@@ -151,9 +151,10 @@ class OCPBuilder:
                 w1_symb = cs.vertcat(w1_symb, w1_symb_i)
             w_constraint_f1_fn = cs.Function('w_constraint_f1_fn', [u, p], [w1_symb])
             w1 = w_constraint_f1_fn(u_val, theta_val_raw)
-            c_f1_set_c = c_f1_set_c.get_scaled_constraint(w1)
+            w1_val = [w1[i].__float__() for i in range(w1.size(1))]
+            c_f1_set_c = c_f1_set_c.get_scaled_constraint(w1_val)
             problem.with_aug_lagrangian_constraints(c_f1, c_f1_set_c, c_f1_set_y)
-            theta_val = theta_val + [w1[i].__float__() for i in range(w1.size(1))]
+            theta_val = theta_val + w1_val
 
         w2_symb = []
         if n2 > 0:

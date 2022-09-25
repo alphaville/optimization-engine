@@ -1,6 +1,7 @@
 import casadi.casadi as cs
 from .constraint import Constraint
 import opengen.functions as fn
+import numpy as np
 
 
 class Rectangle(Constraint):
@@ -180,6 +181,6 @@ class Rectangle(Constraint):
         return sup_lev_set
 
     def get_scaled_constraint(self, scaling_factor):
-        self.__xmin *= scaling_factor
-        self.__xmax *= scaling_factor
+        self.__xmin = np.multiply(self.__xmin, scaling_factor)
+        self.__xmax = np.multiply(self.__xmax, scaling_factor)
         return self
