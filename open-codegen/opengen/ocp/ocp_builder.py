@@ -46,24 +46,13 @@ class OCPBuilder:
                 self.__build_config.with_tcp_interface_config()
             else:
                 self.__build_config.with_build_directory("my_optimizers")
-            # build_config.with_build_c_bindings()
 
         if self.__meta is None:
             self.__meta = og.config.OptimizerMeta() \
                 .with_optimizer_name("navigation")
 
         if self.__solver_config is None:
-            self.__solver_config = og.config.SolverConfiguration() \
-                .with_tolerance(1e-4) \
-                .with_initial_tolerance(1e-2) \
-                .with_initial_penalty(5000) \
-                .with_penalty_weight_update_factor(1.25) \
-                .with_inner_tolerance_update_factor(0.1) \
-                .with_max_outer_iterations(30) \
-                .with_max_inner_iterations(2000) \
-                .with_delta_tolerance(1e-3) \
-                .with_preconditioning(True) \
-                .with_optimized_initial_penalty(True)
+            self.__solver_config = og.config.SolverConfiguration()
 
     def build(self):
         ocp = self.__ocp

@@ -210,11 +210,8 @@ user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_
     .with_exclusion_set(exclusion_set_list)
 
 solver_config = cfg.SolverConfiguration() \
-                .with_max_outer_iterations(30) \
-                .with_tolerance(1e-5) \
-                .with_delta_tolerance(1e-3) \
                 .with_preconditioning(True) \
-                .with_optimized_initial_penalty(False)
+                .with_optimized_initial_penalty(True)
 
 builder = OCPBuilder(user_ocp)\
             .with_build_interface(OcpInterfaceType.DIRECT) \
@@ -304,8 +301,8 @@ alpha = 0.25
 # plot_solution(user_ocp, u_star, p_val)
 
 
-(qp, qtheta, qv, ra, rdelta) = (3, 2, 1, 3, 3)
-(qpN, qthetaN, qvN) = (1000, 3000, 1000)
+(qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 10, 30)
+(qpN, qthetaN, qvN) = (3000, 5000, 10)
 p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN] + x_ref_val
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)

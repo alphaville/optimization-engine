@@ -10,14 +10,14 @@ class SolverConfiguration:
             New instance of SolverConfiguration
 
         """
-        self.__tolerance = 1e-4
-        self.__initial_tolerance = 1e-4
+        self.__tolerance = 1e-5
+        self.__initial_tolerance = 1e-2
         self.__lbfgs_memory = 10
-        self.__max_inner_iterations = 500
-        self.__max_outer_iterations = 10
+        self.__max_inner_iterations = 2000
+        self.__max_outer_iterations = 50
         self.__constraints_tolerance = 1e-4
-        self.__initial_penalty = 1.0
-        self.__penalty_weight_update_factor = 5.0
+        self.__initial_penalty = 1000.0
+        self.__penalty_weight_update_factor = 2.5
         self.__max_duration_micros = 5000000
         self.__inner_tolerance_update_factor = 0.1
         self.__sufficient_decrease_coefficient = 0.1
@@ -26,7 +26,7 @@ class SolverConfiguration:
         self.__cbfgs_sy_epsilon = None
         self.__do_preconditioning = True
         self.__optimize_initial_penalty = True
-        self.__max_penalty_allowed = 1e20
+        self.__max_penalty_allowed = 1e15
 
     # --------- GETTERS -----------------------------
 
