@@ -178,3 +178,8 @@ class Rectangle(Constraint):
             sup_lev_set = sup_lev_set * fn.fmax(0.0, dimension[i] ** 2 - v[i] ** 2)
 
         return sup_lev_set
+
+    def get_scaled_constraint(self, scaling_factor):
+        self.__xmin *= scaling_factor
+        self.__xmax *= scaling_factor
+        return self

@@ -127,6 +127,8 @@ class OCPBuilder:
         u = problem.decision_variables
         p = problem.parameter_variables
         c_f1 = problem.penalty_mapping_f1
+        c_f1_set_c = problem.alm_set_c
+        c_f1_set_y = problem.alm_set_y
         n1 = problem.dim_constraints_aug_lagrangian()
         c_f2 = problem.penalty_mapping_f2
         n2 = problem.dim_constraints_penalty()
@@ -149,6 +151,8 @@ class OCPBuilder:
                 w1_symb = cs.vertcat(w1_symb, w1_symb_i)
             w_constraint_f1_fn = cs.Function('w_constraint_f1_fn', [u, p], [w1_symb])
             w1 = w_constraint_f1_fn(u_val, theta_val_raw)
+            c_f1_set_c = c_f1_set_c.get_scaled_constraint(w1)
+            problem.with_aug_lagrangian_constraints(c_f1, c_f1_set_c, c_f1_set_y)
             theta_val = theta_val + [w1[i].__float__() for i in range(w1.size(1))]
 
         w2_symb = []
@@ -185,7 +189,7 @@ class OCPBuilder:
 
         init_penalty = 10 * max(1, abs(cost))
         init_penalty /= max(1, abs(infeasibility_psi))
-        init_penalty = max(1e3, min(init_penalty, 1e8))
+        init_penalty = max(1e-8, min(init_penalty, 1e8))
 
         solver_config = self.__solver_config
         max_penalty = solver_config.max_penalty_allowed
@@ -194,9 +198,22 @@ class OCPBuilder:
 
         return init_penalty, penalty_weight_update_factor
 
+    def __build_with_updated_penalty(self, ocp_solve_function, p_init):
+        u_initial_guess = ocp_solve_function(p_init, self.__meta.optimizer_name, print_result=False)
+        (init_penalty, penalty_weight_update_factor) = self.__calculate_initial_penalty(u_initial_guess, p_init)
+        self.__solver_config.with_initial_penalty(init_penalty)
+        self.__solver_config.with_penalty_weight_update_factor(penalty_weight_update_factor)
+        self.__solver_config.with_max_outer_iterations(self.__default_max_outer_iterations)
+        self.__solver_config.with_optimized_initial_penalty(False)
+        self.__meta.with_optimizer_name(self.__meta.optimizer_name[:-5])
+        self.__build_config.with_rebuild(False)
+        builder = og.builder.OpEnOptimizerBuilder(self.__ocp.problem,
+                                                  self.__meta,
+                                                  self.__build_config,
+                                                  self.__solver_config)
+        builder.build()
 
     def solve(self, p_init, print_result):
-
         if self.__solver_config.preconditioning is True:
             p_init = self.__calculate_preconditioning_coefficients(p_val=p_init)
 
@@ -206,19 +223,7 @@ class OCPBuilder:
             ocp_solve_function = direct_interface
 
         if self.__solver_config.optimize_initial_penalty is True:
-            u_initial_guess = ocp_solve_function(p_init, self.__meta.optimizer_name, print_result=False)
-            (init_penalty, penalty_weight_update_factor) = self.__calculate_initial_penalty(u_initial_guess, p_init)
-            self.__solver_config.with_initial_penalty(init_penalty)
-            self.__solver_config.with_penalty_weight_update_factor(penalty_weight_update_factor)
-            self.__solver_config.with_max_outer_iterations(self.__default_max_outer_iterations)
-            self.__solver_config.with_optimized_initial_penalty(False)
-            self.__meta.with_optimizer_name(self.__meta.optimizer_name[:-5])
-            self.__build_config.with_rebuild(False)
-            builder = og.builder.OpEnOptimizerBuilder(self.__ocp.problem,
-                                                      self.__meta,
-                                                      self.__build_config,
-                                                      self.__solver_config)
-            builder.build()
+            self.__build_with_updated_penalty(ocp_solve_function, p_init)
 
         return ocp_solve_function(p_init, self.__meta.optimizer_name, print_result)
 

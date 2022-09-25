@@ -14,3 +14,6 @@ class Constraint:
 
     def sup_level_set(self, x):
         raise NotImplementedError("Method `sup_level_set` is not implemented")
+
+    def get_scaled_constraint(self, scaling_factor):
+        raise NotImplementedError("Method `get_scaled_constraint` is not implemented")

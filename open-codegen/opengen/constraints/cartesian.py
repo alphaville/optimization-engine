@@ -1,5 +1,6 @@
 from . import constraint
 from typing import List
+import copy
 
 
 class CartesianProduct(constraint.Constraint):
@@ -98,3 +99,15 @@ class CartesianProduct(constraint.Constraint):
             if not set_i.is_compact():
                 return False
         return True
+
+    def get_scaled_constraint(self, scaling_factor):
+        start = 0
+
+        for i in range(len(self.__constraints)):
+            constraint_set = copy.deepcopy(self.__constraints[i])
+            end = start + constraint_set.dimension()
+            set_scaling_factor = scaling_factor[start:end]
+            constraint_set = constraint_set.get_scaled_constraint(set_scaling_factor)
+            self.__constraints[i] = constraint_set
+            start = end
+        return self

@@ -137,10 +137,10 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
 
     set_exclusion_fn = set_exclusion_formulation(user_ocp, x[nx:])
 
-    alm_mapping = cs.vertcat(alm_constraints, system_dynamics)
+    alm_constraints = cs.vertcat(alm_constraints, system_dynamics)
     alm_set = og.constraints.Zero()
 
     if fn.is_symbolic(set_exclusion_fn):
         pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
-    return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints
+    return cost, decision_var, bounds, alm_constraints, alm_set, pm_constraints

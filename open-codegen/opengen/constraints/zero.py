@@ -29,3 +29,6 @@ class Zero(Constraint):
 
     def is_compact(self):
         return True
+
+    def get_scaled_constraint(self, scaling_factor):
+        return self

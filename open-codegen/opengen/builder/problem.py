@@ -225,6 +225,7 @@ class Problem:
         if w1 is not None:
             self.__infeasibility += 0.5 * cs.sumsqr(w1 * cs.fmax(0, self.__alm_mapping_f1))
             self.__alm_mapping_f1 = w1 * self.__alm_mapping_f1
+            # alm_set_c scaled after preconditioning calculation due to issue with symbolic variables
             self.__p = cs.vertcat(self.__p, w1)
 
         w2 = self.__w2
