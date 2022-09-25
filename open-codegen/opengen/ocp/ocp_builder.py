@@ -229,7 +229,7 @@ def tcp_interface(z_initial, optimizer_name, print_result=False):
     mng.kill()
 
     if print_result:
-        print('cost: \t%s' % solution["cost"])
+        print('\ncost: \t%s' % solution["cost"])
         print('exit_status: \t%s' % solution["exit_status"])
         print('f1_infeasibility: \t%s' % solution["f1_infeasibility"])
         print('f2_norm: \t%s' % solution["f2_norm"])
@@ -256,7 +256,7 @@ def direct_interface(z_initial, optimizer_name, print_result=False):
 
     if result:
         if print_result:
-            print('cost: \t%s' % result.cost)
+            print('\ncost: \t%s' % result.cost)
             print('exit_status: \t%s' % result.exit_status)
             print('f1_infeasibility: \t%s' % result.f1_infeasibility)
             print('f2_norm: \t%s' % result.f2_norm)

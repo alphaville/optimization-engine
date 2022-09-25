@@ -466,11 +466,6 @@ class OpEnOptimizerBuilder:
         target_bindings = os.path.join(
             target_dir, "{}{}".format(optimizer_name, target_lib_extension))
         shutil.copyfile(generated_bindings, target_bindings)
-        self.__logger.info("To use the Python bindings do:\n\n"
-                           "       import sys\n"
-                           "       sys.path.insert(1, \"{}\")\n"
-                           "       import {}\n"
-                           "       solver = {}.solver()".format(target_dir, optimizer_name, optimizer_name))
 
     def __build_tcp_iface(self):
         self.__logger.info("Building the TCP interface")

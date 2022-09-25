@@ -59,9 +59,7 @@ def testcase_input_1():
     b2_centre = [3.5, 0]
     b2_radius = 0.8
 
-    formulation = FormulationType.MULTIPLE_SHOOTING
-
-    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_centre, b1_radius, b2_centre, b2_radius, formulation
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_centre, b1_radius, b2_centre, b2_radius
 
 
 def testcase_input_2():
@@ -77,9 +75,7 @@ def testcase_input_2():
     b2_xmin=[3, -1]
     b2_xmax=[7, 1]
 
-    formulation = FormulationType.MULTIPLE_SHOOTING
-
-    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax
 
 
 def testcase_input_3():
@@ -95,10 +91,9 @@ def testcase_input_3():
     b2_xmin=[2, -2]
     b2_xmax=[4, 2]
 
-    formulation = FormulationType.MULTIPLE_SHOOTING
+    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax
 
-    return x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation
-
+formulation = FormulationType.MULTIPLE_SHOOTING
 
 # [x_init_val, x_ref_val, c1_centre, c1_radius, s1_centre, s1_radius, s2_centre, s2_radius, formulation] = testcase_input_1()
 # [x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation] = testcase_input_2()
@@ -219,7 +214,6 @@ builder = OCPBuilder(user_ocp)\
 
 builder.build()
 
-
 def plot_solution(user_ocp, u_star, p_val):
     nx = user_ocp.nx
     nu = user_ocp.nu
@@ -288,7 +282,6 @@ def plot_solution(user_ocp, u_star, p_val):
     # print(f"z_theta minimum:{min(ztheta)}")
 
 
-
 ts = 0.5
 L = 2.5
 alpha = 0.25
@@ -304,6 +297,16 @@ alpha = 0.25
 (qp, qtheta, qv, ra, rdelta) = (18, 2, 5, 10, 30)
 (qpN, qthetaN, qvN) = (3000, 5000, 10)
 p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN] + x_ref_val
+
+
+if x_ref_val[2] == 0:
+    print('\nTESTCASE 2')
+elif x_ref_val[2] == -pi/2:
+    print('\nTESTCASE 3')
+print('Formulation: Multiple Shooting') if formulation is FormulationType.MULTIPLE_SHOOTING \
+                                        else print('Formulation: Single Shooting')
+print('Preconditioning: ', solver_config.preconditioning)
+print('Optimized Initial Penalty: ', solver_config.optimize_initial_penalty)
 u_star = builder.solve(p_val, print_result=True)
 plot_solution(user_ocp, u_star, p_val)
 
