@@ -419,8 +419,14 @@ static void copy_args_into_upw_space(const casadi_real** arg) {
     for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
 }
 
-/* ------COST------------------------------------------------------------------- */
 
+/**
+ * Cost function
+ *
+ * Input arguments:
+ * - `arg = {u, ξ, p}`, where `u`, `ξ`, and `p` are pointer-to-double
+ * - `res = {cost}`, where `cost` is a pointer-to-double
+ */
 int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[COST_SZ_ARG_{{ meta.optimizer_name | upper}}] =
              {uxip_space,  /* :u  */
@@ -438,8 +444,13 @@ int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real
 }
 
 
-/* ------GRADIENT--------------------------------------------------------------- */
-
+/**
+ * Gradient function
+ *
+ * Input arguments:
+ * - `arg = {u, ξ, p}`, where `u`, `ξ`, and `p` are pointer-to-double
+ * - `res = {grad}`, where `grad` is a pointer-to-double
+ */
 int grad_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     const casadi_real* args__[GRAD_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             { uxip_space,  /* :u  */
@@ -455,9 +466,13 @@ int grad_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi
         (void*) 0);
 }
 
-
-/* ------MAPPING F1------------------------------------------------------------- */
-
+/**
+ * Mapping F1
+ *
+ * Input arguments:
+ * - `arg = {u, p}`, where `u` and `p` are pointer-to-double
+ * - `res = {F1}`, where `F1` is a pointer-to-double
+ */
 int mapping_f1_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[F1_SZ_ARG_{{ meta.optimizer_name | upper}}] =
@@ -483,8 +498,13 @@ int mapping_f1_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
 }
 
 
-/* ------MAPPING F2------------------------------------------------------------- */
-
+/**
+ * Mapping F2
+ *
+ * Input arguments:
+ * - `arg = {u, p}`, where `u` and `p` are pointer-to-double
+ * - `res = {F1}`, where `F1` is a pointer-to-double
+ */
 int mapping_f2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[F2_SZ_ARG_{{ meta.optimizer_name | upper}}] =
@@ -633,6 +653,12 @@ int init_penalty_function_{{ meta.optimizer_name }}(const casadi_real** arg, cas
         (void*) 0);
 }
 
+/**
+ * Compute all preconditioning/scaling factors, w
+ *
+ * Input arguments:
+ * - `arg = {u, p}`, where `u` and `p` are pointer-to-double
+ */
 int preconditioning_www_{{ meta.optimizer_name }}(const casadi_real** arg) {
     int status_ = 0;
     status_ += preconditioning_w1_function_{{ meta.optimizer_name }}(arg);
