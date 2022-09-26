@@ -326,6 +326,8 @@ pub fn solve(
     y0: &Option<Vec<f64>>,
     c0: &Option<f64>,
 ) -> Result<AlmOptimizerStatus, SolverError> {
+    // Start by initialising the optimiser interface (e.g., set w=1)
+    icasadi_{{meta.optimizer_name}}::init_{{ meta.optimizer_name }}();
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
