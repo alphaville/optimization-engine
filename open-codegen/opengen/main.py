@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from ocp.set_exclusion import ExclusionSet
 from ocp.type_enums import *
 import math
+import sys
 
 def plot_2D_circle(centre, radius):
     t = np.linspace(0, 2 * pi, 120)
@@ -66,7 +67,7 @@ def testcase_input_2():
     x_init_val = [-8.0, 4.0, 0.0, 1.0]
     x_ref_val = [0, 0, 0, 0]
 
-    c1_centre = [-1.5, 1.5]
+    c1_centre = [-2.5, 2]
     c1_radius = 1
 
     b1_xmin=[-7, -1]
@@ -95,15 +96,25 @@ def testcase_input_3():
 
 formulation = FormulationType.MULTIPLE_SHOOTING
 
+solver_config = cfg.SolverConfiguration() \
+                .with_preconditioning(True) \
+                .with_optimized_initial_penalty(True)
+
 # [x_init_val, x_ref_val, c1_centre, c1_radius, s1_centre, s1_radius, s2_centre, s2_radius, formulation] = testcase_input_1()
-# [x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation] = testcase_input_2()
-[x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax, formulation] = testcase_input_3()
+# [x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax] = testcase_input_2()
+[x_init_val, x_ref_val, c1_centre, c1_radius, b1_xmin, b1_xmax, b2_xmin, b2_xmax] = testcase_input_3()
+
+test_name = (".\output\T3_Multiple_shooting_" if formulation is FormulationType.MULTIPLE_SHOOTING else ".\output\T3_Single_shooting_") + \
+    "Pre_" + str(solver_config.preconditioning) + "_Init_" +str(solver_config.optimize_initial_penalty)
+figure_name = test_name + ".png"
+file_name = test_name + ".txt"
+# file_name = ".\output\output_log.txt"
 
 c1 = ExclusionSet(constraint=constraints.Ball2(center=c1_centre, radius=c1_radius), state_idx=[0, 1])
 # b1 = ExclusionSet(constraint=constraints.BallInf(center=s1_centre, radius=s1_radius), state_idx=[0, 1])
 # b2 = ExclusionSet(constraint=constraints.BallInf(center=s2_centre, radius=s2_radius), state_idx=[0, 1])
-b1 = ExclusionSet(constraint=constraints.Rectangle(b1_xmin, b1_xmax), state_idx=[0, 1], mode=ConstraintMethod.PM)
-b2 = ExclusionSet(constraint=constraints.Rectangle(b2_xmin, b2_xmax), state_idx=[0, 1], mode=ConstraintMethod.PM)
+b1 = ExclusionSet(constraint=constraints.Rectangle(b1_xmin, b1_xmax), state_idx=[0, 1])
+b2 = ExclusionSet(constraint=constraints.Rectangle(b2_xmin, b2_xmax), state_idx=[0, 1])
 
 exclusion_set_list = [c1, b1, b2]
 
@@ -204,10 +215,6 @@ user_ocp = OptimalControlProblem(p_symb, nx, nu, system_dynamics_fn, stage_cost_
     .with_state_constraint(x_set)\
     .with_exclusion_set(exclusion_set_list)
 
-solver_config = cfg.SolverConfiguration() \
-                .with_preconditioning(True) \
-                .with_optimized_initial_penalty(True)
-
 builder = OCPBuilder(user_ocp)\
             .with_build_interface(OcpInterfaceType.DIRECT) \
             .with_solver_config(solver_config)
@@ -274,12 +281,11 @@ def plot_solution(user_ocp, u_star, p_val):
     plt.arrow(zx[0], zy[0], np.cos(ztheta[0]) * 0.2, np.sin(ztheta[0]) * 0.2, head_width=.5, color=(0.8, 0, 0.2))
     plt.arrow(zx[-1], zy[-1], np.cos(ztheta[-1]) * 0.2, np.sin(ztheta[-1]) * 0.2, head_width=.5, color=(0.8, 0, 0.2))
 
-    plt.xlim([-8.5,6.5])
+    plt.xlim([-8.5,7.5])
     plt.ylim([-3,6])
     plt.gca().set_aspect('equal', adjustable='box')
+    plt.savefig(figure_name, bbox_inches='tight')
     plt.show()
-
-    # print(f"z_theta minimum:{min(ztheta)}")
 
 
 ts = 0.5
@@ -298,16 +304,22 @@ alpha = 0.25
 (qpN, qthetaN, qvN) = (3000, 5000, 10)
 p_val = x_init_val + [ts, L, alpha, qp, qtheta, qv, ra, rdelta, qpN, qthetaN, qvN] + x_ref_val
 
+original_stdout = sys.stdout
+with open(file_name, 'a') as f:
+    sys.stdout = f
 
-if x_ref_val[2] == 0:
-    print('\nTESTCASE 2')
-elif x_ref_val[2] == -pi/2:
-    print('\nTESTCASE 3')
-print('Formulation: Multiple Shooting') if formulation is FormulationType.MULTIPLE_SHOOTING \
-                                        else print('Formulation: Single Shooting')
-print('Preconditioning: ', solver_config.preconditioning)
-print('Optimized Initial Penalty: ', solver_config.optimize_initial_penalty)
-u_star = builder.solve(p_val, print_result=True)
+    if x_ref_val[2] == 0:
+        print('\nTESTCASE 2')
+    elif x_ref_val[2] == -pi/2:
+        print('\nTESTCASE 3')
+    print('Formulation: Multiple Shooting') if formulation is FormulationType.MULTIPLE_SHOOTING \
+                                            else print('Formulation: Single Shooting')
+    print('Preconditioning: ', solver_config.preconditioning)
+    print('Optimized Initial Penalty: ', solver_config.optimize_initial_penalty)
+
+    u_star = builder.solve(p_val, print_result=True)
+    print('\n')
+    sys.stdout = original_stdout
 plot_solution(user_ocp, u_star, p_val)
 
 #

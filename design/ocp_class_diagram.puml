@@ -1,0 +1,108 @@
+@startuml
+''https://plantuml.com/class-diagram
+''https://www.youtube.com/watch?v=UI6lqHOVHic
+
+class OCPBuilder{
+    - ocp: OptimalControlProblem
+    - build_config: BuildConfiguration
+    - meta: OptimizerMeta
+    - solver_config: SolverConfiguration
+    - ocp_build_interface: OcpInterfaceType
+    - default_max_outer_iterations: int
+    + with_build_config( build_config: BuildConfiguration ): self
+    + with_meta( meta: OptimizerMeta ): self
+    + with_solver_config( solver_config: SolverConfiguration ): self
+    + with_build_interface( ocp_build_interface: OcpInterfaceType ): self
+    + with_formulation_type( u_set: Constraint[] ): self
+    - build_default_config( void ): void
+    + build( void ): void
+    - calculate_preconditioning_coefficients( p_val: float[], <<optional>>u_val: float[nu] ): float[]
+    - calculate_initial_penalty( u_guess: float[nu], theta_val: float[] )
+    - build_with_updated_penalty( ocp_solve_fn: void, p_init: float[] )
+    + solve( p_init: float[], <<optional>>print_result: bool ): float[]
+}
+
+
+enum OcpInterfaceType {
+DIRECT
+TCP
+}
+OcpInterfaceType <|-l- OCPBuilder
+direct_interface <|-u[hidden]- OcpInterfaceType
+tcp_interface <|-u[hidden]- direct_interface
+
+multiple_shooting_formulation <|-d[hidden]- OcpInterfaceType
+single_shooting_formulation <|-d[hidden]- multiple_shooting_formulation
+
+interface direct_interface
+interface tcp_interface
+direct_interface <|-l- OCPBuilder
+tcp_interface <|- OCPBuilder
+
+interface single_shooting_formulation
+interface multiple_shooting_formulation
+single_shooting_formulation <|- OCPBuilder
+multiple_shooting_formulation <|- OCPBuilder
+
+class OptimalControlProblem{
+    - p_symb: SX[]
+    - nx: int
+    - nu: int
+    - horizon: int
+    - x_set: Constraint[]
+    - u_set: Constraint[]
+    - formulation_type: FormulationType
+    - exclusion_set: ExclusionSet[]
+    - problem: Problem
+    + sys_dyn_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : x_tp1: SX[nx]
+    + stage_cost_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : stage_cost: SX
+    + terminal_cost_fn( x: SX[nx], p_symb: SX[] ) : terminal_cost: SX
+    + with_hotizon( horizon: int )
+    + with_state_constraint( x_set: Constraint[] ): self
+    + with_input_constraint( u_set: Constraint[] ): self
+    + with_formulation_type( u_set: Constraint[] ): self
+    + with_exclusion_set( exclusion_set: Constraint[] ): self
+    + save_OCP(problem: Problem): self
+    + get_nx(): int
+    + get_nu(): int
+    + get_horizon(): int
+    + get_p_symb(): SX[]
+    + get_x_set(): Constraint[]
+    + get_u_set(): Constraint[]
+    + get_formulation_type(): FormulationType
+    + get_exclusion_set(): Constraint[]
+    + get_problem(): Problem
+}
+
+OptimalControlProblem <|-r- OCPBuilder
+
+enum FormulationType {
+SINGLE_SHOOTING
+MULTIPLE_SHOOTING
+}
+FormulationType <|-d- OptimalControlProblem
+
+class ExclusionSet{
+    - constraint: Constraint
+    - state_idx
+    - mode: ConstraintMethod
+    + get_exclusion_mode(): ConstraintMethod
+    + exclude_set( x: SX[], nx: int, horizon: int ): SX[]
+}
+ExclusionSet <|-u- OptimalControlProblem
+
+enum ConstraintMethod {
+ALM
+PM
+}
+ConstraintMethod <|-u- ExclusionSet
+
+
+opengen.constraints.Constraint<|-u- OptimalControlProblem
+opengen.constraints.Constraint<|-- OCPBuilder
+opengen.constraints.Constraint<|-- ExclusionSet
+opengen.config.SolverConfiguration<|-- OCPBuilder
+opengen.builder.BuildConfiguration<|- OCPBuilder
+opengen.config.OptimizerMeta<|- OCPBuilder
+opengen.builder.Problem<|- OptimalControlProblem
+@enduml

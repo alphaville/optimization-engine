@@ -203,7 +203,7 @@ class OCPBuilder:
                                                   self.__solver_config)
         builder.build()
 
-    def solve(self, p_init, print_result):
+    def solve(self, p_init, print_result=False):
         if self.__solver_config.preconditioning is True:
             p_init = self.__calculate_preconditioning_coefficients(p_val=p_init)
 
@@ -218,14 +218,14 @@ class OCPBuilder:
         return ocp_solve_function(p_init, self.__meta.optimizer_name, print_result)
 
 
-def tcp_interface(z_initial, optimizer_name, print_result=False):
+def tcp_interface(p_init, optimizer_name, print_result=False):
     # Use TCP server
     # ------------------------------------
     mng = og.tcp.OptimizerTcpManager('my_optimizers_tcp/' + optimizer_name)
     mng.start()
 
     mng.ping()
-    solution = mng.call(z_initial)
+    solution = mng.call(p_init)
     mng.kill()
 
     if print_result:
@@ -241,7 +241,7 @@ def tcp_interface(z_initial, optimizer_name, print_result=False):
     return solution['solution']
 
 
-def direct_interface(z_initial, optimizer_name, print_result=False):
+def direct_interface(p_init, optimizer_name, print_result=False):
     # Note: to use the direct interface you need to build using
     #       .with_build_python_bindings()
     import sys
@@ -252,7 +252,7 @@ def direct_interface(z_initial, optimizer_name, print_result=False):
     optimizer = __import__(optimizer_name)
 
     solver = optimizer.solver()
-    result = solver.run(z_initial)
+    result = solver.run(p_init)
 
     if result:
         if print_result:

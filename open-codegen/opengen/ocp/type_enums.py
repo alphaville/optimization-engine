@@ -4,7 +4,6 @@ from enum import Enum
 class FormulationType(Enum):
     SINGLE_SHOOTING = 1
     MULTIPLE_SHOOTING = 2
-    COLLOCATION = 3
 
 
 class OcpInterfaceType(Enum):

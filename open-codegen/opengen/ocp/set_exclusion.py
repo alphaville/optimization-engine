@@ -1,9 +1,8 @@
-from constraints import Constraint
 from .type_enums import ConstraintMethod
 import casadi.casadi as cs
 
 
-class ExclusionSet(Constraint):
+class ExclusionSet():
     def __init__(self, constraint, state_idx=None, mode=ConstraintMethod.PM):
         self.__constraint = constraint
         self.__state_idx = state_idx
