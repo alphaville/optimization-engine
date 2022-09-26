@@ -16,9 +16,9 @@ for i in range(nu):
 
 
 c_f1 = cs.vertcat(p[0] * u[0] - u[1], p[1]*u[2] - u[3] + 0.1)
-c_f2 = cs.vertcat((u[2]+1)**2 - 8*u[4], 2*cs.sin(u[4] + 1), 5*cs.sin(u[3] + 1))
+c_f2 = cs.vertcat((u[2]+1)**2 - 8*u[4], 5*cs.sin(u[3] + 1))
 
-bounds = og.constraints.Halfspace([1., 2.5, 1., 5., 2.], 10.39)
+bounds = og.constraints.Halfspace([1, 1, 1, 1, 1], 100)
 problem = og.builder.Problem(u, p, phi) \
     .with_penalty_constraints(c_f2)\
     .with_aug_lagrangian_constraints(c_f1, og.constraints.Zero())\
@@ -51,6 +51,8 @@ print(" ")
 print(f"solution = {result.solution}")
 print(f"time = {result.solve_time_ms} ms")
 print(f"penalty = {result.penalty}")
+print(f"infeasibility f1 = {result.f1_infeasibility}")
+print(f"infeasibility f2 = {result.f2_norm}")
 print(f"status = {result.exit_status}")
 
-solver.run(p=[3.5, 7.8], initial_guess=[1, 2, 3, 4, 5], initial_penalty=100)
+solver.run(p=[0.5, 4.2], initial_guess=[3, 5, 2, 1, 4], initial_penalty=100)

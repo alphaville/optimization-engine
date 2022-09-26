@@ -335,10 +335,10 @@ pub fn solve(
     if DO_PRECONDITIONING {
         // Compute the preconditioning parameters (w's)
         // The scaling parameters will be stored internally in `interface.c`
-        icasadi_rosenbrock::precondition(u, p);
+        icasadi_{{meta.optimizer_name}}::precondition(u, p);
 
         // Compute initial penalty
-        icasadi_rosenbrock::initial_penalty(u, p, & mut rho_init);
+        icasadi_{{meta.optimizer_name}}::initial_penalty(u, p, & mut rho_init);
     }
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
