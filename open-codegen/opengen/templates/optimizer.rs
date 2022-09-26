@@ -329,6 +329,16 @@ pub fn solve(
     // Start by initialising the optimiser interface (e.g., set w=1)
     icasadi_{{meta.optimizer_name}}::init_{{ meta.optimizer_name }}();
 
+    // Compute the preconditioning parameters (w's)
+    // The scaling parameters will be stored internally in `interface.c`
+    icasadi_{{meta.optimizer_name}}::precondition(u, p);
+
+    // Compute initial penalty
+    let mut rho_init : f64 = 1.0;
+    icasadi_{{meta.optimizer_name}}::initial_penalty(u, p, &mut rho_init);
+
+
+
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 

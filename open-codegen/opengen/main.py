@@ -46,7 +46,7 @@ sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
 rosenbrock = __import__(optimizer_name)
 
 solver = rosenbrock.solver()
-result = solver.run(p=[1., 2.], initial_guess=[1, 1, 1, 1, 1])
+result = solver.run(p=[3.5, 7.8], initial_guess=[1, 2, 3, 4, 5])
 print(" ")
 print(f"solution = {result.solution}")
 print(f"time = {result.solve_time_ms} ms")
