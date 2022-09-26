@@ -446,7 +446,7 @@ class OpEnOptimizerBuilder:
             w_f2 = symbol_type("w_f2", c_f2.size(1))
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
-                                 cs.dot(cs.power(w_f2, 2), cs.power(cs.fmax(0, c_f2), 2))
+                                 cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
         else:
             w_constraint_f2_fn = cs.Function(
                 meta.w_f2_function_name, [u, p], [0])
