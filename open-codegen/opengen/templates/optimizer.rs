@@ -328,6 +328,10 @@ pub fn solve(
     y0: &Option<Vec<f64>>,
     c0: &Option<f64>,
 ) -> Result<AlmOptimizerStatus, SolverError> {
+
+    assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
+    assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
+
     // Start by initialising the optimiser interface (e.g., set w=1)
     icasadi_{{meta.optimizer_name}}::init_{{ meta.optimizer_name }}();
 
@@ -340,9 +344,6 @@ pub fn solve(
         // Compute initial penalty
         icasadi_{{meta.optimizer_name}}::initial_penalty(u, p, & mut rho_init);
     }
-
-    assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
-    assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
 
     let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
         icasadi_{{meta.optimizer_name}}::cost(u, xi, p, cost);
