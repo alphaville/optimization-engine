@@ -22,27 +22,34 @@ class OCPBuilder{
     + solve( p_init: float[], <<optional>>print_result: bool ): float[]
 }
 
+interface system_interface {
+    sys_dyn_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : SX[nx] (next_state)
+    stage_cost_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : SX (stage_cost)
+    terminal_cost_fn( x: SX[nx], p_symb: SX[] ) : SX (terminal_cost)
+}
 
 enum OcpInterfaceType {
 DIRECT
 TCP
 }
 OcpInterfaceType <|-l- OCPBuilder
-direct_interface <|-u[hidden]- OcpInterfaceType
-tcp_interface <|-u[hidden]- direct_interface
+OcpInterfaceType <|-u[hidden]- ExclusionSet
 
-multiple_shooting_formulation <|-d[hidden]- OcpInterfaceType
-single_shooting_formulation <|-d[hidden]- multiple_shooting_formulation
+class formulations <<static functions>>{
+    single_shooting_formulation()
+    multiple_shooting_formulation()
+}
+formulations <|-u[hidden]- OcpInterfaceType
 
-interface direct_interface
-interface tcp_interface
-direct_interface <|-l- OCPBuilder
-tcp_interface <|- OCPBuilder
+formulations <|-l- OCPBuilder
 
-interface single_shooting_formulation
-interface multiple_shooting_formulation
-single_shooting_formulation <|- OCPBuilder
-multiple_shooting_formulation <|- OCPBuilder
+class solver_interface <<static functions>>{
+    direct_interface()
+    tcp_interface()
+}
+
+solver_interface <|-r[hidden]- formulations
+solver_interface <|- OCPBuilder
 
 class OptimalControlProblem{
     - p_symb: SX[]
@@ -54,9 +61,9 @@ class OptimalControlProblem{
     - formulation_type: FormulationType
     - exclusion_set: ExclusionSet[]
     - problem: Problem
-    + sys_dyn_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : x_tp1: SX[nx]
-    + stage_cost_fn( x: SX[nx], u: SX[nu], p_symb: SX[] ) : stage_cost: SX
-    + terminal_cost_fn( x: SX[nx], p_symb: SX[] ) : terminal_cost: SX
+    - sys_dyn_fn: void*
+    - stage_cost_fn: void*
+    - terminal_cost_fn: void*
     + with_hotizon( horizon: int )
     + with_state_constraint( x_set: Constraint[] ): self
     + with_input_constraint( u_set: Constraint[] ): self
@@ -74,6 +81,7 @@ class OptimalControlProblem{
     + get_problem(): Problem
 }
 
+system_interface <|-r- OptimalControlProblem
 OptimalControlProblem <|-r- OCPBuilder
 
 enum FormulationType {
@@ -102,7 +110,9 @@ opengen.constraints.Constraint<|-u- OptimalControlProblem
 opengen.constraints.Constraint<|-- OCPBuilder
 opengen.constraints.Constraint<|-- ExclusionSet
 opengen.config.SolverConfiguration<|-- OCPBuilder
-opengen.builder.BuildConfiguration<|- OCPBuilder
+opengen.config.BuildConfiguration<|- OCPBuilder
 opengen.config.OptimizerMeta<|- OCPBuilder
 opengen.builder.Problem<|- OptimalControlProblem
+opengen.builder.Problem<|-d[hidden]- opengen.config.OptimizerMeta
+system_interface<|-d[hidden]- opengen.builder.Problem
 @enduml
