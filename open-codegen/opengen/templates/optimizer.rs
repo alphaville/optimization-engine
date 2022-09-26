@@ -321,6 +321,17 @@ pub fn initialize_solver() -> AlmCache {
 
 
 /// Solver interface
+///
+/// ## Arguments
+/// - `p`: static parameter vector of the optimization problem
+/// - `alm_cache`: Instance of AlmCache
+/// - `u`: Initial guess
+/// - `y0` (optional) initial vector of Lagrange multipliers
+/// - `c0` (optional) initial penalty
+///
+/// ## Returns
+/// This function returns either an instance of AlmOptimizerStatus with information about the
+/// solution, or a SolverError object if something goes wrong
 pub fn solve(
     p: &[f64],
     alm_cache: &mut AlmCache,

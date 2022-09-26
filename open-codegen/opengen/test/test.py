@@ -31,7 +31,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_max_duration_micros(1e8) \
             .with_max_outer_iterations(50) \
             .with_sufficient_decrease_coefficient(0.05) \
-            .with_cbfgs_parameters(1.5, 1e-10, 1e-12)
+            .with_cbfgs_parameters(1.5, 1e-10, 1e-12) \
+            .with_preconditioning(True)
         return solver_config
 
     @classmethod
@@ -293,7 +294,7 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_start_multiple_servers(self):
         all_managers = []
-        for i in range(50):
+        for i in range(10):
             all_managers += [og.tcp.OptimizerTcpManager(
                 optimizer_path=RustBuildTestCase.TEST_DIR + '/only_f1',
                 ip='0.0.0.0',

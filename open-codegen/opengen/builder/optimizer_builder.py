@@ -304,6 +304,8 @@ class OpEnOptimizerBuilder:
         alm_set_c = problem.alm_set_c
         f1 = problem.penalty_mapping_f1
         f2 = problem.penalty_mapping_f2
+        w_cost = problem.w_cost
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
         psi = phi
 
@@ -326,11 +328,12 @@ class OpEnOptimizerBuilder:
         if n2 > 0:
             psi += xi[0] * cs.dot(f2, f2) / 2
 
+        psi = w_cost * psi
         jac_psi = cs.gradient(psi, u)
 
-        psi_fun = cs.Function(meta.cost_function_name, [u, xi, p], [psi])
+        psi_fun = cs.Function(meta.cost_function_name, [u, xi, theta], [psi])
         grad_psi_fun = cs.Function(
-            meta.grad_function_name, [u, xi, p], [jac_psi])
+            meta.grad_function_name, [u, xi, theta], [jac_psi])
         return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
@@ -340,15 +343,17 @@ class OpEnOptimizerBuilder:
         p = problem.parameter_variables
         n1 = problem.dim_constraints_aug_lagrangian()
         f1 = problem.penalty_mapping_f1
+        w1 = problem.w1
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
         if n1 > 0:
-            mapping_f1 = f1
+            mapping_f1 = w1 * f1
         else:
             mapping_f1 = 0
 
         alm_mapping_f1_fun = cs.Function(
             self.__meta.alm_mapping_f1_function_name,
-            [u, p], [mapping_f1])
+            [u, theta], [mapping_f1])
         return alm_mapping_f1_fun
 
     def __construct_mapping_f2_function(self) -> cs.Function:
@@ -357,15 +362,17 @@ class OpEnOptimizerBuilder:
         u = problem.decision_variables
         p = problem.parameter_variables
         n2 = problem.dim_constraints_penalty()
+        w2 = problem.w2
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
         if n2 > 0:
-            penalty_constraints = problem.penalty_mapping_f2
+            penalty_constraints = w2 * problem.penalty_mapping_f2
         else:
             penalty_constraints = 0
 
         alm_mapping_f2_fun = cs.Function(
             self.__meta.constraint_penalty_function_name,
-            [u, p], [penalty_constraints])
+            [u, theta], [penalty_constraints])
 
         return alm_mapping_f2_fun
 
@@ -392,6 +399,9 @@ class OpEnOptimizerBuilder:
 
         :returns: casadi functions (w_cost, w1, w2, initial_penalty)
         """
+
+        # Note that these preconditioning-related functions are generated regardless
+        # of whether preconditioning is enabled
         meta = self.__meta
         icasadi_extern_dir = os.path.join(
             self.__icasadi_target_dir(), "extern")
