@@ -52,3 +52,5 @@ print(f"solution = {result.solution}")
 print(f"time = {result.solve_time_ms} ms")
 print(f"penalty = {result.penalty}")
 print(f"status = {result.exit_status}")
+
+solver.run(p=[3.5, 7.8], initial_guess=[1, 2, 3, 4, 5], initial_penalty=100)

@@ -16,7 +16,9 @@ class SolverConfiguration:
         self.__max_inner_iterations = 500
         self.__max_outer_iterations = 10
         self.__constraints_tolerance = 1e-4
-        self.__initial_penalty = 1.0
+        # For the initial penalty, None means that the actual value will be computed
+        # in Rust (see templates/optimizer.rs)
+        self.__initial_penalty = None
         self.__penalty_weight_update_factor = 5.0
         self.__max_duration_micros = 5000000
         self.__inner_tolerance_update_factor = 0.1
@@ -126,10 +128,22 @@ class SolverConfiguration:
     def with_initial_penalty(self, initial_penalty):
         """Initial penalty
 
+        If preconditioning is activated, then the initial penalty is computed internally
+        following the recommendations of the book of Brigin and Martinez (Chapter 12).
+        If you enable the preconditioning and you use this method, then you will be
+        overriding the value of the initial penalty.
+
+        If preconditioning is not enabled, you can set the initial penalty using this
+        method; if you don't do so, the solver will use the default value (which is 1.0).
+
         :param initial_penalty: initial value of penalty
 
         :returns: The current object
         """
+        if initial_penalty is None:
+            self.__initial_penalty = None
+            return
+
         if initial_penalty <= 0:
             raise Exception("Initial penalty must be >0")
 

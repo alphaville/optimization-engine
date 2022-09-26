@@ -39,11 +39,13 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 const PENALTY_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 10.0}};
 
 /// Initial penalty
-const INITIAL_PENALTY_PARAMETER: f64 = {{solver_config.initial_penalty or 1.0}};
+const INITIAL_PENALTY_PARAMETER: Option<f64> = {% if solver_config.initial_penalty  is not none %}Some({{ solver_config.initial_penalty }}){% else %}None{% endif %};
 
 /// Sufficient decrease coefficient
 const SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT: f64 = {{solver_config.sufficient_decrease_coefficient or 0.1}};
 
+/// Whether preconditioning should be applied
+const DO_PRECONDITIONING: bool = {{ solver_config.preconditioning | lower }};
 
 // ---Public Constants-----------------------------------------------------------------------------------
 
@@ -329,15 +331,15 @@ pub fn solve(
     // Start by initialising the optimiser interface (e.g., set w=1)
     icasadi_{{meta.optimizer_name}}::init_{{ meta.optimizer_name }}();
 
-    // Compute the preconditioning parameters (w's)
-    // The scaling parameters will be stored internally in `interface.c`
-    icasadi_{{meta.optimizer_name}}::precondition(u, p);
-
-    // Compute initial penalty
     let mut rho_init : f64 = 1.0;
-    icasadi_{{meta.optimizer_name}}::initial_penalty(u, p, &mut rho_init);
+    if DO_PRECONDITIONING {
+        // Compute the preconditioning parameters (w's)
+        // The scaling parameters will be stored internally in `interface.c`
+        icasadi_rosenbrock::precondition(u, p);
 
-
+        // Compute initial penalty
+        icasadi_rosenbrock::initial_penalty(u, p, & mut rho_init);
+    }
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
@@ -386,7 +388,7 @@ pub fn solve(
         .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS))
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERATIONS)
-        .with_initial_penalty(c0.unwrap_or(INITIAL_PENALTY_PARAMETER))
+        .with_initial_penalty(c0.unwrap_or(INITIAL_PENALTY_PARAMETER.unwrap_or(rho_init)))
         .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
         .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 
