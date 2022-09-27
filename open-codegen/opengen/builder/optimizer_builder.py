@@ -305,9 +305,11 @@ class OpEnOptimizerBuilder:
         f1 = problem.penalty_mapping_f1
         f2 = problem.penalty_mapping_f2
         w_cost = problem.w_cost
+        w1 = problem.w1
+        w2 = problem.w2
         theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
-        psi = phi
+        psi = w_cost * phi
 
         if n1 + n2 > 0:
             n_xi = n1 + 1
@@ -322,13 +324,12 @@ class OpEnOptimizerBuilder:
         #       retrieve the value of the original cost function
         if n1 > 0:
             sq_dist_term = alm_set_c.distance_squared(
-                f1 + xi[1:n1+1]/cs.fmax(xi[0], 1))
+                w1 * f1 + xi[1:n1+1]/cs.fmax(xi[0], 1))
             psi += xi[0] * sq_dist_term / 2
 
         if n2 > 0:
-            psi += xi[0] * cs.dot(f2, f2) / 2
+            psi += xi[0] * cs.dot(w2*f2, w2*f2) / 2
 
-        psi = w_cost * psi
         jac_psi = cs.gradient(psi, u)
 
         psi_fun = cs.Function(meta.cost_function_name, [u, xi, theta], [psi])

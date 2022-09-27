@@ -22,7 +22,7 @@ class RustBuildTestCase(unittest.TestCase):
     def solverConfig(cls):
         solver_config = og.config.SolverConfiguration() \
             .with_lbfgs_memory(15) \
-            .with_tolerance(1e-4) \
+            .with_tolerance(1e-6) \
             .with_initial_tolerance(1e-4) \
             .with_delta_tolerance(1e-4) \
             .with_initial_penalty(15.0) \
@@ -103,7 +103,14 @@ class RustBuildTestCase(unittest.TestCase):
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
-        slv_cfg = cls.solverConfig().with_preconditioning(is_preconditioned)
+        slv_cfg = og.config.SolverConfiguration() \
+            .with_tolerance(1e-6) \
+            .with_initial_tolerance(1e-4) \
+            .with_delta_tolerance(1e-5) \
+            .with_penalty_weight_update_factor(10.0) \
+            .with_max_inner_iterations(1000) \
+            .with_max_outer_iterations(50) \
+            .with_preconditioning(is_preconditioned)
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
@@ -403,13 +410,15 @@ class RustBuildTestCase(unittest.TestCase):
              RustBuildTestCase.TEST_DIR + '/only_f2_precond')
         mng1.start(); mng2.start()
 
-        response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0])
-        response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0])
+        response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
+        response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
 
-        x1 = response1.get().solution
-        x2 = response2.get().solution
+        self.assertEqual("Converged", response1.exit_status)
+        self.assertEqual("Converged", response2.exit_status)
+
+        (x1, x2) = response1.solution,  response2.solution
         for i in range(len(x1)):
-            self.assertAlmostEqual(x1[i], x2[i], 6)
+            self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
 
         mng1.kill(); mng2.kill()
 
