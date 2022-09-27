@@ -22,7 +22,7 @@ class RustBuildTestCase(unittest.TestCase):
     def solverConfig(cls):
         solver_config = og.config.SolverConfiguration() \
             .with_lbfgs_memory(15) \
-            .with_tolerance(1e-6) \
+            .with_tolerance(1e-4) \
             .with_initial_tolerance(1e-4) \
             .with_delta_tolerance(1e-4) \
             .with_initial_penalty(15.0) \
@@ -226,14 +226,15 @@ class RustBuildTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.setUpPythonBindings()
-        cls.setUpRosPackageGeneration()
-        cls.setUpOnlyF1()
-        cls.setUpOnlyF2()
-        cls.setUpOnlyF2(is_preconditioned=True)
-        cls.setUpPlain()
-        cls.setUpOnlyParametricF2()
-        cls.setUpHalfspace()
+        # cls.setUpPythonBindings()
+        # cls.setUpRosPackageGeneration()
+        # cls.setUpOnlyF1()
+        # cls.setUpOnlyF2()
+        # cls.setUpOnlyF2(is_preconditioned=True)
+        # cls.setUpPlain()
+        # cls.setUpOnlyParametricF2()
+        # cls.setUpHalfspace()
+        pass
 
     def test_python_bindings(self):
         import sys
@@ -363,46 +364,6 @@ class RustBuildTestCase(unittest.TestCase):
 
         mng.kill()
 
-    def test_rust_build_only_f2(self):
-        mng = og.tcp.OptimizerTcpManager(
-            RustBuildTestCase.TEST_DIR + '/only_f2')
-        mng.start()
-        pong = mng.ping()  # check if the server is alive
-        self.assertEqual(1, pong["Pong"])
-
-        # Regular call
-        response = mng.call(p=[2.0, 10.0])
-        status = response.get()
-        self.assertEqual("Converged", status.exit_status)
-
-        # Call with initial params, initial y and initial penalty param
-        response = mng.call(p=[2.0, 10.0],
-                            initial_guess=response["solution"],
-                            initial_penalty=response["penalty"])
-        self.assertTrue(response.is_ok())
-        status = response.get()
-        self.assertEqual(1, status.num_outer_iterations)
-
-        response = mng.call(p=[2.0, 10.0, 50.0])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(3003, status.code)
-
-        response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1600, status.code)
-
-        response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1700, status.code)
-
-        mng.kill()
-
     def test_rust_build_only_f2_preconditioned(self):
         mng1 = og.tcp.OptimizerTcpManager(
              RustBuildTestCase.TEST_DIR + '/only_f2')
@@ -420,8 +381,25 @@ class RustBuildTestCase(unittest.TestCase):
         for i in range(len(x1)):
             self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
 
-        mng1.kill(); mng2.kill()
+        response = mng1.call(p=[2.0, 10.0, 50.0])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(3003, status.code)
 
+        response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(1600, status.code)
+
+        response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(1700, status.code)
+
+        mng1.kill(); mng2.kill()
 
     def test_rust_build_plain(self):
         mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')
