@@ -226,15 +226,14 @@ class RustBuildTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # cls.setUpPythonBindings()
-        # cls.setUpRosPackageGeneration()
-        # cls.setUpOnlyF1()
-        # cls.setUpOnlyF2()
-        # cls.setUpOnlyF2(is_preconditioned=True)
-        # cls.setUpPlain()
-        # cls.setUpOnlyParametricF2()
-        # cls.setUpHalfspace()
-        pass
+        cls.setUpPythonBindings()
+        cls.setUpRosPackageGeneration()
+        cls.setUpOnlyF1()
+        cls.setUpOnlyF2()
+        cls.setUpOnlyF2(is_preconditioned=True)
+        cls.setUpPlain()
+        cls.setUpOnlyParametricF2()
+        cls.setUpHalfspace()
 
     def test_python_bindings(self):
         import sys
