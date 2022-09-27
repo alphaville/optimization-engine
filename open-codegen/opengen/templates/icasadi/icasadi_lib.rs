@@ -54,13 +54,22 @@ extern "C" {
         arg: *const *const c_double,
         ipnlt: *mut *mut c_double,
     ) -> c_int;
-
+    fn get_w_cost_{{ meta.optimizer_name }}() -> c_double;
 } // END of extern C
 
 
 // -----------------------------------------------------------
 //  *MAIN* API Functions in Rust
 // -----------------------------------------------------------
+
+///
+/// Getter function for w_cost
+///
+pub fn get_w_cost() -> f64 {
+    unsafe {
+        get_w_cost_{{ meta.optimizer_name }}() as f64
+    }
+}
 
 ///
 /// Initialise the interface by setting all preconditioning parameters to 1

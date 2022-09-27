@@ -51,6 +51,11 @@ class Problem:
         # penalty function - default (and most commonly used): squared 2-norm
         self.__penalty_function = None
 
+        self.__symbol_type = cs.MX.sym if isinstance(u, cs.MX) else cs.SX.sym
+        self.__w_cost = self.__symbol_type("w_cost", 1)
+        self.__w1 = None
+        self.__w2 = None
+
     # ---------- SETTERS -----------------------------------------------
 
     def with_constraints(self, u_constraints):
@@ -83,6 +88,7 @@ class Problem:
         """
 
         self.__penalty_mapping_f2 = penalty_constraints
+        self.__w2 = self.__symbol_type("w2", penalty_constraints.size(1))
         return self
 
     def with_aug_lagrangian_constraints(self, mapping_f1, set_c, set_y=None):
@@ -106,6 +112,7 @@ class Problem:
             # Y not provided
             c = SetYCalculator(set_c)
             self.__alm_set_y = c.obtain()
+        self.__w1 = self.__symbol_type("w1", mapping_f1.size(1))
         return self
 
     # ---------- DIMENSIONS --------------------------------------------
@@ -177,3 +184,39 @@ class Problem:
     def parameter_variables(self):
         """Parameter variables (CasADi symbol)"""
         return self.__p
+
+    @property
+    def preconditioning_coefficients(self):
+        """
+        Preconditioning coefficients θ = (w_cost, w1, w2)
+        """
+        theta = self.__w_cost
+        if self.__alm_mapping_f1 is not None:
+            theta = cs.vertcat(theta, self.__w1)
+        if self.__penalty_mapping_f2 is not None:
+            theta = cs.vertcat(theta, self.__w2)
+        return theta
+
+    @property
+    def w_cost(self):
+        """
+        Preconditioning coefficient of the cost function
+        This is a CasADi symbol (SX or MX)
+        """
+        return self.__w_cost
+
+    @property
+    def w1(self):
+        """
+        Vector of preconditioning coefficients of F1 (ALM constraints)
+        This is a CasADi symbol (SX or MX)
+        """
+        return self.__w1
+
+    @property
+    def w2(self):
+        """
+        Vector of preconditioning coefficients of F2 (PM constraints)
+        This is a CasADi symbol (SX or MX)
+        """
+        return self.__w2

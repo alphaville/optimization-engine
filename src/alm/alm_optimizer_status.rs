@@ -186,6 +186,26 @@ impl AlmOptimizerStatus {
         self.cost = cost;
         self
     }
+
+    // -------------------------------------------------
+    // Update Methods
+    // -------------------------------------------------
+
+    /// Update cost (to be used when the cost needs to be scaled as a result of preconditioning)
+    pub fn update_cost(&mut self, new_cost: f64) {
+        self.cost = new_cost;
+    }
+
+    /// Update ALM infeasibility
+    pub fn update_f1_infeasibility(&mut self, new_alm_infeasibility: f64) {
+        self.delta_y_norm = new_alm_infeasibility;
+    }
+
+    /// Update PM infeasibility
+    pub fn update_f2_norm(&mut self, new_pm_infeasibility: f64) {
+        self.f2_norm = new_pm_infeasibility;
+    }
+
     // -------------------------------------------------
     // Getter Methods
     // -------------------------------------------------
