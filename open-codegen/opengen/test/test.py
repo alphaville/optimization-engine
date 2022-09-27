@@ -32,7 +32,7 @@ class RustBuildTestCase(unittest.TestCase):
             .with_max_outer_iterations(50) \
             .with_sufficient_decrease_coefficient(0.05) \
             .with_cbfgs_parameters(1.5, 1e-10, 1e-12) \
-            .with_preconditioning(True)
+            .with_preconditioning(False)
         return solver_config
 
     @classmethod
@@ -85,15 +85,15 @@ class RustBuildTestCase(unittest.TestCase):
             .build()
 
     @classmethod
-    def setUpOnlyF2(cls):
+    def setUpOnlyF2(cls, is_preconditioned=False):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 2)  # parameter (np = 2)
         f2 = cs.vertcat(0.2 + 1.5 * u[0] - u[1], u[2] - u[3] - 0.1)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
-        tcp_config = og.config.TcpServerConfiguration(bind_port=3302)
+        tcp_config = og.config.TcpServerConfiguration(bind_port=3302 if not is_preconditioned else 3309)
         meta = og.config.OptimizerMeta() \
-            .with_optimizer_name("only_f2")
+            .with_optimizer_name("only_f2" + ("_precond" if is_preconditioned else ""))
         problem = og.builder.Problem(u, p, phi) \
             .with_penalty_constraints(f2) \
             .with_constraints(bounds)
@@ -103,10 +103,11 @@ class RustBuildTestCase(unittest.TestCase):
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config(tcp_interface_config=tcp_config) \
             .with_build_c_bindings()
+        slv_cfg = cls.solverConfig().with_preconditioning(is_preconditioned)
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
-                                        solver_configuration=cls.solverConfig()) \
+                                        solver_configuration=slv_cfg) \
             .build()
 
     @classmethod
@@ -222,6 +223,7 @@ class RustBuildTestCase(unittest.TestCase):
         cls.setUpRosPackageGeneration()
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
+        cls.setUpOnlyF2(is_preconditioned=True)
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
         cls.setUpHalfspace()
@@ -393,6 +395,24 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual(1700, status.code)
 
         mng.kill()
+
+    def test_rust_build_only_f2_preconditioned(self):
+        mng1 = og.tcp.OptimizerTcpManager(
+             RustBuildTestCase.TEST_DIR + '/only_f2')
+        mng2 = og.tcp.OptimizerTcpManager(
+             RustBuildTestCase.TEST_DIR + '/only_f2_precond')
+        mng1.start(); mng2.start()
+
+        response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0])
+        response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0])
+
+        x1 = response1.get().solution
+        x2 = response2.get().solution
+        for i in range(len(x1)):
+            self.assertAlmostEqual(x1[i], x2[i], 6)
+
+        mng1.kill(); mng2.kill()
+
 
     def test_rust_build_plain(self):
         mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')
