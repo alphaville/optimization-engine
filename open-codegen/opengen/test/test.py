@@ -364,41 +364,51 @@ class RustBuildTestCase(unittest.TestCase):
         mng.kill()
 
     def test_rust_build_only_f2_preconditioned(self):
-        mng1 = og.tcp.OptimizerTcpManager(
-             RustBuildTestCase.TEST_DIR + '/only_f2')
-        mng2 = og.tcp.OptimizerTcpManager(
-             RustBuildTestCase.TEST_DIR + '/only_f2_precond')
+        mng1 = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f2')
+        mng2 = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f2_precond')
         mng1.start(); mng2.start()
 
-        response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
-        response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
+        try:
+            response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
+            response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
 
-        self.assertEqual("Converged", response1.exit_status)
-        self.assertEqual("Converged", response2.exit_status)
+            self.assertEqual("Converged", response1.exit_status)
+            self.assertEqual("Converged", response2.exit_status)
 
-        (x1, x2) = response1.solution,  response2.solution
-        for i in range(len(x1)):
-            self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
+            # Further testing
+            slv_cfg = RustBuildTestCase.solverConfig()
+            # check that the solution is (near-) feasible
+            self.assertTrue(response1.f2_norm < slv_cfg.constraints_tolerance)
+            self.assertTrue(response2.f2_norm < slv_cfg.constraints_tolerance)
+            # check the nrom of the FPR
+            self.assertTrue(response1.last_problem_norm_fpr < slv_cfg.tolerance)
+            self.assertTrue(response2.last_problem_norm_fpr < slv_cfg.tolerance)
+            # compare the costs
+            self.assertAlmostEqual(response1.cost, response2.cost, 4)
 
-        response = mng1.call(p=[2.0, 10.0, 50.0])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(3003, status.code)
+            x1, x2 = response1.solution, response2.solution
+            for i in range(len(x1)):
+                self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
 
-        response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1600, status.code)
+            response = mng1.call(p=[2.0, 10.0, 50.0])
+            self.assertFalse(response.is_ok())
+            status = response.get()
+            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+            self.assertEqual(3003, status.code)
 
-        response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
-        self.assertFalse(response.is_ok())
-        status = response.get()
-        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-        self.assertEqual(1700, status.code)
+            response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
+            self.assertFalse(response.is_ok())
+            status = response.get()
+            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+            self.assertEqual(1600, status.code)
 
-        mng1.kill(); mng2.kill()
+            response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
+            self.assertFalse(response.is_ok())
+            status = response.get()
+            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+            self.assertEqual(1700, status.code)
+        finally:
+            mng1.kill(); mng2.kill()
 
     def test_rust_build_plain(self):
         mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')
