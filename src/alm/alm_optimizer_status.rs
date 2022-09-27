@@ -202,7 +202,7 @@ impl AlmOptimizerStatus {
     }
 
     /// Update PM infeasibility
-    pub fn update_f2_norm(&mut self, new_pm_infeasibility: f64){
+    pub fn update_f2_norm(&mut self, new_pm_infeasibility: f64) {
         self.f2_norm = new_pm_infeasibility;
     }
 
