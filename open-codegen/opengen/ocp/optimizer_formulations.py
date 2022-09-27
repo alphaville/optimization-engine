@@ -76,7 +76,10 @@ def set_exclusion_formulation(user_ocp, x):
     return set_exclusion_fn
 
 
-def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
+def single_shooting_formulation(ocp, x, u, p):
+    nu = ocp.nu
+    nx = ocp.nx
+    horizon = ocp.horizon
     cost = 0
     x_t = x[0:nx]
     x_t_buffer = []
@@ -85,18 +88,18 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
     bounds_combined = []
     segment_ids = []
     alm_set = None
-    x_set = user_ocp.x_set
+    x_set = ocp.x_set
 
     for t in range(horizon):
         u_t = u[nu * t:nu * (t + 1)]
-        cost += user_ocp.stage_cost_fn(x_t, u_t, p)
-        x_t = user_ocp.sys_dyn_fn(x_t, u_t, p)
+        cost += ocp.stage_cost_fn(x_t, u_t, p)
+        x_t = ocp.sys_dyn_fn(x_t, u_t, p)
         for i in range(nx):
             x_t_buffer = cs.vertcat(x_t_buffer, x_t[i])
 
-    cost += user_ocp.terminal_cost_fn(x_t, p)
+    cost += ocp.terminal_cost_fn(x_t, p)
 
-    (bounds, decision_var) = input_constraint_single_shooting(user_ocp, u)
+    (bounds, decision_var) = input_constraint_single_shooting(ocp, u)
 
     if not isinstance(x_set, og.constraints.NoConstraints):
         (bounds_combined, segment_ids) = combine_cartesian_bounds(x_set, bounds_combined, segment_ids, nx, horizon)
@@ -105,14 +108,17 @@ def single_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
         alm_set = x_cartesian_bounds
 
 
-    set_exclusion_fn = set_exclusion_formulation(user_ocp, x_t_buffer)
+    set_exclusion_fn = set_exclusion_formulation(ocp, x_t_buffer)
 
     if fn.is_symbolic(set_exclusion_fn):
         pm_constraints = cs.vertcat(pm_constraints, set_exclusion_fn)
 
     return cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints
 
-def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
+def multiple_shooting_formulation(ocp, x, u, p):
+    nu = ocp.nu
+    nx = ocp.nx
+    horizon = ocp.horizon
     cost = 0
     alm_constraints = []
     pm_constraints = []
@@ -122,20 +128,20 @@ def multiple_shooting_formulation(user_ocp, p, u, nu, x, nx, horizon):
         x_next = x[nx * (t + 1):nx * (t + 2)]
         u_t = u[nu * t:nu * (t + 1)]
 
-        cost += user_ocp.stage_cost_fn(x_t, u_t, p)
+        cost += ocp.stage_cost_fn(x_t, u_t, p)
 
-        x_dyn = user_ocp.sys_dyn_fn(x_t, u_t, p)
+        x_dyn = ocp.sys_dyn_fn(x_t, u_t, p)
 
         for i in range(nx):
             system_dynamics = cs.vertcat(system_dynamics, (x_next[i] - x_dyn[i]))
 
     x_t = x[nx * horizon:nx * (horizon + 1)]
 
-    cost += user_ocp.terminal_cost_fn(x_t, p)
+    cost += ocp.terminal_cost_fn(x_t, p)
 
-    (bounds, decision_var) = state_input_constraint(user_ocp, u, x[nx:])
+    (bounds, decision_var) = state_input_constraint(ocp, u, x[nx:])
 
-    set_exclusion_fn = set_exclusion_formulation(user_ocp, x[nx:])
+    set_exclusion_fn = set_exclusion_formulation(ocp, x[nx:])
 
     alm_constraints = cs.vertcat(alm_constraints, system_dynamics)
     alm_set = og.constraints.Zero()

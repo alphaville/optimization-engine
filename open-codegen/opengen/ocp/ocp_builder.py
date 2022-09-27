@@ -74,7 +74,7 @@ class OCPBuilder:
         else:
             raise Exception("Formulation type not Supported")
 
-        (cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints) = problem_formulation(ocp, p_symb, u, nu, x, nx, N)
+        (cost, decision_var, bounds, alm_mapping, alm_set, pm_constraints) = problem_formulation(ocp, x, u, p_symb)
 
         problem = og.builder.Problem(decision_var, p_symb, cost) \
             .with_constraints(bounds) \

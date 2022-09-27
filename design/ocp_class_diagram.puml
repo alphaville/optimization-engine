@@ -36,8 +36,8 @@ OcpInterfaceType <|-l- OCPBuilder
 OcpInterfaceType <|-u[hidden]- ExclusionSet
 
 class formulations <<static functions>>{
-    single_shooting_formulation()
-    multiple_shooting_formulation()
+    single_shooting_formulation( ocp: OptimalControlProblem, x: SX[], u: SX[], p: SX[] ): cost, decision_var, bounds, alm_constraints, alm_set, pm_constraints
+    multiple_shooting_formulation( ocp: OptimalControlProblem, x: SX[], u: SX[], p: SX[] ): cost, decision_var, bounds, alm_constraints, alm_set, pm_constraints
 }
 formulations <|-u[hidden]- OcpInterfaceType
 
