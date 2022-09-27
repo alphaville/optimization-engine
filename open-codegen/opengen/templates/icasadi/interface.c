@@ -367,6 +367,13 @@ static casadi_real **result_space_init_penalty = NULL;
 static casadi_real uxip_space[N_UXIPW_{{ meta.optimizer_name | upper}}];
 
 /**
+ * Return scaling factor of cost function (getter)
+ */
+casadi_real get_w_cost_{{ meta.optimizer_name }}(void) {
+    return uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}];
+}
+
+/**
  * This function should be called upon initialisation. The sets all w's to 1.
  */
 void init_interface_{{ meta.optimizer_name }}(void) {

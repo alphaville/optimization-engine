@@ -10,7 +10,7 @@ optimizer_name = "rosenbrock"
 nu, np = 5, 2
 u = cs.SX.sym("u", nu)  # decision variable (nu = 5)
 p = cs.SX.sym("p", 2)  # parameter (np = 2)
-phi = og.functions.rosenbrock(u, p)
+phi = og.functions.rosenbrock(u, p) + 1500*cs.sum1(u)
 
 # c_f1 = cs.vertcat(p[0] * u[0] - u[1], p[1]*u[2] - u[3] + 0.1)
 c_f2 = cs.vertcat(0.2 + 1.5 * u[0] - u[1], u[2] - u[3] - 0.1)
@@ -25,7 +25,8 @@ meta = og.config.OptimizerMeta()\
 build_config = og.config.BuildConfiguration() \
     .with_build_directory(optimizers_dir) \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-    .with_build_python_bindings()
+    .with_build_python_bindings() \
+    .with_open_version(local_path="/Users/3054363/Documents/Development/OpEn/")
 solver_cfg = og.config.SolverConfiguration() \
     .with_tolerance(1e-6) \
     .with_max_inner_iterations(1000) \
@@ -53,6 +54,7 @@ print(f"infeasibility f2 = {result.f2_norm}")
 print(f"status = {result.exit_status}")
 print(f"inner = {result.num_inner_iterations}")
 print(f"outer = {result.num_outer_iterations}")
+print(f"cost = {result.cost}")
 
 # Preconditioned    Non-preconditioned
 # -------------------------------------

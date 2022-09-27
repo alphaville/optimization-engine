@@ -319,6 +319,14 @@ pub fn initialize_solver() -> AlmCache {
     AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2)
 }
 
+/// If preconditioning has been applied, then at the end (after a solution has been obtained)
+/// we need to undo the scaling and update the cost function
+fn unscale_result(solver_status: &mut Result<AlmOptimizerStatus, SolverError>) {
+    if let Ok(sss) = solver_status {
+        let w_cost : f64 = icasadi_{{meta.optimizer_name}}::get_w_cost();
+        sss.update_cost(sss.cost() / w_cost);
+    }
+}
 
 /// Solver interface
 ///
@@ -404,14 +412,18 @@ pub fn solve(
         .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
         .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 
-    // solve the problem using `u` an the initial condition `u` and
+    // solve the problem using `u`, the initial condition `u`, and
     // initial vector of Lagrange multipliers, if provided;
     // returns the problem status (instance of `AlmOptimizerStatus`)
     if let Some(y0_) = y0 {
         let mut alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(y0_);
-        alm_optimizer.solve(u)
+        let mut solution_status = alm_optimizer.solve(u);
+        unscale_result(&mut solution_status);
+        solution_status
     } else {
-        alm_optimizer.solve(u)
+        let mut solution_status = alm_optimizer.solve(u);
+        unscale_result(&mut solution_status);
+        solution_status
     }
 
 }
