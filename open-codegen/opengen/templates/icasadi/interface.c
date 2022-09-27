@@ -404,21 +404,6 @@ static void copy_args_into_up_space(const casadi_real** arg) {
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
 }
 
-/**
- * Copy (u, p, w) into uxip_space
- *
- * Input arguments:
- * - `arg = {u, p, w_cost, w1, w2}`, where `u` and `p` are pointer-to-double
- */
-static void copy_args_into_upw_space(const casadi_real** arg) {
-    unsigned int i;
-    for (i=0; i<NU_{{ meta.optimizer_name | upper}}; i++) uxip_space[i] = arg[0][i];  /* copy u  */
-    for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i] = arg[1][i];  /* copy p  */
-    uxip_space[IDX_WC_{{ meta.optimizer_name | upper}}] = arg[2][0];  /* copy w_cost  */
-    for (i=0; i<N1_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W1_{{ meta.optimizer_name | upper}}+i] = arg[3][i];  /* copy w_1  */
-    for (i=0; i<N2_{{ meta.optimizer_name | upper}}; i++) uxip_space[IDX_W2_{{ meta.optimizer_name | upper}}+i] = arg[4][i];  /* copy w_2  */
-}
-
 
 /**
  * Cost function

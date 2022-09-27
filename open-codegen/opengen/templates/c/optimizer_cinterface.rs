@@ -207,6 +207,6 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
 pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_free(instance: *mut {{meta.optimizer_name}}Cache) {
     // Add impl
     assert!(!instance.is_null());
-    Box::from_raw(instance);
+    drop(Box::from_raw(instance));
 }
 {% endif %}
