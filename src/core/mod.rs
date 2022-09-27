@@ -15,7 +15,7 @@ pub use solver_status::SolverStatus;
 /// Exit status of an algorithm (not algorithm specific)
 ///
 ///
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExitStatus {
     /// The algorithm has converged
     ///
