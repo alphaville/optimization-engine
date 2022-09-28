@@ -5,6 +5,9 @@ import os
 import sys
 import numpy as np
 
+ITERS = 10
+ROUNDS = 2000
+
 #
 # Before you run this, run
 # python prepare_benchmarks.py
@@ -41,16 +44,11 @@ def t_benchmark1(solver):
     _sol = solver.run([a, b, c])
 
 
-def t_benchmark1p(solver):
-    a = np.random.uniform(0.5, 2)
-    b = np.random.uniform(0.5, 15)
-    c = np.random.uniform(0.9, 5)
-    _sol = solver.run([a, b, c])
-
-
 def test_benchmark1(benchmark):
-    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver1}, iterations=50, rounds=2000)
+    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver1},
+                       iterations=ITERS, rounds=ROUNDS)
 
 
 def test_benchmark1p(benchmark):
-    benchmark.pedantic(t_benchmark1p, kwargs={'solver': solver1p}, iterations=10, rounds=2000)
+    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver1p},
+                       iterations=ITERS, rounds=ROUNDS)
