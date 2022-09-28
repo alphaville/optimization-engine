@@ -7,7 +7,7 @@ import numpy as np
 from importlib import import_module
 
 ITERS = 10
-ROUNDS = 2000
+ROUNDS = 1500
 
 #
 # Before you run this, run
@@ -23,7 +23,7 @@ ROUNDS = 2000
 
 TEST_DIR = ".python_test_build/benchmarkable"
 
-# TODO automate this...
+
 for name in os.listdir(TEST_DIR):
     sys.path.insert(1, os.path.join(TEST_DIR, name))
     exec(f"{name} = import_module(\"{name}\")")
@@ -43,10 +43,10 @@ def t_benchmark1(solver):
 
 
 def t_benchmark2(solver):
-    x0 = np.random.uniform(-2, -1)
-    y0 = np.random.uniform(-1.5, -1.5)
-    th0 = np.random.uniform(-0.5, 0.5)
-    _sol = solver.run([x0, y0, th0])
+    x0 = np.random.uniform(-3.5, -2)
+    y0 = np.random.uniform(-2.5, 2.5)
+    # th0 = np.random.uniform(-0.3, 0.3)
+    _sol = solver.run([x0, y0, 0])
 
 
 def test_benchmark1(benchmark):
@@ -66,4 +66,14 @@ def test_benchmark2(benchmark):
 
 def test_benchmark2p(benchmark):
     benchmark.pedantic(t_benchmark2, kwargs={'solver': solver_benchmark2p},
+                       iterations=ITERS, rounds=ROUNDS)
+
+
+def test_benchmark2o(benchmark):
+    benchmark.pedantic(t_benchmark2, kwargs={'solver': solver_benchmark2o},
+                       iterations=ITERS, rounds=ROUNDS)
+
+
+def test_benchmark2op(benchmark):
+    benchmark.pedantic(t_benchmark2, kwargs={'solver': solver_benchmark2op},
                        iterations=ITERS, rounds=ROUNDS)

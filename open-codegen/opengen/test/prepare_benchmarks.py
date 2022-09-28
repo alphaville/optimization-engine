@@ -45,10 +45,10 @@ def benchmark1(optimizer_name, do_precond=False):
     og.builder.OpEnOptimizerBuilder(problem, meta, build_config, solver_config).build()
 
 
-def benchmark2(optimizer_name, do_precond=False):
-    """Navigation"""
-    (nu, nx, N, L, ts) = (2, 3, 20, 0.5, 0.1)
-    (xref, yref, thetaref) = (1, 1, 0)
+def navigation_problem(with_obstacles=False):
+    (nu, nx, N, L, ts) = (2, 3, 60, 0.5, 0.1)
+    (xref, yref, thetaref) = (2, 2, 0.2)
+    (x_obs, y_obs, r_obs) = (0, 0, 1)
     (q, qtheta, r, qN, qthetaN) = (10, 0.1, 1, 200, 2)
 
     u = cs.SX.sym('u', nu * N)
@@ -56,14 +56,17 @@ def benchmark2(optimizer_name, do_precond=False):
 
     (x, y, theta) = (z0[0], z0[1], z0[2])
     cost = 0
+    obstacle_avoidance = []
     for t in range(0, nu * N, nu):
         cost += q * ((x - xref) ** 2 + (y - yref) ** 2) + qtheta * (theta - thetaref) ** 2
         u_t = u[t:t + 2]
-        theta_dot = (1 / L) * (u_t[1] * cs.cos(theta) - u_t[0] * cs.sin(theta))
+        theta_dot = (u_t[1] * cs.cos(theta) - u_t[0] * cs.sin(theta)) / L
         cost += r * cs.dot(u_t, u_t)
         x += ts * (u_t[0] + L * cs.sin(theta) * theta_dot)
         y += ts * (u_t[1] - L * cs.cos(theta) * theta_dot)
         theta += ts * theta_dot
+        obs = 1000 * cs.fmax(0, r_obs**2 - (x-x_obs) ** 2 - (y-y_obs)**2)
+        obstacle_avoidance = cs.vertcat(obstacle_avoidance, obs)
 
     cost += qN * ((x - xref) ** 2 + (y - yref) ** 2) + qthetaN * (theta - thetaref) ** 2
 
@@ -72,11 +75,20 @@ def benchmark2(optimizer_name, do_precond=False):
     bounds = og.constraints.Rectangle(umin, umax)
 
     problem = og.builder.Problem(u, z0, cost).with_constraints(bounds)
+    if with_obstacles:
+        problem = problem.with_penalty_constraints(obstacle_avoidance)
+    return problem
+
+
+def benchmark2(optimizer_name, with_obstacles=False, do_precond=False):
+    """Navigation"""
+    problem = navigation_problem(with_obstacles)
     build_config = build_configuration()
     meta = og.config.OptimizerMeta() \
         .with_optimizer_name(optimizer_name)
     solver_config = og.config.SolverConfiguration() \
         .with_tolerance(1e-5) \
+        .with_penalty_weight_update_factor(2) \
         .with_max_inner_iterations(1000) \
         .with_preconditioning(do_precond)
     builder = og.builder.OpEnOptimizerBuilder(problem,
@@ -86,7 +98,9 @@ def benchmark2(optimizer_name, do_precond=False):
     builder.build()
 
 
-benchmark1("benchmark1", False)
-benchmark1("benchmark1p", True)
-benchmark2("benchmark2", False)
-benchmark2("benchmark2p", True)
+benchmark1("benchmark1", do_precond=False)
+benchmark1("benchmark1p", do_precond=True)
+benchmark2("benchmark2", do_precond=False)
+benchmark2("benchmark2p", do_precond=True)
+benchmark2("benchmark2o", with_obstacles=True, do_precond=False)
+benchmark2("benchmark2op", with_obstacles=True, do_precond=True)
