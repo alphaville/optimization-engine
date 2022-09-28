@@ -4,6 +4,7 @@ import opengen as og
 import os
 import sys
 import numpy as np
+from importlib import import_module
 
 ITERS = 10
 ROUNDS = 2000
@@ -22,14 +23,11 @@ ROUNDS = 2000
 
 TEST_DIR = ".python_test_build/benchmarkable"
 
-sys.path.insert(1, os.path.join(TEST_DIR, "benchmark1"))
-sys.path.insert(1, os.path.join(TEST_DIR, "benchmark1p"))
-
-import benchmark1
-import benchmark1p
-
-solver1 = benchmark1.solver()
-solver1p = benchmark1p.solver()
+# TODO automate this...
+for name in os.listdir(TEST_DIR):
+    sys.path.insert(1, os.path.join(TEST_DIR, name))
+    exec(f"{name} = import_module(\"{name}\")")
+    exec(f"solver_{name} = {name}.solver()")
 
 
 def get_open_local_absolute_path():
@@ -44,11 +42,28 @@ def t_benchmark1(solver):
     _sol = solver.run([a, b, c])
 
 
+def t_benchmark2(solver):
+    x0 = np.random.uniform(-2, -1)
+    y0 = np.random.uniform(-1.5, -1.5)
+    th0 = np.random.uniform(-0.5, 0.5)
+    _sol = solver.run([x0, y0, th0])
+
+
 def test_benchmark1(benchmark):
-    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver1},
+    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver_benchmark1},
                        iterations=ITERS, rounds=ROUNDS)
 
 
 def test_benchmark1p(benchmark):
-    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver1p},
+    benchmark.pedantic(t_benchmark1, kwargs={'solver': solver_benchmark1p},
+                       iterations=ITERS, rounds=ROUNDS)
+
+
+def test_benchmark2(benchmark):
+    benchmark.pedantic(t_benchmark2, kwargs={'solver': solver_benchmark2},
+                       iterations=ITERS, rounds=ROUNDS)
+
+
+def test_benchmark2p(benchmark):
+    benchmark.pedantic(t_benchmark2, kwargs={'solver': solver_benchmark2p},
                        iterations=ITERS, rounds=ROUNDS)
