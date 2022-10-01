@@ -329,7 +329,7 @@ static casadi_real **result_space_init_penalty = NULL;
  *
  * | --- | -- NU
  * |     |
- * |  ξ  |
+ * |  xi |
  * |     |
  * | --- |
  *
@@ -416,7 +416,7 @@ static void copy_args_into_up_space(const casadi_real** arg) {
  * Cost function
  *
  * Input arguments:
- * - `arg = {u, ξ, p}`, where `u`, `ξ`, and `p` are pointer-to-double
+ * - `arg = {u, xi, p}`, where `u`, `xi`, and `p` are pointer-to-double
  * - `res = {cost}`, where `cost` is a pointer-to-double
  */
 int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
@@ -440,7 +440,7 @@ int cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real
  * Gradient function
  *
  * Input arguments:
- * - `arg = {u, ξ, p}`, where `u`, `ξ`, and `p` are pointer-to-double
+ * - `arg = {u, xi, p}`, where `u`, `xi`, and `p` are pointer-to-double
  * - `res = {grad}`, where `grad` is a pointer-to-double
  */
 int grad_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg, casadi_real** res) {
@@ -525,7 +525,7 @@ int mapping_f2_function_{{ meta.optimizer_name }}(const casadi_real** arg, casad
  * Interface to auto-generated CasADi function for w_cost(u, p)
  *
  * Input arguments:
- *  - arg = {u, θ}
+ *  - arg = {u, theta}
  */
 static int preconditioning_w_cost_function_{{ meta.optimizer_name }}(const casadi_real** arg) {
     /* Array of pointers to where (u, p) are stored */
@@ -613,10 +613,10 @@ static int preconditioning_w2_function_{{ meta.optimizer_name }}(const casadi_re
  * caller needs to provide p, w_cost, w1 and w2
  *
  * Input arguments:
- *  - (in )   arg = {u, p}     pointers to u and p (NOT θ, just p); we don't need to provide the preconditioning
+ *  - (in )   arg = {u, p}     pointers to u and p (NOT theta, just p); we don't need to provide the preconditioning
  *                             parameters because they are stored in `uxipw_space`; they are only computed once and
  *                             we don't need to move their values around
- *  - (out)   res = {ρ_init}   pointer to initial penalty
+ *  - (out)   res = {init_penalty}   pointer to initial penalty
  *
  * Output arguments:
  *  - status code (0: all good)
@@ -625,7 +625,7 @@ int init_penalty_function_{{ meta.optimizer_name }}(const casadi_real** arg, cas
     /* Array of pointers to where (u, p) are stored */
     const casadi_real* args__[INIT_PENALTY_SZ_ARG_{{ meta.optimizer_name | upper}}] =
             {uxip_space,  /* :u   */
-             uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :θ   */
+             uxip_space + IDX_P_{{ meta.optimizer_name | upper}}};  /* :theta   */
     /* Copy given data to variable `uxip_space` */
     copy_args_into_up_space(arg);
     /*
@@ -684,7 +684,7 @@ static void print_static_array(void){
         printf("u[%2d] = %4.2f\n", i, uxip_space[i]);
     }
     for (i=0; i<NXI_{{ meta.optimizer_name | upper}}; i++){
-        printf("ξ[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
+        printf("xi[%2d] = %4.2f\n", i, uxip_space[IDX_XI_{{ meta.optimizer_name | upper}}+i]);
     }
     for (i=0; i<NP_{{ meta.optimizer_name | upper}}; i++){
         printf("p[%2d] = %4.2f\n", i, uxip_space[IDX_P_{{ meta.optimizer_name | upper}}+i]);

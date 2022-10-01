@@ -332,7 +332,7 @@ mod tests {
         init_{{ meta.optimizer_name }}();
         assert_eq!(0, precondition(&u, &p));
         assert_eq!(0, initial_penalty(&u, &p, &mut rh0));
-        println!("ρ = {}", rh0);
+        println!("rho = {}", rh0);
     }
 
 }

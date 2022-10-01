@@ -396,7 +396,7 @@ class OpEnOptimizerBuilder:
         - w_cost(u, p)
         - w1(u, p)
         - w2(u, p)
-        - initial_penalty(u, θ), where θ = (p, w_cost, w1, w2)
+        - initial_penalty(u, theta), where theta = (p, w_cost, w1, w2)
 
         :returns: casadi functions (w_cost, w1, w2, initial_penalty)
         """
@@ -466,7 +466,7 @@ class OpEnOptimizerBuilder:
         init_penalty /= cs.fmax(1, cs.fabs(infeasibility_psi))
         init_penalty = cs.fmax(1e-8, (cs.fmin(10*init_penalty, 1e8)))
 
-        # Note that θ = (p, w_cost, w1, w2)
+        # Note that theta = (p, w_cost, w1, w2)
         init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [
                                       u, theta], [init_penalty])
 
