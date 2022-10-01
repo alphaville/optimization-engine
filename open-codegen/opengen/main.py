@@ -7,6 +7,12 @@ import opengen as og
 optimizers_dir = "my_optimizers"
 optimizer_name = "rosenbrock"
 
+
+def get_open_local_absolute_path():
+    cwd = os.getcwd()
+    return cwd.split('open-codegen')[0]
+
+
 nu, np = 5, 2
 u = cs.SX.sym("u", nu)  # decision variable (nu = 5)
 p = cs.SX.sym("p", 2)  # parameter (np = 2)
@@ -26,7 +32,7 @@ build_config = og.config.BuildConfiguration() \
     .with_build_directory(optimizers_dir) \
     .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
     .with_build_python_bindings() \
-    .with_open_version(local_path="/Users/3054363/Documents/Development/OpEn/")
+    .with_open_version(local_path=get_open_local_absolute_path())
 solver_cfg = og.config.SolverConfiguration() \
     .with_tolerance(1e-6) \
     .with_max_inner_iterations(1000) \
