@@ -188,7 +188,7 @@ class Problem:
     @property
     def preconditioning_coefficients(self):
         """
-        Preconditioning coefficients θ = (w_cost, w1, w2)
+        Preconditioning coefficients w = (w_cost, w1, w2)
         """
         theta = self.__w_cost
         if self.__alm_mapping_f1 is not None:
