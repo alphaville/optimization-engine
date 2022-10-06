@@ -26,7 +26,7 @@ class SolverConfiguration:
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
-        self.__do_preconditioning = True
+        self.__do_preconditioning = False  # alpha version of preconditioning: optional
 
     # --------- GETTERS -----------------------------
 
