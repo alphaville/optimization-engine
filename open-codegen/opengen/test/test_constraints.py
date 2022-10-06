@@ -182,6 +182,18 @@ class ConstraintsTestCase(unittest.TestCase):
         rect = og.constraints.Rectangle([-1.0, float('-inf')], [10.0, 3.0])
         self.assertFalse(rect.is_compact())
 
+    def test_rectangle_is_orthant(self):
+        rect = og.constraints.Rectangle([0, float('-inf')], [float('inf'), 0.0])
+        self.assertTrue(rect.is_orthant())
+        rect = og.constraints.Rectangle([0, 0], [float('inf'), float('inf')])
+        self.assertTrue(rect.is_orthant())
+        rect = og.constraints.Rectangle([float('-inf'), float('-inf')], [0, 0])
+        self.assertTrue(rect.is_orthant())
+        rect = og.constraints.Rectangle([float('-inf'), float('-inf')], [0, 1])
+        self.assertFalse(rect.is_orthant())
+        rect = og.constraints.Rectangle([-1.0, float('-inf')], [10.0, 3.0])
+        self.assertFalse(rect.is_orthant())
+
     # -----------------------------------------------------------------------
     # Second-Order Cone (SOC)
     # -----------------------------------------------------------------------
