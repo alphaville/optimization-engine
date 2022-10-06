@@ -6,6 +6,7 @@ import warnings
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
+import opengen.constraints as og_cstr
 import casadi.casadi as cs
 import os
 import jinja2
@@ -622,6 +623,18 @@ class OpEnOptimizerBuilder:
 
     def __check_user_provided_parameters(self):
         self.__logger.info("Checking user parameters")
+        if self.__solver_config.preconditioning:
+            # Preconditioning is not allowed when we have general ALM-type constraints of the form
+            # F1(u, p) in C, unless C is {0} or an orthant (special case of rectangle).
+            n1 = self.__problem.dim_constraints_aug_lagrangian()
+            alm_set_c = self.__problem.alm_set_c
+            if n1 > 0:
+                if not isinstance(alm_set_c, (og_cstr.Rectangle, og_cstr.Zero)):
+                    raise ValueError("Preconditioning cannot be applied with C being other than "
+                                     "{0} or an Orthant (for now)")
+                if isinstance(alm_set_c, og_cstr.Rectangle) and not alm_set_c.is_orthant():
+                    raise NotImplementedError("ALM-type constraints with general rectrangles will be supported soon. "
+                                              "For now we only support orthans (e.g., F1(u, p) <= 0).")
 
     def __generate_code_python_bindings(self):
         self.__logger.info("Generating code for Python bindings")
