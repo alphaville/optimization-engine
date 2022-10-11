@@ -82,6 +82,15 @@ solver_config.with_max_duration_micros(<span class="hljs-number">50000</span>)
 <p>The number of outer iterations should be kept reasonably small
 to avoid too high values of the penalty parameters (which increase
 exponentially).</p>
+<div class="alert alert-info">
+<b>Preconditioning:</b> Opengen since version <b>0.7.0</b> supports a preconditioning mechanism. If activated,  
+the initial penalty is computed internally. Moreover, appropriate scaling is applied on the cost function, 
+the PM-type constraints, $F_2(u; p) = 0$, and the ALM-type constraints, $F_1(u; p) \in C$, but only if $C=\{0\}$, or 
+if $C$ is a quadrant, e.g., $C = \{x: x\leq 0\}$.<br/><br/>
+<p>Preconditioning seems to improve the convergence speed and robustness of the solver based
+on some initial benchmarks, however, for the time being it is not active by default.
+To activate it, use <code>with_preconditioning(True)</code>.</p>
+</div>
 <p>A complete list of solver options is given in the following table</p>
 <table>
 <thead>
@@ -100,6 +109,7 @@ exponentially).</p>
 <tr><td><code>with_cbfgs_parameters</code></td><td>CBFGS parameters</td></tr>
 <tr><td><code>with_lbfgs_memory</code></td><td>LBFGS memory</td></tr>
 <tr><td><code>with_inner_tolerance_update_factor</code></td><td>Update factor for the inner tolerance</td></tr>
+<tr><td><code>with_preconditioning</code></td><td>Whether preconditioning should be applied</td></tr>
 </tbody>
 </table>
 <h2><a class="anchor" aria-hidden="true" id="build-options"></a><a href="#build-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Build options</h2>
