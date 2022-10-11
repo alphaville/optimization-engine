@@ -77,7 +77,7 @@ rustdoc-args = ["--html-in-header", "katex-header.html"]
 # D.E.P.E.N.D.E.N.C.I.E.S
 # --------------------------------------------------------------------------
 [dependencies]
-num = "0.2.0"
+num = "0.4.0"
 
 # Our own stuff - L-BFGS: limited-memory BFGS directions
 lbfgs = "0.2"
@@ -97,7 +97,7 @@ rpmalloc = { version = "0.2.0", features = [
 # jemallocator is an optional feature; it will only be loaded if the feature 
 # `jem` is used (i.e., if we compile with `cargo build --features jem`)
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { version = "0.3.2", optional = true }
+jemallocator = { version = "0.5.0", optional = true }
 
 
 # --------------------------------------------------------------------------
