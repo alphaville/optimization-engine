@@ -27,6 +27,12 @@ fn main() {
         "extern/auto_casadi_grad.c is missing"
     );
 
+    // Check for Preconditioning
+    assert!(
+        Path::new("extern/auto_preconditioning_functions.c").exists(),
+        "extern/auto_preconditioning_functions.c is missing"
+    );
+
     // Check for Memory Allocator
     assert!(
         Path::new("extern/interface.c").exists(),
@@ -44,6 +50,7 @@ fn main() {
         .file("extern/auto_casadi_grad.c")
         .file("extern/auto_casadi_mapping_f2.c")
         .file("extern/auto_casadi_mapping_f1.c")
+        .file("extern/auto_preconditioning_functions.c")
         .file("extern/interface.c")
         .compile("icasadi");
 
@@ -52,5 +59,6 @@ fn main() {
     println!("cargo:rerun-if-changed=extern/auto_casadi_grad.c");
     println!("cargo:rerun-if-changed=extern/auto_casadi_mapping_f2.c");
     println!("cargo:rerun-if-changed=extern/auto_casadi_mapping_f1.c");
+    println!("cargo:rerun-if-changed=extern/auto_preconditioning_functions.c");
     println!("cargo:rerun-if-changed=extern/interface.c");
 }

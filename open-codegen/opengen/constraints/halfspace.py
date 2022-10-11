@@ -9,14 +9,14 @@ class Halfspace(Constraint):
     vector and b is a constant scalar.
     """
 
-    def __init__(self, normal_vector, offset):
+    def __init__(self, normal_vector, offset: float):
         """Construct a new halfspace H = {c'x <= b}
 
         :param normal_vector: vector c
         "param offset: parameter b
         """
         self.__normal_vector = [float(x) for x in normal_vector]
-        self.__offset = offset
+        self.__offset = float(offset)
 
     @property
     def normal_vector(self):

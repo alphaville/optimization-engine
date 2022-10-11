@@ -16,7 +16,9 @@ class SolverConfiguration:
         self.__max_inner_iterations = 500
         self.__max_outer_iterations = 10
         self.__constraints_tolerance = 1e-4
-        self.__initial_penalty = 1.0
+        # For the initial penalty, None means that the actual value will be computed
+        # in Rust (see templates/optimizer.rs)
+        self.__initial_penalty = None
         self.__penalty_weight_update_factor = 5.0
         self.__max_duration_micros = 5000000
         self.__inner_tolerance_update_factor = 0.1
@@ -24,6 +26,7 @@ class SolverConfiguration:
         self.__cbfgs_alpha = None
         self.__cbfgs_epsilon = None
         self.__cbfgs_sy_epsilon = None
+        self.__do_preconditioning = False  # alpha version of preconditioning: optional
 
     # --------- GETTERS -----------------------------
 
@@ -98,6 +101,15 @@ class SolverConfiguration:
         """
         return self.__max_duration_micros
 
+    @property
+    def preconditioning(self):
+        """Whether an automatic preconditioning should be applied
+
+        Returns:        
+            True iff preconditioning is active
+        """
+        return self.__do_preconditioning
+
     # --------- SETTERS -----------------------------
 
     def with_sufficient_decrease_coefficient(self, sufficient_decrease_coefficient):
@@ -116,10 +128,22 @@ class SolverConfiguration:
     def with_initial_penalty(self, initial_penalty):
         """Initial penalty
 
+        If preconditioning is activated, then the initial penalty is computed internally
+        following the recommendations of the book of Brigin and Martinez (Chapter 12).
+        If you enable the preconditioning and you use this method, then you will be
+        overriding the value of the initial penalty.
+
+        If preconditioning is not enabled, you can set the initial penalty using this
+        method; if you don't do so, the solver will use the default value (which is 1.0).
+
         :param initial_penalty: initial value of penalty
 
         :returns: The current object
         """
+        if initial_penalty is None:
+            self.__initial_penalty = None
+            return
+
         if initial_penalty <= 0:
             raise Exception("Initial penalty must be >0")
 
@@ -179,7 +203,8 @@ class SolverConfiguration:
         :returns: The current object
         """
         if max_iters < 1:
-            raise Exception("The maximum number of inner iterations must be at least equal to 1")
+            raise Exception(
+                "The maximum number of inner iterations must be at least equal to 1")
         self.__max_inner_iterations = int(max_iters)
         return self
 
@@ -192,7 +217,8 @@ class SolverConfiguration:
         :return: the current object
         """
         if constraints_tolerance <= 0:
-            raise Exception("The constraints tolerance must be strictly positive")
+            raise Exception(
+                "The constraints tolerance must be strictly positive")
         self.__constraints_tolerance = float(constraints_tolerance)
         return self
 
@@ -202,7 +228,8 @@ class SolverConfiguration:
         :return: the current object
         """
         if max_outer_iterations < 1:
-            raise Exception("The maximum number of outer iterations must be at least equal to 1")
+            raise Exception(
+                "The maximum number of outer iterations must be at least equal to 1")
         self.__max_outer_iterations = int(max_outer_iterations)
         return self
 
@@ -220,7 +247,8 @@ class SolverConfiguration:
         """
         if penalty_weight_update_factor < 1.0:
             raise Exception("The penalty update factor needs to be >= 1")
-        self.__penalty_weight_update_factor = float(penalty_weight_update_factor)
+        self.__penalty_weight_update_factor = float(
+            penalty_weight_update_factor)
         return self
 
     def with_max_duration_micros(self, max_duration_micros):
@@ -233,7 +261,8 @@ class SolverConfiguration:
         :returns: The current object
         """
         if max_duration_micros < 1:
-            raise Exception("The maximum duration (in microseconds) must be >= 1")
+            raise Exception(
+                "The maximum duration (in microseconds) must be >= 1")
         self.__max_duration_micros = int(max_duration_micros)
         return self
 
@@ -255,4 +284,15 @@ class SolverConfiguration:
         self.__cbfgs_epsilon = epsilon
         self.__cbfgs_alpha = alpha
         self.__cbfgs_sy_epsilon = sy_epsilon
+        return self
+
+    def with_preconditioning(self, do_preconditioning):
+        """Whether to apply preconditioning
+
+        Note that this overrides the computation of the initial penalty
+
+        :param do_preconditioning: whether to precondition
+        :returns: the current object
+        """
+        self.__do_preconditioning = do_preconditioning
         return self

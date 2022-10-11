@@ -39,11 +39,13 @@ const MAX_DURATION_MICROS: u64 = {{solver_config.max_duration_micros}};
 const PENALTY_UPDATE_FACTOR: f64 = {{solver_config.penalty_weight_update_factor or 10.0}};
 
 /// Initial penalty
-const INITIAL_PENALTY_PARAMETER: f64 = {{solver_config.initial_penalty or 1.0}};
+const INITIAL_PENALTY_PARAMETER: Option<f64> = {% if solver_config.initial_penalty  is not none %}Some({{ solver_config.initial_penalty }}){% else %}None{% endif %};
 
 /// Sufficient decrease coefficient
 const SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT: f64 = {{solver_config.sufficient_decrease_coefficient or 0.1}};
 
+/// Whether preconditioning should be applied
+const DO_PRECONDITIONING: bool = {{ solver_config.preconditioning | lower }};
 
 // ---Public Constants-----------------------------------------------------------------------------------
 
@@ -317,8 +319,27 @@ pub fn initialize_solver() -> AlmCache {
     AlmCache::new(panoc_cache, {{meta.optimizer_name|upper}}_N1, {{meta.optimizer_name|upper}}_N2)
 }
 
+/// If preconditioning has been applied, then at the end (after a solution has been obtained)
+/// we need to undo the scaling and update the cost function
+fn unscale_result(solver_status: &mut Result<AlmOptimizerStatus, SolverError>) {
+    if let Ok(sss) = solver_status {
+        let w_cost : f64 = icasadi_{{meta.optimizer_name}}::get_w_cost();
+        sss.update_cost(sss.cost() / w_cost);
+    }
+}
 
 /// Solver interface
+///
+/// ## Arguments
+/// - `p`: static parameter vector of the optimization problem
+/// - `alm_cache`: Instance of AlmCache
+/// - `u`: Initial guess
+/// - `y0` (optional) initial vector of Lagrange multipliers
+/// - `c0` (optional) initial penalty
+///
+/// ## Returns
+/// This function returns either an instance of AlmOptimizerStatus with information about the
+/// solution, or a SolverError object if something goes wrong
 pub fn solve(
     p: &[f64],
     alm_cache: &mut AlmCache,
@@ -329,6 +350,19 @@ pub fn solve(
 
     assert_eq!(p.len(), {{meta.optimizer_name|upper}}_NUM_PARAMETERS, "Wrong number of parameters (p)");
     assert_eq!(u.len(), {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES, "Wrong number of decision variables (u)");
+
+    // Start by initialising the optimiser interface (e.g., set w=1)
+    icasadi_{{meta.optimizer_name}}::init_{{ meta.optimizer_name }}();
+
+    let mut rho_init : f64 = 1.0;
+    if DO_PRECONDITIONING {
+        // Compute the preconditioning parameters (w's)
+        // The scaling parameters will be stored internally in `interface.c`
+        icasadi_{{meta.optimizer_name}}::precondition(u, p);
+
+        // Compute initial penalty
+        icasadi_{{meta.optimizer_name}}::initial_penalty(u, p, & mut rho_init);
+    }
 
     let psi = |u: &[f64], xi: &[f64], cost: &mut f64| -> Result<(), SolverError> {
         icasadi_{{meta.optimizer_name}}::cost(u, xi, p, cost);
@@ -374,18 +408,22 @@ pub fn solve(
         .with_max_duration(std::time::Duration::from_micros(MAX_DURATION_MICROS))
         .with_max_outer_iterations(MAX_OUTER_ITERATIONS)
         .with_max_inner_iterations(MAX_INNER_ITERATIONS)
-        .with_initial_penalty(c0.unwrap_or(INITIAL_PENALTY_PARAMETER))
+        .with_initial_penalty(c0.unwrap_or(INITIAL_PENALTY_PARAMETER.unwrap_or(rho_init)))
         .with_penalty_update_factor(PENALTY_UPDATE_FACTOR)
         .with_sufficient_decrease_coefficient(SUFFICIENT_INFEASIBILITY_DECREASE_COEFFICIENT);
 
-    // solve the problem using `u` an the initial condition `u` and
+    // solve the problem using `u`, the initial condition `u`, and
     // initial vector of Lagrange multipliers, if provided;
     // returns the problem status (instance of `AlmOptimizerStatus`)
     if let Some(y0_) = y0 {
         let mut alm_optimizer = alm_optimizer.with_initial_lagrange_multipliers(y0_);
-        alm_optimizer.solve(u)
+        let mut solution_status = alm_optimizer.solve(u);
+        unscale_result(&mut solution_status);
+        solution_status
     } else {
-        alm_optimizer.solve(u)
+        let mut solution_status = alm_optimizer.solve(u);
+        unscale_result(&mut solution_status);
+        solution_status
     }
 
 }
