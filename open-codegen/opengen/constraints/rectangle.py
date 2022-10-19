@@ -184,3 +184,11 @@ class Rectangle(Constraint):
         self.__xmin = np.multiply(self.__xmin, scaling_factor)
         self.__xmax = np.multiply(self.__xmax, scaling_factor)
         return self
+
+    def is_orthant(self):
+        chk_orthant = True
+        for x_min_i in self.__xmin:
+            chk_orthant &= (x_min_i == 0 or x_min_i == float('inf') or x_min_i == float('-inf'))
+        for x_max_i in self.__xmax:
+            chk_orthant &= (x_max_i == 0 or x_max_i == float('inf') or x_max_i == float('-inf'))
+        return chk_orthant

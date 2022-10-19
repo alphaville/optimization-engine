@@ -49,6 +49,18 @@ The number of outer iterations should be kept reasonably small
 to avoid too high values of the penalty parameters (which increase
 exponentially).
 
+<div class="alert alert-info">
+<b>Preconditioning:</b> Opengen since version <b>0.7.0</b> supports a preconditioning mechanism. If activated,  
+the initial penalty is computed internally. Moreover, appropriate scaling is applied on the cost function, 
+the PM-type constraints, $F_2(u; p) = 0$, and the ALM-type constraints, $F_1(u; p) \in C$, but only if $C=\{0\}$, or 
+if $C$ is a quadrant, e.g., $C = \{x: x\leq 0\}$.<br/><br/>
+
+Preconditioning seems to improve the convergence speed and robustness of the solver based 
+on some initial benchmarks, however, for the time being it is not active by default.
+To activate it, use `with_preconditioning(True)`.
+</div>
+
+
 A complete list of solver options is given in the following table
 
 | Method                                 | Explanation                                 |
@@ -65,6 +77,7 @@ A complete list of solver options is given in the following table
 | `with_cbfgs_parameters`                | CBFGS parameters                            |
 | `with_lbfgs_memory`                    | LBFGS memory                                | 
 | `with_inner_tolerance_update_factor`   | Update factor for the inner tolerance       | 
+| `with_preconditioning`                 | Whether preconditioning should be applied   |
 
 ## Build options
 

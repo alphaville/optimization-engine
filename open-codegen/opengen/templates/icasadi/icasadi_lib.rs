@@ -30,6 +30,7 @@ use libc::{c_double, c_int};  // might need to include: c_longlong, c_void
 
 // C interface (Function API exactly as provided by CasADi)
 extern "C" {
+    fn init_interface_{{ meta.optimizer_name }}();
     fn cost_function_{{ meta.optimizer_name }}(
         arg: *const *const c_double,
         casadi_results: *mut *mut c_double) -> c_int;
@@ -45,6 +46,15 @@ extern "C" {
         arg: *const *const c_double,
         casadi_results: *mut *mut c_double,
     ) -> c_int;
+    // Compute all preconditioning parameters
+    fn preconditioning_www_{{ meta.optimizer_name }} (
+        arg: *const *const c_double,
+    ) -> c_int;
+    fn init_penalty_function_{{ meta.optimizer_name }}(
+        arg: *const *const c_double,
+        ipnlt: *mut *mut c_double,
+    ) -> c_int;
+    fn get_w_cost_{{ meta.optimizer_name }}() -> c_double;
 } // END of extern C
 
 
@@ -52,6 +62,23 @@ extern "C" {
 //  *MAIN* API Functions in Rust
 // -----------------------------------------------------------
 
+///
+/// Getter function for w_cost
+///
+pub fn get_w_cost() -> f64 {
+    unsafe {
+        get_w_cost_{{ meta.optimizer_name }}() as f64
+    }
+}
+
+///
+/// Initialise the interface by setting all preconditioning parameters to 1
+///
+pub fn init_{{ meta.optimizer_name }}() {
+    unsafe {
+        init_interface_{{ meta.optimizer_name }}();
+    }
+}
 
 ///
 /// Consume the cost function psi(u, xi, p) written in C
@@ -227,6 +254,38 @@ pub fn mapping_f2(
     }
 }
 
+
+
+pub fn precondition(
+    u: &[f64],
+    static_params: &[f64],
+) -> i32 {
+    let arguments = &[u.as_ptr(), static_params.as_ptr()];
+    unsafe {
+         preconditioning_www_{{ meta.optimizer_name }}(arguments.as_ptr()) as i32
+    }
+}
+
+/// Computes the initial penalty
+///
+/// Make sure that you have called init_
+pub fn initial_penalty(
+    u: &[f64],
+    static_params: &[f64],
+    rho_init: &mut f64,) -> i32 {
+
+    // preconditioning_init_penalty_function_{{ meta.optimizer_name }}
+    let arguments = &[u.as_ptr(), static_params.as_ptr()];
+    let ip = &mut [rho_init as *mut c_double];
+
+    unsafe {
+         init_penalty_function_{{ meta.optimizer_name }}(
+            arguments.as_ptr(),
+            ip.as_mut_ptr(),
+        ) as i32
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -263,6 +322,17 @@ mod tests {
         let p = [0.1; NUM_STATIC_PARAMETERS];
         let mut f2up = [0.0; NUM_CONSTRAINTS_TYPE_PENALTY];
         assert_eq!(0, super::mapping_f2(&u, &p, &mut f2up));
+    }
+
+    #[test]
+    fn tst_compute_rho_init() {
+        let u = [1.5; NUM_DECISION_VARIABLES];
+        let p = [2.0; NUM_STATIC_PARAMETERS];
+        let mut rh0 : f64 = 0.;
+        init_{{ meta.optimizer_name }}();
+        assert_eq!(0, precondition(&u, &p));
+        assert_eq!(0, initial_penalty(&u, &p, &mut rh0));
+        println!("rho = {}", rh0);
     }
 
 }

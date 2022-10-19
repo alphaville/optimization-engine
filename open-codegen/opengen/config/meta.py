@@ -43,6 +43,11 @@ class OptimizerMeta:
         self.__grad_cost_function_name = None
         self.__constraint_penalty_function = None
         self.__alm_constraints_mapping_f1 = None
+        self.__preconditioning_file_name = None
+        self.__w_cost_mapping_function = None
+        self.__w_f1_mapping_function = None
+        self.__w_f2_mapping_function = None
+        self.__initial_penalty_mapping_function = None
         self.__update_function_names()
 
     def __update_function_names(self):
@@ -51,6 +56,11 @@ class OptimizerMeta:
         self.__grad_cost_function_name = 'open_grad_phi_' + optimizer_name
         self.__constraint_penalty_function = 'open_mapping_f2_' + optimizer_name
         self.__alm_constraints_mapping_f1 = 'open_mapping_f1_' + optimizer_name
+        self.__preconditioning_file_name = 'open_preconditioning_' + optimizer_name
+        self.__w_cost_mapping_function = 'open_preconditioning_w_cost_' + optimizer_name
+        self.__w_f1_mapping_function = 'open_preconditioning_w_f1_' + optimizer_name
+        self.__w_f2_mapping_function = 'open_preconditioning_w_f2_' + optimizer_name
+        self.__initial_penalty_mapping_function = 'open_initial_penalty_' + optimizer_name
 
     @property
     def cost_function_name(self):
@@ -67,6 +77,26 @@ class OptimizerMeta:
     @property
     def alm_mapping_f1_function_name(self):
         return self.__alm_constraints_mapping_f1
+
+    @property
+    def preconditioning_file_name(self):
+        return self.__preconditioning_file_name
+
+    @property
+    def w_cost_function_name(self):
+        return self.__w_cost_mapping_function
+
+    @property
+    def w_f1_function_name(self):
+        return self.__w_f1_mapping_function
+
+    @property
+    def w_f2_function_name(self):
+        return self.__w_f2_mapping_function
+
+    @property
+    def initial_penalty_function_name(self):
+        return self.__initial_penalty_mapping_function
 
     def with_version(self, optimizer_version):
         """Specify version

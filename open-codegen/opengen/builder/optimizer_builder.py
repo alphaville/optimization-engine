@@ -6,6 +6,7 @@ import warnings
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
+import opengen.constraints as og_cstr
 import casadi.casadi as cs
 import os
 import jinja2
@@ -19,6 +20,7 @@ _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
 _AUTOGEN_PNLT_CONSTRAINTS_FNAME = 'auto_casadi_mapping_f2.c'
 _AUTOGEN_ALM_MAPPING_F1_FNAME = 'auto_casadi_mapping_f1.c'
+_AUTOGEN_PRECONDITIONING_FNAME = 'auto_preconditioning_functions.c'
 _PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
@@ -212,7 +214,8 @@ class OpEnOptimizerBuilder:
         cint_output_template = cint_template.render(
             meta=self.__meta,
             problem=self.__problem,
-            build_config=self.__build_config)
+            build_config=self.__build_config,
+            solver_config=self.__solver_config)
         cint_icallocator_path = os.path.abspath(
             os.path.join(self.__icasadi_target_dir(), "extern", "interface.c"))
         with open(cint_icallocator_path, "w") as fh:
@@ -254,7 +257,15 @@ class OpEnOptimizerBuilder:
         with open(cargo_toml_path, "w") as fh:
             fh.write(cargo_output_template)
 
-    def __generate_memory_code(self, cost=None, grad=None, f1=None, f2=None):
+    def __generate_memory_code(self,
+                               cost=None,
+                               grad=None,
+                               f1=None,
+                               f2=None,
+                               w_cost_fn=None,
+                               w_constraint_f1_fn=None,
+                               w_constraint_f2_fn=None,
+                               init_penalty_fn=None):
         """
         Creates file casadi_memory.h with memory sizes
 
@@ -269,6 +280,7 @@ class OpEnOptimizerBuilder:
         casadi_mem_output_template = casadi_mem_template.render(
             cost=cost, grad=grad,
             f1=f1, f2=f2,
+            w_cost=w_cost_fn, w1=w_constraint_f1_fn, w2=w_constraint_f2_fn, init_penalty=init_penalty_fn,
             build_config=self.__build_config,
             meta=self.__meta)
         memory_path = os.path.abspath(
@@ -293,8 +305,12 @@ class OpEnOptimizerBuilder:
         alm_set_c = problem.alm_set_c
         f1 = problem.penalty_mapping_f1
         f2 = problem.penalty_mapping_f2
+        w_cost = problem.w_cost
+        w1 = problem.w1
+        w2 = problem.w2
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
-        psi = phi
+        psi = w_cost * phi
 
         if n1 + n2 > 0:
             n_xi = n1 + 1
@@ -309,17 +325,17 @@ class OpEnOptimizerBuilder:
         #       retrieve the value of the original cost function
         if n1 > 0:
             sq_dist_term = alm_set_c.distance_squared(
-                f1 + xi[1:n1+1]/cs.fmax(xi[0], 1))
+                w1 * f1 + xi[1:n1+1]/cs.fmax(xi[0], 1))
             psi += xi[0] * sq_dist_term / 2
 
         if n2 > 0:
-            psi += xi[0] * cs.dot(f2, f2) / 2
+            psi += xi[0] * cs.dot(w2*f2, w2*f2) / 2
 
         jac_psi = cs.gradient(psi, u)
 
-        psi_fun = cs.Function(meta.cost_function_name, [u, xi, p], [psi])
+        psi_fun = cs.Function(meta.cost_function_name, [u, xi, theta], [psi])
         grad_psi_fun = cs.Function(
-            meta.grad_function_name, [u, xi, p], [jac_psi])
+            meta.grad_function_name, [u, xi, theta], [jac_psi])
         return psi_fun, grad_psi_fun
 
     def __construct_mapping_f1_function(self) -> cs.Function:
@@ -329,15 +345,17 @@ class OpEnOptimizerBuilder:
         p = problem.parameter_variables
         n1 = problem.dim_constraints_aug_lagrangian()
         f1 = problem.penalty_mapping_f1
+        w1 = problem.w1
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
         if n1 > 0:
-            mapping_f1 = f1
+            mapping_f1 = w1 * f1
         else:
             mapping_f1 = 0
 
         alm_mapping_f1_fun = cs.Function(
             self.__meta.alm_mapping_f1_function_name,
-            [u, p], [mapping_f1])
+            [u, theta], [mapping_f1])
         return alm_mapping_f1_fun
 
     def __construct_mapping_f2_function(self) -> cs.Function:
@@ -346,17 +364,124 @@ class OpEnOptimizerBuilder:
         u = problem.decision_variables
         p = problem.parameter_variables
         n2 = problem.dim_constraints_penalty()
+        w2 = problem.w2
+        theta = cs.vertcat(p, problem.preconditioning_coefficients)
 
         if n2 > 0:
-            penalty_constraints = problem.penalty_mapping_f2
+            penalty_constraints = w2 * problem.penalty_mapping_f2
         else:
             penalty_constraints = 0
 
         alm_mapping_f2_fun = cs.Function(
             self.__meta.constraint_penalty_function_name,
-            [u, p], [penalty_constraints])
+            [u, theta], [penalty_constraints])
 
         return alm_mapping_f2_fun
+
+    @staticmethod
+    def __casadi_norm_infinity(v):
+        if isinstance(v, cs.SX):
+            return cs.norm_inf(v)
+
+        nv = v.size(1)
+        nrm_inf = 0
+        for i in range(nv):
+            nrm_inf = cs.fmax(nrm_inf, cs.fabs(v[i]))
+        return nrm_inf
+
+    def __generate_code_preconditioning(self):
+        """
+        Generates C code for preconditioning functions
+
+        This function generates C code for four functions:
+        - w_cost(u, p)
+        - w1(u, p)
+        - w2(u, p)
+        - initial_penalty(u, theta), where theta = (p, w_cost, w1, w2)
+
+        :returns: casadi functions (w_cost, w1, w2, initial_penalty)
+        """
+
+        # Note that these preconditioning-related functions are generated regardless
+        # of whether preconditioning is enabled
+        meta = self.__meta
+        icasadi_extern_dir = os.path.join(
+            self.__icasadi_target_dir(), "extern")
+
+        self.__logger.info("Defining preconditioning functions")
+        problem = self.__problem
+        u = problem.decision_variables
+        p = problem.parameter_variables
+        c_f1 = problem.penalty_mapping_f1
+        n1 = problem.dim_constraints_aug_lagrangian()
+        c_f2 = problem.penalty_mapping_f2
+        n2 = problem.dim_constraints_penalty()
+        phi = problem.cost_function
+        symbol_type = cs.MX.sym if isinstance(u, cs.MX) else cs.SX.sym
+
+        gen_code = cs.CodeGenerator(_AUTOGEN_PRECONDITIONING_FNAME)
+
+        jac_cost = OpEnOptimizerBuilder.__casadi_norm_infinity(
+            cs.jacobian(phi, u).T)
+
+        w_cost_fn = cs.Function(meta.w_cost_function_name, [
+                                u, p], [1 / cs.fmax(1, jac_cost)])
+        w_cost = symbol_type("w_cost", 1)
+
+        theta = cs.vertcat(p, w_cost)
+        infeasibility_psi = 0
+
+        if n1 > 0:
+            jac_f1 = cs.jacobian(c_f1, u)
+            w1 = ()
+            for i in range(n1):
+                nrm_jac_f1_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
+                w1 = cs.vertcat(w1, nrm_jac_f1_i)
+            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [w1])
+
+            w_f1 = symbol_type("w_f1", c_f1.size(1))
+            theta = cs.vertcat(theta, w_f1)
+            infeasibility_psi += 0.5 * \
+                cs.dot(cs.power(w_f1, 2), cs.power(cs.fmax(0, c_f1), 2))
+        else:
+            w_constraint_f1_fn = cs.Function(
+                meta.w_f1_function_name, [u, p], [0])
+
+        if n2 > 0:
+            jac_f2 = cs.jacobian(c_f2, u)
+            w2 = ()
+            for i in range(n2):
+                nrm_jac_f2_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f2[i, :]))
+                w2 = cs.vertcat(w2, nrm_jac_f2_i)
+            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [w2])
+
+            w_f2 = symbol_type("w_f2", c_f2.size(1))
+            theta = cs.vertcat(theta, w_f2)
+            infeasibility_psi += 0.5 * \
+                                 cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
+        else:
+            w_constraint_f2_fn = cs.Function(
+                meta.w_f2_function_name, [u, p], [0])
+
+        init_penalty = cs.fmax(1, cs.fabs(w_cost * phi))
+        init_penalty /= cs.fmax(1, cs.fabs(infeasibility_psi))
+        init_penalty = cs.fmax(1e-8, (cs.fmin(10*init_penalty, 1e8)))
+
+        # Note that theta = (p, w_cost, w1, w2)
+        init_penalty_fn = cs.Function(meta.initial_penalty_function_name, [
+                                      u, theta], [init_penalty])
+
+        gen_code.add(w_cost_fn)
+        gen_code.add(w_constraint_f1_fn)
+        gen_code.add(w_constraint_f2_fn)
+        gen_code.add(init_penalty_fn)
+        gen_code.generate()
+
+        # Move auto-generated file to target folder
+        shutil.move(_AUTOGEN_PRECONDITIONING_FNAME,
+                    os.path.join(icasadi_extern_dir, _AUTOGEN_PRECONDITIONING_FNAME))
+
+        return w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn, init_penalty_fn
 
     def __generate_casadi_code(self):
         """Generates CasADi C code"""
@@ -396,8 +521,16 @@ class OpEnOptimizerBuilder:
         shutil.move(f2_file_name,
                     os.path.join(icasadi_extern_dir, _AUTOGEN_PNLT_CONSTRAINTS_FNAME))
 
+        # -----------------------------------------------------------------------
+        (w_cost_fn, w_constraint_f1_fn, w_constraint_f2_fn,
+         init_penalty_fn) = self.__generate_code_preconditioning()
+
         self.__generate_memory_code(psi_fun, grad_psi_fun,
-                                    mapping_f1_fun, mapping_f2_fun)
+                                    mapping_f1_fun, mapping_f2_fun,
+                                    w_cost_fn,
+                                    w_constraint_f1_fn,
+                                    w_constraint_f2_fn,
+                                    init_penalty_fn)
 
     def __generate_main_project_code(self):
         self.__logger.info(
@@ -485,6 +618,18 @@ class OpEnOptimizerBuilder:
 
     def __check_user_provided_parameters(self):
         self.__logger.info("Checking user parameters")
+        if self.__solver_config.preconditioning:
+            # Preconditioning is not allowed when we have general ALM-type constraints of the form
+            # F1(u, p) in C, unless C is {0} or an orthant (special case of rectangle).
+            n1 = self.__problem.dim_constraints_aug_lagrangian()
+            alm_set_c = self.__problem.alm_set_c
+            if n1 > 0:
+                if not isinstance(alm_set_c, (og_cstr.Rectangle, og_cstr.Zero)):
+                    raise ValueError("Preconditioning cannot be applied with C being other than "
+                                     "{0} or an Orthant (for now)")
+                if isinstance(alm_set_c, og_cstr.Rectangle) and not alm_set_c.is_orthant():
+                    raise NotImplementedError("ALM-type constraints with general rectrangles will be supported soon. "
+                                              "For now we only support orthans (e.g., F1(u, p) <= 0).")
 
     def __generate_code_python_bindings(self):
         self.__logger.info("Generating code for Python bindings")

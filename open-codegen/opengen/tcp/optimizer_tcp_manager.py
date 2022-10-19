@@ -93,7 +93,11 @@ class OptimizerTcpManager:
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        s.connect((ip, port))
+        try:
+            s.connect((ip, port))
+        except ConnectionRefusedError as err:
+            s.close()
+            raise err
         return s
 
     def __send_receive_data(self, text_to_send, buffer_size=512, max_data_size=1048576):
@@ -126,8 +130,10 @@ class OptimizerTcpManager:
         tcp_data = self.__optimizer_details
         ip = tcp_data['tcp']['ip']
         port = tcp_data['tcp']['port']
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        return 0 == s.connect_ex((ip, port))
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as s:
+            result = 0 == s.connect_ex((ip, port))
+
+        return result
 
     @property
     def details(self):
