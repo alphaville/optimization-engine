@@ -286,10 +286,17 @@ class SolverConfiguration:
         self.__cbfgs_sy_epsilon = sy_epsilon
         return self
 
-    def with_preconditioning(self, do_preconditioning):
-        """Whether to apply preconditioning
+    def with_preconditioning(self, do_preconditioning=True):
+        """Whether to apply preconditioning using the approach of [1]
 
         Note that this overrides the computation of the initial penalty
+
+        Note also that unless this method is called, no preconditioning is
+        applied (this may change in a future release; we may make enable
+        preconditioning by default)
+
+        [1] E.G. Birgin and J.M. Martinez, Practical Augmented Lagrangian
+        Methods for Constrained Optimization, SIAM, 2014
 
         :param do_preconditioning: whether to precondition
         :returns: the current object
