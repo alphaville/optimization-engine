@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
-## [0.7.0] - Unreleased
+
+
+## [0.7.1] - 2022-10-20
+
+### Changed
+
+* Default argument in `.with_preconditioning`
+
+
+## [0.7.0] - 2022-10-11
 
 ### Added
 
@@ -165,6 +174,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.7.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.7.0...opengen-0.7.1
 [0.7.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.13...opengen-0.7.0
 [0.6.13]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.12...opengen-0.6.13
 [0.6.12]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.11...opengen-0.6.12
