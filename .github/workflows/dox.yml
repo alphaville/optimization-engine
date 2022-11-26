@@ -30,6 +30,8 @@ jobs:
         git fetch origin gh-pages:gh-pages || :
         git checkout gh-pages
         git rm -r api-dox/
+        git commit -m "remove old api-dox files"
+        ls
         git checkout $current_branch
 
     - name: Build documentation
