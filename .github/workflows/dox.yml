@@ -38,4 +38,5 @@ jobs:
         ls /tmp/staging
         cd /tmp/staging/sphinx-dox
         sphinx-apidoc -o ./source/ ../opengen ../opengen/test/
+        make html
 
