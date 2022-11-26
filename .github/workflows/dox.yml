@@ -1,0 +1,35 @@
+# This action generates the documentation and then deploys it to the `gh-pages` branch.
+
+name: Documentation & Coverage
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+
+    steps:
+    # Checks-out the repository under $GITHUB_WORKSPACE
+    - uses: actions/checkout@v2
+
+    # Install Python dependencies to generate tests
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9.2'
+    - name: Install Python Dependencies 
+      run: | 
+        ./install-sphinx.sh --force-install
+      working-directory: ci
+
+    # Create the `gh-pages` branch if it doesn't exist already, check it out, 
+    # and copy it to /tmp/staging.
+    - name: Create staging area
+      run: |
+        rm -rf /tmp/staging
+        git fetch origin gh-pages:gh-pages ||:
+        git checkout gh-pages || \
+        { git checkout --orphan gh-pages && git rm -rf . && git clean -fxd ; }
+        cp -ar $GITHUB_WORKSPACE/ /tmp/staging
+        git checkout ${GITHUB_REF##*/}
+
