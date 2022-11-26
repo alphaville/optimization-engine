@@ -18,25 +18,25 @@ jobs:
       with:
         python-version: '3.9.2'
     - name: Install Python Dependencies
-      run: | 
-        bash ./install-sphinx.sh --force-install
-      working-directory: ci
-
-    # Create the `gh-pages` branch if it doesn't exist already, check it out,
-    # and copy it to /tmp/staging.
-    - name: Create staging area
       run: |
-        rm -rf /tmp/staging
-        mkdir -p /tmp/staging
-        cp -r sphinx-dox /tmp/staging
-        cp -r open-codegen/opengen /tmp/staging
-        # git fetch origin gh-pages:gh-pages ||:
-        # git checkout gh-pages        
-    
+        pip install sphinx
+        pip install sphinx-rtd-theme
+
+    # - name: Create staging area
+    #   run: |
+    #     rm -rf /tmp/staging
+    #     mkdir -p /tmp/staging
+    #     cp -r sphinx-dox /tmp/staging
+    #     cp -r open-codegen/opengen /tmp/staging
+    #     # git fetch origin gh-pages:gh-pages ||:
+    #     # git checkout gh-pages
+
     - name: Build documentation
       run: |
-        ls /tmp/staging
-        cd /tmp/staging/sphinx-dox
-        sphinx-apidoc -o ./source/ ../opengen ../opengen/test/
+        rm -rf sphinx
+        mkdir -p sphinx
+        cd sphinx-dox
         make html
+        cp -r build/
+        
 
