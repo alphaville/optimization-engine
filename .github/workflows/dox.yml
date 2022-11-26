@@ -1,6 +1,6 @@
 # This action generates the documentation and then deploys it to the `gh-pages` branch.
 
-name: Documentation & Coverage
+name: Documentation
 
 on:
   push:
@@ -28,8 +28,8 @@ jobs:
       run: |
         rm -rf /tmp/staging
         git fetch origin gh-pages:gh-pages ||:
-        git checkout gh-pages || \
-        { git checkout --orphan gh-pages && git rm -rf . && git clean -fxd ; }
+        git checkout gh-pages
         cp -ar $GITHUB_WORKSPACE/ /tmp/staging
         git checkout ${GITHUB_REF##*/}
+        ls
 
