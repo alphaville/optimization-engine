@@ -1,4 +1,5 @@
-# This action generates the documentation and then deploys it to the `gh-pages` branch.
+# GitHub Action
+# Builds sphinx documentation and pushes it to gh-pages
 
 name: Documentation
 
@@ -10,10 +11,9 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    # Checks-out the repository under $GITHUB_WORKSPACE
     - uses: actions/checkout@v2
 
-    # Install Python dependencies to generate tests
+    # Install sphinx
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9.2'
@@ -21,15 +21,6 @@ jobs:
       run: |
         pip install sphinx
         pip install sphinx-rtd-theme
-
-    # - name: Create staging area
-    #   run: |
-    #     rm -rf /tmp/staging
-    #     mkdir -p /tmp/staging
-    #     cp -r sphinx-dox /tmp/staging
-    #     cp -r open-codegen/opengen /tmp/staging
-    #     # git fetch origin gh-pages:gh-pages ||:
-    #     # git checkout gh-pages
 
     - name: Build documentation
       run: | 
@@ -44,8 +35,10 @@ jobs:
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
         cd $GITHUB_WORKSPACE/
+        rm -rf api-dox/
+        mv sphinx/ api-dox/
         git fetch origin gh-pages:gh-pages || :
         git checkout gh-pages
-        git add sphinx
+        git add api-dox/
         git commit -m "documentation"
         git push origin gh-pages || :
