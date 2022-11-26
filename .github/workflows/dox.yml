@@ -19,7 +19,7 @@ jobs:
         python-version: '3.9.2'
     - name: Install Python Dependencies 
       run: | 
-        ./install-sphinx.sh --force-install
+        bash ./install-sphinx.sh --force-install
       working-directory: ci
 
     # Create the `gh-pages` branch if it doesn't exist already, check it out, 
