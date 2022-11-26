@@ -13,9 +13,12 @@ echo "CURRENT BRANCH:" $current_branch
 echo "COMMIT MESSAGE:" $commit_message
 echo "COMMIT HASH   :" $commit_hash
 
-# TODO If the current branch is not master and the current commit
+# If the current branch is not master and the current commit
 # message does not contain [docit], then stop
-
+if ! (grep -q "[docit]" <<< "$commit_message"); then 
+echo "The commit message does not contain [docit] /exiting! bye :)";
+exit 0;
+fi
 
 # Install sphinx and the RTD theme
 cd $GITHUB_WORKSPACE/
