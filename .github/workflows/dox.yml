@@ -23,10 +23,11 @@ jobs:
         pip install sphinx-rtd-theme
 
     - name: Build documentation
-      run: | 
+      run: |
         rm -rf sphinx
         mkdir -p sphinx
         cd sphinx-dox
+        sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
         make html
         cp -r build/html/ ../sphinx
     
