@@ -30,6 +30,6 @@ jobs:
         git fetch origin gh-pages:gh-pages ||:
         git checkout gh-pages
         cp -ar $GITHUB_WORKSPACE/ /tmp/staging
-        git checkout ${GITHUB_REF##*/}
+        echo ${GITHUB_REF##*/}
         ls
 
