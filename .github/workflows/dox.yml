@@ -17,12 +17,12 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9.2'
-    - name: Install Python Dependencies 
+    - name: Install Python Dependencies
       run: | 
         bash ./install-sphinx.sh --force-install
       working-directory: ci
 
-    # Create the `gh-pages` branch if it doesn't exist already, check it out, 
+    # Create the `gh-pages` branch if it doesn't exist already, check it out,
     # and copy it to /tmp/staging.
     - name: Create staging area
       run: |
@@ -32,4 +32,10 @@ jobs:
         cp -ar $GITHUB_WORKSPACE/ /tmp/staging
         echo ${GITHUB_REF##*/}
         ls
+    
+    - name: Build documentation
+      run: |
+        cd $GITHUB_WORKSPACE/sphinx-dox
+        sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
+      working-directory: ci
 
