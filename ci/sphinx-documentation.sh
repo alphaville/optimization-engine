@@ -15,8 +15,9 @@ echo "COMMIT HASH   :" $commit_hash
 
 # If the current branch is not master and the current commit
 # message does not contain [docit], then stop
-if ! (grep -q "[docit]" <<< "$commit_message"); then 
-echo "The commit message does not contain [docit] /exiting! bye :)";
+magic_docs_keyword="[docit]"
+if [[ "$commit_message" != *"$magic_docs_keyword"* ]] || ["$current_branch" == "master"]; then 
+echo "The commit message does not contain [docit] and this is not the master branch /exiting! bye :)";
 exit 0;
 fi
 

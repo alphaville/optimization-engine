@@ -19,4 +19,4 @@ jobs:
         python-version: '3.8'
     - name: Build and deploy docs
       run: bash ci/sphinx-documentation.sh
-  
+
