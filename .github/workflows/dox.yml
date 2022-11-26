@@ -27,15 +27,14 @@ jobs:
     - name: Create staging area
       run: |
         rm -rf /tmp/staging
-        cp -ar 
+        mkdir -p /tmp/staging
+        cp -r sphinx-dox /tmp/staging
+        cp -r open-codegen/opengen /tmp/staging
         # git fetch origin gh-pages:gh-pages ||:
         # git checkout gh-pages        
     
     - name: Build documentation
       run: |
-        mkdir -p /tmp/staging
-        cp -r sphinx-dox /tmp/staging
-        cp -r open-codegen/opengen /tmp/staging
         ls /tmp/staging
         cd /tmp/staging/sphinx-dox
         sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
