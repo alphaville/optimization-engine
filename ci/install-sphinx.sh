@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 cd "$( dirname "${BASH_SOURCE[0]}" )"/..
 
 if [ -z "${VIRTUAL_ENV+x}" ] && [ $1 != "--force-install" ]; then
