@@ -37,5 +37,4 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/sphinx-dox
         sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
-      working-directory: ci
 
