@@ -40,7 +40,8 @@ const siteConfig = {
   headerLinks: [
     { doc: 'open-intro', label: 'Docs' },
     { blog: true, label: 'Blog' },
-    { href: 'https://docs.rs/optimization_engine/*/optimization_engine/', label: 'API' },
+    { href: 'https://docs.rs/optimization_engine/*/optimization_engine/', label: 'Rust API' },
+    { href: 'https://alphaville.github.io/optimization-engine/api-dox/html/index.html', label: 'Opengen API' },
     { href: '/optimization-engine/blog/2019/03/06/talk-to-us', label: 'Chat' },
     { href: 'https://www.github.com/alphaville/optimization-engine', label: 'Github' },
   ],
