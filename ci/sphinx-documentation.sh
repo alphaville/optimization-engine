@@ -16,7 +16,7 @@ echo "COMMIT HASH   :" $commit_hash
 # If the current branch is not master and the current commit
 # message does not contain [docit], then stop
 magic_docs_keyword="[docit]"
-if [ "$commit_message" != *"$magic_docs_keyword"* ] && [ "$current_branch" == "master" ]; then 
+if [[ "$commit_message" != *"$magic_docs_keyword"* ]] && [ "$current_branch" == "master" ]; then 
 echo "The commit message does not contain [docit] and this is not the master branch /exiting! bye :)";
 exit 0;
 fi
@@ -47,7 +47,7 @@ git checkout $current_branch
 rm -rf sphinx
 mkdir -p sphinx
 pushd sphinx-dox
-sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
+sphinx-apidoc -o ./source/ ../open-codegen/opengen
 make html || :
 cp -r build/html/ ../sphinx
 popd # back to $GITHUB_WORKSPACE
