@@ -59,5 +59,7 @@ rm -rf api-dox/
 mv sphinx/ api-dox/
 git checkout gh-pages
 git add api-dox/
+touch .nojekyll
+git add .nojekyll
 git commit -m "documentation for $commit_hash"
 git push origin gh-pages || :
