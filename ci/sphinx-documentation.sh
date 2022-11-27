@@ -39,8 +39,10 @@ git config --global user.email "actions@github.com"
 # At the end, return to the current branch
 git fetch origin gh-pages:gh-pages || :
 git checkout gh-pages
-git rm -r api-dox/ || :
-git commit -m "remove old api-dox files"
+if [ -d "api-dox/" ]; then
+    git rm -r api-dox/
+    git commit -m "remove old api-dox files"
+fi
 git checkout $current_branch
 
 # Build the docs
