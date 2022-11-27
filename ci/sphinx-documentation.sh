@@ -16,7 +16,7 @@ echo "COMMIT HASH   :" $commit_hash
 # If the current branch is not master and the current commit
 # message does not contain [docit], then stop
 magic_docs_keyword="[docit]"
-if [[ "$commit_message" != *"$magic_docs_keyword"* ]] || [[ "$current_branch" == "master" ]]; then 
+if [ "$commit_message" != *"$magic_docs_keyword"* ] && [ "$current_branch" == "master" ]; then 
 echo "The commit message does not contain [docit] and this is not the master branch /exiting! bye :)";
 exit 0;
 fi
@@ -27,9 +27,9 @@ pip install sphinx
 pip install sphinx-rtd-theme
 
 # Install opengen
-cd open-codegen
+pushd open-codegen
 pip install .
-cd ..
+popd # back to $GITHUB_WORKSPACE
 
 # Set git username and email
 git config --global user.name "github-actions"
@@ -46,13 +46,13 @@ git checkout $current_branch
 # Build the docs
 rm -rf sphinx
 mkdir -p sphinx
-cd sphinx-dox
+pushd sphinx-dox
 sphinx-apidoc -o ./source/ ../open-codegen/opengen ../open-codegen/opengen/test/
 make html || :
 cp -r build/html/ ../sphinx
+popd # back to $GITHUB_WORKSPACE
 
 # Push to gh-pages
-cd $GITHUB_WORKSPACE/
 rm -rf api-dox/
 mv sphinx/ api-dox/
 git checkout gh-pages
