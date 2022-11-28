@@ -6,6 +6,8 @@
 Opengen API docs
 ================================
 
+This is the opengen API documentation. Check out the main `OpEn documentation page <https://alphaville.github.io/optimization-engine/>`_ to get started with OpEn.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
