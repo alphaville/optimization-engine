@@ -91,7 +91,8 @@ class RustBuildTestCase(unittest.TestCase):
         f2 = cs.vertcat(0.2 + 1.5 * u[0] - u[1], u[2] - u[3] - 0.1)
         phi = og.functions.rosenbrock(u, p)
         bounds = og.constraints.Ball2(None, 1.5)
-        tcp_config = og.config.TcpServerConfiguration(bind_port=3302 if not is_preconditioned else 3309)
+        tcp_config = og.config.TcpServerConfiguration(
+            bind_port=3302 if not is_preconditioned else 3309)
         meta = og.config.OptimizerMeta() \
             .with_optimizer_name("only_f2" + ("_precond" if is_preconditioned else ""))
         problem = og.builder.Problem(u, p, phi) \
@@ -364,13 +365,18 @@ class RustBuildTestCase(unittest.TestCase):
         mng.kill()
 
     def test_rust_build_only_f2_preconditioned(self):
-        mng1 = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f2')
-        mng2 = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f2_precond')
-        mng1.start(); mng2.start()
+        mng1 = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f2')
+        mng2 = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f2_precond')
+        mng1.start()
+        mng2.start()
 
         try:
-            response1 = mng1.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
-            response2 = mng2.call(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]).get()
+            response1 = mng1.call(p=[0.5, 8.5], initial_guess=[
+                                  1, 2, 3, 4, 0]).get()
+            response2 = mng2.call(p=[0.5, 8.5], initial_guess=[
+                                  1, 2, 3, 4, 0]).get()
 
             self.assertEqual("Converged", response1.exit_status)
             self.assertEqual("Converged", response2.exit_status)
@@ -381,8 +387,10 @@ class RustBuildTestCase(unittest.TestCase):
             self.assertTrue(response1.f2_norm < slv_cfg.constraints_tolerance)
             self.assertTrue(response2.f2_norm < slv_cfg.constraints_tolerance)
             # check the nrom of the FPR
-            self.assertTrue(response1.last_problem_norm_fpr < slv_cfg.tolerance)
-            self.assertTrue(response2.last_problem_norm_fpr < slv_cfg.tolerance)
+            self.assertTrue(response1.last_problem_norm_fpr <
+                            slv_cfg.tolerance)
+            self.assertTrue(response2.last_problem_norm_fpr <
+                            slv_cfg.tolerance)
             # compare the costs
             self.assertAlmostEqual(response1.cost, response2.cost, 4)
 
@@ -408,7 +416,8 @@ class RustBuildTestCase(unittest.TestCase):
             self.assertEqual(True, isinstance(status, og.tcp.SolverError))
             self.assertEqual(1700, status.code)
         finally:
-            mng1.kill(); mng2.kill()
+            mng1.kill()
+            mng2.kill()
 
     def test_rust_build_plain(self):
         mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')

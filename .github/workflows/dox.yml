@@ -1,0 +1,22 @@
+# GitHub Action
+# Builds sphinx documentation and pushes it to gh-pages
+
+name: Documentation
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # Install sphinx
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Build and deploy docs
+      run: bash ci/sphinx-documentation.sh
+

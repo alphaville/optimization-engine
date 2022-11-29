@@ -48,7 +48,6 @@ regular_test() {
     # python main.py
 
     # --- run the tests
-    cd opengen
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
