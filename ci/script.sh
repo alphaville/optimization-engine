@@ -2,23 +2,23 @@
 set -euxo pipefail
 
 function run_clippy_test() {
-    cd $1
+    pushd $1
     cargo clippy --all-targets --all-features
     if [ -d "./tcp_iface_$1" ] 
     then
         # Test auto-generated TCP interface
-        cd ./tcp_iface_$1
+        pushd ./tcp_iface_$1
         cargo clippy --all-targets --all-features 
-        cd ..
+        popd
     fi
     if [ -d "./icasadi_$1" ] 
     then
         # Test auto-generated CasADi interface
-        cd icasadi_$1
+        pushd icasadi_$1
         cargo clippy --all-targets --all-features
-        cd ..
+        popd
     fi
-    cd ..
+    popd
 }
 
 regular_test() {
@@ -43,9 +43,6 @@ regular_test() {
 
     # --- install opengen
     pip install .
-
-    # --- uncomment to run main file
-    # python main.py
 
     # --- run the tests
     export PYTHONPATH=.
