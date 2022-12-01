@@ -4,14 +4,13 @@ from .solver_error import SolverError
 
 class SolverResponse:
     """Stores a solver response of type SolverStatus or SolverError."""
+
     def __init__(self, d):
-        """Constructs instance of <code>SolverResponse</code>
+        """Constructs instance of `SolverResponse`
 
-        Args:
-            d: dictionary containing either status or error attributes
+        :param d: dictionary containing either status or error attributes
 
-        Returns:
-            New instance of <code>SolverResponse</code>
+        :return: New instance of `SolverResponse`
         """
         if 'Error' in d.values():
             self.__response = SolverError(d)
@@ -19,14 +18,18 @@ class SolverResponse:
             self.__response = SolverStatus(d)
 
     def is_ok(self):
-        """Determines if response is OK."""
+        """Determines if response is OK.
+
+        This method should always be called first when obtaining a server response.
+        """
         return isinstance(self.__response, SolverStatus)
 
     def get(self):
         """
         Returns response, which is an instance of SolverStatus,
         if the call was successful, or an instance of SolverError
-        otherwise. It is recommended that you use is_ok() to check
+        otherwise. It is recommended that you use 
+        :class:`~opengen.tcp.solver_response.SolverResponse.is_ok` to check
         whether the call has succeeded first
         """
         return self.__response

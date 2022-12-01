@@ -46,14 +46,13 @@ class OpEnOptimizerBuilder:
                  solver_configuration=og_cfg.SolverConfiguration()):
         """Constructor of OpEnOptimizerBuilder
 
-        Args:
-            :param problem: instance of \link opengen.builder.problem.Problem Problem \endlink
-            :param metadata: instance of \link opengen.config.meta.OptimizerMeta OptimizerMeta \endlink
-            :param build_configuration: instance of \link opengen.config.build_config.BuildConfiguration BuildConfiguration \endlink
-            :param solver_configuration: instance of \link  opengen.config.solver_config.SolverConfiguration SolverConfiguration \endlink
+        :param problem: instance of :class:`~opengen.builder.problem.Problem`
+        :param metadata: instance of :class:`~opengen.config.meta.OptimizerMeta`
+        :param build_configuration: instance of :class:`~opengen.config.build_config.BuildConfiguration`
+        :param solver_configuration: instance of :class:`~opengen.config.solver_config.SolverConfiguration`
 
-        Returns:
-            New instance of OpEnOptimizerBuilder.
+        :return: New instance of :class:`~opengen.builder.optimizer_builder.OpEnOptimizerBuilder`.
+
         """
         self.__problem = problem
         self.__meta = metadata
@@ -174,9 +173,7 @@ class OpEnOptimizerBuilder:
 
     def __copy_icasadi_to_target(self):
         """
-
         Copy 'icasadi' folder and its contents into target directory
-
         """
         self.__logger.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
@@ -798,9 +795,8 @@ class OpEnOptimizerBuilder:
     def build(self):
         """Generate code and build project
 
-        Raises:
-            Exception: if the build process fails
-            Exception: if there some parameters have wrong, inadmissible or incompatible values
+        :raises Exception: if the build process fails
+        :raises Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
         self.__initialize()                      # initialize default value (if not provided)

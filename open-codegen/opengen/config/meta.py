@@ -28,10 +28,10 @@ class OptimizerMeta:
 
         Examples:
             >>> import opengen as og
-            >>> meta = og.config.OptimizerMeta()                \
-            >>>     .with_version("0.0.2")                      \
-            >>>     .with_authors(["P. Sopasakis", "E. Fresk"]) \
-            >>>     .with_licence("CC4.0-By")                   \
+            >>> meta = og.config.OptimizerMeta() \\
+            >>>     .with_version("0.0.2") \\
+            >>>     .with_authors(["P. Sopasakis", "E. Fresk"]) \\
+            >>>     .with_licence("CC4.0-By") \\
             >>>     .with_optimizer_name("wow_optimizer")
 
         """

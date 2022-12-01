@@ -8,8 +8,18 @@ import sys
 sys.path.insert(0, os.path.abspath("../../open-codegen/opengen"))
 
 
+def skip(app, what, name, obj, would_skip, options):
+    if name == "__init__":
+        return False
+    return would_skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
 
 project = 'OpEn'
 copyright = '2022, Pantelis Sopasakis'

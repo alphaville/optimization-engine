@@ -21,37 +21,34 @@ class OptimizerTcpManager:
 
     def __init__(self, optimizer_path=None, ip=None, port=None):
         """
-        Constructs instance of <code>OptimizerTcpManager</code>
+        Constructs instance of `OptimizerTcpManager`
 
         There are three ways to use this constructor:
 
-        - OptimizerTcpManager(optimizer_path): creates a TCP manager for a local
+        - `OptimizerTcpManager(optimizer_path)`: creates a TCP manager for a local
           TCP server using the default IP and port of that TCP server (specified
           upon code generation)
-        - OptimizerTcpManager(optimizer_path, ip, port): creates a TCP manager
+        - `OptimizerTcpManager(optimizer_path, ip, port)`: creates a TCP manager
           for a local TCP server, but overrides the default IP and port. This way
-          the user can set the address '0.0.0.0', so that the TCP server binds on
-          all IPs, or '127.0.0.1' so that it is accessible only locally, or a VPN
+          the user can set the address `0.0.0.0`, so that the TCP server binds on
+          all IPs, or `127.0.0.1` so that it is accessible only locally, or a VPN
           IP address, so that the optimizer is accessible only over a private
           network.
-        - OptimizerTcpManager(ip, port): If a path is not provided, then the
+        - `OptimizerTcpManager(ip, port)`: If a path is not provided, then the
           TCP manager can be used to connect to a remote TCP server, as a client,
           but cannot be used to start the server.
 
-        Args:
-            :param optimizer_path:
-            path to auto-generated optimizer (just to be clear: this is
-            the folder that contains <code>optimizer.yml</code>)
 
-            :param ip:
-            the user can provide the IP of a remote TCP server (must be up and
+        :param optimizer_path: path to auto-generated optimizer (just to be clear: this is
+            the folder that contains `optimizer.yml`)
+
+        :param ip: the user can provide the IP of a remote TCP server (must be up and
             running) so as to establish a remote connection. In that case `path`
             must be equal to `None` (see examples above)
 
-            :param port: see ip
+        :param port: see ip
 
-        Returns:
-            New instance of <code>OptimizerTcpManager</code>
+        :return: New instance of `OptimizerTcpManager`
         """
         self.__optimizer_path = optimizer_path
         if optimizer_path is not None:
@@ -209,20 +206,19 @@ class OptimizerTcpManager:
         Consumes the parametric optimizer by providing a parameter vector
         and, optionally, an initial guess
 
-        Args:
-             :param p: vector of parameters
-             :type p: list of `float`
-             :param initial_guess: initial guess vector
-             :type initial_guess: list of `float`
-             :param initial_y: initial vector of Lagrange multipliers (list of `float`)
-             :param initial_penalty: initial penalty parameter
-             :type initial_penalty: float
-             :param buffer_len: buffer length used to read the server response (default value: 4096)
-             :param max_data_size: maximum data size that is expected to be received from the TCP server (default value: 1048576)
 
-        Returns:
-            :return: SolverResponse object
-            :rtype: :class:`opengen.tcp.solver_response.SolverResponse`
+        :param p: vector of parameters
+        :type p: list of `float`
+        :param initial_guess: initial guess vector
+        :type initial_guess: list of `float`
+        :param initial_y: initial vector of Lagrange multipliers (list of `float`)
+        :param initial_penalty: initial penalty parameter
+        :type initial_penalty: float
+        :param buffer_len: buffer length used to read the server response (default value: 4096)
+        :param max_data_size: maximum data size that is expected to be received from the TCP server (default value: 1048576)
+
+        :return: SolverResponse object
+        :rtype: :class:`~opengen.tcp.solver_response.SolverResponse`
 
         """
         # Make request

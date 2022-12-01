@@ -16,11 +16,9 @@ class SecondOrderCone(Constraint):
     def __init__(self, a: float = 1.0):
         """Constructor for a Second-Order Cone set
 
-        Args:
-            :param a: parameter a
+        :param a: parameter `a`
 
-        Returns:
-            New instance of a SOC with given parameter `a`
+        :return: New instance of a SOC with given parameter `a`
         """
         if a <= 0:
             raise Exception("Parameter `a` must be a positive number")
@@ -67,7 +65,8 @@ class SecondOrderCone(Constraint):
 
         fun1 = 0.
         fun2 = sq_norm_x + r ** 2
-        fun3 = sq_norm_x * (1. - gamma * a / (cs.fmax(eps, norm_x)))**2 + (r - gamma)**2
+        fun3 = sq_norm_x * (1. - gamma * a /
+                            (cs.fmax(eps, norm_x)))**2 + (r - gamma)**2
 
         condition0 = norm_x + cs.fabs(r) < eps
         condition1 = norm_x <= a*r
