@@ -21,56 +21,56 @@ class RosConfiguration:
 
     @property
     def package_name(self):
-        """
-        Package name
+        """Package name
+
         :return: package name (default: 'open_ros')
         """
         return self.__package_name
 
     @property
     def node_name(self):
-        """
-        Node name (default: ros_node_optimizer)
-        :return:
+        """Node name (default: ros_node_optimizer)
+
+        :return: node name
         """
         return self.__node_name
 
     @property
     def publisher_subtopic(self):
-        """
-        Name of publisher sub-topic (default: "result")
-        :return:
+        """Name of publisher sub-topic (default: "result")
+
+        :return: publisher sub-topic
         """
         return self.__publisher_subtopic
 
     @property
     def subscriber_subtopic(self):
-        """
-        Name of subscriber sub-topic (default: "parameters")
-        :return:
+        """Name of subscriber sub-topic (default: "parameters")
+
+        :return: subscriber sub-topic
         """
         return self.__subscriber_subtopic
 
     @property
     def description(self):
-        """
-        Description of ROS package (in package.xml)
+        """Description of ROS package (in package.xml)
+
         :return: description
         """
         return self.__description
 
     @property
     def rate(self):
-        """
-        ROS node rate in Hz (default: 10)
+        """ROS node rate in Hz (default: 10)
+
         :return: rate
         """
         return self.__rate
 
     @property
     def result_topic_queue_size(self):
-        """
-        Size of "result" topic (default: 100)
+        """Size of "result" topic (default: 100)
+
         :return: result topic name
         """
         return self.__result_topic_queue_size
@@ -79,6 +79,7 @@ class RosConfiguration:
     def params_topic_queue_size(self):
         """
         Size of "parameter" topic queue (default: 100)
+
         :return: parameter topic name
         """
         return self.__params_topic_queue_size
@@ -89,8 +90,11 @@ class RosConfiguration:
         of the folder that will store the auto-generated ROS node.
         The node name can contain lowercase and uppercase
         characters and underscores, but not spaces or other symbols
+
         :param pkg_name: package name
+
         :return: current object
+
         :raises: ValueError if pkg_name is not a legal package name
         """
         if re.match(r"^[a-zA-Z_]+[\w]*$", pkg_name):
@@ -103,8 +107,11 @@ class RosConfiguration:
         Set the node name. The node name can contain lowercase
         and uppercase characters and underscores, but not spaces
         or other symbols
+
         :param node_name:
+
         :return: current object
+
         :raises: ValueError if node_name is not a legal node name
         """
         if re.match(r"^[a-zA-Z_]+[\w]*$", node_name):
@@ -115,7 +122,9 @@ class RosConfiguration:
     def with_rate(self, rate):
         """
         Set the rate of the ROS node
+
         :param rate: rate in Hz
+
         :return: current object
         """
         self.__rate = rate
@@ -124,7 +133,9 @@ class RosConfiguration:
     def with_description(self, description):
         """
         Set the description of the ROS package
+
         :param description: description (string)
+
         :return: current object
         """
         self.__description = description
@@ -135,8 +146,10 @@ class RosConfiguration:
                          parameter_topic_queue_size=100):
         """
         Set queue sizes for ROS node
-        :param result_topic_queue_size:
-        :param parameter_topic_queue_size:
+
+        :param result_topic_queue_size: queue size of results
+        :param parameter_topic_queue_size: queue size of topic
+
         :return: current object
         """
         self.__result_topic_queue_size = result_topic_queue_size

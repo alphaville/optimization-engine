@@ -124,7 +124,7 @@ class OptimizerMeta:
         """Specify the name of the optimizer
 
         :param optimizer_name: name of build, may only contain letters,
-        numbers and underscores, and may not start with a number
+            numbers and underscores, and may not start with a number
 
         :returns: The current instance of OptimizerMeta
         """

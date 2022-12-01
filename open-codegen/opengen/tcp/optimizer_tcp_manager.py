@@ -55,7 +55,8 @@ class OptimizerTcpManager:
         """
         self.__optimizer_path = optimizer_path
         if optimizer_path is not None:
-            self.__optimizer_details = None  # create attribute (including IP and port)
+            # create attribute (including IP and port)
+            self.__optimizer_details = None
             self.__load_tcp_details()
             if ip is not None:
                 self.__optimizer_details['tcp']['ip'] = ip
@@ -65,11 +66,13 @@ class OptimizerTcpManager:
             # Check whether the optimizer was built with the current version of opengen
             # We can only check the optimizer version if the optimizer runs locally
             opengen_version = self.__optimizer_details['build']['opengen_version']
-            current_opengen_version = pkg_resources.require("opengen")[0].version
+            current_opengen_version = pkg_resources.require("opengen")[
+                0].version
             if current_opengen_version != opengen_version:
                 logging.warn(
                     'the target optimizer was build with a different version of opengen (%s)' % opengen_version)
-                logging.warn('you are running opengen version %s' % current_opengen_version)
+                logging.warn('you are running opengen version %s' %
+                             current_opengen_version)
 
         elif ip is not None and port is not None:
             self.__optimizer_details = {"tcp": {"ip": ip, "port": port}}
@@ -152,7 +155,8 @@ class OptimizerTcpManager:
 
         # Check if a path has been provided; if not,
         if self.__optimizer_path is None:
-            raise Exception("No optimizer path provided - cannot start a remote server")
+            raise Exception(
+                "No optimizer path provided - cannot start a remote server")
 
         # Server start data
         tcp_data = self.__optimizer_details
@@ -171,8 +175,10 @@ class OptimizerTcpManager:
             command = ['cargo', 'run', '-q']
             command += ["--release"] if optimizer_details['build']['build_mode'] == 'release' else []
             command += ['--', '--port=%d' % port, '--ip=%s' % ip]
-            tcp_dir_name = "tcp_iface_" + optimizer_details['meta']['optimizer_name']
-            tcp_iface_directory = os.path.join(self.__optimizer_path, tcp_dir_name)
+            tcp_dir_name = "tcp_iface_" + \
+                optimizer_details['meta']['optimizer_name']
+            tcp_iface_directory = os.path.join(
+                self.__optimizer_path, tcp_dir_name)
             p = subprocess.Popen(command, cwd=tcp_iface_directory)
             p.wait()
 
@@ -204,17 +210,19 @@ class OptimizerTcpManager:
         and, optionally, an initial guess
 
         Args:
-             p: vector of parameters (list of float)
-             initial_guess: initial guess vector (list of float)
-             initial_y: initial vector of Lagrange multipliers (list of float)
-             initial_penalty: initial penalty parameter (float)
-             buffer_len: buffer length used to read the server response
-             (default value: 4096)
-             max_data_size: maximum data size that is expected to be
-             received from the TCP server (default value: 1048576)
+             :param p: vector of parameters
+             :type p: list of `float`
+             :param initial_guess: initial guess vector
+             :type initial_guess: list of `float`
+             :param initial_y: initial vector of Lagrange multipliers (list of `float`)
+             :param initial_penalty: initial penalty parameter
+             :type initial_penalty: float
+             :param buffer_len: buffer length used to read the server response (default value: 4096)
+             :param max_data_size: maximum data size that is expected to be received from the TCP server (default value: 1048576)
 
         Returns:
-            Instance of SolverResponse
+            :return: SolverResponse object
+            :rtype: :class:`opengen.tcp.solver_response.SolverResponse`
 
         """
         # Make request
@@ -234,7 +242,8 @@ class OptimizerTcpManager:
             run_message += ']'
 
         if initial_penalty is not None:
-            run_message += ', "initial_penalty": ' + str(float(initial_penalty))
+            run_message += ', "initial_penalty": ' + \
+                str(float(initial_penalty))
 
         run_message += '}}'
         data = self.__send_receive_data(run_message, buffer_len, max_data_size)

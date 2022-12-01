@@ -17,6 +17,7 @@ class Simplex(Constraint):
 
         Returns:
             :return: new instance of Simplex with given alpha
+
         """
         if alpha <= 0:
             raise Exception("Alpha must be a positive number")
@@ -36,10 +37,11 @@ class Simplex(Constraint):
 
         Args:
             :param y: given point; must be a list of numbers (float, int) or
-            a numpy n-dim array (`ndarray`)
+                a numpy n-dim array (`ndarray`)
 
         Returns:
             :return: the projection point in R^n as a numpy array of float64s
+
         """
         def __pop_all(z, indices):
             for index in sorted(indices, reverse=True):
@@ -94,7 +96,9 @@ class Simplex(Constraint):
         return x
 
     def is_convex(self):
+        """Whether the set is convex (`True`)"""
         return True
 
     def is_compact(self):
+        """Whether the set is compact (`True`)"""
         return True
