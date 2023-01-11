@@ -12,14 +12,14 @@ class RustAllocator(Enum):
     """Default allocator"""
 
     JemAlloc = 1
-    """Memory allocator: jemalloc
+    """Memory allocator: `jemalloc`
     
     Jemalloc is a generic implementation of malloc that emphasises fragmentation
     avoidance
     """
 
     RpAlloc = 2
-    """Memory allocator: rpmalloc
+    """Memory allocator: `rpmalloc`
     
     Rpmalloc is a very efficient lock-free thread caching 16-byte aligned 
     memory allocator implemented in C.
@@ -33,7 +33,10 @@ class BuildConfiguration:
 
     """
 
+    #: Debug mode (fast compilation, worse performance)
     DEBUG_MODE = "debug"
+
+    #: Release mode (great performance, very slow compilation)
     RELEASE_MODE = "release"
 
     def __init__(self, build_dir="."):
@@ -67,12 +70,18 @@ class BuildConfiguration:
 
     @property
     def target_system(self):
-        """Target system"""
+        """Target system
+
+        See also: :class:`~opengen.config.build_config.BuildConfiguration.with_target_system`
+        """
         return self.__target_system
 
     @property
     def build_mode(self):
-        """Build mode (release or debug)"""
+        """
+        Build mode (:class:`~opengen.config.build_config.BuildConfiguration.RELEASE_MODE` 
+        or :class:`~opengen.config.build_config.BuildConfiguration.DEBUG_MODE`)
+        """
         return self.__build_mode
 
     @property
@@ -94,18 +103,28 @@ class BuildConfiguration:
 
     @property
     def local_path(self):
+        """Local path of OpEn (if any)"""
         return self.__local_path
 
     @property
     def build_c_bindings(self):
+        """
+        Whether to build C bindings 
+        """
         return self.__build_c_bindings
 
     @property
     def build_python_bindings(self):
+        """
+        Whether to build Python bindings
+        """
         return self.__build_python_bindings
 
     @property
     def tcp_interface_config(self):
+        """
+        Whether to build a TCP interface
+        """
         return self.__tcp_interface_config
 
     @property
@@ -188,7 +207,8 @@ class BuildConfiguration:
 
         :param local_path: you can compile using a local version
             of OpEn. In that case, you need to provide the full absolute
-            path to that local OpEn directory.
+            path to that local OpEn directory. This option is intended for 
+            developers.
 
         :return: current instance of BuildConfiguration
         """

@@ -5,18 +5,20 @@ import numpy as np
 class Simplex(Constraint):
     """Simplex constraint
 
-    A set of the form {x: sum(x) = a, x>=0} where alpha is a positive constant.
+    A set of the form 
+
+    :math:`X = \left\{x \in \mathrm{I\!R}^n : \sum_{i=1}^{n} x_i = \\alpha, x \geq 0\\right\}`
+
+    where :math:`\\alpha` is a positive constant.
 
     """
 
     def __init__(self, alpha: float = 1.0):  # unless specified, alpha=1
         """Constructor for a Simplex constraint
 
-        Args:
-            :param alpha: size parameter of simplex (default: 1)
+        :param alpha: size parameter of simplex (default: 1)
 
-        Returns:
-            :return: new instance of Simplex with given alpha
+        :return: new instance of Simplex with given alpha
 
         """
         if alpha <= 0:
@@ -33,14 +35,13 @@ class Simplex(Constraint):
         raise NotImplementedError()
 
     def project(self, y):
-        """Computes the projection of a given point `y` (in R^n) on the current simplex.
+        """Computes the projection of a given point :math:`y\in{\\rm I\!R}^n` 
+        onto the current simplex.
 
-        Args:
-            :param y: given point; must be a list of numbers (float, int) or
-                a numpy n-dim array (`ndarray`)
+        :param y: given point; must be a list of numbers (float, int) or
+            a numpy n-dim array (`ndarray`)
 
-        Returns:
-            :return: the projection point in R^n as a numpy array of float64s
+        :return: the projection point in :math:`{\\rm I\!R}^n` as a numpy array of float64s
 
         """
         def __pop_all(z, indices):

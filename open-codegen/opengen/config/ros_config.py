@@ -45,15 +45,15 @@ class RosConfiguration:
 
     @property
     def subscriber_subtopic(self):
-        """Name of subscriber sub-topic (default: "parameters")
+        """Name of subscriber sub-topic
 
-        :return: subscriber sub-topic
+        :return: subscriber sub-topic, defaults to "parameters"
         """
         return self.__subscriber_subtopic
 
     @property
     def description(self):
-        """Description of ROS package (in package.xml)
+        """Description of ROS package (in ``package.xml``)
 
         :return: description
         """
@@ -61,26 +61,26 @@ class RosConfiguration:
 
     @property
     def rate(self):
-        """ROS node rate in Hz (default: 10)
+        """ROS node rate in Hz
 
-        :return: rate
+        :return: rate, defaults to `10.0`
         """
         return self.__rate
 
     @property
     def result_topic_queue_size(self):
-        """Size of "result" topic (default: 100)
+        """Size of "result" topic
 
-        :return: result topic name
+        :return: result topic name, defaults to 100
         """
         return self.__result_topic_queue_size
 
     @property
     def params_topic_queue_size(self):
         """
-        Size of "parameter" topic queue (default: 100)
+        Size of "parameter" topic queue
 
-        :return: parameter topic name
+        :return: parameter topic name, defaults to 100
         """
         return self.__params_topic_queue_size
 
@@ -91,11 +91,12 @@ class RosConfiguration:
         The node name can contain lowercase and uppercase
         characters and underscores, but not spaces or other symbols
 
-        :param pkg_name: package name
+        :param pkg_name: package name, defaults to "open_ros"
+        :type pkg_name: str
 
         :return: current object
 
-        :raises: ValueError if pkg_name is not a legal package name
+        :raises ValueError: if pkg_name is not a legal package name
         """
         if re.match(r"^[a-zA-Z_]+[\w]*$", pkg_name):
             self.__package_name = pkg_name
@@ -108,11 +109,12 @@ class RosConfiguration:
         and uppercase characters and underscores, but not spaces
         or other symbols
 
-        :param node_name:
+        :param node_name: name of node, defaults to "ros_node_optimizer"
+        :type node_name: str
 
         :return: current object
 
-        :raises: ValueError if node_name is not a legal node name
+        :raises ValueError: if node_name is not a legal node name
         """
         if re.match(r"^[a-zA-Z_]+[\w]*$", node_name):
             self.__node_name = node_name
@@ -124,6 +126,7 @@ class RosConfiguration:
         Set the rate of the ROS node
 
         :param rate: rate in Hz
+        :type rate: float
 
         :return: current object
         """
@@ -134,7 +137,8 @@ class RosConfiguration:
         """
         Set the description of the ROS package
 
-        :param description: description (string)
+        :param description: description, defaults to "parametric optimization with OpEn"
+        :type description: string
 
         :return: current object
         """
@@ -147,8 +151,10 @@ class RosConfiguration:
         """
         Set queue sizes for ROS node
 
-        :param result_topic_queue_size: queue size of results
-        :param parameter_topic_queue_size: queue size of topic
+        :param result_topic_queue_size: queue size of results, defaults to 100
+        :type result_topic_queue_size: int, optional
+        :param parameter_topic_queue_size: queue size of topic, defaults to 100
+        :type parameter_topic_queue_size: int, optional
 
         :return: current object
         """
@@ -164,7 +170,9 @@ class RosConfiguration:
         is 'result'. This can be configured after the package is
         generated, in `config/open_params.yaml`.
 
-        :param publisher_subtopic: publisher sub-topic name
+        :param publisher_subtopic: publisher sub-topic name, defaults to "result"
+        :type publisher_subtopic: str
+
         :return: current object
         """
         self.__publisher_subtopic = publisher_subtopic
@@ -173,12 +181,14 @@ class RosConfiguration:
     def with_subscriber_subtopic(self, subscriber_subtopic):
         """
         The auto-generated node will listen for input at
-        `~/{subscriber_subtopic}`. The subtopic (subscriber_subtopic)
+        ``~/{subscriber_subtopic}``. The subtopic (subscriber_subtopic)
         can be specified using this method. The default subtopic name
         is 'parameters'. This can be configured after the package is
         generated, in `config/open_params.yaml`.
 
         :param subscriber_subtopic: subscriber sub-topic name
+        :type subscriber_subtopic: str
+
         :return: :return: current object
         """
         self.__subscriber_subtopic = subscriber_subtopic

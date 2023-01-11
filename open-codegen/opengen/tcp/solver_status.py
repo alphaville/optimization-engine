@@ -4,11 +4,10 @@ class SolverStatus:
     def __init__(self, status):
         """Constructs instance of `SolverStatus`
 
-        Args:
-            status: dictionary containing solver status attributes
+        This constructor should not be called by the end-user.
 
-        Returns:
-            New instance of `SolverStatus`
+        :param status: dictionary containing solver status attributes
+
         """
 
         for k, v in status.items():
@@ -21,10 +20,10 @@ class SolverStatus:
 
         The solver status can be:
 
-        - `Converged` if the solver has converged
-        - `NotConvergedIterations` if the maximum number of outer or total inner
+        - ``Converged`` if the solver has converged
+        - ``NotConvergedIterations`` if the maximum number of outer or total inner
            iterations was reached
-        - `NotConvergedOutOfTime` if the solver did not have enough time to converge
+        - ``NotConvergedOutOfTime`` if the solver did not have enough time to converge
 
         :return: The exit status of the solver
         """
@@ -61,8 +60,10 @@ class SolverStatus:
     @property
     def f1_infeasibility(self):
         """
-        Returns the distance between F1(u,p) and C at the solution, a measure
-        of the infeasibility of the constraint F1(u,p) in C
+        Returns the infeasibility of the ALM constraints, that is, it 
+        returns
+
+        :math:`\mathrm{dist}_C(F_1(u))`
 
         :return: Infeasibility of the constraint F1(u,p) in C
         """
@@ -71,43 +72,46 @@ class SolverStatus:
     @property
     def f2_norm(self):
         """
-        F2-infeasibility
+        Infeasibility of PM constraints
 
-        :return: Euclidean norm of f2(u,p) at the solution
+        :return: Euclidean norm of :math:`\|F_2(u)\|` at the solution
         """
         return self.__dict__["__f2_norm"]
 
     @property
     def solve_time_ms(self):
-        """
+        """Solver time
         :return: Total execution time in milliseconds
         """
         return self.__dict__["__solve_time_ms"]
 
     @property
     def penalty(self):
-        """
+        """Last penalty at the solution
         :return: Last value of the penalty parameter
         """
         return self.__dict__["__penalty"]
 
     @property
     def solution(self):
-        """
+        """Solution
         :return: Solution vector
+        :rtype: list of `float`
         """
         return self.__dict__["__solution"]
 
     @property
     def lagrange_multipliers(self):
-        """
+        """Lagrange multipliers at the solution
+
         :return: Vector of Lagrange multipliers
         """
         return self.__dict__["__lagrange_multipliers"]
 
     @property
     def cost(self):
-        """
+        """Cost at the solution
+
         :return: Value of cost function at the solution
         """
         return self.__dict__["__cost"]

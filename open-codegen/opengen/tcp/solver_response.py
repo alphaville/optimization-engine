@@ -6,11 +6,14 @@ class SolverResponse:
     """Stores a solver response of type SolverStatus or SolverError."""
 
     def __init__(self, d):
-        """Constructs instance of `SolverResponse`
+        """Constructs instance of :class:`~opengen.tcp.solver_response.SolverResponse`
+
+        This constructor is not to be used by the end-user
 
         :param d: dictionary containing either status or error attributes
+        :type d: dictionary
 
-        :return: New instance of `SolverResponse`
+        :return: New instance of :class:`~opengen.tcp.solver_response.SolverResponse`
         """
         if 'Error' in d.values():
             self.__response = SolverError(d)

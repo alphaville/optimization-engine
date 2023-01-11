@@ -5,21 +5,26 @@ from typing import List
 class CartesianProduct(constraint.Constraint):
 
     def __init__(self, segments: List[int], constraints: List[constraint.Constraint]):
-        """
+        """Cartesian product  
+
+        :math:`X = X_1 \\times X_1 \\times \ldots \\times X_s.`
+
         Construct a Cartesian product of constraints by providing a list of sets
-        and their dimensions as follows: an n-dimensional vector x can be partitioned
-        into subvectors as x = (x1, x2, ..., xs), where each xi has dimension mi.
-        For example consider the 5-dimensional vector x = (x_0, x_1, x_2, x_3, x_4),
-        which can be partitioned into x1 = (x_0, x_1) and x2 = (x_2, x_3, x_4).
-        We can associate with x1 the indices [0, 1] and with x2 the indices [2, 3, 4].
+        and their dimensions as follows: an `n`-dimensional vector `x` can be partitioned
+        into subvectors as :math:`x = (x_{[1]}, x_{[2]}, ..., x_{[s]})`, where each 
+        :math:`x_{[i]}` has dimension :math:`m_i`.
+
+        For example consider the 5-dimensional vector :math:`x = (x_0, x_1, x_2, x_3, x_4)`,
+        which can be partitioned into :math:`x_{[1]} = (x_0, x_1)` and :math:`x_{[2]} = (x_2, x_3, x_4)`.
+        We can associate with :math:`x_1` the indices [0, 1] and with :math:`x_{[2]}` the indices [2, 3, 4].
         The *segment ids* are the indices 1 and 4.
 
         Example:
-        > ball = og.constraints.Ball2(None, 1.5)
-        > rect = og.constraints.Rectangle(xmin=[-1,-2,-3], xmax=[0, 10, -1])
-        > free = og.constraints.NoConstraints()
-        > segment_ids = [1, 4, 9]
-        > my_set = og.constraints.CartesianProduct(segment_ids, [ball, rect])
+            >>> ball = og.constraints.Ball2(None, 1.5)
+            >>> rect = og.constraints.Rectangle(xmin=[-1,-2,-3], xmax=[0, 10, -1])
+            >>> free = og.constraints.NoConstraints()
+            >>> segment_ids = [1, 4, 9]
+            >>> my_set = og.constraints.CartesianProduct(segment_ids, [ball, rect])
 
         :param segments: ids of segments
         :param constraints: list of sets
@@ -29,13 +34,16 @@ class CartesianProduct(constraint.Constraint):
             raise ValueError("segments and constraints must be nonempty lists")
 
         if any([segments[i] >= segments[i+1] for i in range(len(segments)-1)]):
-            raise ValueError("segments should be a list of integers in strictly ascending order")
+            raise ValueError(
+                "segments should be a list of integers in strictly ascending order")
 
         if segments[0] < 0:
-            raise ValueError("the first element of segment must be a positive integer")
+            raise ValueError(
+                "the first element of segment must be a positive integer")
 
         if len(segments) != len(constraints):
-            raise ValueError("segments and constraints must have equal dimensions")
+            raise ValueError(
+                "segments and constraints must have equal dimensions")
 
         self.__segments = segments
         self.__constraints = constraints
@@ -57,9 +65,11 @@ class CartesianProduct(constraint.Constraint):
 
     def segment_dimension(self, i):
         """
-        Dimension of segment i
+        Dimension of segment `i`
+
         :param i: index of segment (starts at 0)
-        :return: dimension of i-th index
+
+        :return: dimension of `i`-th index
         """
         if i == 0:
             return self.__segments[0] + 1

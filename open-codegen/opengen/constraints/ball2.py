@@ -7,22 +7,20 @@ import opengen.functions as fn
 class Ball2(Constraint):
     """A Euclidean ball constraint
 
-    A constraint of the form ||u-u0|| <= r, where u0 is the center
-    of the ball and r is its radius
+    A constraint of the form :math:`\|u-u_0\| \leq r`, where :math:`u_0` is the center
+    of the ball and `r` is its radius
 
     """
 
     def __init__(self, center=None, radius: float = 1.0):
         """Constructor for a Euclidean ball constraint
 
-        Args:
-            center: center of the ball; if this is equal to Null, the
+        :param center: center of the ball; if this is equal to Null, the
             ball is centered at the origin
 
-            radius: radius of the ball
+        :param radius: radius of the ball
 
-        Returns:
-            New instance of Ball2 with given center and radius
+        :return: New instance of Ball2 with given center and radius
         """
         if radius <= 0:
             raise Exception("The radius must be a positive number")

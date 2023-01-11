@@ -3,7 +3,12 @@ import opengen.functions as fn
 
 
 class Rectangle(Constraint):
-    """A Rectangle (Box) constraint"""
+    """A Rectangle (Box) constraint
+
+    A set of the form
+
+    :math:`X = \{x\in{\mathrm{I\!R}}^n {}:{} x_{\mathrm{min}} \leq x \leq x_{\mathrm{max}}\}`
+    """
 
     @classmethod
     def __check_xmin_xmax(cls, xmin, xmax):
@@ -180,6 +185,14 @@ class Rectangle(Constraint):
         return True
 
     def is_orthant(self):
+        """
+        Whether this rectangle is an orthant
+
+        An orthant is a rectange whose projection on the `i`-cooordinate is 
+        an interval of the form :math:`[0, \infty)` or :math:`(-\infty, 0]`.
+
+        :rtype: boolean
+        """
         chk_orthant = True
         for x_min_i in self.__xmin:
             chk_orthant &= (x_min_i == 0 or x_min_i == float(

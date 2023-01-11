@@ -2,11 +2,11 @@ class SolverError:
     """Class for storing solver status in the event of an error."""
 
     def __init__(self, error):
-        """Constructs instance of <code>SolverError</code>
+        """Constructs instance of :class:`~opengen.tcp.solver_error.SolverError`
 
         :param error: dictionary containing error attributes
 
-        :return: New instance of <code>SolverError</code>
+        :return: New instance of :class:`~opengen.tcp.solver_error.SolverError`
         """
 
         for k, v in error.items():
@@ -35,5 +35,6 @@ class SolverError:
         Returns an appropriate error message matching the error code
 
         :return: Error message
+        :rtype: str
         """
         return self.__dict__["__message"]

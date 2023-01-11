@@ -6,7 +6,7 @@ import warnings
 
 
 class SecondOrderCone(Constraint):
-    """A Second-Order Cone given by C = {u = (x, r): a||x|| <= r}
+    """A Second-Order Cone given by :math:`C = \{u = (x, r): a\|x\| \leq r\}`
 
     Second-order cones are used in conic optimisation to describe
     inequalities that involve quadratic terms

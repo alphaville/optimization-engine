@@ -62,8 +62,10 @@ class OptimizerMeta:
         self.__w_f2_mapping_function = 'open_preconditioning_w_f2_' + optimizer_name
         self.__initial_penalty_mapping_function = 'open_initial_penalty_' + optimizer_name
 
+    # :meta private:
     @property
     def cost_function_name(self):
+        # :meta private:
         return self.__cost_function_name
 
     @property
@@ -162,5 +164,7 @@ class OptimizerMeta:
 
     @property
     def licence(self):
-        """Licence of optimizer"""
+        """Licence of optimizer
+        :meta private:
+        """
         return self.__optimizer_licence

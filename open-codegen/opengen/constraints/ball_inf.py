@@ -7,20 +7,20 @@ import opengen.functions as fn
 class BallInf(Constraint):
     """Norm-ball of norm infinity translated by given vector
 
-    Centered inf-ball around given point
+    Centered inf-ball around given point, that is 
+
+    :math:`\mathcal{B}_{\infty}(x_0, r) = \{x\in{\\rm I\!R}^n {}:{} \|x - x_0\|_{\infty} \leq r\}`
     """
 
     def __init__(self, center=None, radius: float = 1.0):
         """Constructor for an infinity ball constraint
 
-        Args:
-            :param center: center of the ball; if this is equal to Null, the
-                ball is centered at the origin
+        :param center: center of the ball; if this is equal to Null, the
+            ball is centered at the origin
 
-            :param radius: radius of the ball
+        :param radius: radius of the ball
 
-        :return:
-            New instance of Ballinf with given center and radius
+        :return: New instance of Ballinf with given center and radius
         """
 
         if radius <= 0:
@@ -29,7 +29,8 @@ class BallInf(Constraint):
         if center is not None and not isinstance(center, (list, np.ndarray)):
             raise Exception("center is neither None nor a list nor np.ndarray")
 
-        self.__center = None if center is None else np.array([float(i) for i in center])
+        self.__center = None if center is None else np.array(
+            [float(i) for i in center])
         self.__radius = float(radius)
 
     @property
@@ -41,9 +42,6 @@ class BallInf(Constraint):
     def radius(self):
         """Returns the radius of the ball"""
         return self.__radius
-
-    def norm_inf_fun_np(a):
-        return np.linalg.norm(a, ord=np.inf)
 
     def distance_squared(self, u):
         # Function `distance` can be applied to CasADi symbols and
@@ -78,7 +76,7 @@ class BallInf(Constraint):
         squared_distance = fn.norm2(v)**2
         for i in range(nu):
             squared_distance += fn.fmin(v[i]**2, self.radius**2) \
-                                - 2.0 * fn.fmin(v[i]**2, self.radius * fn.fabs(v[i]))
+                - 2.0 * fn.fmin(v[i]**2, self.radius * fn.fabs(v[i]))
         return squared_distance
 
     def project(self, u):
