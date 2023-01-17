@@ -3,7 +3,7 @@ import sys
 
 
 class Halfspace(Constraint):
-    """Halfspace
+    """Halfspace constraint
 
     A halfspace is a set of the form :math:`H = \{c^\intercal x \leq b\}`, where `c` is a given
     vector and `b` is a constant scalar.
@@ -35,7 +35,7 @@ class Halfspace(Constraint):
         """
         Dimension of the halfspace
 
-        :return: length of normal vector
+        :return: length/dimension of normal vector
         """
         return len(self.__normal_vector)
 
