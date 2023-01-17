@@ -10,17 +10,21 @@ This is the opengen API documentation. Check out the main `OpEn documentation pa
 
 You can get a list of all `modules <modules.html>`_ here.
 
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 2   
    :caption: Contents:
+   
 
 
-
-
-Indices and tables
+Contents
 ==================
 
 * `Modules <modules.html>`_
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Last updated: Tue 17 Jan 2023 20:57:12 UTC
+Last updated: Tue 17 Jan 2023 20:57:42 UTC
+

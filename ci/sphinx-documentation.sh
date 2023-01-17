@@ -50,6 +50,7 @@ rm -rf sphinx
 mkdir -p sphinx
 pushd sphinx-dox
 sphinx-apidoc -o ./source/ ../open-codegen/opengen
+echo Last updated: `date -u`  >> source/index.rst; sed -i '' -e '$ d' source/index.rst; # update date at the end of file
 make html || :
 cp -r build/html/ ../sphinx
 popd # back to $GITHUB_WORKSPACE
