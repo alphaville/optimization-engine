@@ -53,6 +53,7 @@ sphinx-apidoc -o ./source/ ../open-codegen/opengen
 echo Last updated: `date -u`  >> source/index.rst; sed '$d' source/index.rst; # update date at the end of file
 make html || :
 cp -r build/html/ ../sphinx
+git checkout source/index.rst # no need to commit this
 popd # back to $GITHUB_WORKSPACE
 
 # Push to gh-pages
