@@ -9,7 +9,18 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      Unreleased
+      v0.7.7
+     --------------------- -->
+## [v0.7.7] - 2023-01-17
+
+### Fixed
+
+- Change `time::Instant` to `instant::Instant` to support WASM
+
+
+
+<!-- ---------------------
+      v0.7.6
      --------------------- -->
 ## [v0.7.6] - 2022-10-11
 
@@ -236,6 +247,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[v0.7.7]: https://github.com/alphaville/optimization-engine/compare/v0.7.6...v0.7.7 
 [v0.7.6]: https://github.com/alphaville/optimization-engine/compare/v0.7.5...v0.7.6 
 [v0.7.5]: https://github.com/alphaville/optimization-engine/compare/v0.7.4...v0.7.5 
 [v0.7.4]: https://github.com/alphaville/optimization-engine/compare/v0.7.3...v0.7.4
