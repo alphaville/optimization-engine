@@ -25,6 +25,3 @@ Contents
 * :ref:`modindex`
 * :ref:`search`
 
-Last updated: Tue 17 Jan 2023 20:57:12 UTC
-Last updated: Tue 17 Jan 2023 20:57:42 UTC
-
