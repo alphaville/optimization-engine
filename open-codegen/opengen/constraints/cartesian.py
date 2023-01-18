@@ -16,15 +16,20 @@ class CartesianProduct(constraint.Constraint):
 
         For example consider the 5-dimensional vector :math:`x = (x_0, x_1, x_2, x_3, x_4)`,
         which can be partitioned into :math:`x_{[1]} = (x_0, x_1)` and :math:`x_{[2]} = (x_2, x_3, x_4)`.
-        We can associate with :math:`x_1` the indices [0, 1] and with :math:`x_{[2]}` the indices [2, 3, 4].
+        We can associate with :math:`x_{[1]}` the indices [0, 1] and with :math:`x_{[2]}` the indices [2, 3, 4].
         The *segment ids* are the indices 1 and 4.
 
         Example:
+            In this example we shall define the set :math:`X = \mathcal{B}_{1.5} \\times R \\times {\\rm I\!R}^{5}`, 
+            where :math:`\mathcal{B}_{1.5}` is a Euclidean ball of dimension 2 with radius 1.5, :math:`R` is a  
+            3-dimensional rectangle with :math:`x_{\\min} = (-1, -2, -3)` and :math:`x_{\\max} = (0, 10, -1)`. 
+            Here the segments are `[1, 4, 9]`.
+
             >>> ball = og.constraints.Ball2(None, 1.5)
             >>> rect = og.constraints.Rectangle(xmin=[-1,-2,-3], xmax=[0, 10, -1])
             >>> free = og.constraints.NoConstraints()
             >>> segment_ids = [1, 4, 9]
-            >>> my_set = og.constraints.CartesianProduct(segment_ids, [ball, rect])
+            >>> my_set = og.constraints.CartesianProduct(segment_ids, [ball, rect, free])
 
         :param segments: ids of segments
         :param constraints: list of sets
