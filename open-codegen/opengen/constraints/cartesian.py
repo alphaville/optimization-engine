@@ -84,7 +84,9 @@ class CartesianProduct(constraint.Constraint):
         """
         Squared distance of given vector, u, from the current instance of
         CartesianProduct
+
         :param u: vector u
+
         :return: squared distance (float)
         """
         squared_distance = 0.0

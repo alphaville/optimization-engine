@@ -177,7 +177,7 @@ class BuildConfiguration:
         Set the build mode (debug/release)
 
         :param build_mode: Choose either 'debug' or 'release'; the former is
-            fast, but suboptimal, while the later may take a while to compile,
+            fast, but suboptimal, while the latter may take a while to compile,
             but the generated binary is significantly faster
 
         :return: current instance of BuildConfiguration
