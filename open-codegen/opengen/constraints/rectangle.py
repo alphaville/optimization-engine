@@ -188,7 +188,7 @@ class Rectangle(Constraint):
         """
         Whether this rectangle is an orthant
 
-        An orthant is a rectangle whose projection on every cooordinate is 
+        An orthant is a rectangle whose projection on every coordinate is 
         an interval of the form :math:`[0, \infty)` or :math:`(-\infty, 0]`.
 
         :rtype: boolean
