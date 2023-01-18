@@ -7,7 +7,7 @@ class SolverConfiguration:
         """Construct an instance of solver configuration parameters
 
         Returns:
-            New instance of SolverConfiguration
+            :return: New instance of SolverConfiguration
 
         """
         self.__tolerance = 1e-4
@@ -97,7 +97,7 @@ class SolverConfiguration:
         """Maximum execution time in microseconds
 
         Returns:
-            Integer value
+            :return: Integer value
         """
         return self.__max_duration_micros
 
@@ -106,7 +106,7 @@ class SolverConfiguration:
         """Whether an automatic preconditioning should be applied
 
         Returns:        
-            True iff preconditioning is active
+            :return: True iff preconditioning is active
         """
         return self.__do_preconditioning
 
@@ -153,6 +153,8 @@ class SolverConfiguration:
     def with_tolerance(self, tolerance):
         """Specify tolerance
 
+        :param tolerance: tolerance
+
         :raises: Exception: if tolerance <= 0
 
         :returns: The current object
@@ -176,6 +178,14 @@ class SolverConfiguration:
         return self
 
     def with_inner_tolerance_update_factor(self, inner_tol_update_factor):
+        """Tolerance update factor
+
+        The tolerance is initially given by 
+        :py:meth:`~opengen.config.solver_config.SolverConfiguration.with_initial_tolerance`
+        and it is then updated by this update factor until the target tolerance
+        which is given by 
+        :py:meth:`~opengen.config.solver_config.SolverConfiguration.with_tolerance`
+        """
         if inner_tol_update_factor <= 0 or inner_tol_update_factor > 1:
             raise Exception("The tolerance update factor must be in [0, 1)")
 
@@ -185,10 +195,12 @@ class SolverConfiguration:
     def with_lbfgs_memory(self, lbfgs_memory):
         """Specify L-BFGS memory
 
-        :raises: It is required that the L-BFGS memory is larger than or
-        equal to 2, otherwise an Exception is raised
+        :param lbfgs_memory: LBFGS memory
 
-        :returns: Returns the current instance of SolverConfiguration
+        :raises: It is required that the L-BFGS memory is larger than or
+            equal to 2, otherwise an Exception is raised
+
+        :return: Returns the current instance of SolverConfiguration
         """
         if lbfgs_memory < 2:
             raise Exception("The L-BFGS memory must be at least equal to 2")
@@ -200,7 +212,7 @@ class SolverConfiguration:
 
         :param max_iters: maximum number of iterations
 
-        :returns: The current object
+        :return: The current object
         """
         if max_iters < 1:
             raise Exception(
@@ -211,8 +223,7 @@ class SolverConfiguration:
     def with_delta_tolerance(self, constraints_tolerance):
         """Tolerance on constraint violation
 
-        :param constraints_tolerance: tolerance delta (related to constraint
-        violation)
+        :param constraints_tolerance: tolerance delta (related to constraint violation)
 
         :return: the current object
         """
@@ -224,6 +235,8 @@ class SolverConfiguration:
 
     def with_max_outer_iterations(self, max_outer_iterations):
         """Maximum number of outer iterations
+
+        :param max_outer_iterations: maximum number of outer iterations
 
         :return: the current object
         """
@@ -241,7 +254,7 @@ class SolverConfiguration:
 
         :param penalty_weight_update_factor: penalty weight update factor
 
-        :raises: Exception: if the update factor is less than 1.0
+        :raises: Exception, if the update factor is less than 1.0
 
         :return: the current object
         """
@@ -254,11 +267,14 @@ class SolverConfiguration:
     def with_max_duration_micros(self, max_duration_micros):
         """Specify the maximum duration in microseconds (must be an integer)
 
+        The solver will interrupt the computation after this time limit and 
+        will return the current iterate.
+
         :param max_duration_micros: maximum execution duration in microseconds (integer)
 
-        :raises: Exception: if <code>max_duration_micros</code> is less than 1
+        :raises: Exception: if `max_duration_micros` is less than 1
 
-        :returns: The current object
+        :return: The current object
         """
         if max_duration_micros < 1:
             raise Exception(
@@ -299,6 +315,7 @@ class SolverConfiguration:
         Methods for Constrained Optimization, SIAM, 2014
 
         :param do_preconditioning: whether to precondition
+
         :returns: the current object
         """
         self.__do_preconditioning = do_preconditioning

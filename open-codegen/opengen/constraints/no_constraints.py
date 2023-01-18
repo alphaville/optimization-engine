@@ -2,6 +2,10 @@ from .constraint import Constraint
 
 
 class NoConstraints(Constraint):
+    """
+    This is the entire :math:`{\\rm I\!R}^n`
+
+    """
 
     def __init__(self):
         pass

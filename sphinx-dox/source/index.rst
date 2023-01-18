@@ -8,15 +8,20 @@ Opengen API docs
 
 This is the opengen API documentation. Check out the main `OpEn documentation page <https://alphaville.github.io/optimization-engine/>`_ to get started with OpEn.
 
+You can get a list of all `modules <modules.html>`_ here.
+
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 2   
    :caption: Contents:
+   
 
 
-
-Indices and tables
+Contents
 ==================
 
+* `Modules <modules.html>`_
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

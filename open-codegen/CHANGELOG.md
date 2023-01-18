@@ -8,12 +8,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-
-## [0.7.1] - 2022-10-20
+<!-- 
+  UNRELEASED!
+  0.7.1 has not been released yet
+  -->
+## [0.7.1] - Unreleased
 
 ### Changed
 
 * Default argument in `.with_preconditioning`
+* Updated all docstrings to be sphinx-compatible
+* New [API docs](https://alphaville.github.io/optimization-engine/api-dox/html/)
 
 
 ## [0.7.0] - 2022-10-11

@@ -6,18 +6,18 @@ import numpy as np
 class Ball1(Constraint):
     """Ball1 aka Norm-1 Ball
 
-    Ball-1 with given radius.
+    Ball-1 with given radius, that is
+
+    :math:`\mathcal{B}_{1}(x_0, r) = \{x\in{\\rm I\!R}^n {}:{} \|x - x_0\|_1 \leq r\}`
 
     """
 
     def __init__(self, center=None, radius: float = 1.0, ):  # unless specified, radius=1
         """Constructor for a Ball1
 
-        Args:
-            :param radius: ball radius (default: 1)
+        :param radius: ball radius (default: 1)
 
-        Returns:
-            :return: New instance of Ball1 with given radius
+        :return: New instance of Ball1 with given radius
         """
         if radius <= 0:
             raise ValueError("radius must be a positive number")
@@ -58,11 +58,9 @@ class Ball1(Constraint):
     def project(self, u):
         """Project on the current Ball-1
 
-        Args:
-            :param u: vector u
+        :param u: vector u
 
-        Returns:
-            :return: projection of u onto the current ball-1
+        :return: projection of u onto the current ball-1
 
         """
         if self.center is None:

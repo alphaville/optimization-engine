@@ -62,13 +62,12 @@ class Problem:
         """Specify or update the constraints of the problem
 
         Args:
-            u_constraints: constraints on the decision variable; must
-                           be a Constraint object (such as
-                           opengen.constraints.ball2.Ball2
-                           and opengen.constraints.rectangle.Rectangle)
+            :param u_constraints: constraints on the decision variable; 
+                must be a Constraint object (such as :class:`opengen.constraints.ball2.Ball2` 
+                and :class:`opengen.constraints.rectangle.Rectangle`)
 
         Returns:
-            Current object
+            :return: Current object
 
         """
         self.__u_constraints = u_constraints
@@ -80,11 +79,11 @@ class Problem:
         Specify the constraints to be treated with the penalty method (that is,
         function F2(u; p))
 
-        :param penalty_constraints: a function <code>c(u, p)</code>, of the decision
-                variable <code>u</code> and the parameter vector <code>p</code>, which
-                corresponds to the constraints <code>c(u, p)</code>
+        :param penalty_constraints: a function `c(u, p)`, of the decision
+                variable `u` and the parameter vector `p`, which
+                corresponds to the constraints `c(u, p)`
 
-        :return: self
+        :return: Current object (self)
         """
 
         self.__penalty_mapping_f2 = penalty_constraints
@@ -99,7 +98,7 @@ class Problem:
         :param set_c: a convex closed set C
         :param set_y: a compact subset of C*, the convex conjugate of C
 
-        :return: self
+        :return: Current object (self)
         """
         if not set_c.is_convex():
             raise Exception("Set C must be convex")

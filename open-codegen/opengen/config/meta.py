@@ -28,10 +28,10 @@ class OptimizerMeta:
 
         Examples:
             >>> import opengen as og
-            >>> meta = og.config.OptimizerMeta()                \
-            >>>     .with_version("0.0.2")                      \
-            >>>     .with_authors(["P. Sopasakis", "E. Fresk"]) \
-            >>>     .with_licence("CC4.0-By")                   \
+            >>> meta = og.config.OptimizerMeta() \\
+            >>>     .with_version("0.0.2") \\
+            >>>     .with_authors(["P. Sopasakis", "E. Fresk"]) \\
+            >>>     .with_licence("CC4.0-By") \\
             >>>     .with_optimizer_name("wow_optimizer")
 
         """
@@ -62,8 +62,10 @@ class OptimizerMeta:
         self.__w_f2_mapping_function = 'open_preconditioning_w_f2_' + optimizer_name
         self.__initial_penalty_mapping_function = 'open_initial_penalty_' + optimizer_name
 
+    # :meta private:
     @property
     def cost_function_name(self):
+        # :meta private:
         return self.__cost_function_name
 
     @property
@@ -124,7 +126,7 @@ class OptimizerMeta:
         """Specify the name of the optimizer
 
         :param optimizer_name: name of build, may only contain letters,
-        numbers and underscores, and may not start with a number
+            numbers and underscores, and may not start with a number
 
         :returns: The current instance of OptimizerMeta
         """
@@ -162,5 +164,7 @@ class OptimizerMeta:
 
     @property
     def licence(self):
-        """Licence of optimizer"""
+        """Licence of optimizer
+        :meta private:
+        """
         return self.__optimizer_licence

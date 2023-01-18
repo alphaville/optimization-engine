@@ -4,10 +4,17 @@ from ..constraints.halfspace import Halfspace
 
 
 class SetYCalculator:
+    """
+    This class is intended for internal use by the solver
+    """
 
+    #: A large number
     LARGE_NUM = 1e12
 
     def __init__(self, set_c):
+        """
+        Construct a set Y calculator given set C
+        """
         self.__set_c = set_c
 
     def __obtain_y_with_c_compact(self):
@@ -38,6 +45,14 @@ class SetYCalculator:
         return Rectangle(ymin, ymax)
 
     def obtain(self):
+        """
+        Computes and returns set Y
+
+        The computation of Y is supported only when C is a rectangle or a compact set
+
+        :return: set Y
+        :rtype: :class:`~opengen.constraints.constraint.Constraint`
+        """
         err_msg = 'The set C you chose is not supported yet ' \
                   '(report at https://github.com/alphaville/optimization-engine/issues)'
         if isinstance(self.__set_c, Rectangle):

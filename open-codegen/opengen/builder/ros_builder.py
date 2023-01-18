@@ -29,7 +29,10 @@ def get_ros_template(name):
 class RosBuilder:
     """
     Code generation for ROS-related files
+
+    For internal use
     """
+
     def __init__(self, meta, build_config, solver_config):
         self.__meta = meta
         self.__build_config = build_config
@@ -60,18 +63,25 @@ class RosBuilder:
         self.__logger.info("Generating directory structure")
         target_ros_dir = self.__ros_target_dir()
         make_dir_if_not_exists(target_ros_dir)
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'include')))
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'extern_lib')))
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'src')))
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'msg')))
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'config')))
-        make_dir_if_not_exists(os.path.abspath(os.path.join(target_ros_dir, 'launch')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'include')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'extern_lib')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'src')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'msg')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'config')))
+        make_dir_if_not_exists(os.path.abspath(
+            os.path.join(target_ros_dir, 'launch')))
 
     def __generate_ros_package_xml(self):
         self.__logger.info("Generating package.xml")
         target_ros_dir = self.__ros_target_dir()
         template = get_ros_template('package.xml')
-        output_template = template.render(meta=self.__meta, ros=self.__build_config.ros_config)
+        output_template = template.render(
+            meta=self.__meta, ros=self.__build_config.ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "package.xml")
         with open(target_rospkg_path, "w") as fh:
             fh.write(output_template)

@@ -5,16 +5,15 @@ import opengen.functions as fn
 
 
 class Zero(Constraint):
-    """A Euclidean ball constraint
+    """A set that contains only the origin
 
-    A constraint of the form ||u-u0|| <= r, where u0 is the center
-    of the ball and r is its radius
+    The singleton :math:`\{0\}`
 
     """
 
     def __init__(self):
         """
-        Constructor for set Z = {0}
+        Constructor for set :math:`Z = \{0\}`
 
         """
 

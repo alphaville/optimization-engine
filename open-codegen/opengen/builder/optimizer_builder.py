@@ -46,14 +46,13 @@ class OpEnOptimizerBuilder:
                  solver_configuration=og_cfg.SolverConfiguration()):
         """Constructor of OpEnOptimizerBuilder
 
-        Args:
-            problem: instance of \link opengen.builder.problem.Problem Problem \endlink
-            metadata: instance of \link opengen.config.meta.OptimizerMeta OptimizerMeta \endlink
-            build_configuration: instance of \link opengen.config.build_config.BuildConfiguration BuildConfiguration \endlink
-            solver_configuration: instance of \link  opengen.config.solver_config.SolverConfiguration SolverConfiguration \endlink
+        :param problem: instance of :class:`~opengen.builder.problem.Problem`
+        :param metadata: instance of :class:`~opengen.config.meta.OptimizerMeta`
+        :param build_configuration: instance of :class:`~opengen.config.build_config.BuildConfiguration`
+        :param solver_configuration: instance of :class:`~opengen.config.solver_config.SolverConfiguration`
 
-        Returns:
-            New instance of OpEnOptimizerBuilder.
+        :return: New instance of :class:`~opengen.builder.optimizer_builder.OpEnOptimizerBuilder`.
+
         """
         self.__problem = problem
         self.__meta = metadata
@@ -174,9 +173,7 @@ class OpEnOptimizerBuilder:
 
     def __copy_icasadi_to_target(self):
         """
-
         Copy 'icasadi' folder and its contents into target directory
-
         """
         self.__logger.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
@@ -435,9 +432,12 @@ class OpEnOptimizerBuilder:
             jac_f1 = cs.jacobian(c_f1, u)
             w1 = ()
             for i in range(n1):
-                nrm_jac_f1_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
+                nrm_jac_f1_i = 1 / \
+                    cs.fmax(
+                        1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f1[i, :]))
                 w1 = cs.vertcat(w1, nrm_jac_f1_i)
-            w_constraint_f1_fn = cs.Function(meta.w_f1_function_name, [u, p], [w1])
+            w_constraint_f1_fn = cs.Function(
+                meta.w_f1_function_name, [u, p], [w1])
 
             w_f1 = symbol_type("w_f1", c_f1.size(1))
             theta = cs.vertcat(theta, w_f1)
@@ -451,14 +451,17 @@ class OpEnOptimizerBuilder:
             jac_f2 = cs.jacobian(c_f2, u)
             w2 = ()
             for i in range(n2):
-                nrm_jac_f2_i = 1 / cs.fmax(1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f2[i, :]))
+                nrm_jac_f2_i = 1 / \
+                    cs.fmax(
+                        1, OpEnOptimizerBuilder.__casadi_norm_infinity(jac_f2[i, :]))
                 w2 = cs.vertcat(w2, nrm_jac_f2_i)
-            w_constraint_f2_fn = cs.Function(meta.w_f2_function_name, [u, p], [w2])
+            w_constraint_f2_fn = cs.Function(
+                meta.w_f2_function_name, [u, p], [w2])
 
             w_f2 = symbol_type("w_f2", c_f2.size(1))
             theta = cs.vertcat(theta, w_f2)
             infeasibility_psi += 0.5 * \
-                                 cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
+                cs.dot(cs.power(w_f2, 2), cs.power(c_f2, 2))
         else:
             w_constraint_f2_fn = cs.Function(
                 meta.w_f2_function_name, [u, p], [0])
@@ -753,6 +756,11 @@ class OpEnOptimizerBuilder:
 
     def enable_tcp_interface(self,
                              tcp_server_configuration=og_cfg.TcpServerConfiguration()):
+        """This method is deprecated and should not be used 
+
+        This method will be removed in a future release!
+        Use BuildConfiguration.with_tcp_interface_config instead
+        """
         # This method should not be used!
         raise DeprecationWarning(
             "deprecated (use BuildConfiguration.with_tcp_interface_config instead)")
@@ -787,9 +795,8 @@ class OpEnOptimizerBuilder:
     def build(self):
         """Generate code and build project
 
-        Raises:
-            Exception: if the build process fails
-            Exception: if there some parameters have wrong, inadmissible or incompatible values
+        :raises Exception: if the build process fails
+        :raises Exception: if there some parameters have wrong, inadmissible or incompatible values
 
         """
         self.__initialize()                      # initialize default value (if not provided)

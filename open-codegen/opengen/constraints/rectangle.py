@@ -3,7 +3,12 @@ import opengen.functions as fn
 
 
 class Rectangle(Constraint):
-    """A Rectangle (Box) constraint"""
+    """A Rectangle (Box) constraint
+
+    A set of the form
+
+    :math:`X = \{x\in{\mathrm{I\!R}}^n {}:{} x_{\mathrm{min}} \leq x \leq x_{\mathrm{max}}\}`
+    """
 
     @classmethod
     def __check_xmin_xmax(cls, xmin, xmax):
@@ -29,18 +34,16 @@ class Rectangle(Constraint):
     def __init__(self, xmin, xmax):
         """Construct a new instance of Rectangle
 
-        Args:
-            xmin: minimum bounds (can be None)
-            xmax: maximum bounds (can be None)
+        :param xmin: minimum bounds (can be ``None``)
+        :param xmax: maximum bounds (can be ``None``)
 
-        Raises:
-            Exception: if both xmin and xmax is None
-              Exception: if xmin/xmax is not None and not a list (wrong type)
-            Exception: if xmin and xmax have incompatible lengths
-            Exception: if xmin(i) > xmax(i) for some i (empty set)
 
-        Returns:
-             A new instance of Rectangle
+        :raises Exception: if both ``xmin`` and ``xmax`` is ``None``
+        :raises Exception: if ``xmin`` and ``xmax`` are both not ``None`` and not a list
+        :raises Exception: if ``xmin`` and ``xmax`` have incompatible lengths
+        :raises Exception: if ``xmin(i) > xmax(i)`` for some ``i`` (empty set)
+
+        :return: A new instance of Rectangle
         """
         Rectangle.__check_xmin_xmax(xmin, xmax)
 
@@ -59,6 +62,9 @@ class Rectangle(Constraint):
         return self.__xmax
 
     def dimension(self):
+        """
+        Dimension of this rectangle (inferred by the dimensions of ``xmin`` and ``xmax``)
+        """
         if self.__xmin is not None:
             return len(self.__xmin)
         if self.__xmax is not None:
@@ -66,6 +72,11 @@ class Rectangle(Constraint):
         raise Exception("Absurd: both xmin and xmax are None!")
 
     def idx_bound_finite_all(self):
+        """
+        Coordinates where both bounds are finite
+
+        :return: list of coordinates
+        """
         idx_both_finite = []
 
         if self.__xmin is None or self.__xmax is None:
@@ -80,6 +91,11 @@ class Rectangle(Constraint):
         return idx_both_finite
 
     def idx_infinite_only_xmin(self):
+        """
+        Coordinates at which ``xmin`` is minus infinity and ``xmax`` is finite
+
+        :return: list of coordinates
+        """
         idx_xmin_infinite = []
 
         if self.__xmax is None:
@@ -89,7 +105,8 @@ class Rectangle(Constraint):
 
         # Hereafter, xmax is not None (but xmin can be None)
         for i in range(self.dimension()):
-            xmini = self.__xmin[i] if self.__xmin is not None else float('-inf')
+            xmini = self.__xmin[i] if self.__xmin is not None else float(
+                '-inf')
             xmaxi = self.__xmax[i]
             if xmini == float('-inf') and xmaxi < float('inf'):
                 idx_xmin_infinite += [i]
@@ -97,6 +114,11 @@ class Rectangle(Constraint):
         return idx_xmin_infinite
 
     def idx_infinite_only_xmax(self):
+        """
+        Coordinates at which ``xmax`` is infinity and ``xmin`` is finite
+
+        :return: list of coordinates
+        """
         idx_xmin_infinite = []
 
         if self.__xmin is None:
@@ -114,6 +136,13 @@ class Rectangle(Constraint):
         return idx_xmin_infinite
 
     def distance_squared(self, u):
+        """
+        Squared distance to this rectangle
+
+        :param u: given point
+
+        :return: squared distance of ``u`` to this rectangle
+        """
         idx1 = self.idx_infinite_only_xmin()
         idx2 = self.idx_infinite_only_xmax()
         idx3 = self.idx_bound_finite_all()
@@ -156,9 +185,19 @@ class Rectangle(Constraint):
         return True
 
     def is_orthant(self):
+        """
+        Whether this rectangle is an orthant
+
+        An orthant is a rectangle whose projection on every coordinate is 
+        an interval of the form :math:`[0, \infty)` or :math:`(-\infty, 0]`.
+
+        :rtype: boolean
+        """
         chk_orthant = True
         for x_min_i in self.__xmin:
-            chk_orthant &= (x_min_i == 0 or x_min_i == float('inf') or x_min_i == float('-inf'))
+            chk_orthant &= (x_min_i == 0 or x_min_i == float(
+                'inf') or x_min_i == float('-inf'))
         for x_max_i in self.__xmax:
-            chk_orthant &= (x_max_i == 0 or x_max_i == float('inf') or x_max_i == float('-inf'))
+            chk_orthant &= (x_max_i == 0 or x_max_i == float(
+                'inf') or x_max_i == float('-inf'))
         return chk_orthant
