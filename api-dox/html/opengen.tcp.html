@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opengen.tcp package &mdash; OpEn  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> OpEn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">opengen.tcp package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-opengen.tcp.optimizer_tcp_manager">opengen.tcp.optimizer_tcp_manager module</a><ul>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.__init__"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.call"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.call()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.details"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.details</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.kill"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.kill()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.ping"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.ping()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.start"><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager.start()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.tcp.solver_error">opengen.tcp.solver_error module</a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_error.SolverError"><code class="docutils literal notranslate"><span class="pre">SolverError</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_error.SolverError.__init__"><code class="docutils literal notranslate"><span class="pre">SolverError.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_error.SolverError.code"><code class="docutils literal notranslate"><span class="pre">SolverError.code</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_error.SolverError.message"><code class="docutils literal notranslate"><span class="pre">SolverError.message</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.tcp.solver_response">opengen.tcp.solver_response module</a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse"><code class="docutils literal notranslate"><span class="pre">SolverResponse</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse.__init__"><code class="docutils literal notranslate"><span class="pre">SolverResponse.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse.get"><code class="docutils literal notranslate"><span class="pre">SolverResponse.get()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse.is_ok"><code class="docutils literal notranslate"><span class="pre">SolverResponse.is_ok()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.tcp.solver_status">opengen.tcp.solver_status module</a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus"><code class="docutils literal notranslate"><span class="pre">SolverStatus</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.__init__"><code class="docutils literal notranslate"><span class="pre">SolverStatus.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.cost"><code class="docutils literal notranslate"><span class="pre">SolverStatus.cost</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.exit_status"><code class="docutils literal notranslate"><span class="pre">SolverStatus.exit_status</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.f1_infeasibility"><code class="docutils literal notranslate"><span class="pre">SolverStatus.f1_infeasibility</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.f2_norm"><code class="docutils literal notranslate"><span class="pre">SolverStatus.f2_norm</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.lagrange_multipliers"><code class="docutils literal notranslate"><span class="pre">SolverStatus.lagrange_multipliers</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.last_problem_norm_fpr"><code class="docutils literal notranslate"><span class="pre">SolverStatus.last_problem_norm_fpr</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.num_inner_iterations"><code class="docutils literal notranslate"><span class="pre">SolverStatus.num_inner_iterations</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.num_outer_iterations"><code class="docutils literal notranslate"><span class="pre">SolverStatus.num_outer_iterations</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.penalty"><code class="docutils literal notranslate"><span class="pre">SolverStatus.penalty</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.solution"><code class="docutils literal notranslate"><span class="pre">SolverStatus.solution</span></code></a></li>
+<li><a class="reference internal" href="#opengen.tcp.solver_status.SolverStatus.solve_time_ms"><code class="docutils literal notranslate"><span class="pre">SolverStatus.solve_time_ms</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.tcp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpEn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">opengen.tcp package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/opengen.tcp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opengen-tcp-package">
+<h1>opengen.tcp package<a class="headerlink" href="#opengen-tcp-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-opengen.tcp.optimizer_tcp_manager">
+<span id="opengen-tcp-optimizer-tcp-manager-module"></span><h2>opengen.tcp.optimizer_tcp_manager module<a class="headerlink" href="#module-opengen.tcp.optimizer_tcp_manager" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.tcp.optimizer_tcp_manager.</span></span><span class="sig-name descname"><span class="pre">OptimizerTcpManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Client for TCP interface of parametric optimizers</p>
+<p>This class is used to start and stop a TCP server, which
+has been generated by <cite>opengen</cite>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructs instance of <cite>OptimizerTcpManager</cite></p>
+<p>There are three ways to use this constructor:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager(optimizer_path)</span></code>: creates a TCP manager for a local
+TCP server using the default IP and port of that TCP server (specified
+upon code generation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager(optimizer_path,</span> <span class="pre">ip,</span> <span class="pre">port)</span></code>: creates a TCP manager
+for a local TCP server, but overrides the default IP and port. This way
+the user can set the address <cite>0.0.0.0</cite>, so that the TCP server binds on
+all IPs, or <cite>127.0.0.1</cite> so that it is accessible only locally, or a VPN
+IP address, so that the optimizer is accessible only over a private
+network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OptimizerTcpManager(ip,</span> <span class="pre">port)</span></code>: If a path is not provided, then the
+TCP manager can be used to connect to a remote TCP server, as a client,
+but cannot be used to start the server.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>optimizer_path</strong> (<em>str</em>) – path to auto-generated optimizer (just to be clear: this is
+the folder that contains <code class="docutils literal notranslate"><span class="pre">optimizer.yml</span></code>)</p></li>
+<li><p><strong>ip</strong> (<em>str</em>) – the user can provide the IP of a remote TCP server (must be up and
+running) so as to establish a remote connection. In that case <cite>path</cite>
+must be equal to <cite>None</cite> (see examples above)</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – see ip</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New instance of <a class="reference internal" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager" title="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizerTcpManager</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1048576</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse" title="opengen.tcp.solver_response.SolverResponse"><span class="pre">SolverResponse</span></a></span></span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.call" title="Permalink to this definition"></a></dt>
+<dd><p>Calls the server</p>
+<p>Consumes the parametric optimizer by providing a parameter vector
+and, optionally, an initial guess</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (list of <cite>float</cite>) – vector of parameters</p></li>
+<li><p><strong>initial_guess</strong> (list of <cite>float</cite>) – initial guess vector</p></li>
+<li><p><strong>initial_y</strong> (list of <cite>float</cite>) – initial vector of Lagrange multipliers</p></li>
+<li><p><strong>initial_penalty</strong> (<em>float</em>) – initial penalty parameter</p></li>
+<li><p><strong>buffer_len</strong> (<em>int</em>) – buffer length used to read the server response,
+defaults to 4096</p></li>
+<li><p><strong>max_data_size</strong> (<em>int</em>) – maximum data size that is expected to be received 
+from the TCP server, defaults to 1048576</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SolverResponse object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse" title="opengen.tcp.solver_response.SolverResponse"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverResponse</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.details">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">details</span></span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.details" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.kill">
+<span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.kill" title="Permalink to this definition"></a></dt>
+<dd><p>Kills the server</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.ping">
+<span class="sig-name descname"><span class="pre">ping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.ping" title="Permalink to this definition"></a></dt>
+<dd><p>Pings the server</p>
+<p>Pings the server to check whether it is up and running</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.optimizer_tcp_manager.OptimizerTcpManager.start" title="Permalink to this definition"></a></dt>
+<dd><p>Starts the TCP server</p>
+<p>Note: this method starts a <em>local</em> server whose path must have been
+provided - we cannot start a remote server.</p>
+<p>The server starts on a separate thread, so this method does not block
+the execution of the caller’s programme.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.tcp.solver_error">
+<span id="opengen-tcp-solver-error-module"></span><h2>opengen.tcp.solver_error module<a class="headerlink" href="#module-opengen.tcp.solver_error" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.tcp.solver_error.SolverError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.tcp.solver_error.</span></span><span class="sig-name descname"><span class="pre">SolverError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_error.SolverError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for storing solver status in the event of an error.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.solver_error.SolverError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_error.SolverError.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructs instance of <a class="reference internal" href="#opengen.tcp.solver_error.SolverError" title="opengen.tcp.solver_error.SolverError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverError</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>error</strong> – dictionary containing error attributes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New instance of <a class="reference internal" href="#opengen.tcp.solver_error.SolverError" title="opengen.tcp.solver_error.SolverError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverError</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_error.SolverError.code">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">code</span></span><a class="headerlink" href="#opengen.tcp.solver_error.SolverError.code" title="Permalink to this definition"></a></dt>
+<dd><p>Error code</p>
+<p>Possible error codes are:</p>
+<ul class="simple">
+<li><p><strong>1000</strong>: Invalid request: Malformed or invalid JSON</p></li>
+<li><p><strong>1600</strong>: Initial guess has incomplete dimensions</p></li>
+<li><p><strong>1700</strong>: Wrong dimension of Lagrange multipliers</p></li>
+<li><p><strong>2000</strong>: Problem solution failed (solver error)</p></li>
+<li><p><strong>3003</strong>: Parameter vector has wrong length</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Error code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_error.SolverError.message">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#opengen.tcp.solver_error.SolverError.message" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an appropriate error message matching the error code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Error message</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.tcp.solver_response">
+<span id="opengen-tcp-solver-response-module"></span><h2>opengen.tcp.solver_response module<a class="headerlink" href="#module-opengen.tcp.solver_response" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.tcp.solver_response.SolverResponse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.tcp.solver_response.</span></span><span class="sig-name descname"><span class="pre">SolverResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_response.SolverResponse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Stores a solver response of type SolverStatus or SolverError.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.solver_response.SolverResponse.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_response.SolverResponse.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructs instance of <a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse" title="opengen.tcp.solver_response.SolverResponse"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverResponse</span></code></a></p>
+<p>This constructor is not to be used by the end-user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dictionary</em>) – dictionary containing either status or error attributes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New instance of <a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse" title="opengen.tcp.solver_response.SolverResponse"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverResponse</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.solver_response.SolverResponse.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_response.SolverResponse.get" title="Permalink to this definition"></a></dt>
+<dd><p>Returns response, which is an instance of SolverStatus,
+if the call was successful, or an instance of SolverError
+otherwise. It is recommended that you use 
+<a class="reference internal" href="#opengen.tcp.solver_response.SolverResponse.is_ok" title="opengen.tcp.solver_response.SolverResponse.is_ok"><code class="xref py py-class docutils literal notranslate"><span class="pre">is_ok</span></code></a> to check
+whether the call has succeeded first</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.solver_response.SolverResponse.is_ok">
+<span class="sig-name descname"><span class="pre">is_ok</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_response.SolverResponse.is_ok" title="Permalink to this definition"></a></dt>
+<dd><p>Determines if response is OK.</p>
+<p>This method should always be called first when obtaining a server response.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.tcp.solver_status">
+<span id="opengen-tcp-solver-status-module"></span><h2>opengen.tcp.solver_status module<a class="headerlink" href="#module-opengen.tcp.solver_status" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.tcp.solver_status.</span></span><span class="sig-name descname"><span class="pre">SolverStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for storing the status of the solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructs instance of <cite>SolverStatus</cite></p>
+<p>This constructor should not be called by the end-user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>status</strong> – dictionary containing solver status attributes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.cost" title="Permalink to this definition"></a></dt>
+<dd><p>Cost at the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Value of cost function at the solution</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.exit_status">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exit_status</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.exit_status" title="Permalink to this definition"></a></dt>
+<dd><p>Solver status</p>
+<p>The solver status can be:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Converged</span></code> if the solver has converged</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">NotConvergedIterations</span></code> if the maximum number of outer or total inner</dt><dd><p>iterations was reached</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NotConvergedOutOfTime</span></code> if the solver did not have enough time to converge</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The exit status of the solver</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.f1_infeasibility">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f1_infeasibility</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.f1_infeasibility" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the infeasibility of the ALM constraints, that is, it 
+returns</p>
+<p><span class="math notranslate nohighlight">\(\mathrm{dist}_C(F_1(u))\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Infeasibility of the constraint F1(u,p) in C</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.f2_norm">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f2_norm</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.f2_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Infeasibility of PM constraints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Euclidean norm of <span class="math notranslate nohighlight">\(\|F_2(u)\|\)</span> at the solution</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.lagrange_multipliers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lagrange_multipliers</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.lagrange_multipliers" title="Permalink to this definition"></a></dt>
+<dd><p>Lagrange multipliers at the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Vector of Lagrange multipliers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.last_problem_norm_fpr">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">last_problem_norm_fpr</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.last_problem_norm_fpr" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the infinity norm of the fixed-point residual of the last
+inner optimization problem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>inf-norm of the FPR of the last inner problem</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.num_inner_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_inner_iterations</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.num_inner_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the total number of inner iterations for all inner problems</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The total number of inner iterations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.num_outer_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_outer_iterations</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.num_outer_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of outer (ALM/PM) iterations of the algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of outer iterations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.penalty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.penalty" title="Permalink to this definition"></a></dt>
+<dd><p>Last penalty at the solution
+:return: Last value of the penalty parameter</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.solution">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solution</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.solution" title="Permalink to this definition"></a></dt>
+<dd><p>Solution
+:return: Solution vector
+:rtype: list of <cite>float</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.tcp.solver_status.SolverStatus.solve_time_ms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solve_time_ms</span></span><a class="headerlink" href="#opengen.tcp.solver_status.SolverStatus.solve_time_ms" title="Permalink to this definition"></a></dt>
+<dd><p>Solver time
+:return: Total execution time in milliseconds</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.tcp">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-opengen.tcp" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Pantelis Sopasakis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
