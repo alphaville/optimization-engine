@@ -62,7 +62,6 @@ class RosBuilder:
     def __generate_ros_dir_structure(self):
         self.__logger.info("Generating directory structure")
         target_ros_dir = self.__ros_target_dir()
-        print(f"TARGET ROS DIR: {target_ros_dir}")
         make_dir_if_not_exists(target_ros_dir)
         make_dir_if_not_exists(os.path.abspath(
             os.path.join(target_ros_dir, 'include')))
@@ -107,7 +106,6 @@ class RosBuilder:
                 target_ros_dir, 'include', header_file_name))
         original_include_file = os.path.abspath(
             os.path.join(self.__target_dir(), header_file_name))
-        print(original_include_file)
         shutil.copyfile(original_include_file, target_include_filename)
 
         # 2. --- copy library file
