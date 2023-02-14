@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opengen.config package &mdash; OpEn  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OpEn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">opengen.config package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-opengen.config.build_config">opengen.config.build_config module</a><ul>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.DEBUG_MODE"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.DEBUG_MODE</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.RELEASE_MODE"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.RELEASE_MODE</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.__init__"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.allocator"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.allocator</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.build_c_bindings"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.build_c_bindings</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.build_dir"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.build_dir</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.build_mode"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.build_mode</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.build_python_bindings"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.build_python_bindings</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.local_path"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.local_path</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.open_version"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.open_version</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.rebuild"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.rebuild</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.ros_config"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.ros_config</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.target_system"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.target_system</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.tcp_interface_config"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.tcp_interface_config</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.to_dict"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_allocator"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_allocator()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_build_c_bindings"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_build_c_bindings()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_build_directory"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_build_directory()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_build_mode"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_build_mode()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_build_python_bindings"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_build_python_bindings()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_open_version"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_open_version()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_rebuild"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_rebuild()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_ros"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_ros()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_target_system"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_target_system()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_tcp_interface_config"><code class="docutils literal notranslate"><span class="pre">BuildConfiguration.with_tcp_interface_config()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#opengen.config.build_config.RustAllocator"><code class="docutils literal notranslate"><span class="pre">RustAllocator</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.build_config.RustAllocator.DefaultAllocator"><code class="docutils literal notranslate"><span class="pre">RustAllocator.DefaultAllocator</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.RustAllocator.JemAlloc"><code class="docutils literal notranslate"><span class="pre">RustAllocator.JemAlloc</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.build_config.RustAllocator.RpAlloc"><code class="docutils literal notranslate"><span class="pre">RustAllocator.RpAlloc</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.config.meta">opengen.config.meta module</a><ul>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.__init__"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.alm_mapping_f1_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.alm_mapping_f1_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.authors"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.authors</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.constraint_penalty_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.constraint_penalty_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.cost_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.cost_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.grad_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.grad_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.initial_penalty_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.initial_penalty_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.licence"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.licence</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.optimizer_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.optimizer_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.preconditioning_file_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.preconditioning_file_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.to_dict"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.version"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.version</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.w_cost_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.w_cost_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.w_f1_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.w_f1_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.w_f2_function_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.w_f2_function_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.with_authors"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.with_authors()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.with_licence"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.with_licence()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.with_optimizer_name"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.with_optimizer_name()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.meta.OptimizerMeta.with_version"><code class="docutils literal notranslate"><span class="pre">OptimizerMeta.with_version()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.config.ros_config">opengen.config.ros_config module</a><ul>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration"><code class="docutils literal notranslate"><span class="pre">RosConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.__init__"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.description"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.description</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.node_name"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.node_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.package_name"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.package_name</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.params_topic_queue_size"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.params_topic_queue_size</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.publisher_subtopic"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.publisher_subtopic</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.rate"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.rate</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.result_topic_queue_size"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.result_topic_queue_size</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.subscriber_subtopic"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.subscriber_subtopic</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.to_dict"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_description"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_description()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_node_name"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_node_name()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_package_name"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_package_name()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_publisher_subtopic"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_publisher_subtopic()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_queue_sizes"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_queue_sizes()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_rate"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_rate()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration.with_subscriber_subtopic"><code class="docutils literal notranslate"><span class="pre">RosConfiguration.with_subscriber_subtopic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.config.solver_config">opengen.config.solver_config module</a><ul>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.__init__"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_alpha"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.cbfgs_alpha</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_epsilon"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.cbfgs_epsilon</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_sy_epsilon"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.cbfgs_sy_epsilon</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.constraints_tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.constraints_tolerance</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.initial_penalty"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.initial_penalty</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.initial_tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.initial_tolerance</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.inner_tolerance_update_factor"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.inner_tolerance_update_factor</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.lbfgs_memory"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.lbfgs_memory</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.max_duration_micros"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.max_duration_micros</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.max_inner_iterations"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.max_inner_iterations</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.max_outer_iterations"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.max_outer_iterations</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.penalty_weight_update_factor"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.penalty_weight_update_factor</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.preconditioning"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.preconditioning</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.sufficient_decrease_coefficient"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.sufficient_decrease_coefficient</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.to_dict"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.tolerance</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_cbfgs_parameters"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_cbfgs_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_delta_tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_delta_tolerance()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_initial_penalty"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_initial_penalty()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_initial_tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_initial_tolerance()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_inner_tolerance_update_factor"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_inner_tolerance_update_factor()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_lbfgs_memory"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_lbfgs_memory()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_max_duration_micros"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_max_duration_micros()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_max_inner_iterations"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_max_inner_iterations()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_max_outer_iterations"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_max_outer_iterations()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_penalty_weight_update_factor"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_penalty_weight_update_factor()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_preconditioning"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_preconditioning()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_sufficient_decrease_coefficient"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_sufficient_decrease_coefficient()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_tolerance"><code class="docutils literal notranslate"><span class="pre">SolverConfiguration.with_tolerance()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.config.tcp_server_config">opengen.config.tcp_server_config module</a><ul>
+<li><a class="reference internal" href="#opengen.config.tcp_server_config.TcpServerConfiguration"><code class="docutils literal notranslate"><span class="pre">TcpServerConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.config.tcp_server_config.TcpServerConfiguration.__init__"><code class="docutils literal notranslate"><span class="pre">TcpServerConfiguration.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.tcp_server_config.TcpServerConfiguration.bind_ip"><code class="docutils literal notranslate"><span class="pre">TcpServerConfiguration.bind_ip</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.tcp_server_config.TcpServerConfiguration.bind_port"><code class="docutils literal notranslate"><span class="pre">TcpServerConfiguration.bind_port</span></code></a></li>
+<li><a class="reference internal" href="#opengen.config.tcp_server_config.TcpServerConfiguration.to_dict"><code class="docutils literal notranslate"><span class="pre">TcpServerConfiguration.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.config">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpEn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">opengen.config package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/opengen.config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opengen-config-package">
+<h1>opengen.config package<a class="headerlink" href="#opengen-config-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-opengen.config.build_config">
+<span id="opengen-config-build-config-module"></span><h2>opengen.config.build_config module<a class="headerlink" href="#module-opengen.config.build_config" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.build_config.</span></span><span class="sig-name descname"><span class="pre">BuildConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Build configuration</p>
+<p>Configuration for the code generator</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.DEBUG_MODE">
+<span class="sig-name descname"><span class="pre">DEBUG_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'debug'</span></em><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.DEBUG_MODE" title="Permalink to this definition"></a></dt>
+<dd><p>Debug mode (fast compilation, worse performance)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.RELEASE_MODE">
+<span class="sig-name descname"><span class="pre">RELEASE_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'release'</span></em><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.RELEASE_MODE" title="Permalink to this definition"></a></dt>
+<dd><p>Release mode (great performance, very slow compilation)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct an instance of BuildConfiguration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>build_dir</strong> – Target directory, defaults to the current directory</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.allocator">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allocator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#opengen.config.build_config.RustAllocator" title="opengen.config.build_config.RustAllocator"><span class="pre">RustAllocator</span></a></em><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.allocator" title="Permalink to this definition"></a></dt>
+<dd><p>Memory allocator for generated Rust solver</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.build_c_bindings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_c_bindings</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.build_c_bindings" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to build C bindings</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.build_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_dir</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.build_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Directory in which the auto-generated optimizer will be stored</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.build_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_mode</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.build_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Build mode (<a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.RELEASE_MODE" title="opengen.config.build_config.BuildConfiguration.RELEASE_MODE"><code class="xref py py-class docutils literal notranslate"><span class="pre">RELEASE_MODE</span></code></a> 
+or <a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.DEBUG_MODE" title="opengen.config.build_config.BuildConfiguration.DEBUG_MODE"><code class="xref py py-class docutils literal notranslate"><span class="pre">DEBUG_MODE</span></code></a>)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.build_python_bindings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_python_bindings</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.build_python_bindings" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to build Python bindings</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.local_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local_path</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.local_path" title="Permalink to this definition"></a></dt>
+<dd><p>Local path of OpEn (if any)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.open_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open_version</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.open_version" title="Permalink to this definition"></a></dt>
+<dd><p>OpEn version used with the auto-generated solver</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The method returns either a specific version of OpEn,
+which will be used with the auto-generated optimizer, or <cite>None</cite>,
+in which case, the latest version will be used. You may set your
+preferred version of OpEn with <cite>with_open_version</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.rebuild">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rebuild</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.rebuild" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to re-build the optimizer from scratch</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.ros_config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ros_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration" title="opengen.config.ros_config.RosConfiguration"><span class="pre">RosConfiguration</span></a></em><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.ros_config" title="Permalink to this definition"></a></dt>
+<dd><p>ROS package configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of RosConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.target_system">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_system</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.target_system" title="Permalink to this definition"></a></dt>
+<dd><p>Target system</p>
+<p>See also: <a class="reference internal" href="#opengen.config.build_config.BuildConfiguration.with_target_system" title="opengen.config.build_config.BuildConfiguration.with_target_system"><code class="xref py py-class docutils literal notranslate"><span class="pre">with_target_system</span></code></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.tcp_interface_config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tcp_interface_config</span></span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.tcp_interface_config" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to build a TCP interface</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_allocator">
+<span class="sig-name descname"><span class="pre">with_allocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#opengen.config.build_config.RustAllocator" title="opengen.config.build_config.RustAllocator"><span class="pre">RustAllocator</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_allocator" title="Permalink to this definition"></a></dt>
+<dd><p>Specify a Rust memory allocator.</p>
+<p>With this method the user can choose an alternative memory allocator
+such as <cite>jemalloc</cite> and <cite>rpalloc</cite>. For example, if you choose <cite>jemalloc</cite>
+as your memory allocator, the autogenerated project will have a 
+<cite>Cargo.toml</cite> file where <cite>optimization-engine</cite> is loaded as a dependency
+with the “jem” feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>allocator</strong> – allocator; instance of <cite>RustAllocator</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_build_c_bindings">
+<span class="sig-name descname"><span class="pre">with_build_c_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_c_bindings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_build_c_bindings" title="Permalink to this definition"></a></dt>
+<dd><p>If activated, OpEn will generate C/C++ bindings for the
+auto-generated solver</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>build_c_bindings</strong> – whether to build C/C++ bindings for
+auto-generated solver; default: <cite>True</cite>, i.e., it suffices
+to call <cite>build_config.with_build_c_bindings()</cite> instead of
+<cite>build_config.with_build_c_bindings(True)</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_build_directory">
+<span class="sig-name descname"><span class="pre">with_build_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_build_directory" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the build directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>build_dir</strong> – build directory as string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_build_mode">
+<span class="sig-name descname"><span class="pre">with_build_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_build_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Set the build mode (debug/release)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>build_mode</strong> – Choose either ‘debug’ or ‘release’; the former is
+fast, but suboptimal, while the latter may take a while to compile,
+but the generated binary is significantly faster</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_build_python_bindings">
+<span class="sig-name descname"><span class="pre">with_build_python_bindings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_python_bindings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_build_python_bindings" title="Permalink to this definition"></a></dt>
+<dd><p>If activated, OpEn will generate python bindings for the
+auto-generated solver</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>build_python_bindings</strong> – whether to build python bindings for
+auto-generated solver; default: <cite>True</cite>, i.e., it suffices
+to call <cite>build_config.with_build_python_bindings()</cite> instead of
+<cite>build_config.with_build_python_bindings(True)</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_open_version">
+<span class="sig-name descname"><span class="pre">with_open_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_open_version" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the version of OpEn to link to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>open_version</strong> – version of OpEn (in case you want to
+compile with an older version of OpEn; if not, the latest
+version of OpEn will be used)</p></li>
+<li><p><strong>local_path</strong> – you can compile using a local version
+of OpEn. In that case, you need to provide the full absolute
+path to that local OpEn directory. This option is intended for 
+developers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_rebuild">
+<span class="sig-name descname"><span class="pre">with_rebuild</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">do_rebuild</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_rebuild" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to clean and rebuild the code generator, if it already exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>do_rebuild</strong> – if set to True, the target code generator
+will be cleaned and rebuilt from scratch</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_ros">
+<span class="sig-name descname"><span class="pre">with_ros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ros_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#opengen.config.ros_config.RosConfiguration" title="opengen.config.ros_config.RosConfiguration"><span class="pre">RosConfiguration</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_ros" title="Permalink to this definition"></a></dt>
+<dd><p>Activates the generation of a ROS package. The caller must provide an
+instance of RosConfiguration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ros_config</strong> – Configuation of ROS package</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_target_system">
+<span class="sig-name descname"><span class="pre">with_target_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_target_system" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the target system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_system</strong> – target system as string (e.g., use
+“arm-unknown-linux-gnueabihf” or “rpi” for Raspberry Pi).
+Note that you must have installed the target using <cite>rustup</cite>
+if you need to cross-compile.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.build_config.BuildConfiguration.with_tcp_interface_config">
+<span class="sig-name descname"><span class="pre">with_tcp_interface_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tcp_interface_config=&lt;opengen.config.tcp_server_config.TcpServerConfiguration</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.BuildConfiguration.with_tcp_interface_config" title="Permalink to this definition"></a></dt>
+<dd><p>Specify a TCP server configuration object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tcp_interface_config</strong> – Custom TCP server configuration</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current instance of BuildConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.build_config.RustAllocator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.build_config.</span></span><span class="sig-name descname"><span class="pre">RustAllocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.build_config.RustAllocator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Memory Allocator for the auto-generated project</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.config.build_config.RustAllocator.DefaultAllocator">
+<span class="sig-name descname"><span class="pre">DefaultAllocator</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#opengen.config.build_config.RustAllocator.DefaultAllocator" title="Permalink to this definition"></a></dt>
+<dd><p>Default allocator</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.config.build_config.RustAllocator.JemAlloc">
+<span class="sig-name descname"><span class="pre">JemAlloc</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#opengen.config.build_config.RustAllocator.JemAlloc" title="Permalink to this definition"></a></dt>
+<dd><p>Memory allocator: <cite>jemalloc</cite></p>
+<p>Jemalloc is a generic implementation of malloc that emphasises fragmentation
+avoidance</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.config.build_config.RustAllocator.RpAlloc">
+<span class="sig-name descname"><span class="pre">RpAlloc</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#opengen.config.build_config.RustAllocator.RpAlloc" title="Permalink to this definition"></a></dt>
+<dd><p>Memory allocator: <cite>rpmalloc</cite></p>
+<p>Rpmalloc is a very efficient lock-free thread caching 16-byte aligned 
+memory allocator implemented in C.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.config.meta">
+<span id="opengen-config-meta-module"></span><h2>opengen.config.meta module<a class="headerlink" href="#module-opengen.config.meta" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.meta.</span></span><span class="sig-name descname"><span class="pre">OptimizerMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'open_optimizer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_licence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MIT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_authors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['John</span> <span class="pre">Smith']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Metadata of auto-generated parametric optimizer</p>
+<p>General metadata for the auto-generated optimizer</p>
+<p>The most important piece of information is the name of the
+optimizer. The optimizer will be stored in a namesake folder
+inside the target build directory.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'open_optimizer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_licence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MIT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_authors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['John</span> <span class="pre">Smith']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor of OptimizerMeta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>optimizer_name</strong> – optimizer name (default: <cite>open_optimizer</cite>)</p></li>
+<li><p><strong>optimizer_version</strong> – version (default: <cite>0.0.0</cite>)</p></li>
+<li><p><strong>optimizer_licence</strong> – licence name or URL (default: <cite>MIT</cite>)</p></li>
+<li><p><strong>optimizer_authors</strong> – list of authors, as list of strings (default: <cite>[“John Smith”]</cite>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current instance of OptimizerMeta</p>
+</dd>
+</dl>
+<dl>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">opengen</span> <span class="k">as</span> <span class="nn">og</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">meta</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">OptimizerMeta</span><span class="p">()</span> \
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">.</span><span class="n">with_version</span><span class="p">(</span><span class="s2">&quot;0.0.2&quot;</span><span class="p">)</span> \
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">.</span><span class="n">with_authors</span><span class="p">([</span><span class="s2">&quot;P. Sopasakis&quot;</span><span class="p">,</span> <span class="s2">&quot;E. Fresk&quot;</span><span class="p">])</span> \
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">.</span><span class="n">with_licence</span><span class="p">(</span><span class="s2">&quot;CC4.0-By&quot;</span><span class="p">)</span> \
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">.</span><span class="n">with_optimizer_name</span><span class="p">(</span><span class="s2">&quot;wow_optimizer&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.alm_mapping_f1_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alm_mapping_f1_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.alm_mapping_f1_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.authors">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">authors</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.authors" title="Permalink to this definition"></a></dt>
+<dd><p>List of authors of optimizer</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.constraint_penalty_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraint_penalty_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.constraint_penalty_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.cost_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.cost_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.grad_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grad_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.grad_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.initial_penalty_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_penalty_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.initial_penalty_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.licence">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">licence</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.licence" title="Permalink to this definition"></a></dt>
+<dd><p>Licence of optimizer
+:meta private:</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.optimizer_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimizer_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.optimizer_name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of optimizer</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.preconditioning_file_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preconditioning_file_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.preconditioning_file_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.version" title="Permalink to this definition"></a></dt>
+<dd><p>Version of optimizer</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.w_cost_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_cost_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.w_cost_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.w_f1_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_f1_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.w_f1_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.w_f2_function_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_f2_function_name</span></span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.w_f2_function_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.with_authors">
+<span class="sig-name descname"><span class="pre">with_authors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_authors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.with_authors" title="Permalink to this definition"></a></dt>
+<dd><p>Specify list of authors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimizer_authors</strong> – list of authors</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current instance of OptimizerMeta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.with_licence">
+<span class="sig-name descname"><span class="pre">with_licence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_licence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.with_licence" title="Permalink to this definition"></a></dt>
+<dd><p>Specify licence of auto-generated code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimizer_licence</strong> – licence name (e.g., MIT) or licence URL</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current instance of OptimizerMeta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.with_optimizer_name">
+<span class="sig-name descname"><span class="pre">with_optimizer_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.with_optimizer_name" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the name of the optimizer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimizer_name</strong> – name of build, may only contain letters,
+numbers and underscores, and may not start with a number</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current instance of OptimizerMeta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.meta.OptimizerMeta.with_version">
+<span class="sig-name descname"><span class="pre">with_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.meta.OptimizerMeta.with_version" title="Permalink to this definition"></a></dt>
+<dd><p>Specify version</p>
+<p>Specify the version of the auto-generated optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimizer_version</strong> – version of auto-generated optimizer</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current instance of OptimizerMeta</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.config.ros_config">
+<span id="opengen-config-ros-config-module"></span><h2>opengen.config.ros_config module<a class="headerlink" href="#module-opengen.config.ros_config" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.ros_config.</span></span><span class="sig-name descname"><span class="pre">RosConfiguration</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration of auto-generated ROS package</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor of an instance of RosConfiguration</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.description">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.description" title="Permalink to this definition"></a></dt>
+<dd><p>Description of ROS package (in <code class="docutils literal notranslate"><span class="pre">package.xml</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>description</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.node_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_name</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.node_name" title="Permalink to this definition"></a></dt>
+<dd><p>Node name (default: ros_node_optimizer)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>node name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.package_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">package_name</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.package_name" title="Permalink to this definition"></a></dt>
+<dd><p>Package name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>package name (default: ‘open_ros’)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.params_topic_queue_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params_topic_queue_size</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.params_topic_queue_size" title="Permalink to this definition"></a></dt>
+<dd><p>Size of “parameter” topic queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>parameter topic name, defaults to 100</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.publisher_subtopic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publisher_subtopic</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.publisher_subtopic" title="Permalink to this definition"></a></dt>
+<dd><p>Name of publisher sub-topic (default: “result”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>publisher sub-topic</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.rate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rate</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.rate" title="Permalink to this definition"></a></dt>
+<dd><p>ROS node rate in Hz</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>rate, defaults to <cite>10.0</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.result_topic_queue_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">result_topic_queue_size</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.result_topic_queue_size" title="Permalink to this definition"></a></dt>
+<dd><p>Size of “result” topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>result topic name, defaults to 100</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.subscriber_subtopic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subscriber_subtopic</span></span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.subscriber_subtopic" title="Permalink to this definition"></a></dt>
+<dd><p>Name of subscriber sub-topic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>subscriber sub-topic, defaults to “parameters”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_description">
+<span class="sig-name descname"><span class="pre">with_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_description" title="Permalink to this definition"></a></dt>
+<dd><p>Set the description of the ROS package</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>description</strong> (<em>string</em>) – description, defaults to “parametric optimization with OpEn”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_node_name">
+<span class="sig-name descname"><span class="pre">with_node_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_node_name" title="Permalink to this definition"></a></dt>
+<dd><p>Set the node name. The node name can contain lowercase
+and uppercase characters and underscores, but not spaces
+or other symbols</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – name of node, defaults to “ros_node_optimizer”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if node_name is not a legal node name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_package_name">
+<span class="sig-name descname"><span class="pre">with_package_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pkg_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_package_name" title="Permalink to this definition"></a></dt>
+<dd><p>Set the package name, which is the same as the name
+of the folder that will store the auto-generated ROS node.
+The node name can contain lowercase and uppercase
+characters and underscores, but not spaces or other symbols</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pkg_name</strong> (<em>str</em>) – package name, defaults to “open_ros”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if pkg_name is not a legal package name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_publisher_subtopic">
+<span class="sig-name descname"><span class="pre">with_publisher_subtopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">publisher_subtopic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_publisher_subtopic" title="Permalink to this definition"></a></dt>
+<dd><p>The auto-generated node will output its results to the topic
+<cite>~/{publisher_subtopic}</cite>. The subtopic (publisher_subtopic)
+can be specified using this method. The default subtopic name
+is ‘result’. This can be configured after the package is
+generated, in <cite>config/open_params.yaml</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>publisher_subtopic</strong> (<em>str</em>) – publisher sub-topic name, defaults to “result”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_queue_sizes">
+<span class="sig-name descname"><span class="pre">with_queue_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_topic_queue_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_topic_queue_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_queue_sizes" title="Permalink to this definition"></a></dt>
+<dd><p>Set queue sizes for ROS node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_topic_queue_size</strong> (<em>int</em><em>, </em><em>optional</em>) – queue size of results, defaults to 100</p></li>
+<li><p><strong>parameter_topic_queue_size</strong> (<em>int</em><em>, </em><em>optional</em>) – queue size of topic, defaults to 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_rate">
+<span class="sig-name descname"><span class="pre">with_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_rate" title="Permalink to this definition"></a></dt>
+<dd><p>Set the rate of the ROS node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rate</strong> (<em>float</em>) – rate in Hz</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.ros_config.RosConfiguration.with_subscriber_subtopic">
+<span class="sig-name descname"><span class="pre">with_subscriber_subtopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscriber_subtopic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.ros_config.RosConfiguration.with_subscriber_subtopic" title="Permalink to this definition"></a></dt>
+<dd><p>The auto-generated node will listen for input at
+<code class="docutils literal notranslate"><span class="pre">~/{subscriber_subtopic}</span></code>. The subtopic (subscriber_subtopic)
+can be specified using this method. The default subtopic name
+is ‘parameters’. This can be configured after the package is
+generated, in <cite>config/open_params.yaml</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>subscriber_subtopic</strong> (<em>str</em>) – subscriber sub-topic name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>current object</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.config.solver_config">
+<span id="opengen-config-solver-config-module"></span><h2>opengen.config.solver_config module<a class="headerlink" href="#module-opengen.config.solver_config" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.solver_config.</span></span><span class="sig-name descname"><span class="pre">SolverConfiguration</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration of solver parameters</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct an instance of solver configuration parameters</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>New instance of SolverConfiguration</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.cbfgs_alpha">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cbfgs_alpha</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_alpha" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.cbfgs_epsilon">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cbfgs_epsilon</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_epsilon" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.cbfgs_sy_epsilon">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cbfgs_sy_epsilon</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.cbfgs_sy_epsilon" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.constraints_tolerance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraints_tolerance</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.constraints_tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Tolerance on the satisfaction of the constraints</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.initial_penalty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_penalty</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.initial_penalty" title="Permalink to this definition"></a></dt>
+<dd><p>Initial penalty</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.initial_tolerance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_tolerance</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.initial_tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Initial tolerance of inner solver</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.inner_tolerance_update_factor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inner_tolerance_update_factor</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.inner_tolerance_update_factor" title="Permalink to this definition"></a></dt>
+<dd><p>“Update factor for inner tolerance</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.lbfgs_memory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lbfgs_memory</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.lbfgs_memory" title="Permalink to this definition"></a></dt>
+<dd><p>LBFGS memory for the inner solver</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.max_duration_micros">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_duration_micros</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.max_duration_micros" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum execution time in microseconds</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Integer value</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.max_inner_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_inner_iterations</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.max_inner_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of iterations for the inner solver</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.max_outer_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_outer_iterations</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.max_outer_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of iterations for the outer solver</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.penalty_weight_update_factor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_weight_update_factor</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.penalty_weight_update_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Multiplicative factor for the update of the penalty weights</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.preconditioning">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preconditioning</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.preconditioning" title="Permalink to this definition"></a></dt>
+<dd><p>Whether an automatic preconditioning should be applied</p>
+<dl class="simple">
+<dt>Returns:        </dt><dd><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True iff preconditioning is active</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.sufficient_decrease_coefficient">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sufficient_decrease_coefficient</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.sufficient_decrease_coefficient" title="Permalink to this definition"></a></dt>
+<dd><p>Sufficient decrease coefficient</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.tolerance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Tolerance of inner solver</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_cbfgs_parameters">
+<span class="sig-name descname"><span class="pre">with_cbfgs_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy_epsilon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_cbfgs_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the CBFGS parameters alpha and epsilon</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> – CBFGS parameter alpha</p></li>
+<li><p><strong>epsilon</strong> – CBFGS parameter epsilon</p></li>
+<li><p><strong>sy_epsilon</strong> – Tolerance on the s-y inner product</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_delta_tolerance">
+<span class="sig-name descname"><span class="pre">with_delta_tolerance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints_tolerance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_delta_tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Tolerance on constraint violation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>constraints_tolerance</strong> – tolerance delta (related to constraint violation)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_initial_penalty">
+<span class="sig-name descname"><span class="pre">with_initial_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_penalty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_initial_penalty" title="Permalink to this definition"></a></dt>
+<dd><p>Initial penalty</p>
+<p>If preconditioning is activated, then the initial penalty is computed internally
+following the recommendations of the book of Brigin and Martinez (Chapter 12).
+If you enable the preconditioning and you use this method, then you will be
+overriding the value of the initial penalty.</p>
+<p>If preconditioning is not enabled, you can set the initial penalty using this
+method; if you don’t do so, the solver will use the default value (which is 1.0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial_penalty</strong> – initial value of penalty</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_initial_tolerance">
+<span class="sig-name descname"><span class="pre">with_initial_tolerance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_tolerance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_initial_tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the initial tolerance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>initial_tolerance</strong> – initial tolerance</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_inner_tolerance_update_factor">
+<span class="sig-name descname"><span class="pre">with_inner_tolerance_update_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner_tol_update_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_inner_tolerance_update_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Tolerance update factor</p>
+<p>The tolerance is initially given by 
+<a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_initial_tolerance" title="opengen.config.solver_config.SolverConfiguration.with_initial_tolerance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_initial_tolerance()</span></code></a>
+and it is then updated by this update factor until the target tolerance
+which is given by 
+<a class="reference internal" href="#opengen.config.solver_config.SolverConfiguration.with_tolerance" title="opengen.config.solver_config.SolverConfiguration.with_tolerance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_tolerance()</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_lbfgs_memory">
+<span class="sig-name descname"><span class="pre">with_lbfgs_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbfgs_memory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_lbfgs_memory" title="Permalink to this definition"></a></dt>
+<dd><p>Specify L-BFGS memory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lbfgs_memory</strong> – LBFGS memory</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p>It is required that the L-BFGS memory is larger than or
+equal to 2, otherwise an Exception is raised</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns the current instance of SolverConfiguration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_max_duration_micros">
+<span class="sig-name descname"><span class="pre">with_max_duration_micros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_duration_micros</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_max_duration_micros" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the maximum duration in microseconds (must be an integer)</p>
+<p>The solver will interrupt the computation after this time limit and 
+will return the current iterate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_duration_micros</strong> – maximum execution duration in microseconds (integer)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p>Exception: if <cite>max_duration_micros</cite> is less than 1</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_max_inner_iterations">
+<span class="sig-name descname"><span class="pre">with_max_inner_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_iters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_max_inner_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of inner iterations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_iters</strong> – maximum number of iterations</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_max_outer_iterations">
+<span class="sig-name descname"><span class="pre">with_max_outer_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_outer_iterations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_max_outer_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of outer iterations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_outer_iterations</strong> – maximum number of outer iterations</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_penalty_weight_update_factor">
+<span class="sig-name descname"><span class="pre">with_penalty_weight_update_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">penalty_weight_update_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_penalty_weight_update_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Penalty update factor</p>
+<p>At every outer iteration of the penalty method, the weights are
+multiplied by this factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>penalty_weight_update_factor</strong> – penalty weight update factor</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p>Exception, if the update factor is less than 1.0</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_preconditioning">
+<span class="sig-name descname"><span class="pre">with_preconditioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">do_preconditioning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_preconditioning" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to apply preconditioning using the approach of [1]</p>
+<p>Note that this overrides the computation of the initial penalty</p>
+<p>Note also that unless this method is called, no preconditioning is
+applied (this may change in a future release; we may make enable
+preconditioning by default)</p>
+<p>[1] E.G. Birgin and J.M. Martinez, Practical Augmented Lagrangian
+Methods for Constrained Optimization, SIAM, 2014</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>do_preconditioning</strong> – whether to precondition</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_sufficient_decrease_coefficient">
+<span class="sig-name descname"><span class="pre">with_sufficient_decrease_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sufficient_decrease_coefficient</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_sufficient_decrease_coefficient" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the sufficient decrease coefficient of the algorithm</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param sufficient_decrease_coefficient<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sufficient decrease coefficient</p>
+</dd>
+<dt class="field-even">returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current object</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.solver_config.SolverConfiguration.with_tolerance">
+<span class="sig-name descname"><span class="pre">with_tolerance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.solver_config.SolverConfiguration.with_tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Specify tolerance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tolerance</strong> – tolerance</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p>Exception: if tolerance &lt;= 0</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.config.tcp_server_config">
+<span id="opengen-config-tcp-server-config-module"></span><h2>opengen.config.tcp_server_config module<a class="headerlink" href="#module-opengen.config.tcp_server_config" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.config.tcp_server_config.TcpServerConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.config.tcp_server_config.</span></span><span class="sig-name descname"><span class="pre">TcpServerConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind_ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bind_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8333</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.tcp_server_config.TcpServerConfiguration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TCP server configuration</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.tcp_server_config.TcpServerConfiguration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind_ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bind_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8333</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.tcp_server_config.TcpServerConfiguration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration of the TCP server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bind_ip</strong> – IP address of generated TCP server. The default
+value is “127.0.0.1” (localhost). Use “0.0.0.0” for the generated
+TCP server to bind on all IPs.</p></li>
+<li><p><strong>bind_port</strong> – Port on which the generated TCP server will bind.
+The default is 8333. Make sure you use an available port and avoid using
+privileged ports (i.e., 1 to 1024), well-known ports that are potentially
+used by other services and you should also avoid ephemeral ports
+(32768 to 65535 on Linux, 1025 to 5000 on Windows)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new instance of TcpServerConfiguration, which can then be
+provided to an instance of <cite>OpEnOptimizerBuilder</cite> via <cite>enable_tcp_interface</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.tcp_server_config.TcpServerConfiguration.bind_ip">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bind_ip</span></span><a class="headerlink" href="#opengen.config.tcp_server_config.TcpServerConfiguration.bind_ip" title="Permalink to this definition"></a></dt>
+<dd><p>IP at which the TCP server should bind, as a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TCP server IP</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.config.tcp_server_config.TcpServerConfiguration.bind_port">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bind_port</span></span><a class="headerlink" href="#opengen.config.tcp_server_config.TcpServerConfiguration.bind_port" title="Permalink to this definition"></a></dt>
+<dd><p>Port at which the TCP server should bind, as int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TCP server port</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.config.tcp_server_config.TcpServerConfiguration.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.config.tcp_server_config.TcpServerConfiguration.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.config">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-opengen.config" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Pantelis Sopasakis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
