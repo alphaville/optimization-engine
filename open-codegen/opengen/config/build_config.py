@@ -298,4 +298,6 @@ class BuildConfiguration:
         }
         if self.__tcp_interface_config is not None:
             build_dict["tcp_interface_config"] = self.__tcp_interface_config.to_dict()
+        if self.__ros_config is not None:
+            build_dict["ros_config"] = self.__ros_config.to_dict()
         return build_dict

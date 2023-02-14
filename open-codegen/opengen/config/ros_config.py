@@ -193,3 +193,15 @@ class RosConfiguration:
         """
         self.__subscriber_subtopic = subscriber_subtopic
         return self
+
+    def to_dict(self):
+        return {
+            "package_name": self.__package_name,
+            "node_name": self.__node_name,
+            "description": self.__description,
+            "rate": self.__rate,
+            "result_topic_queue_size": self.__result_topic_queue_size,
+            "params_topic_queue_size": self.__params_topic_queue_size,
+            "publisher_subtopic": self.__publisher_subtopic,
+            "subscriber_subtopic": self.__subscriber_subtopic
+        }
