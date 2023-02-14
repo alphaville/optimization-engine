@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-<!-- 
-  UNRELEASED!
-  0.7.1 has not been released yet
-  -->
-## [0.7.1] - Unreleased
+
+## [0.7.1] - 2022-02-14
+
+### Added
+
+* Method `.build` returns a dictionary with information that can assist debugging
+
 
 ### Changed
 
