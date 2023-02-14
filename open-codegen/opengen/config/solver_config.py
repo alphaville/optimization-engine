@@ -320,3 +320,22 @@ class SolverConfiguration:
         """
         self.__do_preconditioning = do_preconditioning
         return self
+
+    def to_dict(self):
+        return {
+            "tolerance": self.__tolerance,
+            "initial_tolerance": self.__initial_tolerance,
+            "lbfgs_memory": self.__lbfgs_memory,
+            "max_inner_iterations": self.__max_inner_iterations,
+            "max_outer_iterations": self.__max_outer_iterations,
+            "constraints_tolerance": self.__constraints_tolerance,
+            "initial_penalty": self.__initial_penalty,
+            "penalty_weight_update_factor": self.__penalty_weight_update_factor,
+            "max_duration_micros": self.__max_duration_micros,
+            "inner_tolerance_update_factor": self.__inner_tolerance_update_factor,
+            "sufficient_decrease_coefficient": self.__sufficient_decrease_coefficient,
+            "cbfgs_alpha": self.__cbfgs_alpha,
+            "cbfgs_epsilon": self.__cbfgs_epsilon,
+            "cbfgs_sy_epsilon": self.__cbfgs_sy_epsilon,
+            "do_preconditioning": self.__do_preconditioning
+        }

@@ -35,3 +35,9 @@ class TcpServerConfiguration:
         :return: TCP server port
         """
         return self.__bind_port
+
+    def to_dict(self):
+        return {
+            "ip": self.__bind_ip,
+            "port": self.__bind_port
+        }
