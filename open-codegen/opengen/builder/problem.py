@@ -219,3 +219,11 @@ class Problem:
         This is a CasADi symbol (SX or MX)
         """
         return self.__w2
+
+    def to_dict(self):
+        return {
+            "dim_decision_variables": self.dim_decision_variables(),
+            "dim_parameters": self.dim_parameters(),
+            "dim_constraints_penalty": self.dim_constraints_penalty(),
+            "dim_constraints_aug_lagrangian": self.dim_constraints_aug_lagrangian()
+        }

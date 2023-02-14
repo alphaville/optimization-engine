@@ -168,3 +168,11 @@ class OptimizerMeta:
         :meta private:
         """
         return self.__optimizer_licence
+
+    def to_dict(self):
+        return {
+            "name": self.__optimizer_name,
+            "version": self.__optimizer_version,
+            "author": self.__optimizer_author_list,
+            "licence": self.__optimizer_licence
+        }

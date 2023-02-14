@@ -792,11 +792,25 @@ class OpEnOptimizerBuilder:
         with open(cbind_makefile_target_path, "w") as fh:
             fh.write(cbind_makefile_output_template)
 
+    def __info(self):
+        info = {
+            "meta": self.__meta.to_dict(),
+            "problem": self.__problem.to_dict(),
+            "build_config": self.__build_config.to_dict(),
+            "solver_config": self.__solver_config.to_dict(),
+            "paths": {
+                "target": self.__target_dir(),
+            }
+        }
+        return info
+
     def build(self):
         """Generate code and build project
 
         :raises Exception: if the build process fails
         :raises Exception: if there some parameters have wrong, inadmissible or incompatible values
+
+        :returns: Dictionary with information that can be used for debugging
 
         """
         self.__initialize()                      # initialize default value (if not provided)
@@ -846,3 +860,5 @@ class OpEnOptimizerBuilder:
                 self.__build_config,
                 self.__solver_config)
             ros_builder.build()
+
+        return self.__info()

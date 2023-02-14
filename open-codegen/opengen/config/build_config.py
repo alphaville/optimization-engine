@@ -285,3 +285,19 @@ class BuildConfiguration:
         """
         self.__allocator = allocator
         return self
+
+    def to_dict(self):
+        build_dict = {
+            "target_system": self.__target_system,
+            "build_mode": self.__build_mode,
+            "rebuild": self.__rebuild,
+            "build_directory": self.__build_dir,
+            "open_version": self.__open_version,
+            "build_c_bindings": self.__build_c_bindings,
+            "build_python_bindings": self.__build_python_bindings,
+        }
+        if self.__tcp_interface_config is not None:
+            build_dict["tcp_interface_config"] = self.__tcp_interface_config.to_dict()
+        if self.__ros_config is not None:
+            build_dict["ros_config"] = self.__ros_config.to_dict()
+        return build_dict
