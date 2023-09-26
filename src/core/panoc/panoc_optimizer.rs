@@ -62,7 +62,7 @@ where
     /// ## Panics
     ///
     /// The method panics if the specified tolerance is not positive
-    pub fn with_tolerance(mut self, tolerance: f64) -> Self {
+    pub fn with_tolerance(self, tolerance: f64) -> Self {
         assert!(tolerance > 0.0, "tolerance must be larger than 0");
 
         self.panoc_engine.cache.tolerance = tolerance;

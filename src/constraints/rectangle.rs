@@ -35,7 +35,7 @@ impl<'a> Rectangle<'a> {
     ///   dimensions
     ///
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Self {
-        assert!(xmin != None || xmax != None); // xmin or xmax must be Some
+        assert!(xmin.is_some() || xmax.is_some()); // xmin or xmax must be Some
         assert!(
             xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
             "incompatible dimensions of xmin and xmax"

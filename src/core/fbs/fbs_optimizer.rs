@@ -63,7 +63,7 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     pub fn with_tolerance(
-        mut self,
+        self,
         tolerance: f64,
     ) -> FBSOptimizer<'a, GradientType, ConstraintType, CostType> {
         assert!(tolerance > 0.0);
