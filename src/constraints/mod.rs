@@ -19,6 +19,7 @@ mod no_constraints;
 mod rectangle;
 mod simplex;
 mod soc;
+mod sphere2;
 mod zero;
 
 pub use ball1::Ball1;
@@ -32,6 +33,7 @@ pub use no_constraints::NoConstraints;
 pub use rectangle::Rectangle;
 pub use simplex::Simplex;
 pub use soc::SecondOrderCone;
+pub use sphere2::Sphere2;
 pub use zero::Zero;
 
 /// A set which can be used as a constraint

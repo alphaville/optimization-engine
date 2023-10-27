@@ -31,7 +31,7 @@ impl<'a> Constraint for Ball2<'a> {
 
             if norm_difference > self.radius {
                 x.iter_mut().zip(center.iter()).for_each(|(x, c)| {
-                    *x = *c + (*x - *c) / norm_difference;
+                    *x = *c + self.radius * (*x - *c) / norm_difference;
                 });
             }
         } else {

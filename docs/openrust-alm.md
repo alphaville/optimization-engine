@@ -150,7 +150,7 @@ pub fn df(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
 Suppose we need to impose the constraint $F_1(u) \in C$, where $C=\\{z\in\mathbb{R}^2: \Vert{}z{}\Vert \leq 1\\}$
 and $F_1$ is the mapping 
 $$
-F_1(u)=\begin{bmatrix}2u_1 + u_1 + 0.5 \\\\ u_1+3u_2\end{bmatrix}
+F_1(u)=\begin{bmatrix}2u_1 + u_3 + 0.5 \\\\ u_1+3u_2\end{bmatrix}
 $$
 
 ```rust
