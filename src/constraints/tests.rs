@@ -465,7 +465,7 @@ fn t_cartesian_product_dimension() {
 #[test]
 fn t_cartesian_ball_no_constraint() {
     let xc = [1., 0., 0.];
-    let radius = 0.5;
+    let radius = 1.0;
     let ball2 = Ball2::new(Some(&xc), radius);
     let no_constraints = NoConstraints::new();
     let cartesian = CartesianProduct::new_with_capacity(4)
