@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opengen.builder package &mdash; OpEn  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OpEn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">opengen.builder package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-opengen.builder.optimizer_builder">opengen.builder.optimizer_builder module</a><ul>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.build"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.build()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.enable_tcp_interface"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.enable_tcp_interface()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_generate_not_build_flag"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.with_generate_not_build_flag()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_problem"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.with_problem()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_verbosity_level"><code class="docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder.with_verbosity_level()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#opengen.builder.optimizer_builder.make_dir_if_not_exists"><code class="docutils literal notranslate"><span class="pre">make_dir_if_not_exists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.builder.problem">opengen.builder.problem module</a><ul>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem"><code class="docutils literal notranslate"><span class="pre">Problem</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.__init__"><code class="docutils literal notranslate"><span class="pre">Problem.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.alm_set_c"><code class="docutils literal notranslate"><span class="pre">Problem.alm_set_c</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.alm_set_y"><code class="docutils literal notranslate"><span class="pre">Problem.alm_set_y</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.constraints"><code class="docutils literal notranslate"><span class="pre">Problem.constraints</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.cost_function"><code class="docutils literal notranslate"><span class="pre">Problem.cost_function</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.decision_variables"><code class="docutils literal notranslate"><span class="pre">Problem.decision_variables</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.dim_constraints_aug_lagrangian"><code class="docutils literal notranslate"><span class="pre">Problem.dim_constraints_aug_lagrangian()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.dim_constraints_penalty"><code class="docutils literal notranslate"><span class="pre">Problem.dim_constraints_penalty()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.dim_decision_variables"><code class="docutils literal notranslate"><span class="pre">Problem.dim_decision_variables()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.dim_parameters"><code class="docutils literal notranslate"><span class="pre">Problem.dim_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.parameter_variables"><code class="docutils literal notranslate"><span class="pre">Problem.parameter_variables</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.penalty_function"><code class="docutils literal notranslate"><span class="pre">Problem.penalty_function</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.penalty_mapping_f1"><code class="docutils literal notranslate"><span class="pre">Problem.penalty_mapping_f1</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.penalty_mapping_f2"><code class="docutils literal notranslate"><span class="pre">Problem.penalty_mapping_f2</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.preconditioning_coefficients"><code class="docutils literal notranslate"><span class="pre">Problem.preconditioning_coefficients</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.to_dict"><code class="docutils literal notranslate"><span class="pre">Problem.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.w1"><code class="docutils literal notranslate"><span class="pre">Problem.w1</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.w2"><code class="docutils literal notranslate"><span class="pre">Problem.w2</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.w_cost"><code class="docutils literal notranslate"><span class="pre">Problem.w_cost</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.with_aug_lagrangian_constraints"><code class="docutils literal notranslate"><span class="pre">Problem.with_aug_lagrangian_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.with_constraints"><code class="docutils literal notranslate"><span class="pre">Problem.with_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.problem.Problem.with_penalty_constraints"><code class="docutils literal notranslate"><span class="pre">Problem.with_penalty_constraints()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.builder.ros_builder">opengen.builder.ros_builder module</a><ul>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.RosBuilder"><code class="docutils literal notranslate"><span class="pre">RosBuilder</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.RosBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">RosBuilder.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.RosBuilder.build"><code class="docutils literal notranslate"><span class="pre">RosBuilder.build()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.get_ros_template"><code class="docutils literal notranslate"><span class="pre">get_ros_template()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.get_template"><code class="docutils literal notranslate"><span class="pre">get_template()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.ros_builder.make_dir_if_not_exists"><code class="docutils literal notranslate"><span class="pre">make_dir_if_not_exists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.builder.set_y_calculator">opengen.builder.set_y_calculator module</a><ul>
+<li><a class="reference internal" href="#opengen.builder.set_y_calculator.SetYCalculator"><code class="docutils literal notranslate"><span class="pre">SetYCalculator</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.builder.set_y_calculator.SetYCalculator.LARGE_NUM"><code class="docutils literal notranslate"><span class="pre">SetYCalculator.LARGE_NUM</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.set_y_calculator.SetYCalculator.__init__"><code class="docutils literal notranslate"><span class="pre">SetYCalculator.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.builder.set_y_calculator.SetYCalculator.obtain"><code class="docutils literal notranslate"><span class="pre">SetYCalculator.obtain()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.builder">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpEn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">opengen.builder package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/opengen.builder.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opengen-builder-package">
+<h1>opengen.builder package<a class="headerlink" href="#opengen-builder-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-opengen.builder.optimizer_builder">
+<span id="opengen-builder-optimizer-builder-module"></span><h2>opengen.builder.optimizer_builder module<a class="headerlink" href="#module-opengen.builder.optimizer_builder" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.builder.optimizer_builder.</span></span><span class="sig-name descname"><span class="pre">OpEnOptimizerBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata=&lt;opengen.config.meta.OptimizerMeta</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_configuration=&lt;opengen.config.build_config.BuildConfiguration</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_configuration=&lt;opengen.config.solver_config.SolverConfiguration</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Builder for code generation</p>
+<p>This class is a builder that can be used to generate
+code for a parametric optimizer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata=&lt;opengen.config.meta.OptimizerMeta</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_configuration=&lt;opengen.config.build_config.BuildConfiguration</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_configuration=&lt;opengen.config.solver_config.SolverConfiguration</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor of OpEnOptimizerBuilder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problem</strong> – instance of <a class="reference internal" href="#opengen.builder.problem.Problem" title="opengen.builder.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a></p></li>
+<li><p><strong>metadata</strong> – instance of <a class="reference internal" href="opengen.config.html#opengen.config.meta.OptimizerMeta" title="opengen.config.meta.OptimizerMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizerMeta</span></code></a></p></li>
+<li><p><strong>build_configuration</strong> – instance of <a class="reference internal" href="opengen.config.html#opengen.config.build_config.BuildConfiguration" title="opengen.config.build_config.BuildConfiguration"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildConfiguration</span></code></a></p></li>
+<li><p><strong>solver_configuration</strong> – instance of <a class="reference internal" href="opengen.config.html#opengen.config.solver_config.SolverConfiguration" title="opengen.config.solver_config.SolverConfiguration"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverConfiguration</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New instance of <a class="reference internal" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder" title="opengen.builder.optimizer_builder.OpEnOptimizerBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpEnOptimizerBuilder</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.build" title="Permalink to this definition"></a></dt>
+<dd><p>Generate code and build project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Exception</strong> – if the build process fails</p></li>
+<li><p><strong>Exception</strong> – if there some parameters have wrong, inadmissible or incompatible values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with information that can be used for debugging</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.enable_tcp_interface">
+<span class="sig-name descname"><span class="pre">enable_tcp_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tcp_server_configuration=&lt;opengen.config.tcp_server_config.TcpServerConfiguration</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.enable_tcp_interface" title="Permalink to this definition"></a></dt>
+<dd><p>This method is deprecated and should not be used</p>
+<p>This method will be removed in a future release!
+Use BuildConfiguration.with_tcp_interface_config instead</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_generate_not_build_flag">
+<span class="sig-name descname"><span class="pre">with_generate_not_build_flag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_generate_not_build_flag" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to build (or just generate code)</p>
+<p>If set to true, the code will be generated, but it will not be
+build (mainly for debugging purposes)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> – generate and not build</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Current builder object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_problem">
+<span class="sig-name descname"><span class="pre">with_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_problem" title="Permalink to this definition"></a></dt>
+<dd><p>Specify problem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>problem</strong> – optimization problem data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Current builder object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_verbosity_level">
+<span class="sig-name descname"><span class="pre">with_verbosity_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbosity_level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.OpEnOptimizerBuilder.with_verbosity_level" title="Permalink to this definition"></a></dt>
+<dd><p>Specify the verbosity level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>verbosity_level</strong> – level of verbosity (0,1,2,3)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Current builder object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opengen.builder.optimizer_builder.make_dir_if_not_exists">
+<span class="sig-prename descclassname"><span class="pre">opengen.builder.optimizer_builder.</span></span><span class="sig-name descname"><span class="pre">make_dir_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.optimizer_builder.make_dir_if_not_exists" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-opengen.builder.problem">
+<span id="opengen-builder-problem-module"></span><h2>opengen.builder.problem module<a class="headerlink" href="#module-opengen.builder.problem" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.builder.problem.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Definition of an optimization problem</p>
+<p>Provides the cost function, constraints and additional
+ALM/penalty-type constraints.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct an optimization problem</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param u<span class="colon">:</span></dt>
+<dd class="field-odd"><p>decision variable (CasADi variable)</p>
+</dd>
+<dt class="field-even">param p<span class="colon">:</span></dt>
+<dd class="field-even"><p>parameter (CasADi variable)</p>
+</dd>
+<dt class="field-odd">param cost<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cost function (CasADi function of u and p)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">casadi.casadi</span> <span class="k">as</span> <span class="nn">cs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">opengen</span> <span class="k">as</span> <span class="nn">og</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define u and p</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Cost function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">rosenbrock</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define optimization problem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.alm_set_c">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alm_set_c</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.alm_set_c" title="Permalink to this definition"></a></dt>
+<dd><p>Set C in the definition of constraints: F1(u, p) in C</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.alm_set_y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alm_set_y</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.alm_set_y" title="Permalink to this definition"></a></dt>
+<dd><p>Set Y for the Lagrange multipliers</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.constraints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Hard constraints; set U</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.cost_function">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost_function</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.cost_function" title="Permalink to this definition"></a></dt>
+<dd><p>Cost function as a CaADi symbol</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.decision_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decision_variables</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.decision_variables" title="Permalink to this definition"></a></dt>
+<dd><p>Decision variables (CasADi symbol)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.dim_constraints_aug_lagrangian">
+<span class="sig-name descname"><span class="pre">dim_constraints_aug_lagrangian</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.dim_constraints_aug_lagrangian" title="Permalink to this definition"></a></dt>
+<dd><p>Not implemented yet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.dim_constraints_penalty">
+<span class="sig-name descname"><span class="pre">dim_constraints_penalty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.dim_constraints_penalty" title="Permalink to this definition"></a></dt>
+<dd><p>Number of penalty-type constraints</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.dim_decision_variables">
+<span class="sig-name descname"><span class="pre">dim_decision_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.dim_decision_variables" title="Permalink to this definition"></a></dt>
+<dd><p>Number of decision variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of decision variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.dim_parameters">
+<span class="sig-name descname"><span class="pre">dim_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.dim_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Number of parameters</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.parameter_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parameter_variables</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.parameter_variables" title="Permalink to this definition"></a></dt>
+<dd><p>Parameter variables (CasADi symbol)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.penalty_function">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_function</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.penalty_function" title="Permalink to this definition"></a></dt>
+<dd><p>Penalty function, g</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.penalty_mapping_f1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_mapping_f1</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.penalty_mapping_f1" title="Permalink to this definition"></a></dt>
+<dd><p>ALM mapping F1 as a CasADi symbol</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.penalty_mapping_f2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_mapping_f2</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.penalty_mapping_f2" title="Permalink to this definition"></a></dt>
+<dd><p>Penalty-type mapping F2 as a CasADi symbol</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.preconditioning_coefficients">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preconditioning_coefficients</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.preconditioning_coefficients" title="Permalink to this definition"></a></dt>
+<dd><p>Preconditioning coefficients w = (w_cost, w1, w2)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.w1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w1</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.w1" title="Permalink to this definition"></a></dt>
+<dd><p>Vector of preconditioning coefficients of F1 (ALM constraints)
+This is a CasADi symbol (SX or MX)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.w2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w2</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.w2" title="Permalink to this definition"></a></dt>
+<dd><p>Vector of preconditioning coefficients of F2 (PM constraints)
+This is a CasADi symbol (SX or MX)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.w_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_cost</span></span><a class="headerlink" href="#opengen.builder.problem.Problem.w_cost" title="Permalink to this definition"></a></dt>
+<dd><p>Preconditioning coefficient of the cost function
+This is a CasADi symbol (SX or MX)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.with_aug_lagrangian_constraints">
+<span class="sig-name descname"><span class="pre">with_aug_lagrangian_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping_f1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.with_aug_lagrangian_constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Constraints: F1(u, p) in C</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mapping_f1</strong> – mapping of the form <cite>F1: R^{n} x R^{p} –&gt; R^{n1}</cite></p></li>
+<li><p><strong>set_c</strong> – a convex closed set C</p></li>
+<li><p><strong>set_y</strong> – a compact subset of C*, the convex conjugate of C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Current object (self)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.with_constraints">
+<span class="sig-name descname"><span class="pre">with_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_constraints</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.with_constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Specify or update the constraints of the problem</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param u_constraints<span class="colon">:</span></dt>
+<dd class="field-odd"><p>constraints on the decision variable; 
+must be a Constraint object (such as <a class="reference internal" href="opengen.constraints.html#opengen.constraints.ball2.Ball2" title="opengen.constraints.ball2.Ball2"><code class="xref py py-class docutils literal notranslate"><span class="pre">opengen.constraints.ball2.Ball2</span></code></a> 
+and <a class="reference internal" href="opengen.constraints.html#opengen.constraints.rectangle.Rectangle" title="opengen.constraints.rectangle.Rectangle"><code class="xref py py-class docutils literal notranslate"><span class="pre">opengen.constraints.rectangle.Rectangle</span></code></a>)</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Current object</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.problem.Problem.with_penalty_constraints">
+<span class="sig-name descname"><span class="pre">with_penalty_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">penalty_constraints</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.problem.Problem.with_penalty_constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Constraints to for the penalty method</p>
+<p>Specify the constraints to be treated with the penalty method (that is,
+function F2(u; p))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>penalty_constraints</strong> – a function <cite>c(u, p)</cite>, of the decision
+variable <cite>u</cite> and the parameter vector <cite>p</cite>, which
+corresponds to the constraints <cite>c(u, p)</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Current object (self)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.builder.ros_builder">
+<span id="opengen-builder-ros-builder-module"></span><h2>opengen.builder.ros_builder module<a class="headerlink" href="#module-opengen.builder.ros_builder" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.RosBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.builder.ros_builder.</span></span><span class="sig-name descname"><span class="pre">RosBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.RosBuilder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Code generation for ROS-related files</p>
+<p>For internal use</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.RosBuilder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.RosBuilder.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.RosBuilder.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.RosBuilder.build" title="Permalink to this definition"></a></dt>
+<dd><p>Build ROS-related files</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.get_ros_template">
+<span class="sig-prename descclassname"><span class="pre">opengen.builder.ros_builder.</span></span><span class="sig-name descname"><span class="pre">get_ros_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.get_ros_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.get_template">
+<span class="sig-prename descclassname"><span class="pre">opengen.builder.ros_builder.</span></span><span class="sig-name descname"><span class="pre">get_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.get_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opengen.builder.ros_builder.make_dir_if_not_exists">
+<span class="sig-prename descclassname"><span class="pre">opengen.builder.ros_builder.</span></span><span class="sig-name descname"><span class="pre">make_dir_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.ros_builder.make_dir_if_not_exists" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-opengen.builder.set_y_calculator">
+<span id="opengen-builder-set-y-calculator-module"></span><h2>opengen.builder.set_y_calculator module<a class="headerlink" href="#module-opengen.builder.set_y_calculator" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.builder.set_y_calculator.SetYCalculator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.builder.set_y_calculator.</span></span><span class="sig-name descname"><span class="pre">SetYCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.set_y_calculator.SetYCalculator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is intended for internal use by the solver</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opengen.builder.set_y_calculator.SetYCalculator.LARGE_NUM">
+<span class="sig-name descname"><span class="pre">LARGE_NUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000000000000.0</span></em><a class="headerlink" href="#opengen.builder.set_y_calculator.SetYCalculator.LARGE_NUM" title="Permalink to this definition"></a></dt>
+<dd><p>A large number</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.set_y_calculator.SetYCalculator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.set_y_calculator.SetYCalculator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct a set Y calculator given set C</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.builder.set_y_calculator.SetYCalculator.obtain">
+<span class="sig-name descname"><span class="pre">obtain</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.builder.set_y_calculator.SetYCalculator.obtain" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and returns set Y</p>
+<p>The computation of Y is supported only when C is a rectangle or a compact set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>set Y</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="opengen.constraints.html#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.builder">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-opengen.builder" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Pantelis Sopasakis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
