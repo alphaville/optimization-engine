@@ -18,21 +18,38 @@ impl<'a> Sphere2<'a> {
 }
 
 impl<'a> Constraint for Sphere2<'a> {
+    /// Projection onto the set, that is,
+    ///
+    /// $$
+    /// \Pi_C(v) = \mathrm{argmin}_{z\in C}\Vert{}z-v{}\Vert
+    /// $$
+    ///
+    ///
+    ///
+    /// ## Arguments
+    ///
+    /// - `x`: The given vector $x$ is updated with the projection on the set
+    ///
     fn project(&self, x: &mut [f64]) {
+        let epsilon = 1e-12;
         if let Some(center) = &self.center {
-            let mut norm_difference = 0.0;
-            x.iter().zip(center.iter()).for_each(|(xi, ci)| {
-                let diff_ = *xi - *ci;
-                norm_difference += diff_ * diff_
-            });
-            norm_difference = norm_difference.sqrt();
+            let norm_difference = crate::matrix_operations::norm2_squared_diff(x, center).sqrt();
+            if norm_difference <= epsilon {
+                x.copy_from_slice(&center);
+                x[0] += self.radius;
+                return;
+            }
             x.iter_mut().zip(center.iter()).for_each(|(x, c)| {
                 *x = *c + self.radius * (*x - *c) / norm_difference;
             });
         } else {
             let norm_x = crate::matrix_operations::norm2(x);
-            let norm_over_radius = norm_x / self.radius;
-            x.iter_mut().for_each(|x_| *x_ /= norm_over_radius);
+            if norm_x <= epsilon {
+                x[0] += self.radius;
+                return;
+            }
+            let norm_over_radius = self.radius / norm_x;
+            x.iter_mut().for_each(|x_| *x_ *= norm_over_radius);
         }
     }
 
