@@ -11,7 +11,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       v0.7.8
      --------------------- -->
-## [v0.7.7] - 2023-10-27
+## [v0.7.8] - 2023-10-27
 
 ### Added
 
