@@ -226,7 +226,7 @@ fn t_rectangle_only_xmax() {
 }
 
 #[test]
-fn t_ball_at_origin() {
+fn t_ball2_at_origin() {
     let radius = 1.0;
     let mut x = [1.0, 1.0];
     let ball = Ball2::new(None, radius);
@@ -246,7 +246,47 @@ fn t_ball_at_origin() {
 }
 
 #[test]
-fn t_ball_elsewhere() {
+fn t_ball2_at_origin_different_radius_outside() {
+    let radius = 0.8;
+    let mut x = [1.0, 1.0];
+    let ball = Ball2::new(None, radius);
+    ball.project(&mut x);
+    let norm_proj_x = crate::matrix_operations::norm2(&x);
+    unit_test_utils::assert_nearly_equal(radius, norm_proj_x, 1e-10, 1e-12, "wrong norm");
+}
+
+#[test]
+fn t_ball2_at_origin_different_radius_inside() {
+    let radius = 0.8;
+    let mut x = [-0.2, 0.15];
+    let ball = Ball2::new(None, radius);
+    ball.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x, &[-0.2, 0.15], 1e-10, 1e-12, "wrong");
+}
+
+#[test]
+fn t_ball2_at_center_different_radius_outside() {
+    let radius = 1.2;
+    let mut x = [1.0, 1.0];
+    let center = [-0.8, -1.1];
+    let ball = Ball2::new(Some(&center), radius);
+    ball.project(&mut x);
+    let norm_x_minus_c = crate::matrix_operations::norm2_squared_diff(&x, &center).sqrt();
+    unit_test_utils::assert_nearly_equal(radius, norm_x_minus_c, 1e-10, 1e-12, "wrong norm");
+}
+
+#[test]
+fn t_ball2_at_center_different_radius_inside() {
+    let radius = 1.2;
+    let mut x = [-0.9, -0.85];
+    let center = [-0.8, -1.1];
+    let ball = Ball2::new(Some(&center), radius);
+    ball.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&[-0.9, -0.85], &x, 1e-10, 1e-12, "wrong result");
+}
+
+#[test]
+fn t_ball2_elsewhere() {
     let radius = 1.0;
     let center = [1.0, 1.0];
     let mut x = [2.0, 2.0];
@@ -465,7 +505,7 @@ fn t_cartesian_product_dimension() {
 #[test]
 fn t_cartesian_ball_no_constraint() {
     let xc = [1., 0., 0.];
-    let radius = 0.5;
+    let radius = 1.0;
     let ball2 = Ball2::new(Some(&xc), radius);
     let no_constraints = NoConstraints::new();
     let cartesian = CartesianProduct::new_with_capacity(4)
