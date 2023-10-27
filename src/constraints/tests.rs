@@ -804,6 +804,70 @@ fn t_ball1_random_optimality_conditions_centered() {
 }
 
 #[test]
+fn t_sphere2_no_center() {
+    let radius = 0.9;
+    let mut x_out = [1.0, 1.0];
+    let mut x_in = [-0.3, -0.2];
+    let unit_sphere = Sphere2::new(None, radius);
+    unit_sphere.project(&mut x_out);
+    unit_sphere.project(&mut x_in);
+    let norm_out = crate::matrix_operations::norm2(&x_out);
+    let norm_in = crate::matrix_operations::norm2(&x_in);
+    unit_test_utils::assert_nearly_equal(radius, norm_out, 1e-10, 1e-12, "norm_out is not 1.0");
+    unit_test_utils::assert_nearly_equal(radius, norm_in, 1e-10, 1e-12, "norm_in is not 1.0");
+}
+
+#[test]
+fn t_sphere2_no_center_projection_of_zero() {
+    let radius = 0.9;
+    let mut x = [0.0, 0.0];
+    let unit_sphere = Sphere2::new(None, radius);
+    unit_sphere.project(&mut x);
+    let norm_result = crate::matrix_operations::norm2(&x);
+    unit_test_utils::assert_nearly_equal(radius, norm_result, 1e-10, 1e-12, "norm_out is not 1.0");
+}
+
+#[test]
+fn t_sphere2_center() {
+    let radius = 1.3;
+    let center = [-3.0, 5.0];
+    let mut x = [1.0, 1.0];
+    let unit_sphere = Sphere2::new(Some(&center), radius);
+
+    unit_sphere.project(&mut x);
+    let mut x_minus_c = [0.0; 2];
+    x.iter()
+        .zip(center.iter())
+        .zip(x_minus_c.iter_mut())
+        .for_each(|((a, b), c)| {
+            *c = a - b;
+        });
+
+    let norm_out = crate::matrix_operations::norm2(&x_minus_c);
+    unit_test_utils::assert_nearly_equal(radius, norm_out, 1e-10, 1e-12, "norm_out is not 1.0");
+}
+
+#[test]
+fn t_sphere2_center_projection_of_center() {
+    let radius = 1.3;
+    let center = [-3.0, 5.0];
+    let mut x = [-3.0, 5.0];
+    let unit_sphere = Sphere2::new(Some(&center), radius);
+
+    unit_sphere.project(&mut x);
+    let mut x_minus_c = [0.0; 2];
+    x.iter()
+        .zip(center.iter())
+        .zip(x_minus_c.iter_mut())
+        .for_each(|((a, b), c)| {
+            *c = a - b;
+        });
+
+    let norm_out = crate::matrix_operations::norm2(&x_minus_c);
+    unit_test_utils::assert_nearly_equal(radius, norm_out, 1e-10, 1e-12, "norm_out is not 1.0");
+}
+
+#[test]
 #[should_panic]
 fn t_ball1_alpha_negative() {
     let _ = Ball1::new(None, -1.);
