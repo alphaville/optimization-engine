@@ -21,13 +21,13 @@ impl<'a> Constraint for Sphere2<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(center) = &self.center {
             let mut norm_difference = 0.0;
-            x.iter().zip(center.iter()).for_each(|(a, b)| {
-                let diff_ = *a - *b;
+            x.iter().zip(center.iter()).for_each(|(xi, ci)| {
+                let diff_ = *xi - *ci;
                 norm_difference += diff_ * diff_
             });
             norm_difference = norm_difference.sqrt();
             x.iter_mut().zip(center.iter()).for_each(|(x, c)| {
-                *x = *c + (*x - *c) / norm_difference;
+                *x = *c + self.radius * (*x - *c) / norm_difference;
             });
         } else {
             let norm_x = crate::matrix_operations::norm2(x);
@@ -37,6 +37,6 @@ impl<'a> Constraint for Sphere2<'a> {
     }
 
     fn is_convex(&self) -> bool {
-        true
+        false
     }
 }

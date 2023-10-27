@@ -765,9 +765,9 @@ fn t_ball1_random_optimality_conditions_centered() {
 
 #[test]
 fn t_sphere2_no_center() {
-    let radius = 1.0;
+    let radius = 0.9;
     let mut x_out = [1.0, 1.0];
-    let mut x_in = [1.0, 1.0];
+    let mut x_in = [-0.3, -0.2];
     let unit_sphere = Sphere2::new(None, radius);
     unit_sphere.project(&mut x_out);
     unit_sphere.project(&mut x_in);
@@ -779,7 +779,7 @@ fn t_sphere2_no_center() {
 
 #[test]
 fn t_sphere2_center() {
-    let radius = 1.0;
+    let radius = 1.3;
     let center = [-3.0, 5.0];
     let mut x = [1.0, 1.0];
     let unit_sphere = Sphere2::new(Some(&center), radius);
