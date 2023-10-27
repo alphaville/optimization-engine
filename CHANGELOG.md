@@ -9,9 +9,9 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      v0.7.8
+      v0.8.0
      --------------------- -->
-## [v0.7.8] - 2023-10-27
+## [v0.8.1] - 2023-10-27
 
 ### Added
 
@@ -256,7 +256,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[v0.7.8]: https://github.com/alphaville/optimization-engine/compare/v0.7.7...v0.7.8 
+[v0.7.8]: https://github.com/alphaville/optimization-engine/compare/v0.7.7...v0.8.0
 [v0.7.7]: https://github.com/alphaville/optimization-engine/compare/v0.7.6...v0.7.7 
 [v0.7.6]: https://github.com/alphaville/optimization-engine/compare/v0.7.5...v0.7.6 
 [v0.7.5]: https://github.com/alphaville/optimization-engine/compare/v0.7.4...v0.7.5 
