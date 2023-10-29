@@ -1,5 +1,5 @@
 use super::*;
-use modcholesky::ModCholeskyGMW81;
+use modcholesky::ModCholeskySE99;
 use rand;
 
 #[test]
@@ -876,26 +876,34 @@ fn t_ball1_alpha_negative() {
 
 #[test]
 fn t_affine_space() {
-    // let m = 4;
-    // let n = 4;
-    // let mut a = Array2::<f64>::zeros((m, n));
-    // a[(0, 0)] = 1.0;
-    // a[(1, 1)] = 1.0;
-    // a[(2, 2)] = 1.0;
-    // a[(3, 3)] = 1.0;
-    // let b = Array1::<f64>::zeros((n,));
-    // let aa = a.t().dot(&a);
-    let a_data = [
-        [1890.3, -1705.6, -315.8, 3000.3],
-        [-1705.6, 1538.3, 284.9, -2706.6],
-        [-315.8, 284.9, 52.5, -501.2],
-        [3000.3, -2706.6, -501.2, 4760.8],
-    ];
-    let a: ndarray::Array2<f64> = ndarray::arr2(&a_data);
+    let data = [10., 2., 2., 15.].to_vec();
+    let datb = vec![1., 2.];
+    // let arr: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> =
+    //     ndarray::Array2::from_shape_vec((nrows, ncols), data).unwrap();
 
-    // Perform modified Cholesky decomposition
-    // The `Decomposition` struct holds L, E and P
-    let res = a.mod_cholesky_gmw81();
+    // let asq = arr.dot(&arr.tr());
+    // println!("A2 = {:?}", asq);
 
-    println!("{}", res.l);
+    // let arrb: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> = ndarray::Array1::from_shape_vec((nrows,), datb).unwrap();
+
+    let aff = AffineSpace::new(data, datb);
+    let mut xx = [1., 1.];
+    aff.project(&mut xx);
+
+    // let a: ndarray::Array2<f64> = ndarray::arr2(&a_data);
+    // let a_cp = a.clone();
+    // let mut a_sq = a.t().dot(&a_cp);
+
+    // println!("A'A = {:?}", a_sq);
+
+    // // Perform modified Cholesky decomposition
+    // // The `Decomposition` struct holds L, E and P
+    // let res = a_sq.mod_cholesky_se99();
+    // let x = a_sq[(res.p, 0)];
+    // let ll = res.l.dot(&res.l.t());
+    // let error = ll;
+
+    // println!("{}", error);
+
+    // println!("{}", res.e);
 }
