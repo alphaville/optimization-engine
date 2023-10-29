@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the main Changelog file for the Rust solver. The Changelog file for the Python interface (`opengen`) can be found in [/open-codegen/CHANGELOG.md](open-codegen/CHANGELOG.md)
 
+<!-- ---------------------
+      Not released
+     --------------------- -->
+## Unreleased
+
+### Fixed
+
+- Clippy fixes
 
 <!-- ---------------------
       v0.8.1
