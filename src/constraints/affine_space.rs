@@ -82,7 +82,19 @@ impl Constraint for AffineSpace {
             y[m] = (err[self.p[m]] - sum) / self.l[(m, m)];
         }
         println!("y = {:?}", y);
-        // Step 2: Solve L'x(P) = y
+        // Step 2: Solve L'z(P) = y
+        let mut z = vec![0.; self.n_rows];
+        z[self.p[self.n_rows - 1]] =
+            y[self.n_rows - 1] / self.l[(self.n_rows - 1, self.n_rows - 1)];
+        for m in (0..self.n_rows - 1).rev() {
+            // TODO! (WIP)
+        }
+        println!("z = {:?}", z);
+        // Step 3: Determine A' * z
+        let z_arr = ndarray::Array1::from_shape_vec((self.n_rows,), z).unwrap();
+        let w = self.a_mat.t().dot(&z_arr);
+        println!("w = {:?}", w);
+        x.iter_mut().zip(w.iter()).for_each(|(xi, wi)| *xi -= wi);
     }
 
     fn is_convex(&self) -> bool {

@@ -883,4 +883,5 @@ fn t_affine_space() {
     let aff = AffineSpace::new(data, datb);
     let mut xx = [1., -2., -0.3, 0.5];
     aff.project(&mut xx);
+    println!("x = {:?}", xx);
 }
