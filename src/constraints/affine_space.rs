@@ -1,4 +1,8 @@
 use super::Constraint;
+
+extern crate modcholesky;
+extern crate ndarray;
+
 use modcholesky::ModCholeskySE99;
 use ndarray::{Array1, Array2, ArrayBase, Dim, OwnedRepr};
 

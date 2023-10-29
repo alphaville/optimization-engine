@@ -12,6 +12,10 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
      --------------------- -->
 ## Unreleased
 
+### Added
+
+- Implementation of `AffineSpace`
+
 ### Fixed
 
 - Clippy fixes
