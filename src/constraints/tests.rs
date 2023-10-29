@@ -1,4 +1,5 @@
 use super::*;
+use modcholesky::ModCholeskyGMW81;
 use rand;
 
 #[test]
@@ -871,4 +872,30 @@ fn t_sphere2_center_projection_of_center() {
 #[should_panic]
 fn t_ball1_alpha_negative() {
     let _ = Ball1::new(None, -1.);
+}
+
+#[test]
+fn t_affine_space() {
+    // let m = 4;
+    // let n = 4;
+    // let mut a = Array2::<f64>::zeros((m, n));
+    // a[(0, 0)] = 1.0;
+    // a[(1, 1)] = 1.0;
+    // a[(2, 2)] = 1.0;
+    // a[(3, 3)] = 1.0;
+    // let b = Array1::<f64>::zeros((n,));
+    // let aa = a.t().dot(&a);
+    let a_data = [
+        [1890.3, -1705.6, -315.8, 3000.3],
+        [-1705.6, 1538.3, 284.9, -2706.6],
+        [-315.8, 284.9, 52.5, -501.2],
+        [3000.3, -2706.6, -501.2, 4760.8],
+    ];
+    let a: ndarray::Array2<f64> = ndarray::arr2(&a_data);
+
+    // Perform modified Cholesky decomposition
+    // The `Decomposition` struct holds L, E and P
+    let res = a.mod_cholesky_gmw81();
+
+    println!("{}", res.l);
 }
