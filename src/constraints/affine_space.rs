@@ -65,15 +65,14 @@ impl Constraint for AffineSpace {
     fn project(&self, x: &mut [f64]) {
         let m = self.n_rows;
         let n = self.n_cols;
-        let L = &self.l;
-        let P = &self.p;
+        let chol: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> = &self.l;
+        let perm = &self.p;
 
         assert!(x.len() == self.n_cols, "x has wrong dimension");
         let x_vec = x.to_vec();
         let x_arr = ndarray::Array1::from_shape_vec((n,), x_vec).unwrap();
         let ax = self.a_mat.dot(&x_arr);
         let err = ax - &self.b_vec;
-        println!("err = {:?}", err);
 
         // Step 1: Solve Ly = b(P)
         // TODO: Make `y` into an attribute; however, to do this, we need to change
@@ -82,25 +81,26 @@ impl Constraint for AffineSpace {
         for i in 0..m {
             let mut sum = 0.;
             for j in 0..i {
-                sum += L[(i, j)] * y[j];
+                sum += chol[(i, j)] * y[j];
             }
-            y[i] = (err[P[i]] - sum) / L[(i, i)];
+            y[i] = (err[perm[i]] - sum) / chol[(i, i)];
         }
-        println!("y = {:?}", y);
 
         // Step 2: Solve L'z(P) = y
         let mut z = vec![0.; m];
-        z[P[m - 1]] = y[m - 1] / L[(m - 1, m - 1)];
-        z[P[m - 2]] = (y[m - 2] - L[(m - 1, m - 2)] * z[P[m - 1]]) / L[(m - 2, m - 2)];
-        z[P[m - 3]] =
-            (y[m - 3] - L[(m - 2, m - 3)] * z[P[m - 2]] - L[(m - 1, m - 3)] * z[P[m - 1]])
-                / L[(m - 3, m - 3)];
-        println!("z = {:?}", z);
+        for i in 1..=m {
+            z[perm[m - i]] = y[m - i];
+            for j in 1..i {
+                z[perm[m - i]] -= chol[(m - j, m - i)] * z[perm[m - j]];
+            }
+            z[perm[m - i]] /= chol[(m - i, m - i)];
+        }
 
         // Step 3: Determine A' * z
         let z_arr = ndarray::Array1::from_shape_vec((self.n_rows,), z).unwrap();
         let w = self.a_mat.t().dot(&z_arr);
-        println!("w = {:?}", w);
+
+        // Step 4: x <-- x - A'(AA')\(Ax-b)
         x.iter_mut().zip(w.iter()).for_each(|(xi, wi)| *xi -= wi);
     }
 
