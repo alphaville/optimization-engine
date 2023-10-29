@@ -63,33 +63,40 @@ impl AffineSpace {
 
 impl Constraint for AffineSpace {
     fn project(&self, x: &mut [f64]) {
+        let m = self.n_rows;
+        let n = self.n_cols;
+        let L = &self.l;
+        let P = &self.p;
+
         assert!(x.len() == self.n_cols, "x has wrong dimension");
         let x_vec = x.to_vec();
-        let x_arr = ndarray::Array1::from_shape_vec((x_vec.len(),), x_vec).unwrap();
+        let x_arr = ndarray::Array1::from_shape_vec((n,), x_vec).unwrap();
         let ax = self.a_mat.dot(&x_arr);
         let err = ax - &self.b_vec;
         println!("err = {:?}", err);
+
         // Step 1: Solve Ly = b(P)
         // TODO: Make `y` into an attribute; however, to do this, we need to change
         // &self to &mut self, which will require a mild refactoring
-        let mut y = vec![0.; self.n_rows];
-        y[0] = err[self.p[0]] / self.l[(0, 0)];
-        for m in 1..self.n_rows {
+        let mut y = vec![0.; m];
+        for i in 0..m {
             let mut sum = 0.;
-            for i in 0..m {
-                sum += self.l[(m, i)] * y[i];
+            for j in 0..i {
+                sum += L[(i, j)] * y[j];
             }
-            y[m] = (err[self.p[m]] - sum) / self.l[(m, m)];
+            y[i] = (err[P[i]] - sum) / L[(i, i)];
         }
         println!("y = {:?}", y);
+
         // Step 2: Solve L'z(P) = y
-        let mut z = vec![0.; self.n_rows];
-        z[self.p[self.n_rows - 1]] =
-            y[self.n_rows - 1] / self.l[(self.n_rows - 1, self.n_rows - 1)];
-        for m in (0..self.n_rows - 1).rev() {
-            // TODO! (WIP)
-        }
+        let mut z = vec![0.; m];
+        z[P[m - 1]] = y[m - 1] / L[(m - 1, m - 1)];
+        z[P[m - 2]] = (y[m - 2] - L[(m - 1, m - 2)] * z[P[m - 1]]) / L[(m - 2, m - 2)];
+        z[P[m - 3]] =
+            (y[m - 3] - L[(m - 2, m - 3)] * z[P[m - 2]] - L[(m - 1, m - 3)] * z[P[m - 1]])
+                / L[(m - 3, m - 3)];
         println!("z = {:?}", z);
+
         // Step 3: Determine A' * z
         let z_arr = ndarray::Array1::from_shape_vec((self.n_rows,), z).unwrap();
         let w = self.a_mat.t().dot(&z_arr);
