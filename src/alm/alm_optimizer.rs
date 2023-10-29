@@ -1415,7 +1415,7 @@ mod tests {
             "exists right away"
         );
 
-        let mut alm_optimizer = alm_optimizer
+        let alm_optimizer = alm_optimizer
             .with_initial_inner_tolerance(1e-3)
             .with_epsilon_tolerance(1e-3);
         assert!(!alm_optimizer.is_exit_criterion_satisfied());
@@ -1433,7 +1433,7 @@ mod tests {
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let alm_problem = make_dummy_alm_problem(n1, n2);
-        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_sufficient_decrease_coefficient(0.1);
 
         // should stall because iteration = 0
@@ -1458,7 +1458,7 @@ mod tests {
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let alm_problem = make_dummy_alm_problem(n1, n2);
-        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_sufficient_decrease_coefficient(0.1);
 
         // should stall because iteration = 0
@@ -1483,7 +1483,7 @@ mod tests {
         let panoc_cache = PANOCCache::new(nx, tolerance, lbfgs_mem);
         let mut alm_cache = AlmCache::new(panoc_cache, n1, n2);
         let alm_problem = make_dummy_alm_problem(n1, n2);
-        let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        let alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
             .with_sufficient_decrease_coefficient(0.1);
 
         // should stall because iteration = 0
