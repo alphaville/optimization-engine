@@ -876,34 +876,11 @@ fn t_ball1_alpha_negative() {
 
 #[test]
 fn t_affine_space() {
-    let data = [10., 2., 2., 15.].to_vec();
-    let datb = vec![1., 2.];
-    // let arr: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> =
-    //     ndarray::Array2::from_shape_vec((nrows, ncols), data).unwrap();
-
-    // let asq = arr.dot(&arr.tr());
-    // println!("A2 = {:?}", asq);
-
-    // let arrb: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> = ndarray::Array1::from_shape_vec((nrows,), datb).unwrap();
-
+    let data = vec![
+        0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,
+    ];
+    let datb = vec![1., 2., -0.5];
     let aff = AffineSpace::new(data, datb);
-    let mut xx = [1., 1.];
+    let mut xx = [1., -2., -0.3, 0.5];
     aff.project(&mut xx);
-
-    // let a: ndarray::Array2<f64> = ndarray::arr2(&a_data);
-    // let a_cp = a.clone();
-    // let mut a_sq = a.t().dot(&a_cp);
-
-    // println!("A'A = {:?}", a_sq);
-
-    // // Perform modified Cholesky decomposition
-    // // The `Decomposition` struct holds L, E and P
-    // let res = a_sq.mod_cholesky_se99();
-    // let x = a_sq[(res.p, 0)];
-    // let ll = res.l.dot(&res.l.t());
-    // let error = ll;
-
-    // println!("{}", error);
-
-    // println!("{}", res.e);
 }
