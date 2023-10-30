@@ -97,11 +97,11 @@ impl Constraint for AffineSpace {
         // &self to &mut self, which will require a mild refactoring
         let mut y = vec![0.; m];
         for i in 0..m {
-            let mut sum = 0.;
+            y[i] = err[perm[i]];
             for j in 0..i {
-                sum += chol[(i, j)] * y[j];
+                y[i] -= chol[(i, j)] * y[j];
             }
-            y[i] = (err[perm[i]] - sum) / chol[(i, i)];
+            y[i] /= chol[(i, i)];
         }
 
         // Step 2: Solve L'z(P) = y

@@ -899,6 +899,31 @@ fn t_affine_space() {
 }
 
 #[test]
+fn t_affine_space_larger() {
+    let a = vec![
+        1.0f64, 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 0., 1., 1., 1., -1., 4., -1., 0., 2.,
+    ];
+    let b = vec![1., -2., 3., 4.];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [10., 11., -9., 4., 5.];
+    affine_set.project(&mut x);
+    let x_correct = [
+        9.238095238095237,
+        -0.714285714285714,
+        -7.523809523809524,
+        6.238095238095238,
+        4.285714285714288,
+    ];
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-10,
+        1e-12,
+        "projection on affine set is wrong",
+    );
+}
+
+#[test]
 #[should_panic]
 fn t_affine_space_wrong_dimensions() {
     let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];
