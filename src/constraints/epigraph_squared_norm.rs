@@ -22,11 +22,12 @@ impl Constraint for EpigraphSquaredNorm {
         if norm_z_sq <= t {
             return;
         }
+
         let theta = 1. - 2. * t;
-        let a0 = 1.;
-        let a1 = theta;
-        let a2 = 0.25 * theta * theta;
-        let a3 = -0.25 * norm_z_sq;
+        let a3 = 4.;
+        let a2 = 4. * theta;
+        let a1 = theta * theta;
+        let a0 = -norm_z_sq;
 
         let cubic_poly_roots = roots::find_roots_cubic(a3, a2, a1, a0);
         let mut right_root = f64::NAN;
@@ -36,7 +37,7 @@ impl Constraint for EpigraphSquaredNorm {
         cubic_poly_roots.as_ref().iter().for_each(|ri| {
             if *ri > 0. {
                 let denom = 1. + 2. * (*ri - t);
-                if ((norm_z_sq / (denom * denom)) - *ri) < 1e-6f64 {
+                if ((norm_z_sq / (denom * denom)) - *ri).abs() < 1e-6 {
                     right_root = *ri;
                     scaling = denom;
                 }
@@ -44,10 +45,13 @@ impl Constraint for EpigraphSquaredNorm {
             }
         });
 
-        // Project
-        x.iter_mut().for_each(|xi| {
-            *xi /= scaling;
-        });
+        // TODO: refinement of root
+
+        // Projection
+        for i in 0..nx {
+            x[i] /= scaling;
+        }
+        x[nx] = right_root;
     }
 
     fn is_convex(&self) -> bool {

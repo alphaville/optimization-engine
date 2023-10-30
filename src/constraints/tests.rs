@@ -1,3 +1,5 @@
+use crate::matrix_operations;
+
 use super::*;
 use rand;
 
@@ -876,7 +878,11 @@ fn t_ball1_alpha_negative() {
 #[test]
 fn t_cubic_roots() {
     let epi = EpigraphSquaredNorm::new();
-    let mut x = [1., 2., 3., 4.];
-    epi.project(&mut x);
-    println!("x = {:?}", x);
+    for i in 0..100 {
+        let t = 0.01 * i as f64;
+        let mut x = [1., 2., 3., t];
+        epi.project(&mut x);
+        let err = (matrix_operations::norm2_squared(&x[..3]) - x[3]).abs();
+        assert!(err < 1e-10, "wrong projection on epigraph of squared norm");
+    }
 }
