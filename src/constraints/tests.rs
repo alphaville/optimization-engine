@@ -924,6 +924,17 @@ fn t_affine_space_larger() {
 }
 
 #[test]
+fn t_affine_space_single_row() {
+    let a = vec![1., 1., 1., 1.];
+    let b = vec![1.];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [5., 6., 10., 25.];
+    affine_set.project(&mut x);
+    let s = x.iter().sum();
+    unit_test_utils::assert_nearly_equal(1., s, 1e-12, 1e-14, "wrong sum");
+}
+
+#[test]
 #[should_panic]
 fn t_affine_space_wrong_dimensions() {
     let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];
