@@ -99,6 +99,7 @@ rpmalloc = { version = "0.2.0", features = [
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.5.0", optional = true }
 
+roots = "0.0.8"
 
 # --------------------------------------------------------------------------
 # F.E.A.T.U.R.E.S.

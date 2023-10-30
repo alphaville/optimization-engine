@@ -872,3 +872,11 @@ fn t_sphere2_center_projection_of_center() {
 fn t_ball1_alpha_negative() {
     let _ = Ball1::new(None, -1.);
 }
+
+#[test]
+fn t_cubic_roots() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1., 2., 3., 4.];
+    epi.project(&mut x);
+    println!("x = {:?}", x);
+}
