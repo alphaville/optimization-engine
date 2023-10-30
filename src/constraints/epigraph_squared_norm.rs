@@ -45,7 +45,22 @@ impl Constraint for EpigraphSquaredNorm {
             }
         });
 
-        // TODO: refinement of root
+        // Refinement of root with Newton-Raphson
+        let mut refinement_error = 1.;
+        let newton_max_iters: usize = 5;
+        let newton_eps = 1e-14;
+        let mut zsol = right_root;
+        let mut iter = 0;
+        while refinement_error > newton_eps && iter < newton_max_iters {
+            let zsol_sq = zsol * zsol;
+            let zsol_cb = zsol_sq * zsol;
+            let p_z = a3 * zsol_cb + a2 * zsol_sq + a1 * zsol + a0;
+            let dp_z = 3. * a3 * zsol_sq + 2. * a2 * zsol + a1;
+            zsol = zsol - p_z / dp_z;
+            refinement_error = p_z.abs();
+            iter += 1;
+        }
+        right_root = zsol;
 
         // Projection
         for i in 0..nx {
