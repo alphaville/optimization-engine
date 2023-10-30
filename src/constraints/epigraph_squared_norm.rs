@@ -3,19 +3,31 @@ use crate::matrix_operations;
 use super::Constraint;
 
 #[derive(Copy, Clone)]
-/// A
+/// The epigraph of the squared Eucliden norm is a set of the form
+/// $X = \\{x = (z, t) \in \mathbb{R}^{n}\times \mathbb{R} {}:{} \\|z\\|^2 \leq t \\}.$
 pub struct EpigraphSquaredNorm {}
 
 impl EpigraphSquaredNorm {
-    /// A
+    /// Create a new instance of the epigraph of the squared norm.
+    ///
+    /// Note that you do not need to specify the dimension.
     pub fn new() -> Self {
         EpigraphSquaredNorm {}
     }
 }
 
 impl Constraint for EpigraphSquaredNorm {
+    ///Project on the epigraph of the squared Euclidean norm.
+    ///
+    /// The projection is computed as detailed
+    /// [here](https://mathematix.wordpress.com/2017/05/02/projection-on-the-epigraph-of-the-squared-euclidean-norm/).
+    ///
+    /// ## Arguments
+    /// - `x`: The given vector $x$ is updated with the projection on the set
+    ///
     fn project(&self, x: &mut [f64]) {
         let nx = x.len() - 1;
+        assert!(nx > 0, "x must have a length of at least 2");
         let z: &[f64] = &x[..nx];
         let t: f64 = x[nx];
         let norm_z_sq = matrix_operations::norm2_squared(&z);
@@ -69,6 +81,7 @@ impl Constraint for EpigraphSquaredNorm {
         x[nx] = right_root;
     }
 
+    /// This is a convex set, so this function returns `True`
     fn is_convex(&self) -> bool {
         true
     }

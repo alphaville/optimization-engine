@@ -99,6 +99,8 @@ rpmalloc = { version = "0.2.0", features = [
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.5.0", optional = true }
 
+# computation of roots of cubic equation needed for the projection on the 
+# epigraph of the squared Eucliean norm
 roots = "0.0.8"
 
 # --------------------------------------------------------------------------
