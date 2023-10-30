@@ -876,7 +876,22 @@ fn t_ball1_alpha_negative() {
 }
 
 #[test]
-fn t_cubic_roots() {
+fn t_epigraph_squared_norm_inside() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1., 2., 10.];
+    let x_correct = x.clone();
+    epi.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-12,
+        1e-14,
+        "wrong projection on epigraph of squared norm",
+    );
+}
+
+#[test]
+fn t_epigraph_squared_norm() {
     let epi = EpigraphSquaredNorm::new();
     for i in 0..100 {
         let t = 0.01 * i as f64;
@@ -885,4 +900,24 @@ fn t_cubic_roots() {
         let err = (matrix_operations::norm2_squared(&x[..3]) - x[3]).abs();
         assert!(err < 1e-10, "wrong projection on epigraph of squared norm");
     }
+}
+
+#[test]
+fn t_epigraph_squared_norm_correctness() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1., 2., 3., 4.];
+    let x_correct = [
+        0.560142228903570,
+        1.120284457807140,
+        1.680426686710711,
+        4.392630432414829,
+    ];
+    epi.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-12,
+        1e-14,
+        "wrong projection on epigraph of squared norm",
+    );
 }
