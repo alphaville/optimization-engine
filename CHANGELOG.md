@@ -10,7 +10,11 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       Not released
      --------------------- -->
-## Unreleased
+## [v0.9.0] - Unreleased
+
+### Added
+
+- Rust implementation of epigraph of squared Euclidean norm (constraint) 
 
 ### Fixed
 
@@ -275,6 +279,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[v0.9.0]: https://github.com/alphaville/optimization-engine/compare/v0.8.1...v0.9.0
 [v0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.8.0...v0.8.1
 [v0.8.0]: https://github.com/alphaville/optimization-engine/compare/v0.7.7...v0.8.0
 [v0.7.7]: https://github.com/alphaville/optimization-engine/compare/v0.7.6...v0.7.7 
