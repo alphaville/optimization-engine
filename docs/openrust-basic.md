@@ -62,11 +62,15 @@ Constraints implement the namesake trait, [`Constraint`]. Implementations of [`C
 
 | Constraint           | Explanation                                          |
 |----------------------|------------------------------------------------------|
-| [`Ball2`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$         |
-| [`BallInf`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$         |
+| [`AffineSpace`]      | $U {}={} \\{u\in\mathbb{R}^n : Au = b\\}$         |
+| [`Ball1`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_1 \leq r\\}$  |
+| [`Ball2`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$  |
+| [`Sphere2`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 = r\\}$     |
+| [`BallInf`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$ |
 | [`Halfspace`]        | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle \leq b\\}$ |
 | [`Hyperplane`]       | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle {}={} b\\}$ |
 | [`Rectangle`]        | $U {}={} \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
+| [`Simplex`]          | $U {}={} \\{u \in \mathbb{R}^n {}:{} u \geq 0, \sum_i u_i = \alpha\\}$ |
 | [`NoConstraints`]    | $U {}={} \mathbb{R}^n$                                   |
 | [`FiniteSet`]        | $U {}={} \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
 | [`SecondOrderCone`]  | $U {}={} \\{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\\}$ |
@@ -353,6 +357,10 @@ the imposition of a maximum allowed duration, the exit status will be
 <!-- Links -->
 
 [`Constraint`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/trait.Constraint.html
+[`Simplex`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Simplex.html
+[`AffineSpace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.AffineSpace.html
+[`Sphere2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Sphere2.html
+[`Ball1`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball1.html
 [`Ball2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html
 [`BallInf`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html
 [`Halfspace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Halfspace.html
