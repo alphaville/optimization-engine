@@ -25,6 +25,15 @@ impl Constraint for EpigraphSquaredNorm {
     /// ## Arguments
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use optimization_engine::constraints::*;
+    ///
+    /// let epi = EpigraphSquaredNorm::new();
+    /// let mut x = [1., 2., 3., 4.];    
+    /// epi.project(&mut x);
+    /// ```
     fn project(&self, x: &mut [f64]) {
         let nx = x.len() - 1;
         assert!(nx > 0, "x must have a length of at least 2");
