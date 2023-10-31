@@ -80,6 +80,25 @@ impl Constraint for AffineSpace {
     ///
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
+    /// ## Example
+    ///
+    /// Consider the set $X = \\{x \in \mathbb{R}^4 :Ax = b\\}$, with $A\in\mathbb{R}^{3\times 4}$
+    /// being the matrix
+    /// $$A = \begin{bmatrix}0.5 & 0.1& 0.2& -0.3\\\\ -0.6& 0.3& 0 & 0.5 \\\\ 1.0& 0.1& -1& -0.4\end{bmatrix},$$
+    /// and $b$ being the vector
+    /// $$b = \begin{bmatrix}1 \\\\ 2 \\\\ -0.5\end{bmatrix}.$$
+    ///
+    /// ```rust
+    /// use optimization_engine::constraints::*;
+    ///
+    /// let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,];
+    /// let b = vec![1., 2., -0.5];
+    /// let affine_set = AffineSpace::new(a, b);
+    /// let mut x = [1., -2., -0.3, 0.5];
+    /// affine_set.project(&mut x);
+    /// ```
+    ///
+    /// The result is stored in `x` and it can be verified that $Ax = b$.
     fn project(&self, x: &mut [f64]) {
         let m = self.n_rows;
         let n = self.n_cols;
