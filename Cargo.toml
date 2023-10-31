@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.8.1"
+version = "0.9.0"
 
 edition = "2018"
 
