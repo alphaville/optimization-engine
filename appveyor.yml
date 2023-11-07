@@ -69,5 +69,7 @@ build: false
 # environment variable.
 test_script:
   - cargo add roots
+  - cargo add ndarray --features approx
+  - cargo add modcholesky
   - cargo build
   - cargo test --verbose %cargoflags%

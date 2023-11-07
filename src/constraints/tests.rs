@@ -1,6 +1,7 @@
 use crate::matrix_operations;
 
 use super::*;
+use modcholesky::ModCholeskySE99;
 use rand;
 
 #[test]
@@ -920,4 +921,70 @@ fn t_epigraph_squared_norm_correctness() {
         1e-14,
         "wrong projection on epigraph of squared norm",
     );
+}
+fn t_affine_space() {
+    let a = vec![
+        0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,
+    ];
+    let b = vec![1., 2., -0.5];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [1., -2., -0.3, 0.5];
+    affine_set.project(&mut x);
+    let x_correct = [
+        1.888564346697095,
+        5.629857182200888,
+        1.796204902230790,
+        2.888362906715977,
+    ];
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-10,
+        1e-12,
+        "projection on affine set is wrong",
+    );
+}
+
+#[test]
+fn t_affine_space_larger() {
+    let a = vec![
+        1.0f64, 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 0., 1., 1., 1., -1., 4., -1., 0., 2.,
+    ];
+    let b = vec![1., -2., 3., 4.];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [10., 11., -9., 4., 5.];
+    affine_set.project(&mut x);
+    let x_correct = [
+        9.238095238095237,
+        -0.714285714285714,
+        -7.523809523809524,
+        6.238095238095238,
+        4.285714285714288,
+    ];
+    unit_test_utils::assert_nearly_equal_array(
+        &x_correct,
+        &x,
+        1e-10,
+        1e-12,
+        "projection on affine set is wrong",
+    );
+}
+
+#[test]
+fn t_affine_space_single_row() {
+    let a = vec![1., 1., 1., 1.];
+    let b = vec![1.];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [5., 6., 10., 25.];
+    affine_set.project(&mut x);
+    let s = x.iter().sum();
+    unit_test_utils::assert_nearly_equal(1., s, 1e-12, 1e-14, "wrong sum");
+}
+
+#[test]
+#[should_panic]
+fn t_affine_space_wrong_dimensions() {
+    let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];
+    let b = vec![1., 2., -0.5];
+    let _ = AffineSpace::new(a, b);
 }

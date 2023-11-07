@@ -15,6 +15,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 ### Added
 
 - Rust implementation of epigraph of squared Euclidean norm (constraint) 
+- Implementation of `AffineSpace`
 
 ### Fixed
 

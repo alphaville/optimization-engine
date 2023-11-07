@@ -8,6 +8,7 @@
 //!
 //! [`Constraint`]: trait.Constraint.html
 
+mod affine_space;
 mod ball1;
 mod ball2;
 mod ballinf;
@@ -23,6 +24,7 @@ mod soc;
 mod sphere2;
 mod zero;
 
+pub use affine_space::AffineSpace;
 pub use ball1::Ball1;
 pub use ball2::Ball2;
 pub use ballinf::BallInf;
