@@ -65,7 +65,7 @@ pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_pe
 
 // ---Parameters of the constraints----------------------------------------------------------------------
 
-{% if 'Ball1' == problem.constraints.__class__.__name__ or 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ -%}
+{% if 'Ball1' == problem.constraints.__class__.__name__ or 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ or 'Sphere2' == problem.constraints.__class__.__name__ -%}
 /// Constraints: Centre of Ball
 const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
 
@@ -140,6 +140,9 @@ fn make_constraints() -> impl Constraint {
     {% elif 'Ball1' == problem.constraints.__class__.__name__ -%}
     // - Ball1:
     Ball1::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
+    {% elif 'Sphere2' == problem.constraints.__class__.__name__ -%}
+    // - Sphere2:
+    Sphere2::new(CONSTRAINTS_BALL_XC, CONSTRAINTS_BALL_RADIUS)
     {% elif 'Simplex' == problem.constraints.__class__.__name__ -%}
     // - Simplex:
     let alpha_simplex : f64 = {{problem.constraints.alpha}};
