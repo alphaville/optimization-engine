@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opengen.constraints package &mdash; OpEn  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OpEn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">opengen.constraints package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-opengen.constraints.ball1">opengen.constraints.ball1 module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1"><code class="docutils literal notranslate"><span class="pre">Ball1</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.__init__"><code class="docutils literal notranslate"><span class="pre">Ball1.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.center"><code class="docutils literal notranslate"><span class="pre">Ball1.center</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.distance_squared"><code class="docutils literal notranslate"><span class="pre">Ball1.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.is_compact"><code class="docutils literal notranslate"><span class="pre">Ball1.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.is_convex"><code class="docutils literal notranslate"><span class="pre">Ball1.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.project"><code class="docutils literal notranslate"><span class="pre">Ball1.project()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball1.Ball1.radius"><code class="docutils literal notranslate"><span class="pre">Ball1.radius</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.ball2">opengen.constraints.ball2 module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2"><code class="docutils literal notranslate"><span class="pre">Ball2</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.__init__"><code class="docutils literal notranslate"><span class="pre">Ball2.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.center"><code class="docutils literal notranslate"><span class="pre">Ball2.center</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.distance_squared"><code class="docutils literal notranslate"><span class="pre">Ball2.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.is_compact"><code class="docutils literal notranslate"><span class="pre">Ball2.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.is_convex"><code class="docutils literal notranslate"><span class="pre">Ball2.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.project"><code class="docutils literal notranslate"><span class="pre">Ball2.project()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball2.Ball2.radius"><code class="docutils literal notranslate"><span class="pre">Ball2.radius</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.ball_inf">opengen.constraints.ball_inf module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf"><code class="docutils literal notranslate"><span class="pre">BallInf</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.__init__"><code class="docutils literal notranslate"><span class="pre">BallInf.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.center"><code class="docutils literal notranslate"><span class="pre">BallInf.center</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.distance_squared"><code class="docutils literal notranslate"><span class="pre">BallInf.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.is_compact"><code class="docutils literal notranslate"><span class="pre">BallInf.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.is_convex"><code class="docutils literal notranslate"><span class="pre">BallInf.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.project"><code class="docutils literal notranslate"><span class="pre">BallInf.project()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.ball_inf.BallInf.radius"><code class="docutils literal notranslate"><span class="pre">BallInf.radius</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.cartesian">opengen.constraints.cartesian module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct"><code class="docutils literal notranslate"><span class="pre">CartesianProduct</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.__init__"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.constraints"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.constraints</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.distance_squared"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.is_compact"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.is_convex"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.project"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.project()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.segment_dimension"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.segment_dimension()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.cartesian.CartesianProduct.segments"><code class="docutils literal notranslate"><span class="pre">CartesianProduct.segments</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.constraint">opengen.constraints.constraint module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.constraint.Constraint"><code class="docutils literal notranslate"><span class="pre">Constraint</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.constraint.Constraint.distance_squared"><code class="docutils literal notranslate"><span class="pre">Constraint.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.constraint.Constraint.is_compact"><code class="docutils literal notranslate"><span class="pre">Constraint.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.constraint.Constraint.is_convex"><code class="docutils literal notranslate"><span class="pre">Constraint.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.constraint.Constraint.project"><code class="docutils literal notranslate"><span class="pre">Constraint.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.finite_set">opengen.constraints.finite_set module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet"><code class="docutils literal notranslate"><span class="pre">FiniteSet</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.__init__"><code class="docutils literal notranslate"><span class="pre">FiniteSet.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.cardinality"><code class="docutils literal notranslate"><span class="pre">FiniteSet.cardinality()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.dimension"><code class="docutils literal notranslate"><span class="pre">FiniteSet.dimension()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.distance_squared"><code class="docutils literal notranslate"><span class="pre">FiniteSet.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.is_compact"><code class="docutils literal notranslate"><span class="pre">FiniteSet.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.is_convex"><code class="docutils literal notranslate"><span class="pre">FiniteSet.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.points"><code class="docutils literal notranslate"><span class="pre">FiniteSet.points</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.finite_set.FiniteSet.project"><code class="docutils literal notranslate"><span class="pre">FiniteSet.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.halfspace">opengen.constraints.halfspace module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace"><code class="docutils literal notranslate"><span class="pre">Halfspace</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.__init__"><code class="docutils literal notranslate"><span class="pre">Halfspace.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.dimension"><code class="docutils literal notranslate"><span class="pre">Halfspace.dimension()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.distance_squared"><code class="docutils literal notranslate"><span class="pre">Halfspace.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.is_compact"><code class="docutils literal notranslate"><span class="pre">Halfspace.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.is_convex"><code class="docutils literal notranslate"><span class="pre">Halfspace.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.normal_vector"><code class="docutils literal notranslate"><span class="pre">Halfspace.normal_vector</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.offset"><code class="docutils literal notranslate"><span class="pre">Halfspace.offset</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.halfspace.Halfspace.project"><code class="docutils literal notranslate"><span class="pre">Halfspace.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.no_constraints">opengen.constraints.no_constraints module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints"><code class="docutils literal notranslate"><span class="pre">NoConstraints</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints.__init__"><code class="docutils literal notranslate"><span class="pre">NoConstraints.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints.distance_squared"><code class="docutils literal notranslate"><span class="pre">NoConstraints.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints.is_compact"><code class="docutils literal notranslate"><span class="pre">NoConstraints.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints.is_convex"><code class="docutils literal notranslate"><span class="pre">NoConstraints.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.no_constraints.NoConstraints.project"><code class="docutils literal notranslate"><span class="pre">NoConstraints.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.rectangle">opengen.constraints.rectangle module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle"><code class="docutils literal notranslate"><span class="pre">Rectangle</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.__init__"><code class="docutils literal notranslate"><span class="pre">Rectangle.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.dimension"><code class="docutils literal notranslate"><span class="pre">Rectangle.dimension()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.distance_squared"><code class="docutils literal notranslate"><span class="pre">Rectangle.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.idx_bound_finite_all"><code class="docutils literal notranslate"><span class="pre">Rectangle.idx_bound_finite_all()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmax"><code class="docutils literal notranslate"><span class="pre">Rectangle.idx_infinite_only_xmax()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmin"><code class="docutils literal notranslate"><span class="pre">Rectangle.idx_infinite_only_xmin()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.is_compact"><code class="docutils literal notranslate"><span class="pre">Rectangle.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.is_convex"><code class="docutils literal notranslate"><span class="pre">Rectangle.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.is_orthant"><code class="docutils literal notranslate"><span class="pre">Rectangle.is_orthant()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.project"><code class="docutils literal notranslate"><span class="pre">Rectangle.project()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.xmax"><code class="docutils literal notranslate"><span class="pre">Rectangle.xmax</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.rectangle.Rectangle.xmin"><code class="docutils literal notranslate"><span class="pre">Rectangle.xmin</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.simplex">opengen.constraints.simplex module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex"><code class="docutils literal notranslate"><span class="pre">Simplex</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.__init__"><code class="docutils literal notranslate"><span class="pre">Simplex.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.alpha"><code class="docutils literal notranslate"><span class="pre">Simplex.alpha</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.distance_squared"><code class="docutils literal notranslate"><span class="pre">Simplex.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.is_compact"><code class="docutils literal notranslate"><span class="pre">Simplex.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.is_convex"><code class="docutils literal notranslate"><span class="pre">Simplex.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.simplex.Simplex.project"><code class="docutils literal notranslate"><span class="pre">Simplex.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.soc">opengen.constraints.soc module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.__init__"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.a"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.a</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.distance_squared"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.is_compact"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.is_convex"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.soc.SecondOrderCone.project"><code class="docutils literal notranslate"><span class="pre">SecondOrderCone.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints.zero">opengen.constraints.zero module</a><ul>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero"><code class="docutils literal notranslate"><span class="pre">Zero</span></code></a><ul>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero.__init__"><code class="docutils literal notranslate"><span class="pre">Zero.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero.distance_squared"><code class="docutils literal notranslate"><span class="pre">Zero.distance_squared()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero.is_compact"><code class="docutils literal notranslate"><span class="pre">Zero.is_compact()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero.is_convex"><code class="docutils literal notranslate"><span class="pre">Zero.is_convex()</span></code></a></li>
+<li><a class="reference internal" href="#opengen.constraints.zero.Zero.project"><code class="docutils literal notranslate"><span class="pre">Zero.project()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-opengen.constraints">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpEn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">opengen.constraints package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/opengen.constraints.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opengen-constraints-package">
+<h1>opengen.constraints package<a class="headerlink" href="#opengen-constraints-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-opengen.constraints.ball1">
+<span id="opengen-constraints-ball1-module"></span><h2>opengen.constraints.ball1 module<a class="headerlink" href="#module-opengen.constraints.ball1" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.ball1.</span></span><span class="sig-name descname"><span class="pre">Ball1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>Ball1 aka Norm-1 Ball</p>
+<p>Ball-1 with given radius, that is</p>
+<p><span class="math notranslate nohighlight">\(\mathcal{B}_{1}(x_0, r) = \{x\in{\rm I\!R}^n {}:{} \|x - x_0\|_1 \leq r\}\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for a Ball1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>radius</strong> – ball radius (default: 1)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New instance of Ball1 with given radius</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.center">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">center</span></span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.center" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the center of the ball</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project on the current Ball-1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – vector u</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of u onto the current ball-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball1.Ball1.radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#opengen.constraints.ball1.Ball1.radius" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the radius of this ball</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.ball2">
+<span id="opengen-constraints-ball2-module"></span><h2>opengen.constraints.ball2 module<a class="headerlink" href="#module-opengen.constraints.ball2" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.ball2.</span></span><span class="sig-name descname"><span class="pre">Ball2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>A Euclidean ball constraint</p>
+<p>A constraint of the form <span class="math notranslate nohighlight">\(\|u-u_0\| \leq r\)</span>, where <span class="math notranslate nohighlight">\(u_0\)</span> is the center
+of the ball and <cite>r</cite> is its radius</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for a Euclidean ball constraint</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> – center of the ball; if this is equal to Null, the
+ball is centered at the origin</p></li>
+<li><p><strong>radius</strong> – radius of the ball</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New instance of Ball2 with given center and radius</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.center">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">center</span></span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.center" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the center of the ball</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the squared distance between a given point <cite>u</cite> and this ball</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point; can be a list of float, a numpy
+n-dim array (<cite>ndarray</cite>) or a CasADi SX/MX symbol</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>distance from set as a float or a CasADi symbol</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball2.Ball2.radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#opengen.constraints.ball2.Ball2.radius" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the radius of the ball</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.ball_inf">
+<span id="opengen-constraints-ball-inf-module"></span><h2>opengen.constraints.ball_inf module<a class="headerlink" href="#module-opengen.constraints.ball_inf" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.ball_inf.</span></span><span class="sig-name descname"><span class="pre">BallInf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>Norm-ball of norm infinity translated by given vector</p>
+<p>Centered inf-ball around given point, that is</p>
+<p><span class="math notranslate nohighlight">\(\mathcal{B}_{\infty}(x_0, r) = \{x\in{\rm I\!R}^n {}:{} \|x - x_0\|_{\infty} \leq r\}\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for an infinity ball constraint</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> – center of the ball; if this is equal to Null, the
+ball is centered at the origin</p></li>
+<li><p><strong>radius</strong> – radius of the ball</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New instance of Ballinf with given center and radius</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.center">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">center</span></span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.center" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the center of the ball</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.ball_inf.BallInf.radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#opengen.constraints.ball_inf.BallInf.radius" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the radius of the ball</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.cartesian">
+<span id="opengen-constraints-cartesian-module"></span><h2>opengen.constraints.cartesian module<a class="headerlink" href="#module-opengen.constraints.cartesian" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.cartesian.</span></span><span class="sig-name descname"><span class="pre">CartesianProduct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><span class="pre">Constraint</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><span class="pre">Constraint</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Cartesian product</p>
+<p><span class="math notranslate nohighlight">\(X = X_1 \times X_1 \times \ldots \times X_s.\)</span></p>
+<p>Construct a Cartesian product of constraints by providing a list of sets
+and their dimensions as follows: an <cite>n</cite>-dimensional vector <cite>x</cite> can be partitioned
+into subvectors as <span class="math notranslate nohighlight">\(x = (x_{[1]}, x_{[2]}, ..., x_{[s]})\)</span>, where each 
+<span class="math notranslate nohighlight">\(x_{[i]}\)</span> has dimension <span class="math notranslate nohighlight">\(m_i\)</span>.</p>
+<p>For example consider the 5-dimensional vector <span class="math notranslate nohighlight">\(x = (x_0, x_1, x_2, x_3, x_4)\)</span>,
+which can be partitioned into <span class="math notranslate nohighlight">\(x_{[1]} = (x_0, x_1)\)</span> and <span class="math notranslate nohighlight">\(x_{[2]} = (x_2, x_3, x_4)\)</span>.
+We can associate with <span class="math notranslate nohighlight">\(x_{[1]}\)</span> the indices [0, 1] and with <span class="math notranslate nohighlight">\(x_{[2]}\)</span> the indices [2, 3, 4].
+The <em>segment ids</em> are the indices 1 and 4.</p>
+<dl>
+<dt>Example:</dt><dd><p>In this example we shall define the set <span class="math notranslate nohighlight">\(X = \mathcal{B}_{1.5} \times R \times {\rm I\!R}^{5}\)</span>, 
+where <span class="math notranslate nohighlight">\(\mathcal{B}_{1.5}\)</span> is a Euclidean ball of dimension 2 with radius 1.5, <span class="math notranslate nohighlight">\(R\)</span> is a  
+3-dimensional rectangle with <span class="math notranslate nohighlight">\(x_{\min} = (-1, -2, -3)\)</span> and <span class="math notranslate nohighlight">\(x_{\max} = (0, 10, -1)\)</span>. 
+Here the segments are <cite>[1, 4, 9]</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ball</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Ball2</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rect</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="n">xmax</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">free</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">NoConstraints</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_set</span> <span class="o">=</span> <span class="n">og</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">CartesianProduct</span><span class="p">(</span><span class="n">segment_ids</span><span class="p">,</span> <span class="p">[</span><span class="n">ball</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">free</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segments</strong> – ids of segments</p></li>
+<li><p><strong>constraints</strong> – list of sets</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.constraints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.constraints" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of constraints comprising the current instance of CartesianProduct</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of given vector, u, from the current instance of
+CartesianProduct</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – vector u</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.segment_dimension">
+<span class="sig-name descname"><span class="pre">segment_dimension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.segment_dimension" title="Permalink to this definition"></a></dt>
+<dd><p>Dimension of segment <cite>i</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i</strong> – index of segment (starts at 0)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dimension of <cite>i</cite>-th index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.cartesian.CartesianProduct.segments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">segments</span></span><a class="headerlink" href="#opengen.constraints.cartesian.CartesianProduct.segments" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of segments</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.constraint">
+<span id="opengen-constraints-constraint-module"></span><h2>opengen.constraints.constraint module<a class="headerlink" href="#module-opengen.constraints.constraint" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.constraint.Constraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.constraint.</span></span><span class="sig-name descname"><span class="pre">Constraint</span></span><a class="headerlink" href="#opengen.constraints.constraint.Constraint" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.constraint.Constraint.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.constraint.Constraint.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.constraint.Constraint.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.constraint.Constraint.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.constraint.Constraint.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.constraint.Constraint.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.constraint.Constraint.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.constraint.Constraint.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.finite_set">
+<span id="opengen-constraints-finite-set-module"></span><h2>opengen.constraints.finite_set module<a class="headerlink" href="#module-opengen.constraints.finite_set" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.finite_set.</span></span><span class="sig-name descname"><span class="pre">FiniteSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>Finite set</p>
+<p>A set of the form <span class="math notranslate nohighlight">\(A = \{a_1, a_2, \ldots, a_K\}\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for a finite set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>points</strong> (<em>list</em><em> of </em><em>lists</em>) – the elements of the set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.cardinality">
+<span class="sig-name descname"><span class="pre">cardinality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.cardinality" title="Permalink to this definition"></a></dt>
+<dd><p>Cardinality of the set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.dimension" title="Permalink to this definition"></a></dt>
+<dd><p>Dimension of the set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.points">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.points" title="Permalink to this definition"></a></dt>
+<dd><p>List of points of this set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.finite_set.FiniteSet.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.finite_set.FiniteSet.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.halfspace">
+<span id="opengen-constraints-halfspace-module"></span><h2>opengen.constraints.halfspace module<a class="headerlink" href="#module-opengen.constraints.halfspace" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.halfspace.</span></span><span class="sig-name descname"><span class="pre">Halfspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>Halfspace constraint</p>
+<p>A halfspace is a set of the form <span class="math notranslate nohighlight">\(H = \{c^\intercal x \leq b\}\)</span>, where <cite>c</cite> is a given
+vector and <cite>b</cite> is a constant scalar.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct a new halfspace <span class="math notranslate nohighlight">\(H = \{c^\intercal x \leq b\}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normal_vector</strong> – vector <cite>c</cite></p></li>
+<li><p><strong>offset</strong> – parameter <cite>b</cite></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.dimension" title="Permalink to this definition"></a></dt>
+<dd><p>Dimension of the halfspace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>length/dimension of normal vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+<p>H is compact iff <span class="math notranslate nohighlight">\(b &lt; 0\)</span> and <span class="math notranslate nohighlight">\(c = 0\)</span>, in which case <cite>H</cite> is empty</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>A halfspace is a convex set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.normal_vector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normal_vector</span></span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.normal_vector" title="Permalink to this definition"></a></dt>
+<dd><p>Vector <cite>c</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.offset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">offset</span></span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.offset" title="Permalink to this definition"></a></dt>
+<dd><p>Parameter <cite>b</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.halfspace.Halfspace.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.halfspace.Halfspace.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.no_constraints">
+<span id="opengen-constraints-no-constraints-module"></span><h2>opengen.constraints.no_constraints module<a class="headerlink" href="#module-opengen.constraints.no_constraints" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.no_constraints.</span></span><span class="sig-name descname"><span class="pre">NoConstraints</span></span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>This is the entire <span class="math notranslate nohighlight">\({\rm I\!R}^n\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.no_constraints.NoConstraints.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.no_constraints.NoConstraints.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.rectangle">
+<span id="opengen-constraints-rectangle-module"></span><h2>opengen.constraints.rectangle module<a class="headerlink" href="#module-opengen.constraints.rectangle" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.rectangle.</span></span><span class="sig-name descname"><span class="pre">Rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>A Rectangle (Box) constraint</p>
+<p>A set of the form</p>
+<p><span class="math notranslate nohighlight">\(X = \{x\in{\mathrm{I\!R}}^n {}:{} x_{\mathrm{min}} \leq x \leq x_{\mathrm{max}}\}\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct a new instance of Rectangle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xmin</strong> – minimum bounds (can be <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><strong>xmax</strong> – maximum bounds (can be <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Exception</strong> – if both <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>Exception</strong> – if <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> are both not <code class="docutils literal notranslate"><span class="pre">None</span></code> and not a list</p></li>
+<li><p><strong>Exception</strong> – if <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> have incompatible lengths</p></li>
+<li><p><strong>Exception</strong> – if <code class="docutils literal notranslate"><span class="pre">xmin(i)</span> <span class="pre">&gt;</span> <span class="pre">xmax(i)</span></code> for some <code class="docutils literal notranslate"><span class="pre">i</span></code> (empty set)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new instance of Rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.dimension" title="Permalink to this definition"></a></dt>
+<dd><p>Dimension of this rectangle (inferred by the dimensions of <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance to this rectangle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance of <code class="docutils literal notranslate"><span class="pre">u</span></code> to this rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.idx_bound_finite_all">
+<span class="sig-name descname"><span class="pre">idx_bound_finite_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.idx_bound_finite_all" title="Permalink to this definition"></a></dt>
+<dd><p>Coordinates where both bounds are finite</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmax">
+<span class="sig-name descname"><span class="pre">idx_infinite_only_xmax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmax" title="Permalink to this definition"></a></dt>
+<dd><p>Coordinates at which <code class="docutils literal notranslate"><span class="pre">xmax</span></code> is infinity and <code class="docutils literal notranslate"><span class="pre">xmin</span></code> is finite</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmin">
+<span class="sig-name descname"><span class="pre">idx_infinite_only_xmin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.idx_infinite_only_xmin" title="Permalink to this definition"></a></dt>
+<dd><p>Coordinates at which <code class="docutils literal notranslate"><span class="pre">xmin</span></code> is minus infinity and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> is finite</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.is_orthant">
+<span class="sig-name descname"><span class="pre">is_orthant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.is_orthant" title="Permalink to this definition"></a></dt>
+<dd><p>Whether this rectangle is an orthant</p>
+<p>An orthant is a rectangle whose projection on every coordinate is 
+an interval of the form <span class="math notranslate nohighlight">\([0, \infty)\)</span> or <span class="math notranslate nohighlight">\((-\infty, 0]\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.xmax">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xmax</span></span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.xmax" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum bound</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.rectangle.Rectangle.xmin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xmin</span></span><a class="headerlink" href="#opengen.constraints.rectangle.Rectangle.xmin" title="Permalink to this definition"></a></dt>
+<dd><p>Minimum bound</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.simplex">
+<span id="opengen-constraints-simplex-module"></span><h2>opengen.constraints.simplex module<a class="headerlink" href="#module-opengen.constraints.simplex" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.simplex.</span></span><span class="sig-name descname"><span class="pre">Simplex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>Simplex constraint</p>
+<p>A set of the form</p>
+<p><span class="math notranslate nohighlight">\(X = \left\{x \in \mathrm{I\!R}^n : \sum_{i=1}^{n} x_i = \alpha, x \geq 0\right\}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is a positive constant.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for a Simplex constraint</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>alpha</strong> – size parameter of simplex (default: 1)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new instance of Simplex with given alpha</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.alpha">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the simplex value alpha</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact (<cite>True</cite>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex (<cite>True</cite>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.simplex.Simplex.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.simplex.Simplex.project" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the projection of a given point <span class="math notranslate nohighlight">\(y\in{\rm I\!R}^n\)</span> 
+onto the current simplex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> – given point; must be a list of numbers (float, int) or
+a numpy n-dim array (<cite>ndarray</cite>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the projection point in <span class="math notranslate nohighlight">\({\rm I\!R}^n\)</span> as a numpy array of float64s</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.soc">
+<span id="opengen-constraints-soc-module"></span><h2>opengen.constraints.soc module<a class="headerlink" href="#module-opengen.constraints.soc" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.soc.</span></span><span class="sig-name descname"><span class="pre">SecondOrderCone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>A Second-Order Cone given by <span class="math notranslate nohighlight">\(C = \{u = (x, r): a\|x\| \leq r\}\)</span></p>
+<p>Second-order cones are used in conic optimisation to describe
+inequalities that involve quadratic terms</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for a Second-Order Cone set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>a</strong> – parameter <cite>a</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New instance of a SOC with given parameter <cite>a</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.a">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a</span></span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.a" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the value of parameter <cite>a</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the squared distance between a given point <cite>u</cite> and this
+second-order cone</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param u<span class="colon">:</span></dt>
+<dd class="field-odd"><p>given point; can be a list of float, a numpy
+n-dim array (<cite>ndarray</cite>) or a CasADi SX/MX symbol</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>distance from set as a float or a CasADi symbol</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.soc.SecondOrderCone.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.soc.SecondOrderCone.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints.zero">
+<span id="opengen-constraints-zero-module"></span><h2>opengen.constraints.zero module<a class="headerlink" href="#module-opengen.constraints.zero" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opengen.constraints.zero.</span></span><span class="sig-name descname"><span class="pre">Zero</span></span><a class="headerlink" href="#opengen.constraints.zero.Zero" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#opengen.constraints.constraint.Constraint" title="opengen.constraints.constraint.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraint</span></code></a></p>
+<p>A set that contains only the origin</p>
+<p>The singleton <span class="math notranslate nohighlight">\(\{0\}\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.zero.Zero.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor for set <span class="math notranslate nohighlight">\(Z = \{0\}\)</span></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero.distance_squared">
+<span class="sig-name descname"><span class="pre">distance_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.zero.Zero.distance_squared" title="Permalink to this definition"></a></dt>
+<dd><p>Squared distance of a given point to the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>squared distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero.is_compact">
+<span class="sig-name descname"><span class="pre">is_compact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.zero.Zero.is_compact" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is compact</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero.is_convex">
+<span class="sig-name descname"><span class="pre">is_convex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.zero.Zero.is_convex" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the set is convex</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opengen.constraints.zero.Zero.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opengen.constraints.zero.Zero.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project a given point onto the set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – given point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projection of <cite>u</cite> onto this set</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opengen.constraints">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-opengen.constraints" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Pantelis Sopasakis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
