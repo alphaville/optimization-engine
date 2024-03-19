@@ -50,13 +50,26 @@ class Sphere2(Constraint):
 
             :return: distance from set as a float or a CasADi symbol
         """
-        raise NotImplementedError()
+        v = u
+        if (isinstance(u, list) and all(isinstance(x, (int, float)) for x in u))\
+                or isinstance(u, np.ndarray):
+            if self.__center is None:
+                v = u
+            else:
+                # Note: self.__center is np.ndarray (`u` might be a list)
+                z = self.__center.reshape(len(u))
+                u = np.array(u).reshape(len(u))
+                v = np.subtract(u, z)
+        elif not fn.is_symbolic(u):
+            raise Exception("u is of invalid type")
+
+        return (self.__radius - fn.norm2(v))**2
 
     def project(self, u):
         raise NotImplementedError()
 
     def is_convex(self):
-        return True
+        return False
 
     def is_compact(self):
         return True
