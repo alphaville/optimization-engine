@@ -183,7 +183,8 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertFalse(rect.is_compact())
 
     def test_rectangle_is_orthant(self):
-        rect = og.constraints.Rectangle([0, float('-inf')], [float('inf'), 0.0])
+        rect = og.constraints.Rectangle(
+            [0, float('-inf')], [float('inf'), 0.0])
         self.assertTrue(rect.is_orthant())
         rect = og.constraints.Rectangle([0, 0], [float('inf'), float('inf')])
         self.assertTrue(rect.is_orthant())
@@ -491,6 +492,17 @@ class ConstraintsTestCase(unittest.TestCase):
                 e[j] -= 2*r
                 self.assertLessEqual(
                     np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (2)")
+
+    # -----------------------------------------------------------------------
+    # Sphere2
+    # -----------------------------------------------------------------------
+
+    def test_sphere2_sq_distance(self):
+        sphere = og.constraints.Sphere2(center=[1, 1, 1, 1], radius=0.5)
+        self.assertFalse(sphere.is_convex())
+        u = [1, 1, 0, 0]
+        dist = sphere.distance_squared(u)
+        self.assertAlmostEqual(0.835786437626905, dist, places=12)
 
 
 if __name__ == '__main__':
