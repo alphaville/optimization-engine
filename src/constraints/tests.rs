@@ -1,7 +1,6 @@
 use crate::matrix_operations;
 
 use super::*;
-use modcholesky::ModCholeskySE99;
 use rand;
 
 #[test]
@@ -922,6 +921,8 @@ fn t_epigraph_squared_norm_correctness() {
         "wrong projection on epigraph of squared norm",
     );
 }
+
+#[test]
 fn t_affine_space() {
     let a = vec![
         0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,

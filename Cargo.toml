@@ -101,7 +101,7 @@ jemallocator = { version = "0.5.0", optional = true }
 
 
 # computation of roots of cubic equation needed for the projection on the 
-# epigraph of the squared Eucliean norm
+# epigraph of the squared Euclidean norm
 roots = "0.0.8"
 
 # Least squares solver

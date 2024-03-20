@@ -2,7 +2,7 @@ use crate::matrix_operations;
 
 use super::Constraint;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 /// The epigraph of the squared Eucliden norm is a set of the form
 /// $X = \\{x = (z, t) \in \mathbb{R}^{n}\times \mathbb{R} {}:{} \\|z\\|^2 \leq t \\}.$
 pub struct EpigraphSquaredNorm {}
@@ -39,7 +39,7 @@ impl Constraint for EpigraphSquaredNorm {
         assert!(nx > 0, "x must have a length of at least 2");
         let z: &[f64] = &x[..nx];
         let t: f64 = x[nx];
-        let norm_z_sq = matrix_operations::norm2_squared(&z);
+        let norm_z_sq = matrix_operations::norm2_squared(z);
         if norm_z_sq <= t {
             return;
         }
@@ -62,7 +62,6 @@ impl Constraint for EpigraphSquaredNorm {
                     right_root = *ri;
                     scaling = denom;
                 }
-                return;
             }
         });
 
@@ -77,15 +76,15 @@ impl Constraint for EpigraphSquaredNorm {
             let zsol_cb = zsol_sq * zsol;
             let p_z = a3 * zsol_cb + a2 * zsol_sq + a1 * zsol + a0;
             let dp_z = 3. * a3 * zsol_sq + 2. * a2 * zsol + a1;
-            zsol = zsol - p_z / dp_z;
+            zsol -= p_z / dp_z;
             refinement_error = p_z.abs();
             iter += 1;
         }
         right_root = zsol;
 
         // Projection
-        for i in 0..nx {
-            x[i] /= scaling;
+        for xi in x.iter_mut().take(nx) {
+            *xi /= scaling;
         }
         x[nx] = right_root;
     }
