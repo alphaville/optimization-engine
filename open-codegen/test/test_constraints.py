@@ -504,6 +504,15 @@ class ConstraintsTestCase(unittest.TestCase):
         dist = sphere.distance_squared(u)
         self.assertAlmostEqual(0.835786437626905, dist, places=12)
 
+    def test_sphere2_sq_distance_symbolic(self):
+        sphere = og.constraints.Sphere2(center=[1, 1, 1, 1], radius=0.5)
+        self.assertFalse(sphere.is_convex())
+        u = cs.SX.sym("u", 4)
+        dist = sphere.distance_squared(u)
+        fun = cs.Function('fun', [u], [dist])
+        z = fun([1, 1, 0, 0])
+        self.assertAlmostEqual(0.835786437626905, z, places=12)
+
 
 if __name__ == '__main__':
     unittest.main()
