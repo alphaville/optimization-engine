@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.8.0] - 2024-03-20
 
+### Added
+
+* Code generation support for Sphere2
 
 ## [0.7.1] - 2022-02-14
 
@@ -181,6 +185,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.8.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.7.1...opengen-0.8.0
 [0.7.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.7.0...opengen-0.7.1
 [0.7.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.13...opengen-0.7.0
 [0.6.13]: https://github.com/alphaville/optimization-engine/compare/opengen-0.6.12...opengen-0.6.13
