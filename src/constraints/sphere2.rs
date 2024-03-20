@@ -38,7 +38,7 @@ impl<'a> Constraint for Sphere2<'a> {
         if let Some(center) = &self.center {
             let norm_difference = crate::matrix_operations::norm2_squared_diff(x, center).sqrt();
             if norm_difference <= epsilon {
-                x.copy_from_slice(&center);
+                x.copy_from_slice(center);
                 x[0] += self.radius;
                 return;
             }

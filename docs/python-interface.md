@@ -87,6 +87,7 @@ following types of constraints:
 | `NoConstraints`    | No constraints - the whole $\mathbb{R}^{n}$|
 | `Rectangle`        | Rectangle, $$R = \\{u \in \mathbb{R}^{n_u} {}:{} f_{\min} \leq u \leq f_{\max}\\},$$ for example, `Rectangle(fmin, fmax)` |
 | `SecondOrderCone`  | Second-order aka "ice cream" aka "Lorenz" cone |
+| `EpigraphSquaredNorm`| The epigraph of the squared Eucliden norm is a set of the form $X = \\{(z, t) \in \mathbb{R}^{n+1}:  \Vert z \Vert  \leq t\\}$. | 
 | `CartesianProduct` | Cartesian product of any of the above. See more information below. |
 
 
