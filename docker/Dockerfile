@@ -19,8 +19,8 @@ FROM debian:stable
 
 # Labels for the docker image
 LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
-        license="MIT license" \
-        description="Jupyter notebook for Optimization Engine (OpEn)"
+    license="MIT license" \
+    description="Jupyter notebook for Optimization Engine (OpEn)"
 
 WORKDIR /open
 
@@ -32,19 +32,20 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # These commands are groupped into a separate RUN to faciliate
 # caching; it is unlikely that any of the following will change
 # in future versions of this docker image
-RUN "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf"  \
-    && apt-get update -y \
+# "sh" "-c" "echo nameserver 8.8.8.8 >> /etc/resolv.conf" 
+RUN apt-get update -y \
     && apt-get -y --no-install-recommends install \
-        build-essential \
-        curl \
-        jupyter-notebook  \
-        python3 \
-        python3-pip \
-        python3-setuptools  \
-    &&  curl https://sh.rustup.rs -sSf | bash -s -- -y  \
-    &&  pip3 install wheel  \ 
-    &&  pip3 install opengen  \
-    &&  apt-get clean  \
+    build-essential \
+    curl \
+    jupyter-notebook  \
+    python3 \
+    python3-pip \
+    python3-setuptools  
+RUN  curl https://sh.rustup.rs -sSf | bash -s -- -y  
+RUN  rm /usr/lib/python3.11/EXTERNALLY-MANAGED 
+RUN pip3 install wheel  
+RUN  pip3 install opengen  
+RUN  apt-get clean  \
     &&  rm -rf /var/lib/apt/lists/*
 
 
