@@ -23,6 +23,7 @@ LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
     description="Jupyter notebook for Optimization Engine (OpEn)"
 
 WORKDIR /open
+VOLUME /open
 
 # Example Python notebook
 COPY example.ipynb /open/
