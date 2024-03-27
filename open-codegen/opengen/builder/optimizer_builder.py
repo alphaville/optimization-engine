@@ -26,6 +26,11 @@ _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
 _ROS_PREFIX = 'ros_node_'
 
+# Template files
+_OPTIMIZER_RS = "optimizer.rs.jinja"
+_OPTIMIZER_CARGO_TOML = "optimizer_cargo.toml.jinja"
+_OPTIMIZER_BUILD_RS = "optimizer_build.rs.jinja"
+
 
 def make_dir_if_not_exists(directory):
     if not os.path.exists(directory):
@@ -243,7 +248,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         cargo_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer_cargo.toml')
+            _OPTIMIZER_CARGO_TOML)
         cargo_output_template = cargo_template.render(
             meta=self.__meta,
             build_config=self.__build_config,
@@ -540,7 +545,7 @@ class OpEnOptimizerBuilder:
             "Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
         optimizer_rs_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer.rs')
+            _OPTIMIZER_RS)
         optimizer_rs_output_template = optimizer_rs_template.render(
             solver_config=self.__solver_config,
             meta=self.__meta,
@@ -557,7 +562,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
         build_rs_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer_build.rs')
+            _OPTIMIZER_BUILD_RS)
         build_rs_output_template = build_rs_template.render(
             meta=self.__meta,
             activate_clib_generation=self.__build_config.build_c_bindings)

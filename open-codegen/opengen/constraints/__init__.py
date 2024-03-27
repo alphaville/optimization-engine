@@ -11,3 +11,4 @@ from .zero import *
 from .finite_set import *
 from .halfspace import *
 from .simplex import *
+from .affine_space import *

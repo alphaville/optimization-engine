@@ -268,7 +268,7 @@ pub fn precondition(
 
 /// Computes the initial penalty
 ///
-/// Make sure that you have called init_
+/// Make sure that you have called init_{{ meta.optimizer_name }}
 pub fn initial_penalty(
     u: &[f64],
     static_params: &[f64],

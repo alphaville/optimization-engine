@@ -115,3 +115,15 @@ class SolverStatus:
         :return: Value of cost function at the solution
         """
         return self.__dict__["__cost"]
+
+    def __repr__(self):
+        return "Solver Status Report:\n" + \
+            f"Exit status....... {self.exit_status}\n" + \
+            f"Num Outer Iters... {self.num_outer_iterations}\n" + \
+            f"Num Inner Iters... {self.num_inner_iterations}\n" + \
+            f"FPR............... {self.last_problem_norm_fpr}\n" + \
+            "Infeasibility\n" + \
+            f"  L  F1............ {self.f1_infeasibility}\n" + \
+            f"  L  Fw............ {self.f2_norm}\n" + \
+            f"Penalty............ {self.penalty}\n" + \
+            f"Time............... {self.solve_time_ms} ms\n"
