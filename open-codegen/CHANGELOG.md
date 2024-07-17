@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.8.1] - 2024-07-17
+
+### Added
+
+* Python direct interface support for ARM-based Macs
+
 ## [0.8.0] - 2024-03-20
 
 ### Added
