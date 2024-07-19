@@ -12,6 +12,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Added
 
 * Python direct interface support for ARM-based Macs
+* Updated GitHub Actions to use the macos-12 runner
 
 ## [0.8.0] - 2024-03-20
 
