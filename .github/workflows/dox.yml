@@ -14,9 +14,9 @@ jobs:
     - uses: actions/checkout@v2
 
     # Install sphinx
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
+        python-version: '3.12'
     - name: Build and deploy docs
       run: bash ci/sphinx-documentation.sh
 
