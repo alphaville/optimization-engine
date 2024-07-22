@@ -2,6 +2,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
+  workflow_run:
 
 name: Continuous integration
 
@@ -52,8 +53,7 @@ jobs:
           command: test
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
-          architecture: 'x64'
+          python-version: '3.12'
       - run: cargo test --features rp
       - run: cargo test --features jem
       - run: bash ./ci/script.sh
