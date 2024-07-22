@@ -41,9 +41,6 @@ regular_test() {
     # --- upgrade pip within venv
     pip install --upgrade pip
 
-    # --- install setuptools
-    pip install --upgrade setuptools
-
     # --- install opengen
     pip install .
 
