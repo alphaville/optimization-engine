@@ -38,7 +38,7 @@ git config --global user.email "actions@github.com"
 # Checkout gh-pages and delete the folder api-dox (don't push yet)
 # At the end, return to the current branch
 git fetch origin gh-pages:gh-pages || :
-git checkout gh-pages
+git checkout --orphan gh-pages
 if [ -d "api-dox/" ]; then
     git rm -r api-dox/
     git commit -m "remove old api-dox files"
