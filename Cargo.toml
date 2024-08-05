@@ -105,7 +105,7 @@ jemallocator = { version = "0.5", optional = true }
 roots = "0.0.8"
 
 # Least squares solver
-ndarray = { version = "0.15", features = ["approx"] }
+ndarray = { version = "0.16", features = ["approx"] }
 modcholesky = "0.1"
 
 
