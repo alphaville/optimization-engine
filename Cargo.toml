@@ -99,7 +99,7 @@ rpmalloc = { version = "0.2", features = [
 roots = "0.0.8"
 
 # Least squares solver
-ndarray = { version = "0.15", features = ["approx"] }
+ndarray = { version = "0.16", features = ["approx"] }
 modcholesky = "0.1"
 
 # jemallocator is an optional feature; it will only be loaded if the feature 
