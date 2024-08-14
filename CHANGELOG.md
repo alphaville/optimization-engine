@@ -21,7 +21,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 ### Fixed
 
-- Order of dependencies in Cargo.toml fixes crate-not-found issue on Windows
+- Order of dependencies in `Cargo.toml` fixes crate-not-found issue on Windows
 
 
 
