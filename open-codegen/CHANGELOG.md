@@ -11,7 +11,9 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Added 
 
-* Support for affine spaces in code generation
+* Support for affine spaces in code generation (see `opengen.constraints.AffineSpace`)
+* TCP solver status can be printed
+
 
 
 ## [0.8.1] - 2024-07-17
