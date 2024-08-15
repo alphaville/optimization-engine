@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.9.0] - 2024-08-15
+
+### Added 
+
+* Support for affine spaces in code generation (see `opengen.constraints.AffineSpace`)
+* TCP solver status can be printed
+
+
+
 ## [0.8.1] - 2024-07-17
 
 ### Added
@@ -193,6 +202,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+[0.9.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.8.1...opengen-0.9.0
+[0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
 [0.8.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.7.1...opengen-0.8.0
 [0.7.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.7.0...opengen-0.7.1

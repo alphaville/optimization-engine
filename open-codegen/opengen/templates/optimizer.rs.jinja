@@ -61,17 +61,18 @@ pub const {{meta.optimizer_name|upper}}_N1: usize = {{problem.dim_constraints_au
 /// Number of penalty constraints
 pub const {{meta.optimizer_name|upper}}_N2: usize = {{problem.dim_constraints_penalty() or 0}};
 
-{% include "c/optimizer_cinterface.rs" %}
+{% include "c/optimizer_cinterface.rs.jinja" %}
 
 // ---Parameters of the constraints----------------------------------------------------------------------
-
+{# CASE I: Ball* or Sphere #}
 {% if 'Ball1' == problem.constraints.__class__.__name__ or 'Ball2' == problem.constraints.__class__.__name__ or 'BallInf' == problem.constraints.__class__.__name__ or 'Sphere2' == problem.constraints.__class__.__name__ -%}
 /// Constraints: Centre of Ball
 const CONSTRAINTS_BALL_XC: Option<&[f64]> = {% if problem.constraints.center is not none %}Some(&[{{problem.constraints.center | join(', ')}}]){% else %}None{% endif %};
-
 /// Constraints: Radius of Ball
 const CONSTRAINTS_BALL_RADIUS : f64 = {{problem.constraints.radius}};
-{% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
+{% endif %}
+{# CASE II: Rectangle #}
+{% if 'Rectangle' == problem.constraints.__class__.__name__ -%}
 const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[
 {%- for xmini in problem.constraints.xmin -%}
 {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
@@ -83,7 +84,6 @@ const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not n
 {%- endfor -%}
 ]){% else %}None{% endif %};
 {% endif %}
-
 
 
 {% if problem.alm_set_c is not none %}
@@ -150,6 +150,10 @@ fn make_constraints() -> impl Constraint {
     {% elif 'Rectangle' == problem.constraints.__class__.__name__ -%}
     // - Rectangle:
     Rectangle::new(CONSTRAINTS_XMIN, CONSTRAINTS_XMAX)
+    {% elif 'AffineSpace' == problem.constraints.__class__.__name__ -%}
+    let constraints_affine_a = vec![{{problem.constraints.matrix_a | join(', ')}}];
+    let constraints_affine_b  = vec![{{problem.constraints.vector_b | join(', ')}}];
+    AffineSpace::new(constraints_affine_a, constraints_affine_b)
     {% elif 'FiniteSet' == problem.constraints.__class__.__name__ -%}
     // - Finite Set:
     let data: &[&[f64]] = &[
@@ -191,6 +195,11 @@ fn make_constraints() -> impl Constraint {
         let radius_{{loop.index}} = {{set_i.radius}};
         let center_{{loop.index}}: Option<&[f64]> = {% if set_i.center is not none %}Some(&[{{set_i.center | join(', ')}}]){% else %}None{% endif %};
         let set_{{loop.index}} = Sphere2::new(center_{{loop.index}}, radius_{{loop.index}});
+        let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
+        {% elif 'AffineSpace' == set_i.__class__.__name__ -%}
+        let constraints_affine_a = vec![{{problem.constraints.matrix_a | join(', ')}}];
+        let constraints_affine_b  = vec![{{problem.constraints.vector_b | join(', ')}}];
+        let set_{{loop.index}} = AffineSpace::new(constraints_affine_a, constraints_affine_b)
         let bounds = bounds.add_constraint(idx_{{loop.index}}, set_{{loop.index}});
         {% elif 'Simplex' == set_i.__class__.__name__ -%}
         let alpha_{{loop.index}} = {{set_i.alpha}};        
