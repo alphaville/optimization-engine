@@ -101,7 +101,7 @@ roots = "0.0.8"
 # Least squares solver (NOTE: ndarray must be version 0.15 - not 0.16)
 # Bug report: https://github.com/argmin-rs/modcholesky/issues/34
 ndarray = { version = "0.15", features = ["approx"] }
-modcholesky = "0.1"
+modcholesky = "0.2"
 
 # jemallocator is an optional feature; it will only be loaded if the feature 
 # `jem` is used (i.e., if we compile with `cargo build --features jem`)
