@@ -9,7 +9,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
 
-## [0.8.1] - Unreleased
+## [0.8.1] - 2024-10-14
 
 ### Changed
 
