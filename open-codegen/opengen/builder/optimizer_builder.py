@@ -860,6 +860,11 @@ class OpEnOptimizerBuilder:
                 self.__build_python_bindings()
 
         if self.__build_config.ros_config is not None:
+            if self.__generate_not_build:
+                self.__logger.fatal(
+                    "Do not use with_ros and with_generate_not_build_flag simultaneously")
+                raise ValueError(
+                    "Unless the optimiser has been built, a ROS package cannot be generated")
             ros_builder = RosBuilder(
                 self.__meta,
                 self.__build_config,

@@ -111,10 +111,7 @@ class RosBuilder:
                 target_ros_dir, 'include', header_file_name))
         original_include_file = os.path.abspath(
             os.path.join(self.__target_dir(), header_file_name))
-        try:
-            shutil.copyfile(original_include_file, target_include_filename)
-        except:
-            pass
+        shutil.copyfile(original_include_file, target_include_filename)
 
         # 2. --- copy library file
         lib_file_name = 'lib' + self.__meta.optimizer_name + '.a'
