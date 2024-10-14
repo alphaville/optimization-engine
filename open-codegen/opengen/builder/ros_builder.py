@@ -34,6 +34,11 @@ class RosBuilder:
     """
 
     def __init__(self, meta, build_config, solver_config):
+        if os.name == 'nt':
+            self.__logger.warning(
+                "You're on Windows; you will not be able to run ROS!")
+            self.__logger.info(
+                "The ROS code will be generated, but without the static library")
         self.__meta = meta
         self.__build_config = build_config
         self.__solver_config = solver_config
@@ -106,7 +111,10 @@ class RosBuilder:
                 target_ros_dir, 'include', header_file_name))
         original_include_file = os.path.abspath(
             os.path.join(self.__target_dir(), header_file_name))
-        shutil.copyfile(original_include_file, target_include_filename)
+        try:
+            shutil.copyfile(original_include_file, target_include_filename)
+        except:
+            pass
 
         # 2. --- copy library file
         lib_file_name = 'lib' + self.__meta.optimizer_name + '.a'
@@ -120,7 +128,27 @@ class RosBuilder:
                 'target',
                 self.__build_config.build_mode,
                 lib_file_name))
-        shutil.copyfile(original_lib_file, target_lib_file_name)
+
+        if not os.path.exists(original_lib_file):
+            # No static library file (most likely, because the user is on Windows)
+            # otherwise an error would have been produced earlier. Windows produces
+            # a DLL file, however it doesn't make sense to move it to the target
+            # directory (extern_lib) because ROS doesn't run on Windows anyway
+            self.__logger.warning(
+                f"File {original_lib_file} not found; proceeding without")
+            if os.name == 'nt':
+                self.__logger.warning(
+                    "File {lib_file_name} not found because you're running on Windows")
+            # Create a LIBRARY_MISSING_README.md file in the target directory
+            warning_file_name = \
+                os.path.abspath(os.path.join(
+                    target_ros_dir, 'extern_lib', 'LIBRARY_MISSING_README.md'))
+            with open(warning_file_name, 'w') as wfh:
+                wfh.write(f"""WARNING!\n\n
+Library file {lib_file_name} is missing. You will need to compile
+on the target device and copy the library file here by yourself.""")
+        else:
+            shutil.copyfile(original_lib_file, target_lib_file_name)
 
         # 3. --- copy msg file OptimizationParameters.msg
         original_params_msg = os.path.abspath(
