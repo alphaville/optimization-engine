@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+
+
+
+## [0.9.1] - 2024-10-14
+
+### Changed
+
+- Handling kill code in TCP server interface to get rid of warning
+
+
 ## [0.9.0] - 2024-08-15
 
 ### Added 
@@ -23,6 +33,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Python direct interface support for ARM-based Macs
 * Updated GitHub Actions to use the macos-latest runner
 * Updated GitHub Actions to use Python3.12 (required for above)
+
 
 ## [0.8.0] - 2024-03-20
 
@@ -202,6 +213,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+
+[0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
 [0.9.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.8.1...opengen-0.9.0
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
