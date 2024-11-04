@@ -812,22 +812,32 @@ class OpEnOptimizerBuilder:
 
     def __casadi_make_static(self):
         """Makes some casadi functions static to avoid clashes (see #362)
+
+        Experimental - it needs to be tested
         """
         self.__logger.info("Making CasADi functions static")
 
         def replace_in_casadi_file(casadi_source_fname, function_names):
-            with fileinput.FileInput(casadi_source_fname, inplace=True, backup='.bak') as file:
-                for line in file:
+            # Read casadi_source_fname, line by line, replace, write to destination
+            with open(casadi_source_fname, 'r') as fin, open(f"{casadi_source_fname}.tmp", 'w') as fout:
+                for line_in in fin:
                     for fnc in function_names:
-                        text_to_search = f"casadi_real {fnc}"
-                        replacement_text = f"static casadi_real {fnc}"
-                        line = line.replace(text_to_search, replacement_text)
-                    print(line, end='')
+                        line_in = line_in.replace(
+                            f"casadi_real {fnc}", f"static casadi_real {fnc}")
+                    fout.write(line_in)
+            shutil.move(f"{casadi_source_fname}.tmp", f"{casadi_source_fname}")
 
         icasadi_extern_dir = os.path.join(
-            self.__icasadi_target_dir(), "extern")
-        replace_in_casadi_file(os.path.join(
-            icasadi_extern_dir, _AUTOGEN_COST_FNAME), ["casadi_sq", "casadi_fmax", "casadi_fmin"])
+            self.__icasadi_target_dir(), "extern")  # casadi extern folder
+        # function to make static
+        fncs_list = ["casadi_sq", "casadi_fmax",
+                     "casadi_fmin", "casadi_hypot", "casadi_sign"]
+        # make static
+        for casadi_fname in [_AUTOGEN_COST_FNAME, _AUTOGEN_ALM_MAPPING_F1_FNAME,
+                             _AUTOGEN_GRAD_FNAME, _AUTOGEN_PNLT_CONSTRAINTS_FNAME,
+                             _AUTOGEN_PRECONDITIONING_FNAME]:
+            replace_in_casadi_file(os.path.join(
+                icasadi_extern_dir, casadi_fname), fncs_list)
 
     def build(self):
         """Generate code and build project
