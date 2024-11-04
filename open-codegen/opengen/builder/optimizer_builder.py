@@ -13,6 +13,7 @@ import jinja2
 import logging
 import pkg_resources
 import sys
+import fileinput
 
 from .ros_builder import RosBuilder
 
@@ -809,6 +810,25 @@ class OpEnOptimizerBuilder:
         }
         return info
 
+    def __casadi_make_static(self):
+        """Makes some casadi functions static to avoid clashes (see #362)
+        """
+        self.__logger.info("Making CasADi functions static")
+
+        def replace_in_casadi_file(casadi_source_fname, function_names):
+            with fileinput.FileInput(casadi_source_fname, inplace=True, backup='.bak') as file:
+                for line in file:
+                    for fnc in function_names:
+                        text_to_search = f"casadi_real {fnc}"
+                        replacement_text = f"static casadi_real {fnc}"
+                        line = line.replace(text_to_search, replacement_text)
+                    print(line, end='')
+
+        icasadi_extern_dir = os.path.join(
+            self.__icasadi_target_dir(), "extern")
+        replace_in_casadi_file(os.path.join(
+            icasadi_extern_dir, _AUTOGEN_COST_FNAME), ["casadi_sq", "casadi_fmax", "casadi_fmin"])
+
     def build(self):
         """Generate code and build project
 
@@ -837,6 +857,7 @@ class OpEnOptimizerBuilder:
         self.__generate_main_project_code()
         self.__generate_build_rs()               # generate build.rs file
         self.__generate_yaml_data_file()         # create YAML file with metadata
+        self.__casadi_make_static()              # make casadi functions static
 
         if not self.__generate_not_build:
             self.__logger.info("Building optimizer")
