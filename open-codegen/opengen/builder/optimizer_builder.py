@@ -1,8 +1,6 @@
 import subprocess
 import shutil
-import datetime
 import yaml
-import warnings
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
@@ -13,7 +11,6 @@ import jinja2
 import logging
 import pkg_resources
 import sys
-import fileinput
 
 from .ros_builder import RosBuilder
 

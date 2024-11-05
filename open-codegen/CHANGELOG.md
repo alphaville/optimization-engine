@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
+## [0.9.2] - 2024-11-05
+
+### Fixed 
+
+- In CasADi-generated C files some functions are made static to avoid clashes when creating multiple solvers
 
 
 ## [0.9.1] - 2024-10-14
@@ -214,6 +219,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
+[0.9.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.1...opengen-0.9.2
 [0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
 [0.9.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.8.1...opengen-0.9.0
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
