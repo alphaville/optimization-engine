@@ -812,26 +812,29 @@ class OpEnOptimizerBuilder:
 
     def __casadi_make_static(self):
         """Makes some casadi functions static to avoid clashes (see #362)
-
-        Experimental - it needs to be tested
         """
         self.__logger.info("Making CasADi functions static")
 
         def replace_in_casadi_file(casadi_source_fname, function_names):
             # Read casadi_source_fname, line by line, replace, write to destination
+            # Open the source file in read mode
+            # Replace and write to a different file (with extension .tmp)
             with open(casadi_source_fname, 'r') as fin, open(f"{casadi_source_fname}.tmp", 'w') as fout:
                 for line_in in fin:
                     for fnc in function_names:
                         line_in = line_in.replace(
                             f"casadi_real {fnc}", f"static casadi_real {fnc}")
                     fout.write(line_in)
+            # Move the .tmp file to replace the original one
             shutil.move(f"{casadi_source_fname}.tmp", f"{casadi_source_fname}")
 
+        # Folder with external CasADi files (auto-generated C code)
         icasadi_extern_dir = os.path.join(
             self.__icasadi_target_dir(), "extern")  # casadi extern folder
-        # function to make static
+        # Function to make static
         fncs_list = ["casadi_sq", "casadi_fmax",
-                     "casadi_fmin", "casadi_hypot", "casadi_sign"]
+                     "casadi_fmin", "casadi_hypot", "casadi_sign",
+                     "casadi_log1p", "casadi_expm1"]
         # make static
         for casadi_fname in [_AUTOGEN_COST_FNAME, _AUTOGEN_ALM_MAPPING_F1_FNAME,
                              _AUTOGEN_GRAD_FNAME, _AUTOGEN_PNLT_CONSTRAINTS_FNAME,
