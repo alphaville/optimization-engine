@@ -4,6 +4,7 @@ import casadi.casadi as cs
 import opengen as og
 import subprocess
 import logging
+import numpy as np
 
 
 class RustBuildTestCase(unittest.TestCase):
@@ -526,6 +527,26 @@ class RustBuildTestCase(unittest.TestCase):
     def test_tcp_manager_remote_port_no_ip(self):
         with self.assertRaises(Exception) as __context:
             _remote_tcp_manager = og.tcp.OptimizerTcpManager(port=8888)
+
+    def test_set_y(self):
+        c = og.constraints.Ball2(radius=1)
+        y_calc = og.builder.SetYCalculator(c)
+        y = y_calc.obtain()
+
+    def test_squared_norm(self):
+        u = np.array([3, 4])
+        y = og.functions.norm2_squared(u)
+        self.assertAlmostEqual(25., y, places=12)
+
+        u = [3, 4]
+        y = og.functions.norm2_squared(u)
+        self.assertAlmostEqual(25., y, places=12)
+
+        u = cs.SX.sym("u", 2)
+        f = og.functions.norm2_squared(u)
+        fun = cs.Function('fun', [u], [f])
+        y = fun([3, 4])
+        self.assertAlmostEqual(25., y, places=12)
 
 
 if __name__ == '__main__':
