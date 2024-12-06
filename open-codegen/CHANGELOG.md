@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
+## [0.9.3] - 2024-12-06
+
+### Changed 
+
+- Email alias in `setup.py`
+
+
 ## [0.9.2] - 2024-11-05
 
 ### Fixed 
@@ -219,6 +226,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
+[0.9.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.2...opengen-0.9.3
 [0.9.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.1...opengen-0.9.2
 [0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
 [0.9.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.8.1...opengen-0.9.0
