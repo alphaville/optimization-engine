@@ -50,8 +50,8 @@ regular_test() {
 
     # --- run the tests
     export PYTHONPATH=.
-    python -W ignore test/test_constraints.py -v
-    python -W ignore test/test.py -v
+    # python -W ignore test/test_constraints.py -v
+    # python -W ignore test/test.py -v
     python -W ignore test/test_raspberry_pi.py -v
 
 

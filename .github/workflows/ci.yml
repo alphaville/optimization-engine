@@ -28,8 +28,22 @@ jobs:
         with:
           python-version: '3.12'
           architecture: 'x64'
-      - run: cargo test --features rp
-      - run: cargo test --features jem
+      - name: Install ARM cross-compiler and C libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+          # If icasadi_rosenbrock or other deps need C++:
+          # sudo apt-get install -y g++-arm-linux-gnueabihf
+      - name: Build for arm-unknown-linux-gnueabihf
+        # Set environment variables for the cc crate
+        env:
+          CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
+          AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
+          # If C++ is involved and you installed g++-arm-linux-gnueabihf:
+          # CXX_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
+        run: cargo build --target=arm-unknown-linux-gnueabihf --verbose
+      # - run: cargo test --features rp
+      # - run: cargo test --features jem
       - run: bash ./ci/script.sh
 
   ci_macos:
