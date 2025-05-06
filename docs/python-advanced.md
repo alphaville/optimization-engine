@@ -125,15 +125,17 @@ To cross-compile for a Raspberry Pi you need to run the following in your termin
 rustup target add arm-unknown-linux-gnueabihf
 ```
 
-On Linux you also need the following dependencies
+You also need to install the following dependencies
 
+<!--DOCUSAURUS_CODE_TABS-->
+
+<!--Linux-->
 ```bash
 sudo apt-get update
 sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
 ```
 
-On MacOS, do the following
-
+<!--MacOS-->
 ```bash
 # Tap the repository that provides the cross-compiler
 brew tap messense/macos-cross-toolchains
@@ -146,8 +148,10 @@ brew install arm-unknown-linux-gnueabihf
 # Verify the compiler is found
 which arm-linux-gnueabihf-gcc || (echo "arm-linux-gnueabihf-gcc not found in PATH" && exit 1)
 ```
+<!--END_DOCUSAURUS_CODE_TABS-->
 </details>
 
+<br>
 If you need to compile for a target other than `arm-linux-gnueabihf-gcc` (`rpi`)
 some manual configuration may be needed (you may need to install the target 
 and/or a compiler/linker) and you may need to edit the auto-generated 
