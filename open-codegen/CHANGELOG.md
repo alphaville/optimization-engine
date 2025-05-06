@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.10.0] - Unreleased
+
+## Changed
+
+- Fix issues with cross compilation (each sub-project has its own `.cargo/config.toml`)
+- Rename auto-generated bindings file from `.cargo/config` to `.cargo/config.toml`
+
 
 ## [0.9.3] - 2024-12-06
 
