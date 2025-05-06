@@ -34,17 +34,17 @@ jobs:
           sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
           # If icasadi_rosenbrock or other deps need C++:
           # sudo apt-get install -y g++-arm-linux-gnueabihf
-      - name: Build for arm-unknown-linux-gnueabihf
+      - name: Run tests
         # Set environment variables for the cc crate
         env:
           CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
           AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
           # If C++ is involved and you installed g++-arm-linux-gnueabihf:
           # CXX_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
-        run: cargo build --target=arm-unknown-linux-gnueabihf --verbose
-      # - run: cargo test --features rp
-      # - run: cargo test --features jem
-      - run: bash ./ci/script.sh
+        run: |
+          # - run: cargo test --features rp
+          # - run: cargo test --features jem
+          bash ./ci/script.sh
 
   ci_macos:
     runs-on: ${{ matrix.os }}
