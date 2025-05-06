@@ -81,6 +81,8 @@ A complete list of solver options is given in the following table
 
 ## Build options
 
+### Build mode
+
 During the design phase, one needs to experiment with the problem
 formulation and solver parameters. This is way the default build
 mode is the "debug" mode, which compiles fast, but it suboptimal.
@@ -172,6 +174,22 @@ on GitHub if you would like us to add support for a particular target (create a 
 request); see the [contributing guidelines](https://alphaville.github.io/optimization-engine/docs/contributing).
 </details>
 
+
+When cross-compiling for a Raspberry Pi you may want to configure a TCP server
+so you can call the optimizer remotely. You can find more information about this 
+[below](#tcpip-interface). 
+Once you have cross-compiled, locate the file
+```text
+{your_optimizer}/tcp_iface_{your_optimizer}/target/arm-unknown-linux-gnueabihf/release/tcp_iface_{your_optimizer}
+```
+—where `{your_optimizer}` is the name of your optimizer—and copy it to your Raspberry Pi.
+On your Raspberry, change the permissions so you can execute this file
+```bash
+chmod u+x ./tcp_iface_{your_optimizer}
+```
+and [run it](#tcpip-interface). Your OpEn server is live. 
+Read also the [documentation](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip) 
+on the TCP sockets protocol of OpEn servers.
 
 ### Other build options
 
