@@ -123,6 +123,8 @@ class OpEnOptimizerBuilder:
 
         if self.__build_config.target_system is not None:
             command.append('--target='+self.__build_config.target_system)
+            if self.__build_config.target_system in ["arm-unknown-linux-gnueabihf", "rpi"]:
+                os.environ['CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABIHF_LINKER'] = 'arm-linux-gnueabihf-gcc'
 
         return command
 
@@ -571,7 +573,7 @@ class OpEnOptimizerBuilder:
     def __build_optimizer(self):
         target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
-        p = subprocess.Popen(command, cwd=target_dir)
+        p = subprocess.Popen(command, cwd=target_dir, shell=False)
         process_completion = p.wait()
         if process_completion != 0:
             raise Exception('Rust build failed')
@@ -682,7 +684,7 @@ class OpEnOptimizerBuilder:
         cargo_config_file = os.path.join(
             og_dfn.templates_dir(), 'python', 'cargo_config')
         shutil.copy(cargo_config_file, os.path.join(
-            target_cargo_config_dir, 'config'))
+            target_cargo_config_dir, 'config.toml'))
 
     def __generate_code_tcp_interface(self):
         self.__logger.info(
