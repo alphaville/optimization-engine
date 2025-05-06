@@ -7,13 +7,13 @@
     <link rel="alternate" href="https://alphaville.github.io/optimization-engine/blog"/>
     <subtitle>The best place to stay up-to-date with the latest OpEn news and events.</subtitle>
     <logo>https://alphaville.github.io/optimization-engine/img/box.png</logo>
-    <rights>Copyright © 2024 Pantelis Sopasakis and Emil Fresk</rights>
+    <rights>Copyright © 2025 Pantelis Sopasakis and Emil Fresk</rights>
     <entry>
         <title type="html"><![CDATA[Autonomous Racing of Scale Vehicles at SMC22]]></title>
         <id>https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog.html"/>
         <updated>2022-07-30T06:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/f1-10-main-car_orig.png" alt="Autonomous Racing of Scale Vehicles"></p> <p>Our paper titled &quot;A Nonlinear Model Predictive Control Strategy for Autonomous Racing of Scale Vehicles&quot; (authors: V. Cataffo, G. Silano, L. Iannelli, V. Puig and G. Glielmo) has been accepted for publication in IEEE International Conferen...</p>]]></summary>
+        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/f1-10-main-car_orig.png" alt="Autonomous Racing of Scale Vehicles"></p> <p>Our paper titled "A Nonlinear Model Predictive Control Strategy for Autonomous Racing of Scale Vehicles" (authors: V. Cataffo, G. Silano, L. Iannelli, V. Puig and G. Glielmo) has been accepted for publication in IEEE International Conference on Syst...</p>]]></summary>
         <author>
             <name>Giuseppe Silano</name>
             <uri>https://giuseppesilano.net</uri>
@@ -92,7 +92,7 @@
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse.html"/>
         <updated>2019-03-03T06:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>Our paper titled &quot;Risk-averse risk-constrained optimal control,&quot; (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p> <p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse"><code>marie...</code></a></p>]]></summary>
+        <summary type="html"><![CDATA[<p>Our paper titled "Risk-averse risk-constrained optimal control," (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p> <p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse"><code>marietta</code></a> which ...</p>]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
@@ -103,7 +103,7 @@
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs.html"/>
         <updated>2019-03-02T06:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p><a href="https://kul-forbes.github.io/scs/">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p> <p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p> <p>The paper titled &quot;SuperSCS: fast and accurate large-scale con...</p>]]></summary>
+        <summary type="html"><![CDATA[<p><a href="https://kul-forbes.github.io/scs/">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p> <p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p> <p>The paper titled "SuperSCS: fast and accurate large-scale conic op...</p>]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
@@ -114,7 +114,7 @@
         <id>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html</id>
         <link href="https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog.html"/>
         <updated>2019-03-01T06:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/mav.png" alt="Micro aerial vehicle"></p> <p>Our paper titled &quot;Aerial navigation in obstructed environments with embedded nonlinear model predictive control&quot; (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European C...</p>]]></summary>
+        <summary type="html"><![CDATA[<p><img src="/optimization-engine/img/mav.png" alt="Micro aerial vehicle"></p> <p>Our paper titled "Aerial navigation in obstructed environments with embedded nonlinear model predictive control" (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European Control Con...</p>]]></summary>
         <author>
             <name>Pantelis Sopasakis</name>
             <uri>http://twitter.com/isToxic</uri>
