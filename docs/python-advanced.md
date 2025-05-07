@@ -187,7 +187,7 @@ On your Raspberry, change the permissions so you can execute this file
 ```bash
 chmod u+x ./tcp_iface_{your_optimizer}
 ```
-and [run it](#tcpip-interface). Your OpEn server is live. 
+and [run it](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip). Your OpEn server is live. 
 Read also the [documentation](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip) 
 on the TCP sockets protocol of OpEn servers.
 

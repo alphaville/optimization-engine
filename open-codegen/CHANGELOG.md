@@ -17,6 +17,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Changed
 
 - Rename auto-generated bindings file from `.cargo/config` to `.cargo/config.toml` (backwards compatible change)
+- Updated min cmake version from 2.8 to 3.5
+- Updated auto-generated example C/C++ bindings
 
 
 ## [0.9.3] - 2024-12-06
