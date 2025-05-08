@@ -239,7 +239,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
-[0.10.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.3...opengen-0.10.0
+[0.10.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.3...opengen-0.9.4
 [0.9.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.2...opengen-0.9.3
 [0.9.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.1...opengen-0.9.2
 [0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
