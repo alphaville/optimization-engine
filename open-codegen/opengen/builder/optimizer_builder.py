@@ -160,8 +160,6 @@ class OpEnOptimizerBuilder:
         """Creates folder structure
 
         Creates necessary folders
-        Runs `cargo init` in that folder
-
         """
         self.__logger.info("Creating necessary folders")
 
@@ -173,6 +171,13 @@ class OpEnOptimizerBuilder:
             os.makedirs(target_dir)
         else:
             make_dir_if_not_exists(target_dir)
+        
+        # make folder {root}/.cargo
+        dot_cargo_dir = os.path.join(target_dir, ".cargo")
+        make_dir_if_not_exists(dot_cargo_dir)
+        # copy cargo_config.toml into .cargo/config.toml
+        cargo_config_file = os.path.join(og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(dot_cargo_dir, 'config.toml'))
 
     def __copy_icasadi_to_target(self):
         """
@@ -181,13 +186,21 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self.__icasadi_target_dir()
-        if not os.path.exists(target_icasadi_dir):
-            os.makedirs(target_icasadi_dir)
-        shutil.rmtree(target_icasadi_dir)
+        target_icasadi_cargo_config_dir = os.path.join(target_icasadi_dir, ".cargo")
+        
+        if os.path.exists(target_icasadi_dir):
+            shutil.rmtree(target_icasadi_dir)
+        
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
+        
+        # Copy cargo_config.toml into .cargo/config.toml
+        make_dir_if_not_exists(target_icasadi_cargo_config_dir)
+        cargo_config_file = os.path.join(og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(
+            target_icasadi_cargo_config_dir, 'config.toml'))
 
     def __generate_icasadi_cargo_toml(self):
         """
@@ -571,7 +584,7 @@ class OpEnOptimizerBuilder:
     def __build_optimizer(self):
         target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
-        p = subprocess.Popen(command, cwd=target_dir)
+        p = subprocess.Popen(command, cwd=target_dir, shell=False)
         process_completion = p.wait()
         if process_completion != 0:
             raise Exception('Rust build failed')
@@ -676,13 +689,13 @@ class OpEnOptimizerBuilder:
         with open(target_python_rs_path, "w") as fh:
             fh.write(python_rs_output_template)
 
-        # move cargo_config into .cargo/config
+        # copy cargo_config into .cargo/config
         target_cargo_config_dir = os.path.join(python_bindings_dir, '.cargo')
         make_dir_if_not_exists(target_cargo_config_dir)
         cargo_config_file = os.path.join(
-            og_dfn.templates_dir(), 'python', 'cargo_config')
+            og_dfn.templates_dir(), 'cargo_config.toml')
         shutil.copy(cargo_config_file, os.path.join(
-            target_cargo_config_dir, 'config'))
+            target_cargo_config_dir, 'config.toml'))
 
     def __generate_code_tcp_interface(self):
         self.__logger.info(
@@ -694,10 +707,12 @@ class OpEnOptimizerBuilder:
         tcp_iface_dir_name = _TCP_IFACE_PREFIX + self.__meta.optimizer_name
         tcp_iface_dir = os.path.join(target_dir, tcp_iface_dir_name)
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
+        tcp_iface_cargo_config_dir = os.path.join(tcp_iface_dir, ".cargo")
 
         # make tcp_iface/ and tcp_iface/src
         make_dir_if_not_exists(tcp_iface_dir)
         make_dir_if_not_exists(tcp_iface_source_dir)
+        make_dir_if_not_exists(tcp_iface_cargo_config_dir)
 
         # generate tcp_server.rs for tcp_iface
         tcp_rs_template = OpEnOptimizerBuilder.__get_template(
@@ -718,6 +733,12 @@ class OpEnOptimizerBuilder:
         target_tcp_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
+        
+        # Copy cargo_config.toml into .cargo/config.toml
+        cargo_config_file = os.path.join(
+            og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(
+            tcp_iface_cargo_config_dir, 'config.toml'))
 
     def __generate_yaml_data_file(self):
         self.__logger.info("Generating YAML configuration file")
@@ -850,7 +871,7 @@ class OpEnOptimizerBuilder:
         """
         self.__initialize()                      # initialize default value (if not provided)
         self.__check_user_provided_parameters()  # check the provided parameters
-        self.__prepare_target_project()          # create folders; init cargo project
+        self.__prepare_target_project()          # create folders
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_icasadi_cargo_toml()     # generate icasadi's Cargo.toml file
         self.__generate_cargo_toml()             # generate Cargo.toml using template

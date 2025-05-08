@@ -81,6 +81,8 @@ A complete list of solver options is given in the following table
 
 ## Build options
 
+### Build mode
+
 During the design phase, one needs to experiment with the problem
 formulation and solver parameters. This is way the default build
 mode is the "debug" mode, which compiles fast, but it suboptimal.
@@ -99,8 +101,10 @@ build_config.with_build_mode(
     og.config.BuildConfiguration.RELEASE_MODE)
 ```
 
+### Cross-compilation 
+
 You can either compile for your own system, or cross-compile for a 
-different target system. For example, to cross-compile for a Raspberry Pi,
+different target system. For example, to cross-compile for a **Raspberry Pi**,
 set the following option
 
 ```python
@@ -113,8 +117,83 @@ or
 build_config.with_target_system("rpi")  # Raspberry Pi
 ```
 
-Note that you need to install the necessary target first.
+Note that you need to install the necessary target first. 
 
+<details>
+<summary><b>See setup details</b></summary>
+To cross-compile for a Raspberry Pi you need to run the following in your terminal
+
+```bash
+rustup target add arm-unknown-linux-gnueabihf
+```
+
+You also need to install the following dependencies
+
+<!--DOCUSAURUS_CODE_TABS-->
+
+<!--Linux-->
+```bash
+sudo apt-get update
+sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+```
+
+<!--MacOS-->
+```bash
+# Tap the repository that provides the cross-compiler
+brew tap messense/macos-cross-toolchains
+# Update brew to ensure the tap is recognized (can sometimes be needed)
+brew update 
+# Install the full toolchain (includes gcc, binutils, sysroot)
+# This specific formula provides the entire toolchain.
+brew install arm-unknown-linux-gnueabihf 
+
+# Verify the compiler is found
+which arm-linux-gnueabihf-gcc || (echo "arm-linux-gnueabihf-gcc not found in PATH" && exit 1)
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+</details>
+
+<br>
+If you need to compile for a target other than `arm-linux-gnueabihf-gcc` (`rpi`)
+some manual configuration may be needed (you may need to install the target 
+and/or a compiler/linker) and you may need to edit the auto-generated 
+`.cargo/config.toml` files you will find in your auto-generated solvers. 
+
+<details>
+<summary><b>Non-supported targets</b></summary>
+The auto-generated `.cargo/config.toml` files contain entries like
+
+```toml
+[target.arm-unknown-linux-gnueabihf]
+linker="arm-linux-gnueabihf-gcc"
+```
+
+Here you may have to insert manually your own target. 
+Feel free to open an [issue](https://github.com/alphaville/optimization-engine/issues) 
+on GitHub if you would like us to add support for a particular target (create a feature
+request); see the [contributing guidelines](https://alphaville.github.io/optimization-engine/docs/contributing).
+</details>
+
+
+When cross-compiling for a Raspberry Pi you may want to configure a TCP server
+so you can call the optimizer remotely. You can find more information about this 
+[below](#tcpip-interface). 
+Once you have cross-compiled, locate the file
+```text
+{your_optimizer}/tcp_iface_{your_optimizer}/target/arm-unknown-linux-gnueabihf/release/tcp_iface_{your_optimizer}
+```
+—where `{your_optimizer}` is the name of your optimizer—and copy it to your Raspberry Pi.
+On your Raspberry, change the permissions so you can execute this file
+```bash
+chmod u+x ./tcp_iface_{your_optimizer}
+```
+and [run it](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip). Your OpEn server is live. 
+Read also the [documentation](https://alphaville.github.io/optimization-engine/docs/python-tcp-ip) 
+on the TCP sockets protocol of OpEn servers.
+
+### Other build options
+
+All build options are shown below
 
 | Method                        | Explanation                                 |
 |-------------------------------|---------------------------------------------|

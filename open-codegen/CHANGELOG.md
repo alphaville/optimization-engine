@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.9.4] - 2025-05-08
+
+
+### Fixed 
+
+- Fixed issues with cross compilation (each sub-project has its own `.cargo/config.toml`) and updated [documentation](https://alphaville.github.io/optimization-engine/docs/python-advanced#cross-compilation)
+
+### Changed
+
+- Rename auto-generated bindings file from `.cargo/config` to `.cargo/config.toml` (backwards compatible change)
+- Updated min cmake version from 2.8 to 3.5
+- Updated auto-generated example C/C++ bindings
+
 
 ## [0.9.3] - 2024-12-06
 
@@ -226,6 +239,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
+[0.9.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.3...opengen-0.9.4
 [0.9.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.2...opengen-0.9.3
 [0.9.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.1...opengen-0.9.2
 [0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
