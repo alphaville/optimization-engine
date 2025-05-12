@@ -315,6 +315,8 @@ class ConstraintsTestCase(unittest.TestCase):
         _sqd_sx = cartesian.distance_squared(u_sx)
         u_mx = cs.SX.sym("u", 9, 1)
         _sqd_mx = cartesian.distance_squared(u_mx)
+        self.assertEqual(2, cartesian.segment_dimension(0))
+        self.assertEqual(3, cartesian.segment_dimension(1))
 
     def test_cartesian_segments_not_increasing(self):
         no_constraints = og.constraints.NoConstraints()
@@ -342,6 +344,24 @@ class ConstraintsTestCase(unittest.TestCase):
         sets = [no_constraints, no_constraints]
         with self.assertRaises(ValueError) as __context:
             og.constraints.CartesianProduct([], sets)
+
+    def test_cartesian_convex(self):
+        ball_inf = og.constraints.BallInf(None, 1)
+        ball_eucl = og.constraints.Ball2(None, 1)
+        cartesian = og.constraints.CartesianProduct(
+            [5, 10], [ball_inf, ball_eucl])
+        self.assertTrue(cartesian.is_convex())
+        self.assertTrue(cartesian.is_compact())
+
+        finite_set = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
+        cartesian = og.constraints.CartesianProduct(
+            [5, 10, 13], [ball_inf, ball_eucl, finite_set])
+        self.assertFalse(cartesian.is_convex())
+
+        free = og.constraints.NoConstraints()
+        cartesian = og.constraints.CartesianProduct(
+            [5, 10, 11], [ball_inf, ball_eucl, free])
+        self.assertFalse(cartesian.is_compact())
 
     # -----------------------------------------------------------------------
     # Finite Set
@@ -374,6 +394,10 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_finite_set_compact(self):
         c = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
         self.assertTrue(c.is_compact())
+
+    def test_finite_set_dimension(self):
+        c = og.constraints.FiniteSet([[1, 2, 3], [4, 5, 6]])
+        self.assertEqual(3, c.dimension())
 
     # -----------------------------------------------------------------------
     # Halfspaces
@@ -512,6 +536,12 @@ class ConstraintsTestCase(unittest.TestCase):
         fun = cs.Function('fun', [u], [dist])
         z = fun([1, 1, 0, 0])
         self.assertAlmostEqual(0.835786437626905, z, places=12)
+
+    def test_sphere2_no_center(self):
+        sphere = og.constraints.Sphere2(radius=0.5)
+        u = [0, 0, 0, 0]
+        dist = sphere.distance_squared(u)
+        self.assertAlmostEqual(0.25, dist, places=12)
 
 
 if __name__ == '__main__':
