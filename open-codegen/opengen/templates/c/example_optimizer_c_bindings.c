@@ -3,11 +3,20 @@
  *
  * Compile with:
  *
- * gcc -Wall -std=c99 -pedantic \
+ * $ gcc -Wall -std=c99 -pedantic \
     example_optimizer.c -l:lib{{meta.optimizer_name}}.a \
     -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
     -o optimizer
  *
+ * OR ... 
+ * 
+ * $ gcc -Wall -std=c99 -pedantic \
+    example_optimizer.c -l{{meta.optimizer_name}} \
+    -L./target/{{build_config.build_mode}} -pthread -lm -ldl \
+    -o optimizer
+ *
+ * Or simply do: 
+ *  cmake .; make run
  */
 
 #include <stdio.h>
@@ -17,7 +26,7 @@
  * Feel free to customize the following code...
  */
 
-int main() {
+int main(void) {
     int i;
 
     /* parameters             */

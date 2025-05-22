@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.9.4] - 2025-05-08
+
+
+### Fixed 
+
+- Fixed issues with cross compilation (each sub-project has its own `.cargo/config.toml`) and updated [documentation](https://alphaville.github.io/optimization-engine/docs/python-advanced#cross-compilation)
+
+### Changed
+
+- Rename auto-generated bindings file from `.cargo/config` to `.cargo/config.toml` (backwards compatible change)
+- Updated min cmake version from 2.8 to 3.5
+- Updated auto-generated example C/C++ bindings
+
+
+## [0.9.3] - 2024-12-06
+
+### Changed 
+
+- Email alias in `setup.py`
+
+
+## [0.9.2] - 2024-11-05
+
+### Fixed 
+
+- In CasADi-generated C files some functions are made static to avoid clashes when creating multiple solvers
+
+
+## [0.9.1] - 2024-10-14
+
+### Changed
+
+- Handling kill code in TCP server interface to get rid of warning
+
+
 ## [0.9.0] - 2024-08-15
 
 ### Added 
@@ -23,6 +58,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Python direct interface support for ARM-based Macs
 * Updated GitHub Actions to use the macos-latest runner
 * Updated GitHub Actions to use Python3.12 (required for above)
+
 
 ## [0.8.0] - 2024-03-20
 
@@ -202,6 +238,11 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Project-specific `tcp_iface` TCP interface
 * Fixed `lbfgs` typo
 
+
+[0.9.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.3...opengen-0.9.4
+[0.9.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.2...opengen-0.9.3
+[0.9.2]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.1...opengen-0.9.2
+[0.9.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.0...opengen-0.9.1
 [0.9.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.8.1...opengen-0.9.0
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1
 [0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...opengen-0.8.1

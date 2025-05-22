@@ -227,8 +227,8 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
                                       &mut p,
                                       &mut stream);
                 }
-                ClientRequest::Kill(_) => {
-                    info!("Quitting on request");
+                ClientRequest::Kill(kill_code) => {
+                    info!("Quitting on request (kill code: {})", kill_code);
                     break;
                 }
                 ClientRequest::Ping(ping_code) => {
