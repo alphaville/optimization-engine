@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
+## [0.9.5] - Unreleased
+
+### Changed 
+
+- Additional unit tests: increased coverage to 92%
+
 ## [0.9.4] - 2025-05-08
 
 
