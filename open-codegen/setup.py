@@ -29,13 +29,13 @@ setup(name=NAME,
       long_description=long_description,
       long_description_content_type='text/markdown',
       author=['Pantelis Sopasakis', 'Emil Fresk'],
-      author_email='p.sopasakis@gmail.com',
+      author_email='xzu.trustful191@passinbox.com',
       license='MIT License',
       packages=find_packages(
           exclude=["icasadi", "templates"]),
       include_package_data=True,
       install_requires=[
-          'jinja2', 'casadi', 'pyyaml', 'retry', 'numpy'
+          'jinja2', 'casadi', 'pyyaml', 'retry', 'numpy', 'setuptools'
       ],
       classifiers=[
           'Development Status :: 4 - Beta',

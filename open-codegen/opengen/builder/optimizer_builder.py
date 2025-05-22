@@ -1,8 +1,6 @@
 import subprocess
 import shutil
-import datetime
 import yaml
-import warnings
 
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
@@ -25,6 +23,11 @@ _PYTHON_BINDINGS_PREFIX = 'python_bindings_'
 _TCP_IFACE_PREFIX = 'tcp_iface_'
 _ICASADI_PREFIX = 'icasadi_'
 _ROS_PREFIX = 'ros_node_'
+
+# Template files
+_OPTIMIZER_RS = "optimizer.rs.jinja"
+_OPTIMIZER_CARGO_TOML = "optimizer_cargo.toml.jinja"
+_OPTIMIZER_BUILD_RS = "optimizer_build.rs.jinja"
 
 
 def make_dir_if_not_exists(directory):
@@ -157,8 +160,6 @@ class OpEnOptimizerBuilder:
         """Creates folder structure
 
         Creates necessary folders
-        Runs `cargo init` in that folder
-
         """
         self.__logger.info("Creating necessary folders")
 
@@ -170,6 +171,13 @@ class OpEnOptimizerBuilder:
             os.makedirs(target_dir)
         else:
             make_dir_if_not_exists(target_dir)
+        
+        # make folder {root}/.cargo
+        dot_cargo_dir = os.path.join(target_dir, ".cargo")
+        make_dir_if_not_exists(dot_cargo_dir)
+        # copy cargo_config.toml into .cargo/config.toml
+        cargo_config_file = os.path.join(og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(dot_cargo_dir, 'config.toml'))
 
     def __copy_icasadi_to_target(self):
         """
@@ -178,13 +186,21 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Copying icasadi interface to target directory")
         origin_icasadi_dir = og_dfn.original_icasadi_dir()
         target_icasadi_dir = self.__icasadi_target_dir()
-        if not os.path.exists(target_icasadi_dir):
-            os.makedirs(target_icasadi_dir)
-        shutil.rmtree(target_icasadi_dir)
+        target_icasadi_cargo_config_dir = os.path.join(target_icasadi_dir, ".cargo")
+        
+        if os.path.exists(target_icasadi_dir):
+            shutil.rmtree(target_icasadi_dir)
+        
         shutil.copytree(origin_icasadi_dir,
                         target_icasadi_dir,
                         ignore=shutil.ignore_patterns(
                             '*.lock', 'ci*', 'target', 'auto*'))
+        
+        # Copy cargo_config.toml into .cargo/config.toml
+        make_dir_if_not_exists(target_icasadi_cargo_config_dir)
+        cargo_config_file = os.path.join(og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(
+            target_icasadi_cargo_config_dir, 'config.toml'))
 
     def __generate_icasadi_cargo_toml(self):
         """
@@ -243,7 +259,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating Cargo.toml for target optimizer")
         target_dir = self.__target_dir()
         cargo_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer_cargo.toml')
+            _OPTIMIZER_CARGO_TOML)
         cargo_output_template = cargo_template.render(
             meta=self.__meta,
             build_config=self.__build_config,
@@ -540,7 +556,7 @@ class OpEnOptimizerBuilder:
             "Generating main code for target optimizer (lib.rs)")
         target_dir = self.__target_dir()
         optimizer_rs_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer.rs')
+            _OPTIMIZER_RS)
         optimizer_rs_output_template = optimizer_rs_template.render(
             solver_config=self.__solver_config,
             meta=self.__meta,
@@ -557,7 +573,7 @@ class OpEnOptimizerBuilder:
         self.__logger.info("Generating build.rs for target optimizer")
         target_dir = self.__target_dir()
         build_rs_template = OpEnOptimizerBuilder.__get_template(
-            'optimizer_build.rs')
+            _OPTIMIZER_BUILD_RS)
         build_rs_output_template = build_rs_template.render(
             meta=self.__meta,
             activate_clib_generation=self.__build_config.build_c_bindings)
@@ -568,7 +584,7 @@ class OpEnOptimizerBuilder:
     def __build_optimizer(self):
         target_dir = os.path.abspath(self.__target_dir())
         command = self.__make_build_command()
-        p = subprocess.Popen(command, cwd=target_dir)
+        p = subprocess.Popen(command, cwd=target_dir, shell=False)
         process_completion = p.wait()
         if process_completion != 0:
             raise Exception('Rust build failed')
@@ -673,13 +689,13 @@ class OpEnOptimizerBuilder:
         with open(target_python_rs_path, "w") as fh:
             fh.write(python_rs_output_template)
 
-        # move cargo_config into .cargo/config
+        # copy cargo_config into .cargo/config
         target_cargo_config_dir = os.path.join(python_bindings_dir, '.cargo')
         make_dir_if_not_exists(target_cargo_config_dir)
         cargo_config_file = os.path.join(
-            og_dfn.templates_dir(), 'python', 'cargo_config')
+            og_dfn.templates_dir(), 'cargo_config.toml')
         shutil.copy(cargo_config_file, os.path.join(
-            target_cargo_config_dir, 'config'))
+            target_cargo_config_dir, 'config.toml'))
 
     def __generate_code_tcp_interface(self):
         self.__logger.info(
@@ -691,10 +707,12 @@ class OpEnOptimizerBuilder:
         tcp_iface_dir_name = _TCP_IFACE_PREFIX + self.__meta.optimizer_name
         tcp_iface_dir = os.path.join(target_dir, tcp_iface_dir_name)
         tcp_iface_source_dir = os.path.join(tcp_iface_dir, "src")
+        tcp_iface_cargo_config_dir = os.path.join(tcp_iface_dir, ".cargo")
 
         # make tcp_iface/ and tcp_iface/src
         make_dir_if_not_exists(tcp_iface_dir)
         make_dir_if_not_exists(tcp_iface_source_dir)
+        make_dir_if_not_exists(tcp_iface_cargo_config_dir)
 
         # generate tcp_server.rs for tcp_iface
         tcp_rs_template = OpEnOptimizerBuilder.__get_template(
@@ -715,6 +733,12 @@ class OpEnOptimizerBuilder:
         target_tcp_rs_path = os.path.join(tcp_iface_dir, "Cargo.toml")
         with open(target_tcp_rs_path, "w") as fh:
             fh.write(tcp_rs_output_template)
+        
+        # Copy cargo_config.toml into .cargo/config.toml
+        cargo_config_file = os.path.join(
+            og_dfn.templates_dir(), 'cargo_config.toml')
+        shutil.copy(cargo_config_file, os.path.join(
+            tcp_iface_cargo_config_dir, 'config.toml'))
 
     def __generate_yaml_data_file(self):
         self.__logger.info("Generating YAML configuration file")
@@ -804,6 +828,38 @@ class OpEnOptimizerBuilder:
         }
         return info
 
+    def __casadi_make_static(self):
+        """Makes some casadi functions static to avoid clashes (see #362)
+        """
+        self.__logger.info("Making CasADi functions static")
+
+        def replace_in_casadi_file(casadi_source_fname, function_names):
+            # Read casadi_source_fname, line by line, replace, write to destination
+            # Open the source file in read mode
+            # Replace and write to a different file (with extension .tmp)
+            with open(casadi_source_fname, 'r') as fin, open(f"{casadi_source_fname}.tmp", 'w') as fout:
+                for line_in in fin:
+                    for fnc in function_names:
+                        line_in = line_in.replace(
+                            f"casadi_real {fnc}", f"static casadi_real {fnc}")
+                    fout.write(line_in)
+            # Move the .tmp file to replace the original one
+            shutil.move(f"{casadi_source_fname}.tmp", f"{casadi_source_fname}")
+
+        # Folder with external CasADi files (auto-generated C code)
+        icasadi_extern_dir = os.path.join(
+            self.__icasadi_target_dir(), "extern")  # casadi extern folder
+        # Function to make static
+        fncs_list = ["casadi_sq", "casadi_fmax",
+                     "casadi_fmin", "casadi_hypot", "casadi_sign",
+                     "casadi_log1p", "casadi_expm1"]
+        # make static
+        for casadi_fname in [_AUTOGEN_COST_FNAME, _AUTOGEN_ALM_MAPPING_F1_FNAME,
+                             _AUTOGEN_GRAD_FNAME, _AUTOGEN_PNLT_CONSTRAINTS_FNAME,
+                             _AUTOGEN_PRECONDITIONING_FNAME]:
+            replace_in_casadi_file(os.path.join(
+                icasadi_extern_dir, casadi_fname), fncs_list)
+
     def build(self):
         """Generate code and build project
 
@@ -815,7 +871,7 @@ class OpEnOptimizerBuilder:
         """
         self.__initialize()                      # initialize default value (if not provided)
         self.__check_user_provided_parameters()  # check the provided parameters
-        self.__prepare_target_project()          # create folders; init cargo project
+        self.__prepare_target_project()          # create folders
         self.__copy_icasadi_to_target()          # copy icasadi/ files to target dir
         self.__generate_icasadi_cargo_toml()     # generate icasadi's Cargo.toml file
         self.__generate_cargo_toml()             # generate Cargo.toml using template
@@ -832,6 +888,7 @@ class OpEnOptimizerBuilder:
         self.__generate_main_project_code()
         self.__generate_build_rs()               # generate build.rs file
         self.__generate_yaml_data_file()         # create YAML file with metadata
+        self.__casadi_make_static()              # make casadi functions static
 
         if not self.__generate_not_build:
             self.__logger.info("Building optimizer")

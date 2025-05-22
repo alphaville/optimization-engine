@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-latest]
+        os: [ubuntu-latest]
     env:
       DO_DOCKER: 0
     steps:
@@ -24,19 +24,35 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.12'
           architecture: 'x64'
-      - run: cargo test --features rp
-      - run: cargo test --features jem
-      - run: bash ./ci/script.sh
+      - name: Install ARM cross-compiler and C libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+          # If icasadi_rosenbrock or other deps need C++:
+          # sudo apt-get install -y g++-arm-linux-gnueabihf
+      - name: Cargo tests (RP and JEM)
+        run: |
+          cargo test --features rp
+          cargo test --features jem
+      - name: Run tests (script.sh)
+        # Set environment variables for the cc crate
+        env:
+          CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
+          AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
+          # If C++ is involved and you installed g++-arm-linux-gnueabihf:
+          # CXX_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
+        run: |          
+          bash ./ci/script.sh
 
   ci_macos:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-11]
+        os: [macos-latest]
     env:
       DO_DOCKER: 0
     steps:
@@ -50,10 +66,35 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
-          architecture: 'x64'
+          python-version: '3.12'
       - run: cargo test --features rp
       - run: cargo test --features jem
-      - run: bash ./ci/script.sh
+      - name: Install ARM cross-compiler toolchain (via Homebrew)
+        run: |
+          # Tap the repository that provides the cross-compiler
+          brew tap messense/macos-cross-toolchains
+          # Update brew to ensure the tap is recognized (can sometimes be needed)
+          brew update 
+          # Install the full toolchain (includes gcc, binutils, sysroot)
+          # This specific formula provides the entire toolchain.
+          brew install arm-unknown-linux-gnueabihf 
+          
+          # The above `brew install` might have linking conflicts if other partial
+          # toolchains were somehow pre-installed or installed by other steps.
+          # If it fails with link errors, you might need:
+          # brew link --overwrite arm-unknown-linux-gnueabihf
+
+          # Verify the compiler is found
+          which arm-linux-gnueabihf-gcc || (echo "arm-linux-gnueabihf-gcc not found in PATH" && exit 1)
+      - name: Run tests (script.sh)
+        # Set environment variables for the cc crate and PyO3 (if needed)
+        env:
+          CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
+          AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
+          # If you are building PyO3 bindings and need to specify Python libs from the sysroot:
+          # PYO3_CROSS_LIB_DIR: "/opt/homebrew/opt/arm-unknown-linux-gnueabihf/arm-unknown-linux-gnueabihf/sysroot/usr/lib" # Adjust path and Python version
+          # PYO3_CROSS_INCLUDE_DIR: "/opt/homebrew/opt/arm-unknown-linux-gnueabihf/arm-unknown-linux-gnueabihf/sysroot/usr/include/python3.x" # Adjust path and Python version
+        run: |
+          bash ./ci/script.sh

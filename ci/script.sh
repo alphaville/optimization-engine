@@ -33,7 +33,7 @@ regular_test() {
     pip install virtualenv
 
     # --- create virtualenv
-    virtualenv -p python3.8 venv
+    virtualenv -p python3.12 venv
 
     # --- activate venv
     source venv/bin/activate
@@ -44,10 +44,15 @@ regular_test() {
     # --- install opengen
     pip install .
 
+    # --- rust dependencies
+    rustup update
+    rustup target add arm-unknown-linux-gnueabihf
+
     # --- run the tests
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
+    python -W ignore test/test_raspberry_pi.py -v
 
 
     # Run Clippy for generated optimizers
