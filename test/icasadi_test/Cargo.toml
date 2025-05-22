@@ -7,15 +7,18 @@ description = "Rust interface to CasADi functions (for testing purposes only)"
 documentation = "https://docs.rs/icasadi"
 license = "MIT"
 readme = "README.md"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2018"
 
+# NOTE: It is preferable to link to specific versions of the dependencies
+# in order to avoid breaking changes. All dependencies below are supposed to
+# be SemVer compatible, but it is better to be safe than sorry.
 [dependencies]
-libc = { version = "0.2.0", default-features = false }
+libc = { version = "0.2.172", default-features = false }
 
 [build-dependencies]
-cc = "1.0"
-bindgen = "0.49.0"
+cc = "1.2.23"
+bindgen = "0.71.1"
 
 [profile.dev]
 opt-level = 0
