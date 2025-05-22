@@ -11,7 +11,11 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       Unreleased
      --------------------- -->
+## [v0.9.2] - Unreleased
 
+### Changed
+
+- Update version of `rand`, `ndarray`, and `modcholesky` in `Cargo.toml`
 
 <!-- ---------------------
       v0.9.0
