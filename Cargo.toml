@@ -80,7 +80,7 @@ rustdoc-args = ["--html-in-header", "katex-header.html"]
 num = "0.4.3"
 
 # Our own stuff - L-BFGS: limited-memory BFGS directions
-lbfgs = "0.2.2"
+lbfgs = "0.3.0-alpha.1"
 
 # Instant is a generic timer that works on Wasm (with wasm-bindgen)
 instant = { version = "0.1.13" }
