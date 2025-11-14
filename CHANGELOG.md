@@ -9,14 +9,14 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      Unreleased
+      v0.9.2
      --------------------- -->
-## [v0.9.2] - 2025-05-22
+## [v0.9.2] - 2025-11-17
 
 ### Changed
 
-- Update version of `rand`, `ndarray`, and `modcholesky` in `Cargo.toml`
-- Update also version of `icasadi_test` (new release today)
+- Update version of `lbfgs`, `rand`, `ndarray`, and `modcholesky` in `Cargo.toml`
+- Update also version of `icasadi_test` (new release)
 - Version numbers of all dependencies specify build number
 
 <!-- ---------------------
