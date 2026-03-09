@@ -5,6 +5,7 @@ extern crate ndarray;
 
 use modcholesky::ModCholeskySE99;
 use ndarray::{Array1, Array2, ArrayBase, Dim, OwnedRepr};
+use ndarray_linalg::{Cholesky, UPLO};
 
 type OpenMat<T> = ArrayBase<OwnedRepr<T>, Dim<[usize; 2]>>;
 type OpenVec<T> = ArrayBase<OwnedRepr<T>, Dim<[usize; 1]>>;
