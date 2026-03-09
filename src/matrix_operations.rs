@@ -291,4 +291,20 @@ mod tests {
         let norm2sq = matrix_operations::norm2_squared_diff(&x, &y);
         unit_test_utils::assert_nearly_equal(190., norm2sq, 1e-10, 1e-12, "norm sq diff");
     }
+
+    #[test]
+    fn t_matmul_a_at() {
+        let a = vec![
+            1.0_f64, 2.0,
+            3.0,     4.0,
+            5.0,     6.0,
+        ];
+        let aat = matrix_operations::mul_a_at(&a, 3, 2).unwrap();
+        let expected = vec![
+            5.0_f64,    11.,    17.,
+            11.,    25.,    39.,
+            17.,    39.,    61.,
+        ];
+        unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
+    }
 }

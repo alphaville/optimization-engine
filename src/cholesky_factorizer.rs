@@ -26,39 +26,39 @@ pub enum CholeskyError {
 
 
 impl<T: Float> CholeskyFactoriser<T> {
+    /// Create a factoriser with storage preallocated for an n x n matrix.
+    pub fn new(n: usize) -> Self {
+        Self { n, l: vec![T::zero(); n * n] }
+    }
 
-    /// Computes the Cholesky factorisation A = L L^T
+    /// Compute the Cholesky factorisation A = L L^T
     /// from a square matrix in row-major order.
-    pub fn factorize(a: &[T]) -> Result<Self, CholeskyError> {
-        let len = a.len();
-        let n = (len as f64).sqrt() as usize;
-
-        if n * n != len {
-            return Err(CholeskyError::NotSquare);
+    ///
+    /// The input matrix must have dimension equal to the one used in `new(n)`.
+    pub fn factorize(&mut self, a: &[T]) -> Result<(), CholeskyError> {
+        if a.len() != self.n * self.n {
+            println!("n = {}, but len(a) = {}", self.n, a.len());
+            return Err(CholeskyError::DimensionMismatch);
         }
-
-        let mut l = vec![T::zero(); len];
-
+        self.l.fill(T::zero());
+        let n = self.n;
         for i in 0..n {
             for j in 0..=i {
                 let mut sum = a[i * n + j];
-
                 for k in 0..j {
-                    sum = sum - l[i * n + k] * l[j * n + k];
+                    sum = sum - self.l[i * n + k] * self.l[j * n + k];
                 }
-
                 if i == j {
                     if !(sum > T::zero()) {
                         return Err(CholeskyError::NotPositiveDefinite);
                     }
-                    l[i * n + i] = sum.sqrt();
+                    self.l[i * n + i] = sum.sqrt();
                 } else {
-                    l[i * n + j] = sum / l[j * n + j];
+                    self.l[i * n + j] = sum / self.l[j * n + j];
                 }
             }
         }
-
-        Ok(Self { n, l })
+        Ok(())
     }
 
     #[inline]
@@ -122,7 +122,8 @@ mod tests {
             12.0,      37.0, -43.0,
            -16.0,     -43.0,  98.0,
         ];
-        let factoriser = CholeskyFactoriser::factorize(&a).unwrap();
+        let mut factoriser = CholeskyFactoriser::new(3);
+        factoriser.factorize(&a).unwrap();
         println!("n = {}", factoriser.dimension());
         println!("L = {:?}", factoriser.l());
 
