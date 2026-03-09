@@ -5,7 +5,6 @@
 
 use num::Float;
 
-
 #[derive(Debug, Clone)]
 /// Cholesky factoriser
 pub struct CholeskyFactoriser<T> {
@@ -24,11 +23,13 @@ pub enum CholeskyError {
     DimensionMismatch,
 }
 
-
 impl<T: Float> CholeskyFactoriser<T> {
     /// Create a factoriser with storage preallocated for an n x n matrix.
     pub fn new(n: usize) -> Self {
-        Self { n, l: vec![T::zero(); n * n] }
+        Self {
+            n,
+            l: vec![T::zero(); n * n],
+        }
     }
 
     /// Compute the Cholesky factorisation A = L L^T
@@ -106,8 +107,6 @@ impl<T: Float> CholeskyFactoriser<T> {
     }
 }
 
-
-
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
@@ -117,11 +116,7 @@ mod tests {
 
     #[test]
     fn t_cholesky_basic() {
-        let a = vec![
-             4.0_f64,  12.0, -16.0,
-            12.0,      37.0, -43.0,
-           -16.0,     -43.0,  98.0,
-        ];
+        let a = vec![4.0_f64, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
         let mut factoriser = CholeskyFactoriser::new(3);
         factoriser.factorize(&a).unwrap();
         println!("n = {}", factoriser.dimension());
@@ -131,5 +126,4 @@ mod tests {
         let x = factoriser.solve(&b).unwrap();
         println!("x = {:?}", x);
     }
-
 }

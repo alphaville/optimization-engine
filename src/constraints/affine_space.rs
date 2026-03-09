@@ -1,6 +1,6 @@
 use super::Constraint;
-use crate::CholeskyFactoriser;
 use crate::matrix_operations;
+use crate::CholeskyFactoriser;
 
 #[derive(Clone)]
 /// An affine space here is defined as the set of solutions of a linear equation, $Ax = b$,
