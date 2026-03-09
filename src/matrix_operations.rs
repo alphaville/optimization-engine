@@ -140,6 +140,56 @@ where
     !a.iter().any(|&xi| !xi.is_finite())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Matrix error
+pub enum MatrixError {
+    /// Matrix dimension mismatch
+    DimensionMismatch,
+}
+
+/// Computes the matrix product `A * Aᵀ` for a matrix `A` stored in row-major order.
+///
+/// The input slice `a` is interpreted as a matrix with shape `rows × cols`.
+/// The returned matrix has shape `rows × rows` and is also stored in row-major order.
+///
+/// # Arguments
+///
+/// * `a` - Input matrix data in row-major order
+/// * `rows` - Number of rows of `A`
+/// * `cols` - Number of columns of `A`
+///
+/// # Returns
+///
+/// Returns a vector containing the product `A * Aᵀ` in row-major order.
+///
+/// If `a.len() != rows * cols`, the function returns
+/// `Err(MatrixError::DimensionMismatch)`.
+///
+///
+///
+/// # Notes
+///
+/// * The result is symmetric by construction.
+/// * This implementation computes the full matrix explicitly.
+/// * For better performance, a specialized version can compute only one triangle
+///   and mirror it.
+pub fn mul_a_at<T: Float>(a: &[T], rows: usize, cols: usize) -> Result<Vec<T>, MatrixError> {
+    if a.len() != rows * cols {
+        return Err(MatrixError::DimensionMismatch);
+    }
+    let mut out = vec![T::zero(); rows * rows];
+    for i in 0..rows {
+        for j in 0..rows {
+            let mut sum = T::zero();
+            for k in 0..cols {
+                sum = sum + a[i * cols + k] * a[j * cols + k];
+            }
+            out[i * rows + j] = sum;
+        }
+    }
+    Ok(out)
+}
+
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
