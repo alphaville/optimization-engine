@@ -6,11 +6,10 @@ import json
 import logging
 import time
 import math
-import pkg_resources
 from threading import Thread
 from retry import retry
 from .solver_response import SolverResponse
-
+from importlib.metadata import version
 
 class OptimizerTcpManager:
     """Client for TCP interface of parametric optimizers
@@ -66,8 +65,7 @@ class OptimizerTcpManager:
             # Check whether the optimizer was built with the current version of opengen
             # We can only check the optimizer version if the optimizer runs locally
             opengen_version = self.__optimizer_details['build']['opengen_version']
-            current_opengen_version = pkg_resources.require("opengen")[
-                0].version
+            current_opengen_version = version("opengen")
             if current_opengen_version != opengen_version:
                 logging.warn(
                     'the target optimizer was build with a different version of opengen (%s)' % opengen_version)
