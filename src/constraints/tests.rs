@@ -922,13 +922,16 @@ fn t_epigraph_squared_norm_correctness() {
     );
 }
 
-// #[test]
-// fn t_affine_space() {
-//     let a = vec![
-//         0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,
-//     ];
-//     let b = vec![1., 2., -0.5];
-//     let affine_set = AffineSpace::new(a, b);
+#[test]
+fn t_affine_space() {
+    let a = vec![
+        0.5, 0.1, 0.2,
+        -0.3, -0.6, 0.3,
+        0., 0.5, 1.0,
+        0.1, -1.0, -0.4,
+    ];
+    let b = vec![1., 2., -0.5];
+    let _affine_set = AffineSpace::new(a, b);
 //     let mut x = [1., -2., -0.3, 0.5];
 //     affine_set.project(&mut x);
 //     let x_correct = [
@@ -944,8 +947,8 @@ fn t_epigraph_squared_norm_correctness() {
 //         1e-12,
 //         "projection on affine set is wrong",
 //     );
-// }
-//
+}
+
 // #[test]
 // fn t_affine_space_larger() {
 //     let a = vec![
