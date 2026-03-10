@@ -98,7 +98,6 @@ rpmalloc = { version = "0.2", features = [
 # epigraph of the squared Euclidean norm
 roots = "0.0.8"
 
-# Least squares solver (NOTE: ndarray must be version 0.15 - not 0.16)
 ndarray = { version = "=0.17.2", features = ["approx"] }
 
 # jemallocator is an optional feature; it will only be loaded if the feature 
