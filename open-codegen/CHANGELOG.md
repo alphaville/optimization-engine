@@ -11,6 +11,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 ### Changed 
 
+- Removed dependence on `pkg_resources` (issue #380)
 - Additional unit tests: increased coverage to 92%
 
 ## [0.9.4] - 2025-05-08
