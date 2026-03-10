@@ -15,8 +15,6 @@ pub struct CholeskyFactoriser<T> {
 #[derive(Debug, Clone, PartialEq)]
 /// Cholesky errors
 pub enum CholeskyError {
-    /// Not square matrix
-    NotSquare,
     /// Not positive definite matrix
     NotPositiveDefinite,
     /// RHS dimension mismatch
@@ -38,7 +36,7 @@ impl<T: Float> CholeskyFactoriser<T> {
     /// The input matrix must have dimension equal to the one used in `new(n)`.
     pub fn factorize(&mut self, a: &[T]) -> Result<(), CholeskyError> {
         if a.len() != self.n * self.n {
-            println!("n = {}, but len(a) = {}", self.n, a.len());
+            println!("[CholeskyError] n = {}, but len(a) = {}", self.n, a.len());
             return Err(CholeskyError::DimensionMismatch);
         }
         self.l.fill(T::zero());
@@ -118,12 +116,39 @@ mod tests {
     fn t_cholesky_basic() {
         let a = vec![4.0_f64, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
         let mut factoriser = CholeskyFactoriser::new(3);
-        factoriser.factorize(&a).unwrap();
-        println!("n = {}", factoriser.dimension());
-        println!("L = {:?}", factoriser.l());
-
-        let b = vec![1.0_f64, 2.0, 1.0];
-        let x = factoriser.solve(&b).unwrap();
-        println!("x = {:?}", x);
+        let _ = factoriser.factorize(&a);
+        assert!(3 == factoriser.dimension(), "wrong dimension");
+        let expected_l = [2.0, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0];
+        unit_test_utils::nearly_equal_array(&expected_l, &factoriser.l(), 1e-10, 1e-12);
     }
+
+    #[test]
+    fn t_cholesky_solve_linear_system() {
+        let a = vec![4.0_f64, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
+        let mut factoriser = CholeskyFactoriser::new(3);
+        let _ = factoriser.factorize(&a);
+        let rhs = vec![-5.0_f64, 2.0, -3.0];
+        let x = factoriser.solve(&rhs).unwrap();
+        let expected_sol = [-280.25_f64, 77.,  -12.];
+        unit_test_utils::nearly_equal_array(&expected_sol, &x, 1e-10, 1e-12);
+    }
+
+    #[test]
+    fn t_cholesky_not_square_matrix() {
+        let a = vec![1.0_f64, 2., 7., 5., 9.];
+        let mut factoriser = CholeskyFactoriser::new(3);
+        let result = factoriser.factorize(&a);
+        assert_eq!(result, Err(CholeskyError::DimensionMismatch));
+    }
+
+#[test]
+    fn t_cholesky_solve_wrong_dimension_rhs() {
+        let a = vec![4.0_f64, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
+        let mut factoriser = CholeskyFactoriser::new(3);
+        let _ = factoriser.factorize(&a);
+        let rhs = vec![-5.0_f64, 2.0];
+        let result = factoriser.solve(&rhs);
+        assert_eq!(result, Err(CholeskyError::DimensionMismatch));
+    }
+
 }
