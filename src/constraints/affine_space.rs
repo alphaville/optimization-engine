@@ -43,7 +43,7 @@ impl AffineSpace {
         AffineSpace {
             a_mat: a,
             b_vec: b,
-            factorizer: factorizer,
+            factorizer,
             n_rows,
             n_cols,
         }
@@ -57,7 +57,7 @@ impl Constraint for AffineSpace {
     /// $$(AA^\intercal)z = Ax - b,$$
     /// which has a unique solution provided $A$ has full row rank. The linear system
     /// is solved by computing the Cholesky factorization of $AA^\intercal$, which is
-    /// done using ...
+    /// done using `CholeskyFactorizer`
     ///
     /// ## Arguments
     ///

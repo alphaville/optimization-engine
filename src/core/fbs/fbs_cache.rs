@@ -43,7 +43,7 @@ impl FBSCache {
             work_u_previous: vec![0.0; n.get()],
             gamma,
             tolerance,
-            norm_fpr: std::f64::INFINITY,
+            norm_fpr: f64::INFINITY,
         }
     }
 }

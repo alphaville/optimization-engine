@@ -13,7 +13,7 @@ const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
 const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
 const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
-const SMALL_EPSILON: f64 = std::f64::EPSILON;
+const SMALL_EPSILON: f64 = f64::EPSILON;
 
 /// Internal/private structure used by method AlmOptimizer.step
 /// to return some minimal information about the inner problem
@@ -732,7 +732,7 @@ where
             .with_max_duration(
                 alm_cache
                     .available_time
-                    .unwrap_or_else(|| std::time::Duration::from_secs(std::u64::MAX)),
+                    .unwrap_or_else(|| std::time::Duration::from_secs(u64::MAX)),
             )
             // Set the maximum number of inner iterations
             .with_max_iter(self.max_inner_iterations);
@@ -1059,7 +1059,7 @@ mod tests {
 
         // Test: the initial value of the penalty parameter is positive
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
-            assert!(xi[0] > std::f64::EPSILON);
+            assert!(xi[0] > f64::EPSILON);
         }
 
         // Test: with_initial_penalty
