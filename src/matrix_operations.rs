@@ -36,6 +36,7 @@
 //! ```
 //!
 
+use ndarray::ArrayView2;
 use num::{Float, Zero};
 use std::iter::Sum;
 use std::ops::Mul;
@@ -173,21 +174,16 @@ pub enum MatrixError {
 /// * This implementation computes the full matrix explicitly.
 /// * For better performance, a specialized version can compute only one triangle
 ///   and mirror it.
-pub fn mul_a_at<T: Float>(a: &[T], rows: usize, cols: usize) -> Result<Vec<T>, MatrixError> {
+pub fn mul_a_at<T: Float + 'static>(a: &[T], rows: usize, cols: usize) -> Result<Vec<T>, MatrixError> {
     if a.len() != rows * cols {
         return Err(MatrixError::DimensionMismatch);
     }
-    let mut out = vec![T::zero(); rows * rows];
-    for i in 0..rows {
-        for j in 0..rows {
-            let mut sum = T::zero();
-            for k in 0..cols {
-                sum = sum + a[i * cols + k] * a[j * cols + k];
-            }
-            out[i * rows + j] = sum;
-        }
-    }
-    Ok(out)
+    let a_mat =
+        ArrayView2::from_shape((rows, cols), a).map_err(|_| MatrixError::DimensionMismatch)?;
+    let out = a_mat.dot(&a_mat.t());
+    let (vec, offset) = out.into_raw_vec_and_offset();
+    debug_assert_eq!(offset, Some(0));
+    Ok(vec)
 }
 
 /* ---------------------------------------------------------------------------- */
