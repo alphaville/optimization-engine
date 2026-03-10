@@ -105,6 +105,7 @@ impl<T: Float> CholeskyFactorizer<T> {
     ///
     /// The input matrix must have dimension equal to the one used in `new(n)`.
     pub fn factorize(&mut self, a: &[T]) -> Result<(), CholeskyError> {
+        self.is_factorized = false;
         if a.len() != self.n * self.n {
             return Err(CholeskyError::DimensionMismatch);
         }
