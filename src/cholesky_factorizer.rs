@@ -129,7 +129,7 @@ mod tests {
         let _ = factoriser.factorize(&a);
         let rhs = vec![-5.0_f64, 2.0, -3.0];
         let x = factoriser.solve(&rhs).unwrap();
-        let expected_sol = [-280.25_f64, 77.,  -12.];
+        let expected_sol = [-280.25_f64, 77., -12.];
         unit_test_utils::nearly_equal_array(&expected_sol, &x, 1e-10, 1e-12);
     }
 
@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(result, Err(CholeskyError::DimensionMismatch));
     }
 
-#[test]
+    #[test]
     fn t_cholesky_solve_wrong_dimension_rhs() {
         let a = vec![4.0_f64, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
         let mut factoriser = CholeskyFactoriser::new(3);
@@ -150,5 +150,4 @@ mod tests {
         let result = factoriser.solve(&rhs);
         assert_eq!(result, Err(CholeskyError::DimensionMismatch));
     }
-
 }

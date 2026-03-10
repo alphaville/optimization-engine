@@ -50,7 +50,6 @@ impl AffineSpace {
     }
 }
 
-
 impl Constraint for AffineSpace {
     /// Projection onto the set $E = \\{x: Ax = b\\}$, which is computed by
     /// $$P_E(x) = x - A^\intercal z(x),$$
@@ -84,9 +83,7 @@ impl Constraint for AffineSpace {
     ///
     /// The result is stored in `x` and it can be verified that $Ax = b$.
     fn project(&self, x: &mut [f64]) {
-        let m = self.n_rows;
         let n = self.n_cols;
-
         assert!(x.len() == n, "x has wrong dimension");
 
         // Step 1: Compute e = Ax - b

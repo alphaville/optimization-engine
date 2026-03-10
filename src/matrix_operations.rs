@@ -174,7 +174,11 @@ pub enum MatrixError {
 /// * This implementation computes the full matrix explicitly.
 /// * For better performance, a specialized version can compute only one triangle
 ///   and mirror it.
-pub fn mul_a_at<T: Float + 'static>(a: &[T], rows: usize, cols: usize) -> Result<Vec<T>, MatrixError> {
+pub fn mul_a_at<T: Float + 'static>(
+    a: &[T],
+    rows: usize,
+    cols: usize,
+) -> Result<Vec<T>, MatrixError> {
     if a.len() != rows * cols {
         return Err(MatrixError::DimensionMismatch);
     }
@@ -300,7 +304,7 @@ mod tests {
     fn t_matmul_a_at_fat() {
         let a = vec![1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
         let aat = matrix_operations::mul_a_at(&a, 2, 3).unwrap();
-        let expected = vec![14.0_f64,    32.,    32.,    77.];
+        let expected = vec![14.0_f64, 32., 32., 77.];
         unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
     }
 
@@ -308,10 +312,7 @@ mod tests {
     fn t_matmul_a_at_column_vec() {
         let a = vec![1.0_f64, 2.0, 3.0];
         let aat = matrix_operations::mul_a_at(&a, 3, 1).unwrap();
-        let expected = vec![
-            1.0_f64, 2., 3.,
-            2., 4., 6.,
-            3., 6., 9.];
+        let expected = vec![1.0_f64, 2., 3., 2., 4., 6., 3., 6., 9.];
         unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
     }
 
@@ -326,6 +327,9 @@ mod tests {
     fn t_matmul_a_at_wrong_dimension() {
         let a = vec![1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
         let result = matrix_operations::mul_a_at(&a, 2, 2);
-        assert_eq!(result, Err(matrix_operations::MatrixError::DimensionMismatch));
+        assert_eq!(
+            result,
+            Err(matrix_operations::MatrixError::DimensionMismatch)
+        );
     }
 }
