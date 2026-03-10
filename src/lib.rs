@@ -59,7 +59,7 @@ pub mod core;
 pub mod lipschitz_estimator;
 pub mod matrix_operations;
 
-pub use crate::cholesky_factorizer::{CholeskyError, CholeskyFactoriser};
+pub use crate::cholesky_factorizer::{CholeskyError, CholeskyFactorizer};
 pub use crate::core::fbs;
 pub use crate::core::panoc;
 pub use crate::core::{AlgorithmEngine, Optimizer, Problem};

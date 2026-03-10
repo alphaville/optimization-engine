@@ -1,6 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
-use crate::CholeskyFactoriser;
+use crate::CholeskyFactorizer;
 
 use ndarray::{ArrayView1, ArrayView2};
 
@@ -11,7 +11,7 @@ use ndarray::{ArrayView1, ArrayView2};
 pub struct AffineSpace {
     a_mat: Vec<f64>,
     b_vec: Vec<f64>,
-    f: CholeskyFactoriser<f64>,
+    factorizer: CholeskyFactorizer<f64>,
     n_rows: usize,
     n_cols: usize,
 }
@@ -33,17 +33,17 @@ impl AffineSpace {
         let n_elements_a = a.len();
         assert!(n_rows > 0, "b must not be empty");
         assert!(
-            n_elements_a % n_rows == 0,
+            n_elements_a.is_multiple_of(n_rows),
             "A and b have incompatible dimensions"
         );
         let n_cols = n_elements_a / n_rows;
         let aat = matrix_operations::mul_a_at(&a, n_rows, n_cols).unwrap();
-        let mut factoriser = CholeskyFactoriser::new(n_rows);
-        factoriser.factorize(&aat).unwrap();
+        let mut factorizer = CholeskyFactorizer::new(n_rows);
+        factorizer.factorize(&aat).unwrap();
         AffineSpace {
             a_mat: a,
             b_vec: b,
-            f: factoriser,
+            factorizer: factorizer,
             n_rows,
             n_cols,
         }
@@ -56,7 +56,7 @@ impl Constraint for AffineSpace {
     /// where $z$ is the solution of the linear system
     /// $$(AA^\intercal)z = Ax - b,$$
     /// which has a unique solution provided $A$ has full row rank. The linear system
-    /// is solved by computing the Cholesky factorisation of $AA^\intercal$, which is
+    /// is solved by computing the Cholesky factorization of $AA^\intercal$, which is
     /// done using ...
     ///
     /// ## Arguments
@@ -95,7 +95,7 @@ impl Constraint for AffineSpace {
         let e_slice: &[f64] = e.as_slice().unwrap();
 
         // Step 2: Solve AA' z = e and compute z
-        let z = self.f.solve(e_slice).unwrap();
+        let z = self.factorizer.solve(e_slice).unwrap();
 
         // Step 3: Compute x = x - A'z
         let at_z = a.t().dot(&ArrayView1::from(&z[..]));
