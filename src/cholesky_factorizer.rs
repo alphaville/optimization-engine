@@ -118,7 +118,12 @@ mod tests {
         let _ = factorizer.factorize(&a);
         assert!(3 == factorizer.dimension(), "wrong dimension");
         let expected_l = [2.0, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0];
-        unit_test_utils::nearly_equal_array(&expected_l, &factorizer.cholesky_factor(), 1e-10, 1e-12);
+        unit_test_utils::nearly_equal_array(
+            &expected_l,
+            &factorizer.cholesky_factor(),
+            1e-10,
+            1e-12,
+        );
     }
 
     #[test]
