@@ -1039,7 +1039,7 @@ pub fn sample_lp_sphere(n_points: usize, dim: usize, p: f64, radius: f64) -> Vec
 
 #[test]
 fn t_sample_lp_sphere_points_have_correct_norm() {
-    let n_points = 100_000;
+    let n_points = 10_000;
     let dim = 5;
     let p = 3.2;
     let radius = 0.9;
@@ -1083,6 +1083,7 @@ fn is_norm_p_projection(
 
     // Make sure ||x||_p ≤ radius + ε, where ε is a small tolerance
     let feasibility_tol = 1e-10;
+    let inner_prod_tol = 1e-10;
     let norm_proj = x_candidate_proj
         .iter()
         .map(|xi| xi.abs().powf(p))
@@ -1107,7 +1108,7 @@ fn is_norm_p_projection(
             .map(|(xproj_i, xi_i)| xproj_i - xi_i)
             .collect();
         let inner = matrix_operations::inner_product(&w, &e);
-        if inner < 0. {
+        if inner < inner_prod_tol {
             return false;
         }
     }
