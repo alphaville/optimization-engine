@@ -1123,7 +1123,7 @@ fn t_ballp_at_origin_projection() {
     let tol = 1e-16;
     let max_iters: usize = 200;
     let ball = BallP::new(None, radius, p, tol, max_iters);
-    ball.project(&mut x);    
+    ball.project(&mut x);
     assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
 }
 
@@ -1145,4 +1145,3 @@ fn t_ballp_at_origin_x_already_inside() {
         "wrong projection on lp-ball",
     );
 }
-
