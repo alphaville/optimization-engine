@@ -11,6 +11,7 @@
 mod affine_space;
 mod ball1;
 mod ball2;
+mod ballp;
 mod ballinf;
 mod cartesian_product;
 mod epigraph_squared_norm;
@@ -27,6 +28,7 @@ mod zero;
 pub use affine_space::AffineSpace;
 pub use ball1::Ball1;
 pub use ball2::Ball2;
+pub use ballp::BallP;
 pub use ballinf::BallInf;
 pub use cartesian_product::CartesianProduct;
 pub use epigraph_squared_norm::EpigraphSquaredNorm;

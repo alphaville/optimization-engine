@@ -989,3 +989,17 @@ fn t_affine_space_wrong_dimensions() {
     let b = vec![1., 2., -0.5];
     let _ = AffineSpace::new(a, b);
 }
+
+
+#[test]
+fn t_ballp_at_origin() {
+    let radius = 1.0;
+    let mut x = [1.0, 1.0];
+    let p = 3.;
+    let tol = 1e-10;
+    let max_iters: usize = 200;
+    let ball = BallP::new(None, radius, p, tol, max_iters);
+    ball.project(&mut x);
+    println!("x = {:?}", x);
+
+}
