@@ -124,7 +124,7 @@ wasm = ["wasm-bindgen", "instant/wasm-bindgen", "instant/inaccurate"]
 # --------------------------------------------------------------------------
 # These dependencies are only used for testing
 [dev-dependencies]
-unit_test_utils = "0.1.3"
+unit_test_utils = "0.1.4"
 # Note: path dependencies (even dev-dependencies) cannot be local in order
 #       to publish a crate, so the following line can only be used when
 #       testing locally
