@@ -133,6 +133,7 @@ unit_test_utils = "0.1.4"
 icasadi_test = "0.0.3"
 # Random number generators for unit tests:
 rand = "0.10"
+rand_distr = "0.6"
 
 
 # --------------------------------------------------------------------------

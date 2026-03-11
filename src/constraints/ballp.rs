@@ -6,7 +6,7 @@ use super::Constraint;
 /// or a translated ball
 /// $$B_p^{x_c, r} = \\{ x \\in \mathbb{R}^n : \Vert x - x_c \Vert_p  \\leq r \\},$$
 /// with $1 < p < \infty$.
-/// 
+///
 /// # Projection problem
 ///
 /// Given a vector $x$, projection onto the ball means solving
@@ -81,10 +81,10 @@ use super::Constraint;
 /// # Notes
 ///
 /// - The projection is with respect to the *Euclidean norm*
-/// - The implementation is intended for general finite $p > 1.0$. If you need 
+/// - The implementation is intended for general finite $p > 1.0$. If you need
 /// to project on a $\Vert{}\cdot{}\Vert_1$-ball or an $\Vert{}\cdot{}
 /// \Vert_\infty$-ball, use the implementations in [`Ball1`](crate::constraints::Ball1) and [`BallInf`](crate::constraints::BallInf).
-/// - Do not use this struct to project on a Euclidean ball; the implementation 
+/// - Do not use this struct to project on a Euclidean ball; the implementation
 /// in [`Ball2`](crate::constraints::Ball2) is more efficient
 /// - The quality and speed of the computation depend on the chosen numerical
 ///   tolerance and iteration limit.
@@ -144,11 +144,17 @@ impl<'a> BallP<'a> {
     }
 
     #[inline]
-    fn lp_norm(x: &[f64], p: f64) -> f64 {
+    #[must_use]
+    /// Computes the $p$-norm of a given vector
+    ///
+    /// The $p$-norm of a vector $x\in \mathbb{R}^n$ is given by
+    /// $$\Vert x \Vert_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p},$$
+    /// for $p > 1$.
+    pub fn lp_norm(&self, x: &[f64]) -> f64 {
         x.iter()
-            .map(|xi| xi.abs().powf(p))
+            .map(|xi| xi.abs().powf(self.p))
             .sum::<f64>()
-            .powf(1.0 / p)
+            .powf(1.0 / self.p)
     }
 
     #[inline]
@@ -162,7 +168,7 @@ impl<'a> BallP<'a> {
         let tol = self.tolerance;
         let max_iter = self.max_iter;
 
-        let current_norm = Self::lp_norm(x, p);
+        let current_norm = self.lp_norm(x);
         if current_norm <= r {
             return;
         }
@@ -171,7 +177,8 @@ impl<'a> BallP<'a> {
         let target = r.powf(p);
 
         let radius_error = |lambda: f64| -> f64 {
-            abs_x.iter()
+            abs_x
+                .iter()
                 .map(|&a| {
                     let u = Self::solve_coordinate_newton(a, lambda, p, tol, max_iter);
                     u.powf(p)
@@ -220,13 +227,7 @@ impl<'a> BallP<'a> {
     ///
     /// The solution always belongs to [0, a], so Newton is combined with
     /// bracketing and a bisection fallback.
-    fn solve_coordinate_newton(
-        a: f64,
-        lambda: f64,
-        p: f64,
-        tol: f64,
-        max_iter: usize,
-    ) -> f64 {
+    fn solve_coordinate_newton(a: f64, lambda: f64, p: f64, tol: f64, max_iter: usize) -> f64 {
         if a == 0.0 {
             return 0.0;
         }
