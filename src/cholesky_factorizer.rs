@@ -288,11 +288,13 @@ mod tests {
 
     #[test]
     fn t_cholesky_solve_not_factorized_2() {
-        let a = vec![1.0_f64, 1.0,
-                    1.0, 1.0];
+        let a = vec![1.0_f64, 1.0, 1.0, 1.0];
         let mut factorizer = CholeskyFactorizer::new(2);
         let factorization_result = factorizer.factorize(&a);
-        assert_eq!(factorization_result, Err(CholeskyError::NotPositiveDefinite));
+        assert_eq!(
+            factorization_result,
+            Err(CholeskyError::NotPositiveDefinite)
+        );
         let rhs = vec![-5.0_f64, 2.0];
         let result = factorizer.solve(&rhs);
         assert_eq!(result, Err(CholeskyError::NotFactorized));
