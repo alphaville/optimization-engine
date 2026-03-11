@@ -3,9 +3,7 @@ from importlib.resources import files, as_file
 
 def templates_dir():
     """Directory where the templates are found (for internal use, mainly)"""
-    resource = files("opengen") / "templates"
-    with as_file(resource) as path:
-        return str(path)
+    return files("opengen") / "templates"
 
 
 def templates_subdir(subdir=None):
@@ -16,12 +14,9 @@ def templates_subdir(subdir=None):
     resource = files("opengen") / "templates"
     if subdir is not None:
         resource = resource / subdir
-    with as_file(resource) as path:
-        return str(path)
+    return resource
 
 
 def original_icasadi_dir():
     """Directory where the original icasadi files are found (for internal use)"""
-    resource = files("opengen") / "icasadi"
-    with as_file(resource) as path:
-        return str(path)
+    return files("opengen") / "icasadi"
