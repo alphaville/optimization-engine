@@ -1071,6 +1071,9 @@ fn t_sample_lp_sphere_points_have_correct_norm() {
 /// of `x` onto the p-norm ball centered at the origin with a given radius
 ///
 /// This is based on taking `sample_points` on the sphere of the lp-ball.
+/// 
+/// Note that this test is stochastic, so it only guarantees the correctness
+/// of the projection in probability.
 fn is_norm_p_projection(
     x: &[f64],
     x_candidate_proj: &[f64],
@@ -1145,4 +1148,40 @@ fn t_ballp_at_origin_x_already_inside() {
         1e-12,
         "wrong projection on lp-ball",
     );
+}
+
+#[test]
+fn t_ballp_at_xc_projection() {
+    let radius = 0.8;
+    let mut x = [0.0, 0.1];
+    let x_center = [1.0, 3.0];
+    let p = 4.;
+    let tol = 1e-16;
+    let max_iters: usize = 200;
+    let ball = BallP::new(
+        Some(&x_center), 
+        radius, 
+        p, 
+        tol, 
+        max_iters);
+    ball.project(&mut x);
+    
+    let nrm = (x.iter()
+        .zip(x_center.iter())
+        .fold(0.0, |s, (x, y)| {
+            (*x - *y).abs().powf(p) + s
+        })).powf(1./p);
+    unit_test_utils::assert_nearly_equal(
+        radius, nrm, 
+        1e-10, 1e-12, "wrong distance to lp-ball");
+
+    let proj_expected = [0.5178727276722618, 2.2277981662325224];
+    unit_test_utils::assert_nearly_equal_array(
+        &proj_expected,
+        &x,
+        1e-12,
+        1e-12,
+        "wrong projection on lp-ball centered at xc != 0",
+    );
+    
 }

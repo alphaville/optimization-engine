@@ -82,10 +82,11 @@ use super::Constraint;
 ///
 /// - The projection is with respect to the *Euclidean norm*
 /// - The implementation is intended for general finite $p > 1.0$. If you need
-/// to project on a $\Vert{}\cdot{}\Vert_1$-ball or an $\Vert{}\cdot{}
-/// \Vert_\infty$-ball, use the implementations in [`Ball1`](crate::constraints::Ball1) and [`BallInf`](crate::constraints::BallInf).
+///   to project on a $\Vert{}\cdot{}\Vert_1$-ball or an $\Vert{}\cdot{}\Vert_\infty$-ball, 
+///   use the implementations in [`Ball1`](crate::constraints::Ball1) 
+///   and [`BallInf`](crate::constraints::BallInf).
 /// - Do not use this struct to project on a Euclidean ball; the implementation
-/// in [`Ball2`](crate::constraints::Ball2) is more efficient
+///   in [`Ball2`](crate::constraints::Ball2) is more efficient
 /// - The quality and speed of the computation depend on the chosen numerical
 ///   tolerance and iteration limit.
 pub struct BallP<'a> {
@@ -156,12 +157,7 @@ impl<'a> BallP<'a> {
             .powf(1.0 / self.p)
     }
 
-    #[inline]
-    fn project_origin(&self, x: &mut [f64]) {
-        self.project_lp_ball_general(x);
-    }
-
-    fn project_lp_ball_general(&self, x: &mut [f64]) {
+    fn project_lp_ball(&self, x: &mut [f64]) {
         let p = self.p;
         let r = self.radius;
         let tol = self.tolerance;
@@ -285,13 +281,13 @@ impl<'a> Constraint for BallP<'a> {
                 .zip(x.iter().zip(center.iter()))
                 .for_each(|(s, (xi, ci))| *s = *xi - *ci);
 
-            self.project_origin(&mut shifted);
+            self.project_lp_ball(&mut shifted);
 
             x.iter_mut()
                 .zip(shifted.iter().zip(center.iter()))
                 .for_each(|(xi, (si, ci))| *xi = *ci + *si);
         } else {
-            self.project_origin(x);
+            self.project_lp_ball(x);
         }
     }
 
