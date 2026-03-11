@@ -992,9 +992,7 @@ fn t_affine_space_wrong_dimensions() {
     let _ = AffineSpace::new(a, b);
 }
 
-/// Sample `n_points` random points on the l_p sphere in R^dim:
-///
-///     { x : ||x||_p = radius }
+/// Sample `n_points` random points on the `l_p` sphere in `R^dim`
 ///
 /// Assumes:
 /// - `p > 0.0`
@@ -1082,6 +1080,18 @@ fn is_norm_p_projection(
 ) -> bool {
     let n = x.len();
     assert_eq!(n, x_candidate_proj.len());
+
+    // Make sure ||x||_p ≤ radius + ε, where ε is a small tolerance
+    let feasibility_tol = 1e-10;
+    let norm_proj = x_candidate_proj
+        .iter()
+        .map(|xi| xi.abs().powf(p))
+        .sum::<f64>()
+        .powf(1.0 / p);
+    if norm_proj > radius + feasibility_tol {
+        return false;
+    }
+
     // e = x - x_candidate_proj
     let e: Vec<f64> = x
         .iter()
@@ -1113,12 +1123,7 @@ fn t_ballp_at_origin_projection() {
     let tol = 1e-16;
     let max_iters: usize = 200;
     let ball = BallP::new(None, radius, p, tol, max_iters);
-    ball.project(&mut x);
-    let p_norm_projected = ball.lp_norm(&x);
-    // Test that the p-norm of x is equal to the radius
-    // (this is because x was not in the lp-ball, so its
-    //  projection is on the sphere)
-    unit_test_utils::assert_nearly_equal(radius, p_norm_projected, 1e-10, 1e-15, "lol");
+    ball.project(&mut x);    
     assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
 }
 
@@ -1132,7 +1137,6 @@ fn t_ballp_at_origin_x_already_inside() {
     let max_iters: usize = 1200;
     let ball = BallP::new(None, radius, p, tol, max_iters);
     ball.project(&mut x);
-    assert!(ball.lp_norm(&x) <= radius);
     unit_test_utils::assert_nearly_equal_array(
         &x0,
         &x,
@@ -1141,3 +1145,4 @@ fn t_ballp_at_origin_x_already_inside() {
         "wrong projection on lp-ball",
     );
 }
+

@@ -144,13 +144,12 @@ impl<'a> BallP<'a> {
     }
 
     #[inline]
-    #[must_use]
     /// Computes the $p$-norm of a given vector
     ///
     /// The $p$-norm of a vector $x\in \mathbb{R}^n$ is given by
     /// $$\Vert x \Vert_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p},$$
     /// for $p > 1$.
-    pub fn lp_norm(&self, x: &[f64]) -> f64 {
+    fn lp_norm(&self, x: &[f64]) -> f64 {
         x.iter()
             .map(|xi| xi.abs().powf(self.p))
             .sum::<f64>()
