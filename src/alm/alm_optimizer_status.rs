@@ -19,7 +19,7 @@ pub struct AlmOptimizerStatus {
     num_inner_iterations: usize,
     /// Norm of the fixed-point residual of the the problem
     last_problem_norm_fpr: f64,
-    ///
+    /// Lagrange multipliers vector
     lagrange_multipliers: Option<Vec<f64>>,
     /// Total solve time
     solve_time: std::time::Duration,
@@ -122,7 +122,7 @@ impl AlmOptimizerStatus {
     /// # Arguments
     ///
     /// - `lagrange_multipliers`: vector of Lagrange multipliers (which is copied
-    ///    into an internal field of `AlmOptimizerStatus`)
+    ///   into an internal field of `AlmOptimizerStatus`)
     ///
     /// # Panics
     ///

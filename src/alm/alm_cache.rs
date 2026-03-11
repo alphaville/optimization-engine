@@ -51,7 +51,7 @@ impl AlmCache {
     /// # Arguments
     ///
     /// - `panoc_cache`: an instance of `PANOCCache` that will be used by
-    ///    the inner problem
+    ///   the inner problem
     /// - `n1`, `n2`: range dimensions of mappings `F1` and `F2` respectively
     ///
     /// # Panics

@@ -32,7 +32,7 @@ impl SolverStatus {
     ///   the specified tolerance
     /// - `num_iter` number of iterations
     /// - `fpr_norm` norm of the fixed-point residual; a gauge of the solution
-    ///    quality
+    ///   quality
     /// - `cost_value` the value of the cost function at the solution
     ///
     pub fn new(

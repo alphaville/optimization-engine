@@ -103,7 +103,7 @@ where
     /// - `constraints`: hard constraints, set $U$
     /// - `alm_set_c`: Set $C$ of ALM-specific constraints (convex, closed)
     /// - `alm_set_y`: Compact, convex set $Y$ of Lagrange multipliers, which needs to be a
-    ///    compact subset of $C^*$ (the convex conjugate of the convex set $C{}\subseteq{}\mathbb{R}^{n_1}$)
+    ///   compact subset of $C^*$ (the convex conjugate of the convex set $C{}\subseteq{}\mathbb{R}^{n_1}$)
     /// - `parametric_cost`: Parametric cost function, $\psi(u, \xi)$, where $\xi = (c, y)$
     /// - `parametric_gradient`: Gradient of cost function wrt $u$, that is $\nabla_x \psi(u, \xi)$
     /// - `mapping_f1`: Mapping `F1` of ALM-specific constraints ($F1(u) \in C$)

@@ -158,7 +158,7 @@ impl PANOCCache {
     /// It checks whether:
     ///  - the FPR condition, `gamma*||fpr|| < epsilon` ,
     ///  - (if activated) the AKKT condition `||gamma*fpr + (df - df_prev)|| < eps_akkt`
-    /// are satisfied.
+    ///    are satisfied.
     pub fn exit_condition(&self) -> bool {
         self.fpr_exit_condition() && self.akkt_exit_condition()
     }

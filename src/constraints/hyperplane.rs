@@ -69,7 +69,7 @@ impl<'a> Constraint for Hyperplane<'a> {
     /// # Arguments
     ///
     /// - `x`: (in) vector to be projected on the current instance of a hyperplane,
-    ///    (out) projection on the second-order cone
+    ///   (out) projection on the second-order cone
     ///
     /// # Panics
     ///
