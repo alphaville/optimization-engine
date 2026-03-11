@@ -82,8 +82,8 @@ use super::Constraint;
 ///
 /// - The projection is with respect to the *Euclidean norm*
 /// - The implementation is intended for general finite $p > 1.0$. If you need
-///   to project on a $\Vert{}\cdot{}\Vert_1$-ball or an $\Vert{}\cdot{}\Vert_\infty$-ball, 
-///   use the implementations in [`Ball1`](crate::constraints::Ball1) 
+///   to project on a $\Vert{}\cdot{}\Vert_1$-ball or an $\Vert{}\cdot{}\Vert_\infty$-ball,
+///   use the implementations in [`Ball1`](crate::constraints::Ball1)
 ///   and [`BallInf`](crate::constraints::BallInf).
 /// - Do not use this struct to project on a Euclidean ball; the implementation
 ///   in [`Ball2`](crate::constraints::Ball2) is more efficient
