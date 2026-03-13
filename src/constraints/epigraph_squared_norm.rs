@@ -5,7 +5,7 @@ use super::Constraint;
 #[derive(Copy, Clone, Default)]
 /// The epigraph of the squared Euclidean norm, that is,
 /// $$
-/// X = \{x = (z, t) \in \mathbb{R}^{n}\times \mathbb{R} : \|z\|_2^2 \le t \}.
+/// X = \\{x = (z, t) \in \mathbb{R}^{n}\times \mathbb{R} : \Vert z\Vert_2^2 \leq t \\}.
 /// $$
 ///
 /// A point is represented by a slice `x` whose last entry is the scalar
@@ -30,29 +30,13 @@ impl Constraint for EpigraphSquaredNorm {
     /// This method computes the Euclidean projection of $(z,t)$ onto
     ///
     /// $$
-    /// \operatorname{epi}\|\cdot\|_2^2
-    /// =
-    /// \{(u,s) \in \mathbb{R}^n \times \mathbb{R} : \|u\|_2^2 \le s\}.
+    /// \mathrm{epi}\Vert \cdot\Vert_2^2 = \\{(u,s) \in \mathbb{R}^n \times \mathbb{R} : \Vert u\Vert_2^2 \leq s \\}.
     /// $$
     ///
-    /// If the point is already feasible, that is, if
-    ///
-    /// $$
-    /// \|z\|_2^2 \le t,
-    /// $$
-    ///
-    /// then the input is left unchanged.
-    ///
-    /// Otherwise, the projection is computed using the methodology described
-    /// [here](https://mathematix.wordpress.com/2017/05/02/projection-on-the-epigraph-of-the-squared-euclidean-norm/):
-    ///
-    /// 1. Eliminate the projected vector variable to obtain a cubic equation
-    ///    in the projected scalar variable.
-    /// 2. Compute the real roots of that cubic.
-    /// 3. Select the admissible root that is consistent with the projection
-    ///    formula.
-    /// 4. Refine the selected root with a few Newton iterations.
-    /// 5. Recover the projected vector component using the refined root.
+    /// If the point is already feasible, that is, if $\Vert z\Vert_2^2 \leq t,$
+    /// then the input is left unchanged, otherwise, the projection is computed using
+    /// the methodology described
+    /// [here](https://mathematix.wordpress.com/2017/05/02/projection-on-the-epigraph-of-the-squared-euclidean-norm/).
     ///
     /// ## Arguments
     ///
