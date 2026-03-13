@@ -22,6 +22,7 @@ mod rectangle;
 mod simplex;
 mod soc;
 mod sphere2;
+mod squared_norm_epigraph;
 mod zero;
 
 pub use affine_space::AffineSpace;
@@ -38,6 +39,7 @@ pub use rectangle::Rectangle;
 pub use simplex::Simplex;
 pub use soc::SecondOrderCone;
 pub use sphere2::Sphere2;
+pub use squared_norm_epigraph::EpiSqNorm;
 pub use zero::Zero;
 
 /// A set which can be used as a constraint

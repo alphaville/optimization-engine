@@ -989,3 +989,16 @@ fn t_affine_space_wrong_dimensions() {
     let b = vec![1., 2., -0.5];
     let _ = AffineSpace::new(a, b);
 }
+
+#[test]
+fn t_epigraph_squared_norm_basic() {
+    let epi = EpiSqNorm::new()
+        .with_max_iter(20)
+        .with_tol_root(1e-6)
+        .with_tol_newton(1e-10);
+    let mut u = [2.0, -1.0, 0.5];
+    epi.project(&mut u);
+    let x_norm_sq = u[..2].iter().map(|xi| xi * xi).sum::<f64>();
+    let z = u[2];
+    assert!(x_norm_sq <= z + 1e-8);
+}
