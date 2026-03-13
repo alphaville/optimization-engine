@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the main Changelog file for the Rust solver. The Changelog file for the Python interface (`opengen`) can be found in [/open-codegen/CHANGELOG.md](open-codegen/CHANGELOG.md)
 
+<!-- ---------------------
+      v0.11.0
+     --------------------- -->
+## [v0.11.0] - Unreleased
+
+### Added 
+
+- Implementation of `BallP` in Rust: projection on lp-ball
+
 
 <!-- ---------------------
       v0.10.0
@@ -308,6 +317,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[v0.11.0]: https://github.com/alphaville/optimization-engine/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/alphaville/optimization-engine/compare/v0.9.1...v0.10.0
 [v0.9.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...v0.9.1
 [v0.9.0]: https://github.com/alphaville/optimization-engine/compare/v0.8.1...v0.9.0
