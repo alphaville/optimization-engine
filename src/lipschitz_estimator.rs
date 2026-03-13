@@ -74,13 +74,13 @@ where
     /// # Arguments
     ///
     /// - `u_` On entry: point where the Lipschitz constant is estimated,
-    ///    On exit: the provided slice is modified (this is why it is a mutable
-    ///    reference). The value of `u_` at exit is slightly perturbed. If you need
-    ///    to keep the original value of `u_`, you need to make a copy of the variable
-    ///    before you provide it to this method.
+    ///   On exit: the provided slice is modified (this is why it is a mutable
+    ///   reference). The value of `u_` at exit is slightly perturbed. If you need
+    ///   to keep the original value of `u_`, you need to make a copy of the variable
+    ///   before you provide it to this method.
     /// - `f_` given closure
     /// - `function_value_` externally allocated memory which on exit stores the
-    ///    value of the given function at `u_`, that is `f_(u_)`
+    ///   value of the given function at `u_`, that is `f_(u_)`
     ///
     /// # Returns
     ///

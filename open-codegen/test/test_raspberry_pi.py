@@ -1,3 +1,4 @@
+import os
 import opengen as og
 import unittest
 import casadi.casadi as cs
@@ -6,6 +7,11 @@ import math
 
 
 class RaspberryPiTest(unittest.TestCase):
+
+    @staticmethod
+    def get_open_local_absolute_path():
+        cwd = os.getcwd()
+        return cwd.split('open-codegen')[0]
 
     # -----------------------------------------------------------------------
     # Cross-compile to Raspberry Pi
@@ -25,6 +31,7 @@ class RaspberryPiTest(unittest.TestCase):
         meta = og.config.OptimizerMeta()\
             .with_optimizer_name(optimizer_name)
         build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=RaspberryPiTest.get_open_local_absolute_path()) \
             .with_build_directory(optimizers_dir) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
             .with_tcp_interface_config() \

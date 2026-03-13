@@ -13,7 +13,7 @@ const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
 const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
 const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
 const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
-const SMALL_EPSILON: f64 = std::f64::EPSILON;
+const SMALL_EPSILON: f64 = f64::EPSILON;
 
 /// Internal/private structure used by method AlmOptimizer.step
 /// to return some minimal information about the inner problem
@@ -81,8 +81,8 @@ impl InnerProblemStatus {
 /// - For $\nu=0,\ldots, \nu_{\max}$
 ///     - $y \gets \Pi_Y(y)$
 ///     - $u \gets \arg\min_{u\in U} \psi(u, \xi)$, where $\psi(u, \xi)$ is a given function: this problem is
-///         solved with tolerance $\bar\epsilon$
-///         (see [`AlmFactory`](./struct.AlmFactory.html) regarding how this is constructed)
+///       solved with tolerance $\bar\epsilon$
+///       (see [`AlmFactory`](./struct.AlmFactory.html) regarding how this is constructed)
 ///     - $y^+ \gets y + c(F_1(u) - \Pi_C(F_1(u) + y/c))$
 ///     - Define $z^+ \gets \Vert y^+ - y \Vert$ and $t^+ = \Vert F_2(u) \Vert$
 ///     - If $z^+ \leq c\delta$, $t^+ \leq \delta$ and $\epsilon_\nu \leq \epsilon$, return $(u, y^+)$
@@ -205,10 +205,10 @@ where
     /// # Arguments
     ///
     /// - `alm_cache`: a reuseable instance of [`AlmCache`](./struct.AlmCache.html), which is borrowed by
-    ///    `AlmOptimizer`
+    ///   `AlmOptimizer`
     /// - `alm_problem`: the problem specification (data for $\psi(u, \xi)$,
-    ///    $\nabla_u \psi(u, \xi)$, $F_1(u)$ (if any), $F_2(u)$ (if any), and sets
-    ///    $C$, $U$ and $Y$)
+    ///   $\nabla_u \psi(u, \xi)$, $F_1(u)$ (if any), $F_2(u)$ (if any), and sets
+    ///   $C$, $U$ and $Y$)
     ///
     ///
     /// # Example
@@ -467,7 +467,7 @@ where
     /// # Arguments
     ///
     /// - `initial_inner_tolerance`: the initial value of the inner tolerance, that is,
-    ///    the value $\espilon_0$
+    ///   the value $\espilon_0$
     ///
     /// # Returns
     ///
@@ -530,7 +530,7 @@ where
     /// # Arguments
     ///
     /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]`) of
-    ///             length equal to `n1`
+    ///   length equal to `n1`
     ///
     /// # Returns
     ///
@@ -732,7 +732,7 @@ where
             .with_max_duration(
                 alm_cache
                     .available_time
-                    .unwrap_or_else(|| std::time::Duration::from_secs(std::u64::MAX)),
+                    .unwrap_or_else(|| std::time::Duration::from_secs(u64::MAX)),
             )
             // Set the maximum number of inner iterations
             .with_max_iter(self.max_inner_iterations);
@@ -1059,7 +1059,7 @@ mod tests {
 
         // Test: the initial value of the penalty parameter is positive
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
-            assert!(xi[0] > std::f64::EPSILON);
+            assert!(xi[0] > f64::EPSILON);
         }
 
         // Test: with_initial_penalty

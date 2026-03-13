@@ -9,13 +9,19 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      Unreleased
+      v0.10.0
      --------------------- -->
-## [v0.9.2] - Unreleased
+## [v0.10.0] - 2026-03-10
+
+### Added
+
+- Custom implementation of Cholesky factorisation (and solver); this is used in `AffineSpace` now.
+- New function in `matrix_operations` to compute AA' given a matrix A
 
 ### Changed
 
-- Update version of `rand`, `ndarray`, and `modcholesky` in `Cargo.toml`
+- Update version of `ndarray`, in `Cargo.toml`
+- Removed `modcholesky` because it was causing a bug (see issue #378)
 
 <!-- ---------------------
       v0.9.0
@@ -302,7 +308,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
-[v0.9.2]: https://github.com/alphaville/optimization-engine/compare/v0.9.1...v0.9.2
+[v0.10.0]: https://github.com/alphaville/optimization-engine/compare/v0.9.1...v0.10.0
 [v0.9.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...v0.9.1
 [v0.9.0]: https://github.com/alphaville/optimization-engine/compare/v0.8.1...v0.9.0
 [v0.8.1]: https://github.com/alphaville/optimization-engine/compare/v0.8.0...v0.8.1

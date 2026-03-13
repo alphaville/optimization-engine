@@ -13,7 +13,7 @@ use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
 /// # Types
 ///
 /// - `Cost`: cost function $f:\mathbb{R}^{n_u} \to \mathbb{R}$ which is computed
-///           by a function with signature:
+///   by a function with signature:
 ///
 ///```rust,ignore
 ///fn f(u: &[f64], cost: &mut f64) -> FunctionCallResult
@@ -22,7 +22,7 @@ use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
 ///  where `cost` is updated with the value $f(u)$,
 ///
 /// - `CostGradient`: gradient of the cost function, $\nabla f: \mathbb{R}^{n_u} \to \mathbb{R}^{n_u}$,
-///                   which is computed by a function with signature
+///   which is computed by a function with signature
 ///
 /// ```rust,ignore
 /// fn df(u: &[f64], grad: &mut [f64]) -> FunctionCallResult
@@ -31,19 +31,19 @@ use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
 /// where on exit `grad` stores the
 ///
 /// - `MappingF1` and `MappingF2`: mappings $F_1:\mathbb{R}^n\to\mathbb{R}^{n_1}$
-///                                and $F_2:\mathbb{R}^n\to\mathbb{R}^{n_2}$ which
-///                                are computed by functions with signature
+///   and $F_2:\mathbb{R}^n\to\mathbb{R}^{n_2}$ which are computed by functions
+///   with signature
 ///
 /// ```rust,ignore
 /// fn mapping(u: &[f64], fu: &mut [f64]) -> FunctionCallResult
 /// ```
 ///
 /// - `JacobianMappingF1Trans` and `JacobianMappingF2Trans`: functions that compute
-///    product of the form $JF_i(u)^\top{}d$ for given $d\in\mathbb{R}^{n_i}$ and
-///    $u\in\mathbb{R}^{n_u}$
+///   product of the form $JF_i(u)^\top{}d$ for given $d\in\mathbb{R}^{n_i}$ and
+///   $u\in\mathbb{R}^{n_u}$
 ///
 /// - `SetC`: A set $C\subseteq \mathbb{R}^{n_1}$, which is used in the definition
-///           of the constraints $F_1(u) \in C$
+///   of the constraints $F_1(u) \in C$
 ///
 /// The above are used to compute $\psi:\mathbb{R}^{n_u}\to\mathbb{R}$ for given
 /// $u\in\mathbb{R}^{n_u}$ and $\xi=(c, y)\in\mathbb{R}^{n_1+1}$, where $c\in\mathbb{R}$

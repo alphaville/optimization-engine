@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.9.1"
+version = "0.10.0"
 
 edition = "2018"
 
@@ -80,7 +80,7 @@ rustdoc-args = ["--html-in-header", "katex-header.html"]
 num = "0.4"
 
 # Our own stuff - L-BFGS: limited-memory BFGS directions
-lbfgs = "0.2"
+lbfgs = "0.3"
 
 # Instant is a generic timer that works on Wasm (with wasm-bindgen)
 instant = { version = "0.1" }
@@ -98,10 +98,7 @@ rpmalloc = { version = "0.2", features = [
 # epigraph of the squared Euclidean norm
 roots = "0.0.8"
 
-# Least squares solver (NOTE: ndarray must be version 0.15 - not 0.16)
-# Bug report: https://github.com/argmin-rs/modcholesky/issues/34
-ndarray = { version = "=0.16.1", features = ["approx"] }
-modcholesky = "0.2"
+ndarray = { version = "=0.17.2", features = ["approx"] }
 
 # jemallocator is an optional feature; it will only be loaded if the feature 
 # `jem` is used (i.e., if we compile with `cargo build --features jem`)
@@ -127,15 +124,15 @@ wasm = ["wasm-bindgen", "instant/wasm-bindgen", "instant/inaccurate"]
 # --------------------------------------------------------------------------
 # These dependencies are only used for testing
 [dev-dependencies]
-unit_test_utils = "0.1.3"
+unit_test_utils = "0.1.4"
 # Note: path dependencies (even dev-dependencies) cannot be local in order
 #       to publish a crate, so the following line can only be used when
 #       testing locally
 # icasadi_test = { path = "test/icasadi_test/" }
 #       instead, use:
-icasadi_test = "0.0.2"
+icasadi_test = "0.0.3"
 # Random number generators for unit tests:
-rand = "0.9"
+rand = "0.10"
 
 
 # --------------------------------------------------------------------------

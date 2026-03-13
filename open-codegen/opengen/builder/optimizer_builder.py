@@ -9,9 +9,9 @@ import casadi.casadi as cs
 import os
 import jinja2
 import logging
-import pkg_resources
 import sys
 
+from importlib.metadata import version
 from .ros_builder import RosBuilder
 
 _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
@@ -750,7 +750,7 @@ class OpEnOptimizerBuilder:
 
         target_yaml_file_path = os.path.join(target_dir, "optimizer.yml")
 
-        opengen_version = pkg_resources.require("opengen")[0].version
+        opengen_version = version("opengen")
 
         tcp_details = None if tcp_config is None \
             else {'ip': tcp_config.bind_ip, 'port': tcp_config.bind_port}

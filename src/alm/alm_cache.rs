@@ -51,7 +51,7 @@ impl AlmCache {
     /// # Arguments
     ///
     /// - `panoc_cache`: an instance of `PANOCCache` that will be used by
-    ///    the inner problem
+    ///   the inner problem
     /// - `n1`, `n2`: range dimensions of mappings `F1` and `F2` respectively
     ///
     /// # Panics
@@ -77,9 +77,9 @@ impl AlmCache {
             w_pm: if n2 > 0 { Some(vec![0.0; n2]) } else { None },
             iteration: 0,
             delta_y_norm: 0.0,
-            delta_y_norm_plus: std::f64::INFINITY,
+            delta_y_norm_plus: f64::INFINITY,
             f2_norm: 0.0,
-            f2_norm_plus: std::f64::INFINITY,
+            f2_norm_plus: f64::INFINITY,
             inner_iteration_count: 0,
             last_inner_problem_norm_fpr: -1.0,
             available_time: None,

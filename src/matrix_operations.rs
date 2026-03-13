@@ -36,6 +36,7 @@
 //! ```
 //!
 
+use ndarray::ArrayView2;
 use num::{Float, Zero};
 use std::iter::Sum;
 use std::ops::Mul;
@@ -140,6 +141,55 @@ where
     !a.iter().any(|&xi| !xi.is_finite())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Matrix error
+pub enum MatrixError {
+    /// Matrix dimension mismatch
+    DimensionMismatch,
+}
+
+/// Computes the matrix product `A * Aᵀ` for a matrix `A` stored in row-major order.
+///
+/// The input slice `a` is interpreted as a matrix with shape `rows × cols`.
+/// The returned matrix has shape `rows × rows` and is also stored in row-major order.
+///
+/// # Arguments
+///
+/// * `a` - Input matrix data in row-major order
+/// * `rows` - Number of rows of `A`
+/// * `cols` - Number of columns of `A`
+///
+/// # Returns
+///
+/// Returns a vector containing the product `A * Aᵀ` in row-major order.
+///
+/// If `a.len() != rows * cols`, the function returns
+/// `Err(MatrixError::DimensionMismatch)`.
+///
+///
+///
+/// # Notes
+///
+/// * The result is symmetric by construction.
+/// * This implementation computes the full matrix explicitly.
+/// * For better performance, a specialized version can compute only one triangle
+///   and mirror it.
+pub fn mul_a_at<T: Float + 'static>(
+    a: &[T],
+    rows: usize,
+    cols: usize,
+) -> Result<Vec<T>, MatrixError> {
+    if a.len() != rows * cols {
+        return Err(MatrixError::DimensionMismatch);
+    }
+    let a_mat =
+        ArrayView2::from_shape((rows, cols), a).map_err(|_| MatrixError::DimensionMismatch)?;
+    let out = a_mat.dot(&a_mat.t());
+    let (vec, offset) = out.into_raw_vec_and_offset();
+    debug_assert_eq!(offset, Some(0));
+    Ok(vec)
+}
+
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */
 /* ---------------------------------------------------------------------------- */
@@ -240,5 +290,46 @@ mod tests {
         let y = [4.0, 1.0, 0.0, 10.0];
         let norm2sq = matrix_operations::norm2_squared_diff(&x, &y);
         unit_test_utils::assert_nearly_equal(190., norm2sq, 1e-10, 1e-12, "norm sq diff");
+    }
+
+    #[test]
+    fn t_matmul_a_at_tall() {
+        let a = vec![1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let aat = matrix_operations::mul_a_at(&a, 3, 2).unwrap();
+        let expected = vec![5.0_f64, 11., 17., 11., 25., 39., 17., 39., 61.];
+        unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
+    }
+
+    #[test]
+    fn t_matmul_a_at_fat() {
+        let a = vec![1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let aat = matrix_operations::mul_a_at(&a, 2, 3).unwrap();
+        let expected = vec![14.0_f64, 32., 32., 77.];
+        unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
+    }
+
+    #[test]
+    fn t_matmul_a_at_column_vec() {
+        let a = vec![1.0_f64, 2.0, 3.0];
+        let aat = matrix_operations::mul_a_at(&a, 3, 1).unwrap();
+        let expected = vec![1.0_f64, 2., 3., 2., 4., 6., 3., 6., 9.];
+        unit_test_utils::nearly_equal_array(&expected, &aat, 1e-10, 1e-12);
+    }
+
+    #[test]
+    fn t_matmul_a_at_column_rowvec() {
+        let a = vec![1.0_f64, 2.0, 3.0];
+        let aat = matrix_operations::mul_a_at(&a, 1, 3).unwrap();
+        unit_test_utils::nearly_equal(14.0, aat[0], 1e-10, 1e-12);
+    }
+
+    #[test]
+    fn t_matmul_a_at_wrong_dimension() {
+        let a = vec![1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let result = matrix_operations::mul_a_at(&a, 2, 2);
+        assert_eq!(
+            result,
+            Err(matrix_operations::MatrixError::DimensionMismatch)
+        );
     }
 }

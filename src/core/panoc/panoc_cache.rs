@@ -72,7 +72,7 @@ impl PANOCCache {
             u_plus: vec![0.0; problem_size],
             gamma: 0.0,
             tolerance,
-            norm_gamma_fpr: std::f64::INFINITY,
+            norm_gamma_fpr: f64::INFINITY,
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
                 .with_cbfgs_alpha(DEFAULT_CBFGS_ALPHA)
                 .with_cbfgs_epsilon(DEFAULT_CBFGS_EPSILON)
@@ -158,7 +158,7 @@ impl PANOCCache {
     /// It checks whether:
     ///  - the FPR condition, `gamma*||fpr|| < epsilon` ,
     ///  - (if activated) the AKKT condition `||gamma*fpr + (df - df_prev)|| < eps_akkt`
-    /// are satisfied.
+    ///    are satisfied.
     pub fn exit_condition(&self) -> bool {
         self.fpr_exit_condition() && self.akkt_exit_condition()
     }

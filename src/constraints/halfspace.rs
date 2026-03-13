@@ -72,7 +72,7 @@ impl<'a> Constraint for Halfspace<'a> {
     /// # Arguments
     ///
     /// - `x`: (in) vector to be projected on the current instance of a halfspace,
-    ///    (out) projection on the second-order cone
+    ///   (out) projection on the second-order cone
     ///
     /// # Panics
     ///
