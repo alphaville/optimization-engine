@@ -65,6 +65,7 @@ Constraints implement the namesake trait, [`Constraint`]. Implementations of [`C
 | [`AffineSpace`]      | $U {}={} \\{u\in\mathbb{R}^n : Au = b\\}$         |
 | [`Ball1`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_1 \leq r\\}$  |
 | [`Ball2`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$  |
+| [`BallP`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_p \leq r\\}$  |
 | [`Sphere2`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 = r\\}$     |
 | [`BallInf`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$ |
 | [`Halfspace`]        | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle \leq b\\}$ |
@@ -362,6 +363,7 @@ the imposition of a maximum allowed duration, the exit status will be
 [`Sphere2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Sphere2.html
 [`Ball1`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball1.html
 [`Ball2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html
+[`BallP`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallP.html
 [`BallInf`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html
 [`Halfspace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Halfspace.html
 [`Hyperplane`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Hyperplane.html
