@@ -178,8 +178,8 @@ fn t_rectangle_bounded() {
 
 #[test]
 fn t_rectangle_infinite_bounds() {
-    let xmin = [-1.0, 2.0, std::f64::NEG_INFINITY];
-    let xmax = [1.0, std::f64::INFINITY, 5.0];
+    let xmin = [-1.0, 2.0, f64::NEG_INFINITY];
+    let xmax = [1.0, f64::INFINITY, 5.0];
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [-2.0, 3.0, 1.0];
 

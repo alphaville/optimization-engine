@@ -75,12 +75,12 @@ const CONSTRAINTS_BALL_RADIUS : f64 = {{problem.constraints.radius}};
 {% if 'Rectangle' == problem.constraints.__class__.__name__ -%}
 const CONSTRAINTS_XMIN :Option<&[f64]> = {% if problem.constraints.xmin is not none %}Some(&[
 {%- for xmini in problem.constraints.xmin -%}
-{%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+{%- if float('-inf') == xmini -%}f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
 {%- endfor -%}
 ]){% else %}None{% endif %};
 const CONSTRAINTS_XMAX :Option<&[f64]> = {% if problem.constraints.xmax is not none %}Some(&[
 {%- for xmaxi in problem.constraints.xmax -%}
-{%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+{%- if float('inf') == xmaxi -%}f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
 {%- endfor -%}
 ]){% else %}None{% endif %};
 {% endif %}
@@ -97,12 +97,12 @@ const SET_C_BALL_RADIUS : f64 = {{problem.alm_set_c.radius}};
 {% elif 'Rectangle' == problem.alm_set_c.__class__.__name__ -%}
 const SET_C_XMIN :Option<&[f64]> = {% if problem.alm_set_c.xmin is not none %}Some(&[
 {%- for xmini in problem.alm_set_c.xmin -%}
-{%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+{%- if float('-inf') == xmini -%}f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
 {%- endfor -%}
 ]){% else %}None{% endif %};
 const SET_C_XMAX :Option<&[f64]> = {% if problem.alm_set_c.xmax is not none %}Some(&[
 {%- for xmaxi in problem.alm_set_c.xmax -%}
-{%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+{%- if float('inf') == xmaxi -%}f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
 {%- endfor -%}
 ]){% else %}None{% endif %};
 {% endif %}
@@ -208,12 +208,12 @@ fn make_constraints() -> impl Constraint {
         {% elif 'Rectangle' == set_i.__class__.__name__ -%}
         let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
         {%- for xmini in set_i.xmin -%}
-        {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+        {%- if float('-inf') == xmini -%}f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
         {%- endfor -%}
         ]){% else %}None{% endif %};
         let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
         {%- for xmaxi in set_i.xmax -%}
-        {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+        {%- if float('inf') == xmaxi -%}f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
         {%- endfor -%}
         ]){% else %}None{% endif %};
         let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
@@ -282,12 +282,12 @@ fn make_set_c() -> impl Constraint {
             {% elif 'Rectangle' == set_i.__class__.__name__ -%}
             let xmin_{{loop.index}} :Option<&[f64]> = {% if set_i.xmin is not none %}Some(&[
             {%- for xmini in set_i.xmin -%}
-            {%- if float('-inf') == xmini -%}std::f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
+            {%- if float('-inf') == xmini -%}f64::NEG_INFINITY{%- else -%}{{xmini}}{%- endif -%},
             {%- endfor -%}
             ]){% else %}None{% endif %};
             let xmax_{{loop.index}}:Option<&[f64]> = {% if set_i.xmax is not none %}Some(&[
             {%- for xmaxi in set_i.xmax -%}
-            {%- if float('inf') == xmaxi -%}std::f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
+            {%- if float('inf') == xmaxi -%}f64::INFINITY{%- else -%}{{xmaxi}}{%- endif -%},
             {%- endfor -%}
             ]){% else %}None{% endif %};
             let set_{{loop.index}} = Rectangle::new(xmin_{{loop.index}}, xmax_{{loop.index}});
