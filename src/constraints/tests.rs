@@ -2,6 +2,8 @@ use crate::matrix_operations;
 
 use super::*;
 use rand;
+use rand::RngExt;
+use rand_distr::{Distribution, Gamma};
 
 #[test]
 fn t_zero_set() {
@@ -988,4 +990,190 @@ fn t_affine_space_wrong_dimensions() {
     let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];
     let b = vec![1., 2., -0.5];
     let _ = AffineSpace::new(a, b);
+}
+
+/// Sample `n_points` random points on the `l_p` sphere in `R^dim`
+///
+/// Assumes:
+/// - `p > 0.0`
+/// - `radius > 0.0`
+/// - `dim > 0`
+///
+/// Returns a vector of points, each point being a `Vec<f64>` of length `dim`.
+pub fn sample_lp_sphere(n_points: usize, dim: usize, p: f64, radius: f64) -> Vec<Vec<f64>> {
+    assert!(n_points > 0);
+    assert!(dim > 0);
+    assert!(p > 0.0);
+    assert!(radius > 0.0);
+
+    let mut rng = rand::rng();
+
+    // Y_i ~ Gamma(shape=1/p, scale=1)
+    let gamma = Gamma::new(1.0 / p, 1.0).unwrap();
+
+    let mut points = Vec::with_capacity(n_points);
+
+    for _ in 0..n_points {
+        let mut g = Vec::with_capacity(dim);
+
+        for _ in 0..dim {
+            let y: f64 = gamma.sample(&mut rng);
+            let sign = if rng.random_bool(0.5) { 1.0 } else { -1.0 };
+            let value = sign * y.powf(1.0 / p);
+            g.push(value);
+        }
+
+        let norm_p = g
+            .iter()
+            .map(|x: &f64| x.abs().powf(p))
+            .sum::<f64>()
+            .powf(1.0 / p);
+
+        let point: Vec<f64> = g.into_iter().map(|x| radius * x / norm_p).collect();
+
+        points.push(point);
+    }
+
+    points
+}
+
+#[test]
+fn t_sample_lp_sphere_points_have_correct_norm() {
+    let n_points = 10_000;
+    let dim = 5;
+    let p = 3.2;
+    let radius = 0.9;
+
+    let samples = sample_lp_sphere(n_points, dim, p, radius);
+
+    assert_eq!(samples.len(), n_points);
+
+    for point in samples.iter() {
+        assert_eq!(point.len(), dim);
+
+        let norm_p = point
+            .iter()
+            .map(|xi| xi.abs().powf(p))
+            .sum::<f64>()
+            .powf(1.0 / p);
+
+        unit_test_utils::assert_nearly_equal(
+            radius,
+            norm_p,
+            1e-10,
+            1e-12,
+            "sample_lp_sphere produced a point with incorrect p-norm",
+        );
+    }
+}
+
+/// Check if a given vector `x_candidate_proj` is actually the projection
+/// of `x` onto the p-norm ball centered at the origin with a given radius
+///
+/// This is based on taking `sample_points` on the sphere of the lp-ball.
+///
+/// Note that this test is stochastic, so it only guarantees the correctness
+/// of the projection in probability.
+fn is_norm_p_projection(
+    x: &[f64],
+    x_candidate_proj: &[f64],
+    p: f64,
+    radius: f64,
+    sample_points: usize,
+) -> bool {
+    let n = x.len();
+    assert_eq!(n, x_candidate_proj.len());
+
+    // Make sure ||x||_p ≤ radius + ε, where ε is a small tolerance
+    let feasibility_tol = 1e-10;
+    let inner_prod_tol = 1e-10;
+    let norm_proj = x_candidate_proj
+        .iter()
+        .map(|xi| xi.abs().powf(p))
+        .sum::<f64>()
+        .powf(1.0 / p);
+    if norm_proj > radius + feasibility_tol {
+        return false;
+    }
+
+    // e = x - x_candidate_proj
+    let e: Vec<f64> = x
+        .iter()
+        .zip(x_candidate_proj.iter())
+        .map(|(xi, yi)| xi - yi)
+        .collect();
+    let samples = sample_lp_sphere(sample_points, n, p, radius);
+    for xi in samples.iter() {
+        // w = x_candidate_proj - xi
+        let w: Vec<f64> = x_candidate_proj
+            .iter()
+            .zip(xi.iter())
+            .map(|(xproj_i, xi_i)| xproj_i - xi_i)
+            .collect();
+        let inner = matrix_operations::inner_product(&w, &e);
+        if inner < inner_prod_tol {
+            return false;
+        }
+    }
+    true
+}
+
+#[test]
+fn t_ballp_at_origin_projection() {
+    let radius = 0.8;
+    let mut x = [1.0, -1.0, 6.0];
+    let x0 = x.clone();
+    let p = 3.;
+    let tol = 1e-16;
+    let max_iters: usize = 200;
+    let ball = BallP::new(None, radius, p, tol, max_iters);
+    ball.project(&mut x);
+    assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
+}
+
+#[test]
+fn t_ballp_at_origin_x_already_inside() {
+    let radius = 1.5;
+    let mut x = [0.5, -0.2, 0.1];
+    let x0 = x.clone();
+    let p = 3.;
+    let tol = 1e-16;
+    let max_iters: usize = 1200;
+    let ball = BallP::new(None, radius, p, tol, max_iters);
+    ball.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(
+        &x0,
+        &x,
+        1e-12,
+        1e-12,
+        "wrong projection on lp-ball",
+    );
+}
+
+#[test]
+fn t_ballp_at_xc_projection() {
+    let radius = 0.8;
+    let mut x = [0.0, 0.1];
+    let x_center = [1.0, 3.0];
+    let p = 4.;
+    let tol = 1e-16;
+    let max_iters: usize = 200;
+    let ball = BallP::new(Some(&x_center), radius, p, tol, max_iters);
+    ball.project(&mut x);
+
+    let nrm = (x
+        .iter()
+        .zip(x_center.iter())
+        .fold(0.0, |s, (x, y)| (*x - *y).abs().powf(p) + s))
+    .powf(1. / p);
+    unit_test_utils::assert_nearly_equal(radius, nrm, 1e-10, 1e-12, "wrong distance to lp-ball");
+
+    let proj_expected = [0.5178727276722618, 2.2277981662325224];
+    unit_test_utils::assert_nearly_equal_array(
+        &proj_expected,
+        &x,
+        1e-12,
+        1e-12,
+        "wrong projection on lp-ball centered at xc != 0",
+    );
 }
