@@ -42,7 +42,11 @@ impl<'a> Constraint for Sphere2<'a> {
         let epsilon = 1e-12;
         assert!(!x.is_empty(), "x must be nonempty");
         if let Some(center) = &self.center {
-            assert_eq!(x.len(), center.len(), "x and center have incompatible dimensions");
+            assert_eq!(
+                x.len(),
+                center.len(),
+                "x and center have incompatible dimensions"
+            );
             let norm_difference = crate::matrix_operations::norm2_squared_diff(x, center).sqrt();
             if norm_difference <= epsilon {
                 x.copy_from_slice(center);
