@@ -25,6 +25,7 @@ impl Constraint for Simplex {
     /// <em>Mathematical Programming, Series A,</em> Springer, 2016, 158 (1), pp.575-585.
     /// ⟨<a href="https://dx.doi.org/10.1007/s10107-015-0946-6">10.1007/s10107-015-0946-6</a>⟩.
     fn project(&self, x: &mut [f64]) {
+        assert!(!x.is_empty(), "x must be nonempty");
         let a = &self.alpha;
 
         // ---- step 1

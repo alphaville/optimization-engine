@@ -21,6 +21,11 @@ impl<'a> Ball2<'a> {
 impl<'a> Constraint for Ball2<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(center) = &self.center {
+            assert_eq!(
+                x.len(),
+                center.len(),
+                "x and xc have incompatible dimensions"
+            );
             let mut norm_difference = 0.0;
             x.iter().zip(center.iter()).for_each(|(a, b)| {
                 let diff_ = *a - *b;

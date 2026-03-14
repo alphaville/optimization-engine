@@ -178,6 +178,14 @@ fn t_rectangle_incompatible_dims() {
 }
 
 #[test]
+#[should_panic]
+fn t_rectangle_inconsistent_bounds() {
+    let xmin = [1.0, 3.0];
+    let xmax = [2.0, 2.5];
+    let _rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
+}
+
+#[test]
 fn t_rectangle_bounded_negative_entries() {
     let xmin = [-5.0, -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
     let xmax = [-1.0, -2.0, -1.0, 2.0, 1.0, 0.0, 4.0, 6.0, 9.0, 100.0, 500.0];
@@ -732,6 +740,14 @@ fn t_simplex_alpha_negative() {
 }
 
 #[test]
+#[should_panic]
+fn t_simplex_empty_vector() {
+    let simplex = Simplex::new(1.0);
+    let mut x = [];
+    simplex.project(&mut x);
+}
+
+#[test]
 fn t_ball1_random_optimality_conditions() {
     for n in (10..=60).step_by(10) {
         let n_trials = 1000;
@@ -805,6 +821,16 @@ fn t_ball1_random_optimality_conditions_centered() {
             );
         }
     }
+}
+
+#[test]
+#[should_panic]
+fn t_ball1_wrong_dimensions() {
+    let xc = vec![1.0, 2.0];
+    let mut x = vec![3.0, 4.0, 5.0];
+    let radius = 1.0;
+    let ball1 = Ball1::new(Some(&xc), radius);
+    ball1.project(&mut x);
 }
 
 #[test]
