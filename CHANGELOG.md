@@ -21,7 +21,8 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 - Algorithmic improvements in `EpigraphSquaredNorm` (numerically stable Newton refinement) and more detailed docs
 - Assertion in `Ball1`, `Ball2`, and `BallInf` to check that that dimensions of `x` and `xc` are compatible (with unit test)
 - Added validation in `Rectangle` and `Hyperplane` for invalid constructor inputs and strengthened dimension checks in hyperplane projection
-- Added unit tests for invalid `Rectangle`, `Simplex`, and `Hyperplane` edge cases
+- Added validation in `Sphere2` for empty inputs and incompatible center dimensions
+- Added unit tests for invalid `Rectangle`, `Simplex`, `Hyperplane`, and `Sphere2` edge cases
 
 ### Fixed 
 

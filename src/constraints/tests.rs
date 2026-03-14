@@ -915,6 +915,25 @@ fn t_sphere2_center_projection_of_center() {
 
 #[test]
 #[should_panic]
+fn t_sphere2_empty_vector() {
+    let radius = 1.0;
+    let unit_sphere = Sphere2::new(None, radius);
+    let mut x = [];
+    unit_sphere.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_sphere2_center_wrong_dimension() {
+    let radius = 1.0;
+    let center = [1.0, 2.0, 3.0];
+    let unit_sphere = Sphere2::new(Some(&center), radius);
+    let mut x = [1.0, 2.0];
+    unit_sphere.project(&mut x);
+}
+
+#[test]
+#[should_panic]
 fn t_ball1_alpha_negative() {
     let _ = Ball1::new(None, -1.);
 }

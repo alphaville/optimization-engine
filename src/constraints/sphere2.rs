@@ -33,9 +33,16 @@ impl<'a> Constraint for Sphere2<'a> {
     ///
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
+    /// ## Panics
+    ///
+    /// Panics if `x` is empty or, when a center is provided, if `x` and
+    /// `center` have incompatible dimensions.
+    ///
     fn project(&self, x: &mut [f64]) {
         let epsilon = 1e-12;
+        assert!(!x.is_empty(), "x must be nonempty");
         if let Some(center) = &self.center {
+            assert_eq!(x.len(), center.len(), "x and center have incompatible dimensions");
             let norm_difference = crate::matrix_operations::norm2_squared_diff(x, center).sqrt();
             if norm_difference <= epsilon {
                 x.copy_from_slice(center);
