@@ -17,7 +17,7 @@ impl<'a> Hyperplane<'a> {
     /// where $c$ is the normal vector of the hyperplane and $b$ is an offset.
     ///
     /// This method constructs a new instance of `Hyperplane` with a given normal
-    /// vector and bias
+    /// vector and offset.
     ///
     /// # Arguments
     ///
@@ -30,8 +30,7 @@ impl<'a> Hyperplane<'a> {
     ///
     /// # Panics
     ///
-    /// Does not panic. Note: it does not panic if you provide an empty slice as `normal_vector`,
-    /// but you should avoid doing that.
+    /// This method panics if the normal vector has zero Euclidean norm.
     ///
     /// # Example
     ///
@@ -47,6 +46,10 @@ impl<'a> Hyperplane<'a> {
     ///
     pub fn new(normal_vector: &'a [f64], offset: f64) -> Self {
         let normal_vector_squared_norm = matrix_operations::norm2_squared(normal_vector);
+        assert!(
+            normal_vector_squared_norm > 0.0,
+            "normal_vector must have positive norm"
+        );
         Hyperplane {
             normal_vector,
             offset,
@@ -61,7 +64,7 @@ impl<'a> Constraint for Hyperplane<'a> {
     /// $$\begin{aligned}
     /// \mathrm{proj}_{H}(x) =
     /// x - \frac{\langle c, x\rangle - b}
-    ///          {\\|c\\|}c.
+    ///          {\\|c\\|^2}c.
     /// \end{aligned}$$
     ///
     /// where $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$
@@ -69,7 +72,7 @@ impl<'a> Constraint for Hyperplane<'a> {
     /// # Arguments
     ///
     /// - `x`: (in) vector to be projected on the current instance of a hyperplane,
-    ///   (out) projection on the second-order cone
+    ///   (out) projection on the hyperplane
     ///
     /// # Panics
     ///
@@ -77,6 +80,7 @@ impl<'a> Constraint for Hyperplane<'a> {
     /// of the hyperplane.
     ///
     fn project(&self, x: &mut [f64]) {
+        assert_eq!(x.len(), self.normal_vector.len(), "x has wrong dimension");
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
         x.iter_mut()

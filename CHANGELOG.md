@@ -19,6 +19,11 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 ### Changed
 
 - Algorithmic improvements in `EpigraphSquaredNorm` (numerically stable Newton refinement) and more detailed docs
+- Assertion in `Ball1`, `Ball2`, and `BallInf` to check that that dimensions of `x` and `xc` are compatible (with unit test)
+
+### Fixed 
+
+- Typos in docs of `CartesianProduct` (in Rust) and `Rectangle` and more detailed documentation
 
 
 <!-- ---------------------

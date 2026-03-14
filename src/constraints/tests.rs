@@ -42,6 +42,22 @@ fn t_hyperplane() {
 }
 
 #[test]
+#[should_panic]
+fn t_hyperplane_zero_normal() {
+    let normal_vector = [0.0, 0.0];
+    let _hyperplane = Hyperplane::new(&normal_vector, 1.0);
+}
+
+#[test]
+#[should_panic]
+fn t_hyperplane_wrong_dimension() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let hyperplane = Hyperplane::new(&normal_vector, 1.0);
+    let mut x = [1.0, 2.0];
+    hyperplane.project(&mut x);
+}
+
+#[test]
 fn t_halfspace_project_inside() {
     let normal_vector = [1., 2.];
     let offset = 5.0;
