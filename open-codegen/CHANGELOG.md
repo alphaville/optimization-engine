@@ -16,7 +16,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
 
-## [0.9.5] - 2026-03-12
+## [0.9.5] - 2026-03-10
 
 ### Changed 
 
