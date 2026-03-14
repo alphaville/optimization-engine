@@ -42,7 +42,7 @@ homepage = "https://alphaville.github.io/optimization-engine/"
 repository = "https://github.com/alphaville/optimization-engine"
 
 # Version of this crate (SemVer)
-version = "0.10.0"
+version = "0.11.0"
 
 edition = "2018"
 
@@ -133,6 +133,7 @@ unit_test_utils = "0.1.4"
 icasadi_test = "0.0.3"
 # Random number generators for unit tests:
 rand = "0.10"
+rand_distr = "0.6"
 
 
 # --------------------------------------------------------------------------
