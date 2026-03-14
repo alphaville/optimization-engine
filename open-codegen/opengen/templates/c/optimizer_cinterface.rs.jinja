@@ -75,8 +75,8 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 }
 
 /// Solve the parametric optimization problem for a given parameter
-/// .
-/// .
+///
+///
 /// # Arguments:
 /// - `instance`: re-useable instance of AlmCache, which should be created using
 ///   `{{meta.optimizer_name|lower}}_new` (and should be destroyed once it is not
@@ -89,15 +89,15 @@ pub extern "C" fn {{meta.optimizer_name|lower}}_new() -> *mut {{meta.optimizer_n
 ///   be used; length: `{{meta.optimizer_name|upper}}_N1`)
 /// - `c0`: Initial penalty parameter (provide `0` to use the default initial
 ///   penalty parameter
-/// .
-/// .
+///
+///
 /// # Returns:
 /// Instance of `{{meta.optimizer_name}}SolverStatus`, with the solver status
 /// (e.g., number of inner/outer iterations, measures of accuracy, solver time,
 /// and the array of Lagrange multipliers at the solution).
-/// .
-/// .
-/// .
+///
+///
+///
 /// # Safety
 /// All arguments must have been properly initialised
 #[no_mangle]
@@ -118,13 +118,13 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
     // "*mut c_double" to "&mut [f64]"
     let u : &mut [f64] = {
         assert!(!u.is_null());
-        std::slice::from_raw_parts_mut(u as *mut f64, {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES)
+        std::slice::from_raw_parts_mut(u, {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES)
     };
 
     // "*const c_double" to "&[f64]"
     let params : &[f64] = {
         assert!(!params.is_null());
-        std::slice::from_raw_parts(params as *const f64, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
+        std::slice::from_raw_parts(params, {{meta.optimizer_name|upper}}_NUM_PARAMETERS)
     };
 
     let c0_option: Option<f64> = if c0.is_null() {
@@ -182,14 +182,14 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 SolverError::Cost => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
                 SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
             },
-            num_outer_iterations: std::u64::MAX as c_ulong,
-            num_inner_iterations: std::u64::MAX as c_ulong,
-            last_problem_norm_fpr: std::f64::INFINITY,
-            solve_time_ns: std::u64::MAX as c_ulonglong,
-            penalty: std::f64::INFINITY as c_double,
-            delta_y_norm_over_c: std::f64::INFINITY as c_double,
-            f2_norm: std::f64::INFINITY as c_double,
-            cost: std::f64::INFINITY as c_double,
+            num_outer_iterations: u64::MAX as c_ulong,
+            num_inner_iterations: u64::MAX as c_ulong,
+            last_problem_norm_fpr: f64::INFINITY,
+            solve_time_ns: u64::MAX as c_ulonglong,
+            penalty: f64::INFINITY as c_double,
+            delta_y_norm_over_c: f64::INFINITY as c_double,
+            f2_norm: f64::INFINITY as c_double,
+            cost: f64::INFINITY as c_double,
             lagrange: {%- if problem.dim_constraints_aug_lagrangian() > 0 -%}
                     [0.0; {{meta.optimizer_name|upper}}_N1]
                     {%- else -%}std::ptr::null::<c_double>(){%- endif %}

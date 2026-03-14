@@ -22,13 +22,12 @@ pub struct SecondOrderCone {
 }
 
 impl SecondOrderCone {
-    /// Construct a new instance of SecondOrderCone with parameter `alpha`
+    /// Construct a new instance of `SecondOrderCone` with parameter `alpha`.
     ///
-    /// A second-order cone with parameter alpha is the set
+    /// A second-order cone with parameter `alpha` is the set
     /// $C_\alpha = \\{x=(y, t) \in \mathbb{R}^{n+1}: t\in\mathbb{R}, \Vert{}y\Vert \leq \alpha t\\}$,
-    /// where $\alpha$ is a positive parameter,
-    /// and projections are computed according to Theorem 3.3.6 in H.H. Bauschke's 1996 doctoral
-    /// dissertation:
+    /// where $\alpha$ is a positive parameter, and projections are computed
+    /// according to Theorem 3.3.6 in H.H. Bauschke's 1996 doctoral dissertation:
     /// [Projection Algorithms and Monotone Operators](http://summit.sfu.ca/system/files/iritems1/7015/b18025766.pdf)
     /// (page 40).
     ///
@@ -46,16 +45,16 @@ impl SecondOrderCone {
 }
 
 impl Constraint for SecondOrderCone {
-    /// Project on the second-order cone (updates the given vector/slice)
+    /// Project onto the second-order cone.
     ///
     /// # Arguments
     ///
-    /// - `x`: (in) vector to be projected on the current instance of a second-order
-    ///   cone, (out) projection on the second-order cone
+    /// - `x`: (in) vector to be projected onto the current second-order cone,
+    ///   (out) its projection onto that cone
     ///
     /// # Panics
     ///
-    /// The methods panics is the length of `x` is less than 2.
+    /// This method panics if the length of `x` is less than 2.
     ///
     fn project(&self, x: &mut [f64]) {
         // x = (z, r)

@@ -44,6 +44,11 @@ impl<'a> Constraint for BallInf<'a> {
     ///
     fn project(&self, x: &mut [f64]) {
         if let Some(center) = &self.center {
+            assert_eq!(
+                x.len(),
+                center.len(),
+                "x and xc have incompatible dimensions"
+            );
             x.iter_mut()
                 .zip(center.iter())
                 .filter(|(&mut xi, &ci)| (xi - ci).abs() > self.radius)

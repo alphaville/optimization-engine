@@ -273,7 +273,11 @@ impl<'a> BallP<'a> {
 impl<'a> Constraint for BallP<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(center) = &self.center {
-            assert_eq!(x.len(), center.len());
+            assert_eq!(
+                x.len(),
+                center.len(),
+                "x and xc have incompatible dimensions"
+            );
 
             let mut shifted = vec![0.0; x.len()];
             shifted

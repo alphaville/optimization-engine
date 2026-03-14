@@ -16,6 +16,19 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 - Implementation of `BallP` in Rust: projection on lp-ball
 
+### Changed
+
+- Algorithmic improvements in `EpigraphSquaredNorm` (numerically stable Newton refinement) and more detailed docs
+- Assertion in `Ball1`, `Ball2`, and `BallInf` to check that that dimensions of `x` and `xc` are compatible (with unit test)
+- Added validation in `Rectangle` and `Hyperplane` for invalid constructor inputs and strengthened dimension checks in hyperplane projection
+- Added validation in `Sphere2` for empty inputs and incompatible center dimensions
+- Added validation in `FiniteSet` for incompatible projection dimensions and corrected convexity detection for singleton sets
+- Added unit tests for invalid `Rectangle`, `Simplex`, `Hyperplane`, `Sphere2`, and `FiniteSet` edge cases
+
+### Fixed 
+
+- Typos and doctest annotations in docs of `CartesianProduct` (in Rust), `Rectangle`, and `Hyperplane`, with more detailed documentation
+
 
 <!-- ---------------------
       v0.10.0

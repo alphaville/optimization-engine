@@ -18,7 +18,7 @@ impl<'a> Rectangle<'a> {
     /// # Arguments
     ///
     /// - `xmin`: minimum value of `x`
-    /// - `xmin`: maximum value of `x`
+    /// - `xmax`: maximum value of `x`
     ///
     /// # Note
     ///
@@ -40,6 +40,15 @@ impl<'a> Rectangle<'a> {
             xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
             "incompatible dimensions of xmin and xmax"
         );
+        if let (Some(xmin), Some(xmax)) = (xmin, xmax) {
+            assert!(
+                xmin.iter()
+                    .zip(xmax.iter())
+                    .all(|(xmin_i, xmax_i)| xmin_i <= xmax_i),
+                "xmin must be less than or equal to xmax"
+            );
+        }
+
         Rectangle { xmin, xmax }
     }
 }
@@ -47,6 +56,11 @@ impl<'a> Rectangle<'a> {
 impl<'a> Constraint for Rectangle<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(xmin) = &self.xmin {
+            assert_eq!(
+                x.len(),
+                xmin.len(),
+                "x and xmin have incompatible dimensions"
+            );
             x.iter_mut().zip(xmin.iter()).for_each(|(x_, xmin_)| {
                 if *x_ < *xmin_ {
                     *x_ = *xmin_
@@ -55,6 +69,11 @@ impl<'a> Constraint for Rectangle<'a> {
         }
 
         if let Some(xmax) = &self.xmax {
+            assert_eq!(
+                x.len(),
+                xmax.len(),
+                "x and xmax have incompatible dimensions"
+            );
             x.iter_mut().zip(xmax.iter()).for_each(|(x_, xmax_)| {
                 if *x_ > *xmax_ {
                     *x_ = *xmax_

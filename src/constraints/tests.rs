@@ -42,6 +42,22 @@ fn t_hyperplane() {
 }
 
 #[test]
+#[should_panic]
+fn t_hyperplane_zero_normal() {
+    let normal_vector = [0.0, 0.0];
+    let _hyperplane = Hyperplane::new(&normal_vector, 1.0);
+}
+
+#[test]
+#[should_panic]
+fn t_hyperplane_wrong_dimension() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let hyperplane = Hyperplane::new(&normal_vector, 1.0);
+    let mut x = [1.0, 2.0];
+    hyperplane.project(&mut x);
+}
+
+#[test]
 fn t_halfspace_project_inside() {
     let normal_vector = [1., 2.];
     let offset = 5.0;
@@ -134,6 +150,15 @@ fn t_finite_set() {
 }
 
 #[test]
+#[should_panic]
+fn t_finite_set_project_wrong_dimension() {
+    let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0]];
+    let finite_set = FiniteSet::new(data);
+    let mut x = [0.5, 0.5, 0.5];
+    finite_set.project(&mut x);
+}
+
+#[test]
 fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];
@@ -153,8 +178,8 @@ fn t_rectangle_bounded() {
 
 #[test]
 fn t_rectangle_infinite_bounds() {
-    let xmin = [-1.0, 2.0, std::f64::NEG_INFINITY];
-    let xmax = [1.0, std::f64::INFINITY, 5.0];
+    let xmin = [-1.0, 2.0, f64::NEG_INFINITY];
+    let xmax = [1.0, f64::INFINITY, 5.0];
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [-2.0, 3.0, 1.0];
 
@@ -175,6 +200,14 @@ fn t_rectangle_incompatible_dims() {
     let xmin = vec![1.0; 5];
     let xmax = vec![2.0; 4];
     let _rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
+}
+
+#[test]
+#[should_panic]
+fn t_rectangle_inconsistent_bounds() {
+    let xmin = [1.0, 3.0];
+    let xmax = [2.0, 2.5];
+    let _rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
 }
 
 #[test]
@@ -732,6 +765,14 @@ fn t_simplex_alpha_negative() {
 }
 
 #[test]
+#[should_panic]
+fn t_simplex_empty_vector() {
+    let simplex = Simplex::new(1.0);
+    let mut x = [];
+    simplex.project(&mut x);
+}
+
+#[test]
 fn t_ball1_random_optimality_conditions() {
     for n in (10..=60).step_by(10) {
         let n_trials = 1000;
@@ -808,6 +849,16 @@ fn t_ball1_random_optimality_conditions_centered() {
 }
 
 #[test]
+#[should_panic]
+fn t_ball1_wrong_dimensions() {
+    let xc = vec![1.0, 2.0];
+    let mut x = vec![3.0, 4.0, 5.0];
+    let radius = 1.0;
+    let ball1 = Ball1::new(Some(&xc), radius);
+    ball1.project(&mut x);
+}
+
+#[test]
 fn t_sphere2_no_center() {
     let radius = 0.9;
     let mut x_out = [1.0, 1.0];
@@ -869,6 +920,25 @@ fn t_sphere2_center_projection_of_center() {
 
     let norm_out = crate::matrix_operations::norm2(&x_minus_c);
     unit_test_utils::assert_nearly_equal(radius, norm_out, 1e-10, 1e-12, "norm_out is not 1.0");
+}
+
+#[test]
+#[should_panic]
+fn t_sphere2_empty_vector() {
+    let radius = 1.0;
+    let unit_sphere = Sphere2::new(None, radius);
+    let mut x = [];
+    unit_sphere.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_sphere2_center_wrong_dimension() {
+    let radius = 1.0;
+    let center = [1.0, 2.0, 3.0];
+    let unit_sphere = Sphere2::new(Some(&center), radius);
+    let mut x = [1.0, 2.0];
+    unit_sphere.project(&mut x);
 }
 
 #[test]

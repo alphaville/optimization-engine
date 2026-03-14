@@ -42,6 +42,11 @@ impl<'a> Ball1<'a> {
 impl<'a> Constraint for Ball1<'a> {
     fn project(&self, x: &mut [f64]) {
         if let Some(center) = &self.center {
+            assert_eq!(
+                x.len(),
+                center.len(),
+                "x and xc have incompatible dimensions"
+            );
             x.iter_mut()
                 .zip(center.iter())
                 .for_each(|(xi, &ci)| *xi -= ci);
