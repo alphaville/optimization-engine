@@ -16,6 +16,10 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 - Implementation of `BallP` in Rust: projection on lp-ball
 
+### Changed
+
+- Algorithmic improvements in `EpigraphSquaredNorm` (numerically stable Newton refinement) and more detailed docs
+
 
 <!-- ---------------------
       v0.10.0
