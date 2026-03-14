@@ -150,6 +150,15 @@ fn t_finite_set() {
 }
 
 #[test]
+#[should_panic]
+fn t_finite_set_project_wrong_dimension() {
+    let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0]];
+    let finite_set = FiniteSet::new(data);
+    let mut x = [0.5, 0.5, 0.5];
+    finite_set.project(&mut x);
+}
+
+#[test]
 fn t_rectangle_bounded() {
     let xmin = vec![2.0; 5];
     let xmax = vec![4.5; 5];

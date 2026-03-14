@@ -22,7 +22,8 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 - Assertion in `Ball1`, `Ball2`, and `BallInf` to check that that dimensions of `x` and `xc` are compatible (with unit test)
 - Added validation in `Rectangle` and `Hyperplane` for invalid constructor inputs and strengthened dimension checks in hyperplane projection
 - Added validation in `Sphere2` for empty inputs and incompatible center dimensions
-- Added unit tests for invalid `Rectangle`, `Simplex`, `Hyperplane`, and `Sphere2` edge cases
+- Added validation in `FiniteSet` for incompatible projection dimensions and corrected convexity detection for singleton sets
+- Added unit tests for invalid `Rectangle`, `Simplex`, `Hyperplane`, `Sphere2`, and `FiniteSet` edge cases
 
 ### Fixed 
 

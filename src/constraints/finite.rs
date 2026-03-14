@@ -38,8 +38,8 @@ impl<'a> FiniteSet<'a> {
     ///
     /// # Panics
     ///
-    /// This method will panic if (i) the given vector of data is empty
-    /// and (ii) if the given vectors have unequal dimensions.
+    /// This method will panic if the given vector of data is empty,
+    /// or if the given vectors have unequal dimensions.
     ///
     pub fn new(data: &'a [&'a [f64]]) -> Self {
         // Do a sanity check...
@@ -82,9 +82,15 @@ impl<'a> Constraint for FiniteSet<'a> {
     ///
     /// # Panics
     ///
-    /// Does not panic
+    /// This method panics if the dimension of `x` is not equal to the
+    /// dimension of the points in the finite set.
     ///
     fn project(&self, x: &mut [f64]) {
+        assert_eq!(
+            x.len(),
+            self.data[0].len(),
+            "x has incompatible dimension"
+        );
         let mut idx: usize = 0;
         let mut best_distance: f64 = num::Float::infinity();
         for (i, v) in self.data.iter().enumerate() {
@@ -98,6 +104,6 @@ impl<'a> Constraint for FiniteSet<'a> {
     }
 
     fn is_convex(&self) -> bool {
-        self.data.len() == 1 && !self.data[0].is_empty()
+        self.data.len() == 1
     }
 }
