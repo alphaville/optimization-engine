@@ -86,6 +86,9 @@ class OpEnOptimizerBuilder:
         self.__logger.setLevel(verbosity_level)
         self.__logger.handlers.clear()
         self.__logger.addHandler(stream_handler)
+        # Keep logs on this named logger only; otherwise callers that configure
+        # the root logger can end up seeing every builder message twice.
+        self.__logger.propagate = False
 
         return self
 

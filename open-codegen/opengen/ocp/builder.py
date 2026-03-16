@@ -161,6 +161,55 @@ class OCPBuilder:
         if stage_constraints is None:
             stage_constraints = NoConstraints()
 
+        hard_stage_constraints = self.__ocp.hard_stage_state_input_constraints
+        hard_terminal_constraints = self.__ocp.hard_terminal_state_constraints
+
+        if hard_stage_constraints is not None and self.__ocp.input_constraints is not None:
+            raise ValueError(
+                "cannot combine with_input_constraints with "
+                "with_hard_stage_state_input_constraints automatically; "
+                "encode the input bounds directly in the stage state-input set"
+            )
+
+        if hard_stage_constraints is not None and hard_terminal_constraints is not None:
+            raise ValueError(
+                "cannot combine with_hard_stage_state_input_constraints with "
+                "with_hard_terminal_state_constraints automatically; "
+                "their intersection on the terminal stage is not supported"
+            )
+
+        if hard_stage_constraints is not None:
+            segments = [
+                ((idx + 1) * (self.__ocp.nu + self.__ocp.nx)) - 1
+                for idx in range(self.__ocp.horizon)
+            ]
+            constraints = [hard_stage_constraints] * self.__ocp.horizon
+            return CartesianProduct(segments, constraints)
+
+        if hard_terminal_constraints is not None:
+            segments = []
+            constraints = []
+            offset = -1
+
+            for _ in range(self.__ocp.horizon - 1):
+                offset += self.__ocp.nu
+                segments.append(offset)
+                constraints.append(stage_constraints)
+
+                offset += self.__ocp.nx
+                segments.append(offset)
+                constraints.append(NoConstraints())
+
+            offset += self.__ocp.nu
+            segments.append(offset)
+            constraints.append(stage_constraints)
+
+            offset += self.__ocp.nx
+            segments.append(offset)
+            constraints.append(hard_terminal_constraints)
+
+            return CartesianProduct(segments, constraints)
+
         segments = []
         constraints = []
         offset = -1

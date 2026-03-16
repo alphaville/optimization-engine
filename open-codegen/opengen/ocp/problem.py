@@ -39,6 +39,8 @@ class OptimalControlProblem:
         self.__stage_cost = None
         self.__terminal_cost = None
         self.__input_constraints = None
+        self.__hard_stage_state_input_constraints = None
+        self.__hard_terminal_state_constraints = None
         self.__path_constraints = []
         self.__terminal_constraints = []
 
@@ -75,6 +77,14 @@ class OptimalControlProblem:
         return self.__input_constraints
 
     @property
+    def hard_stage_state_input_constraints(self):
+        return self.__hard_stage_state_input_constraints
+
+    @property
+    def hard_terminal_state_constraints(self):
+        return self.__hard_terminal_state_constraints
+
+    @property
     def path_constraints(self):
         return list(self.__path_constraints)
 
@@ -106,6 +116,14 @@ class OptimalControlProblem:
 
     def with_input_constraints(self, constraints):
         self.__input_constraints = constraints
+        return self
+
+    def with_hard_stage_state_input_constraints(self, constraints):
+        self.__hard_stage_state_input_constraints = constraints
+        return self
+
+    def with_hard_terminal_state_constraints(self, constraints):
+        self.__hard_terminal_state_constraints = constraints
         return self
 
     @staticmethod
@@ -166,6 +184,15 @@ class OptimalControlProblem:
             raise ValueError("dynamics must be specified")
         if self.__stage_cost is None:
             raise ValueError("stage cost must be specified")
+        if self.__shooting == ShootingMethod.SINGLE:
+            if self.__hard_stage_state_input_constraints is not None:
+                raise ValueError(
+                    "with_hard_stage_state_input_constraints is only available in multiple shooting"
+                )
+            if self.__hard_terminal_state_constraints is not None:
+                raise ValueError(
+                    "with_hard_terminal_state_constraints is only available in multiple shooting"
+                )
         return self
 
     def __build_single_shooting_model(self):
@@ -264,6 +291,7 @@ class OptimalControlProblem:
         cost = 0
         penalty_terms = []
         alm_blocks = []
+        dynamics_alm_terms = []
 
         x_current = x0
         offset = 0
@@ -296,18 +324,22 @@ class OptimalControlProblem:
             if self.__dynamics_constraint_kind == "penalty":
                 penalty_terms.append(dynamics_defect)
             else:
-                alm_blocks.append({
-                    "mapping": dynamics_defect,
-                    "dimension": self.__constraint_dimension(dynamics_defect),
-                    "set_c": Zero(),
-                    "set_y": None,
-                })
+                dynamics_alm_terms.append(dynamics_defect)
 
             x_current = x_next
             states.append(x_current)
 
         if self.__terminal_cost is not None:
             cost += self.__terminal_cost(x_current, param)
+
+        if dynamics_alm_terms:
+            dynamics_mapping = cs.vertcat(*dynamics_alm_terms)
+            alm_blocks.append({
+                "mapping": dynamics_mapping,
+                "dimension": self.__constraint_dimension(dynamics_mapping),
+                "set_c": Zero(),
+                "set_y": None,
+            })
 
         for definition in self.__terminal_constraints:
             mapping = definition["constraint"](x_current, param)
