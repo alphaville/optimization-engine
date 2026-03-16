@@ -2,6 +2,9 @@ from enum import Enum
 
 import casadi.casadi as cs
 
+from opengen.constraints.cartesian import CartesianProduct
+from opengen.constraints.zero import Zero
+
 from .parameter import ParameterPack
 
 
@@ -32,10 +35,12 @@ class OptimalControlProblem:
         self.__parameters = ParameterPack(symbol_type=self.__symbol_type)
 
         self.__dynamics = None
+        self.__dynamics_constraint_kind = "penalty"
         self.__stage_cost = None
         self.__terminal_cost = None
         self.__input_constraints = None
         self.__path_constraints = []
+        self.__terminal_constraints = []
 
     @property
     def nx(self):
@@ -73,12 +78,22 @@ class OptimalControlProblem:
     def path_constraints(self):
         return list(self.__path_constraints)
 
+    @property
+    def terminal_constraints(self):
+        return list(self.__terminal_constraints)
+
     def add_parameter(self, name, size, default=None):
         self.__parameters.add(name, size, default=default)
         return self
 
     def with_dynamics(self, dynamics):
         self.__dynamics = dynamics
+        return self
+
+    def with_dynamics_constraints(self, kind="penalty"):
+        if kind not in ("penalty", "alm"):
+            raise ValueError("dynamics constraint kind must be either 'penalty' or 'alm'")
+        self.__dynamics_constraint_kind = kind
         return self
 
     def with_stage_cost(self, stage_cost):
@@ -93,10 +108,57 @@ class OptimalControlProblem:
         self.__input_constraints = constraints
         return self
 
-    def with_path_constraint(self, constraint, kind="penalty"):
-        if kind != "penalty":
-            raise NotImplementedError("only penalty path constraints are supported")
-        self.__path_constraints.append((kind, constraint))
+    @staticmethod
+    def __constraint_dimension(mapping):
+        return mapping.size1() * mapping.size2()
+
+    @staticmethod
+    def __append_constraint_definition(container, kind, constraint, set_c=None, set_y=None):
+        if kind not in ("penalty", "alm"):
+            raise ValueError("constraint kind must be either 'penalty' or 'alm'")
+        if kind == "alm" and set_c is None:
+            raise ValueError("set_c must be provided for ALM constraints")
+        container.append({
+            "kind": kind,
+            "constraint": constraint,
+            "set_c": set_c,
+            "set_y": set_y,
+        })
+
+    @staticmethod
+    def __assemble_constraint_set(blocks, key):
+        if not blocks:
+            return None
+        if len(blocks) == 1:
+            return blocks[0][key]
+
+        segments = []
+        constraints = []
+        offset = -1
+        for block in blocks:
+            offset += block["dimension"]
+            segments.append(offset)
+            constraints.append(block[key])
+        return CartesianProduct(segments, constraints)
+
+    def with_path_constraint(self, constraint, kind="penalty", set_c=None, set_y=None):
+        self.__append_constraint_definition(
+            self.__path_constraints,
+            kind,
+            constraint,
+            set_c=set_c,
+            set_y=set_y,
+        )
+        return self
+
+    def with_terminal_constraint(self, constraint, kind="penalty", set_c=None, set_y=None):
+        self.__append_constraint_definition(
+            self.__terminal_constraints,
+            kind,
+            constraint,
+            set_c=set_c,
+            set_y=set_y,
+        )
         return self
 
     def validate(self):
@@ -121,6 +183,7 @@ class OptimalControlProblem:
         x = x0
         states = [x0]
         penalty_terms = []
+        alm_blocks = []
 
         for stage_idx in range(self.__horizon):
             start = stage_idx * self.__nu
@@ -128,9 +191,17 @@ class OptimalControlProblem:
             u_t = u[start:stop]
             cost += self.__stage_cost(x, u_t, param, stage_idx)
 
-            for kind, path_constraint in self.__path_constraints:
-                if kind == "penalty":
-                    penalty_terms.append(path_constraint(x, u_t, param, stage_idx))
+            for definition in self.__path_constraints:
+                mapping = definition["constraint"](x, u_t, param, stage_idx)
+                if definition["kind"] == "penalty":
+                    penalty_terms.append(mapping)
+                else:
+                    alm_blocks.append({
+                        "mapping": mapping,
+                        "dimension": self.__constraint_dimension(mapping),
+                        "set_c": definition["set_c"],
+                        "set_y": definition["set_y"],
+                    })
 
             x = self.__dynamics(x, u_t, param)
             states.append(x)
@@ -138,9 +209,30 @@ class OptimalControlProblem:
         if self.__terminal_cost is not None:
             cost += self.__terminal_cost(x, param)
 
+        for definition in self.__terminal_constraints:
+            mapping = definition["constraint"](x, param)
+            if definition["kind"] == "penalty":
+                penalty_terms.append(mapping)
+            else:
+                alm_blocks.append({
+                    "mapping": mapping,
+                    "dimension": self.__constraint_dimension(mapping),
+                    "set_c": definition["set_c"],
+                    "set_y": definition["set_y"],
+                })
+
         penalty_mapping = None
         if penalty_terms:
             penalty_mapping = cs.vertcat(*penalty_terms)
+
+        alm_mapping = None
+        alm_set_c = None
+        alm_set_y = None
+        if alm_blocks:
+            alm_mapping = cs.vertcat(*[block["mapping"] for block in alm_blocks])
+            alm_set_c = self.__assemble_constraint_set(alm_blocks, "set_c")
+            if all(block["set_y"] is not None for block in alm_blocks):
+                alm_set_y = self.__assemble_constraint_set(alm_blocks, "set_y")
 
         return {
             "shooting": self.__shooting.value,
@@ -148,6 +240,9 @@ class OptimalControlProblem:
             "p": p,
             "param": param,
             "cost": cost,
+            "alm_mapping": alm_mapping,
+            "alm_set_c": alm_set_c,
+            "alm_set_y": alm_set_y,
             "penalty_mapping": penalty_mapping,
             "state_trajectory": states,
         }
@@ -168,6 +263,7 @@ class OptimalControlProblem:
         states = [x0]
         cost = 0
         penalty_terms = []
+        alm_blocks = []
 
         x_current = x0
         offset = 0
@@ -184,11 +280,28 @@ class OptimalControlProblem:
 
             cost += self.__stage_cost(x_current, u_t, param, stage_idx)
 
-            for kind, path_constraint in self.__path_constraints:
-                if kind == "penalty":
-                    penalty_terms.append(path_constraint(x_current, u_t, param, stage_idx))
+            for definition in self.__path_constraints:
+                mapping = definition["constraint"](x_current, u_t, param, stage_idx)
+                if definition["kind"] == "penalty":
+                    penalty_terms.append(mapping)
+                else:
+                    alm_blocks.append({
+                        "mapping": mapping,
+                        "dimension": self.__constraint_dimension(mapping),
+                        "set_c": definition["set_c"],
+                        "set_y": definition["set_y"],
+                    })
 
-            penalty_terms.append(x_next - self.__dynamics(x_current, u_t, param))
+            dynamics_defect = x_next - self.__dynamics(x_current, u_t, param)
+            if self.__dynamics_constraint_kind == "penalty":
+                penalty_terms.append(dynamics_defect)
+            else:
+                alm_blocks.append({
+                    "mapping": dynamics_defect,
+                    "dimension": self.__constraint_dimension(dynamics_defect),
+                    "set_c": Zero(),
+                    "set_y": None,
+                })
 
             x_current = x_next
             states.append(x_current)
@@ -196,8 +309,28 @@ class OptimalControlProblem:
         if self.__terminal_cost is not None:
             cost += self.__terminal_cost(x_current, param)
 
+        for definition in self.__terminal_constraints:
+            mapping = definition["constraint"](x_current, param)
+            if definition["kind"] == "penalty":
+                penalty_terms.append(mapping)
+            else:
+                alm_blocks.append({
+                    "mapping": mapping,
+                    "dimension": self.__constraint_dimension(mapping),
+                    "set_c": definition["set_c"],
+                    "set_y": definition["set_y"],
+                })
+
         u = cs.vertcat(*decision_blocks)
         penalty_mapping = cs.vertcat(*penalty_terms) if penalty_terms else None
+        alm_mapping = None
+        alm_set_c = None
+        alm_set_y = None
+        if alm_blocks:
+            alm_mapping = cs.vertcat(*[block["mapping"] for block in alm_blocks])
+            alm_set_c = self.__assemble_constraint_set(alm_blocks, "set_c")
+            if all(block["set_y"] is not None for block in alm_blocks):
+                alm_set_y = self.__assemble_constraint_set(alm_blocks, "set_y")
 
         return {
             "shooting": self.__shooting.value,
@@ -205,6 +338,9 @@ class OptimalControlProblem:
             "p": p,
             "param": param,
             "cost": cost,
+            "alm_mapping": alm_mapping,
+            "alm_set_c": alm_set_c,
+            "alm_set_y": alm_set_y,
             "penalty_mapping": penalty_mapping,
             "state_trajectory": states,
             "input_slices": input_slices,

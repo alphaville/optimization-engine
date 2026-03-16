@@ -189,6 +189,13 @@ class OCPBuilder:
 
         low_level_problem = low_level_problem.with_constraints(constraints)
 
+        if model["alm_mapping"] is not None:
+            low_level_problem = low_level_problem.with_aug_lagrangian_constraints(
+                model["alm_mapping"],
+                model["alm_set_c"],
+                model["alm_set_y"],
+            )
+
         if model["penalty_mapping"] is not None:
             low_level_problem = low_level_problem.with_penalty_constraints(
                 model["penalty_mapping"]
