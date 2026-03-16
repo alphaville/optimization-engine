@@ -95,6 +95,12 @@ where
         cache.norm_gamma_fpr = matrix_operations::norm2(&cache.gamma_fpr);
     }
 
+    /// Score the current feasible half step and cache it if it is the best so far.
+    pub(crate) fn cache_best_half_step(&mut self, u_current: &[f64]) {
+        self.compute_fpr(u_current);
+        self.cache.cache_best_half_step();
+    }
+
     /// Computes a gradient step; does not compute the gradient
     fn gradient_step(&mut self, u_current: &[f64]) {
         // take a gradient step:
@@ -295,6 +301,13 @@ where
 
         Ok(())
     }
+
+    /// Compute the cost value at the best cached feasible half step.
+    pub(crate) fn cost_value_at_best_half_step(&mut self) -> Result<f64, SolverError> {
+        let mut cost = 0.0;
+        (self.problem.cost)(&self.cache.best_u_half_step, &mut cost)?;
+        Ok(cost)
+    }
 }
 
 /// Implementation of the `step` and `init` methods of [trait.AlgorithmEngine.html]
@@ -320,7 +333,7 @@ where
         self.cache.cache_previous_gradient();
 
         // compute the fixed point residual
-        self.compute_fpr(u_current);
+        self.cache_best_half_step(u_current);
 
         // exit if the exit conditions are satisfied (||gamma*fpr|| < eps and,
         // if activated, ||gamma*r + df - df_prev|| < eps_akkt)
