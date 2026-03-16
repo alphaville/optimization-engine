@@ -33,6 +33,8 @@ pub struct PANOCCache {
     pub(crate) norm_gamma_fpr: f64,
     /// Keeps track of best FPR so far
     pub(crate) best_norm_gamma_fpr: f64,
+    pub(crate) gradient_u_norm_sq: f64,
+    pub(crate) gradient_step_u_half_step_diff_norm_sq: f64,
     pub(crate) tau: f64,
     pub(crate) lipschitz_constant: f64,
     pub(crate) sigma: f64,
@@ -79,6 +81,8 @@ impl PANOCCache {
             tolerance,
             norm_gamma_fpr: f64::INFINITY,
             best_norm_gamma_fpr: f64::INFINITY,
+            gradient_u_norm_sq: 0.0,
+            gradient_step_u_half_step_diff_norm_sq: 0.0,
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
                 .with_cbfgs_alpha(DEFAULT_CBFGS_ALPHA)
                 .with_cbfgs_epsilon(DEFAULT_CBFGS_EPSILON)
@@ -183,6 +187,9 @@ impl PANOCCache {
         self.lbfgs.reset();
         self.best_u_half_step.fill(0.0);
         self.best_norm_gamma_fpr = f64::INFINITY;
+        self.norm_gamma_fpr = f64::INFINITY;
+        self.gradient_u_norm_sq = 0.0;
+        self.gradient_step_u_half_step_diff_norm_sq = 0.0;
         self.lhs_ls = 0.0;
         self.rhs_ls = 0.0;
         self.tau = 1.0;

@@ -129,12 +129,19 @@ where
             .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
     }
 
+    /// Cache the squared norm of the current gradient.
+    fn cache_gradient_norm(&mut self) {
+        self.cache.gradient_u_norm_sq = matrix_operations::norm2_squared(&self.cache.gradient_u);
+    }
+
     /// Computes a projection on `gradient_step`
     fn half_step(&mut self) {
         let cache = &mut self.cache;
         // u_half_step ← projection(gradient_step)
         cache.u_half_step.copy_from_slice(&cache.gradient_step);
         self.problem.constraints.project(&mut cache.u_half_step);
+        cache.gradient_step_u_half_step_diff_norm_sq =
+            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
     }
 
     /// Computes an LBFGS direction; updates `cache.direction_lbfgs`
@@ -163,7 +170,7 @@ where
 
         // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
         cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2))
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * cache.norm_gamma_fpr * cache.norm_gamma_fpr
     }
 
     /// Updates the estimate of the Lipscthiz constant
@@ -227,16 +234,13 @@ where
         let cache = &mut self.cache;
 
         // dist squared ← norm(gradient step - u half step)^2
-        let dist_squared =
-            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
-
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2
         //            + 0.5 * dist squared / gamma
         //            - sigma * norm_gamma_fpr^2
         let fbe = cache.cost_value
-            - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
-            + 0.5 * dist_squared / cache.gamma;
-        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2);
+            - 0.5 * cache.gamma * cache.gradient_u_norm_sq
+            + 0.5 * cache.gradient_step_u_half_step_diff_norm_sq / cache.gamma;
+        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr * cache.norm_gamma_fpr;
         cache.rhs_ls = fbe - sigma_fpr_sq;
     }
 
@@ -253,20 +257,15 @@ where
         // point `u_plus`
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value)?;
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u)?;
+        self.cache_gradient_norm();
 
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
 
-        // Compute: dist_squared ← norm(gradient_step - u_half_step)^2
-        let dist_squared = matrix_operations::norm2_squared_diff(
-            &self.cache.gradient_step,
-            &self.cache.u_half_step,
-        );
-
         // Update the LHS of the line search condition
         self.cache.lhs_ls = self.cache.cost_value
-            - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
-            + 0.5 * dist_squared / self.cache.gamma;
+            - 0.5 * gamma * self.cache.gradient_u_norm_sq
+            + 0.5 * self.cache.gradient_step_u_half_step_diff_norm_sq / self.cache.gamma;
 
         Ok(self.cache.lhs_ls > self.cache.rhs_ls)
     }
@@ -276,6 +275,7 @@ where
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
+        self.cache_gradient_norm();
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
 
@@ -366,6 +366,7 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
+        self.cache_gradient_norm();
         self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, MIN_L_ESTIMATE);
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
@@ -550,6 +551,13 @@ mod tests {
         panoc_engine.cache.cost_value = 24.0;
         panoc_engine.cache.gamma = 2.34;
         panoc_engine.cache.gradient_u.copy_from_slice(&[2.4, -9.7]);
+        panoc_engine.cache.gradient_u_norm_sq =
+            crate::matrix_operations::norm2_squared(&panoc_engine.cache.gradient_u);
+        panoc_engine.cache.gradient_step_u_half_step_diff_norm_sq =
+            crate::matrix_operations::norm2_squared_diff(
+                &panoc_engine.cache.gradient_step,
+                &panoc_engine.cache.u_half_step,
+            );
         panoc_engine.cache.sigma = 0.066;
         panoc_engine.cache.norm_gamma_fpr = 2.5974;
 
