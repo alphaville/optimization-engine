@@ -100,17 +100,13 @@ class OptimalControlProblem:
         return self
 
     def validate(self):
-        if self.__shooting != ShootingMethod.SINGLE:
-            raise NotImplementedError("multiple shooting is not implemented yet")
         if self.__dynamics is None:
             raise ValueError("dynamics must be specified")
         if self.__stage_cost is None:
             raise ValueError("stage cost must be specified")
         return self
 
-    def build_symbolic_model(self):
-        self.validate()
-
+    def __build_single_shooting_model(self):
         u = self.__symbol_type("u", self.__nu * self.__horizon)
         p = self.__parameters.symbol()
         param = self.__parameters.view(p)
@@ -147,6 +143,7 @@ class OptimalControlProblem:
             penalty_mapping = cs.vertcat(*penalty_terms)
 
         return {
+            "shooting": self.__shooting.value,
             "u": u,
             "p": p,
             "param": param,
@@ -154,3 +151,70 @@ class OptimalControlProblem:
             "penalty_mapping": penalty_mapping,
             "state_trajectory": states,
         }
+
+    def __build_multiple_shooting_model(self):
+        p = self.__parameters.symbol()
+        param = self.__parameters.view(p)
+
+        x0 = param.get("x0")
+        if x0 is None:
+            raise ValueError("parameter 'x0' must be declared for OCP problems")
+        if x0.size1() * x0.size2() != self.__nx:
+            raise ValueError("parameter 'x0' has incompatible dimension")
+
+        decision_blocks = []
+        input_slices = []
+        state_slices = []
+        states = [x0]
+        cost = 0
+        penalty_terms = []
+
+        x_current = x0
+        offset = 0
+
+        for stage_idx in range(self.__horizon):
+            u_t = self.__symbol_type(f"u_{stage_idx}", self.__nu)
+            x_next = self.__symbol_type(f"x_{stage_idx + 1}", self.__nx)
+
+            decision_blocks.extend([u_t, x_next])
+            input_slices.append((offset, offset + self.__nu))
+            offset += self.__nu
+            state_slices.append((offset, offset + self.__nx))
+            offset += self.__nx
+
+            cost += self.__stage_cost(x_current, u_t, param, stage_idx)
+
+            for kind, path_constraint in self.__path_constraints:
+                if kind == "penalty":
+                    penalty_terms.append(path_constraint(x_current, u_t, param, stage_idx))
+
+            penalty_terms.append(x_next - self.__dynamics(x_current, u_t, param))
+
+            x_current = x_next
+            states.append(x_current)
+
+        if self.__terminal_cost is not None:
+            cost += self.__terminal_cost(x_current, param)
+
+        u = cs.vertcat(*decision_blocks)
+        penalty_mapping = cs.vertcat(*penalty_terms) if penalty_terms else None
+
+        return {
+            "shooting": self.__shooting.value,
+            "u": u,
+            "p": p,
+            "param": param,
+            "cost": cost,
+            "penalty_mapping": penalty_mapping,
+            "state_trajectory": states,
+            "input_slices": input_slices,
+            "state_slices": state_slices,
+        }
+
+    def build_symbolic_model(self):
+        self.validate()
+        if self.__shooting == ShootingMethod.SINGLE:
+            return self.__build_single_shooting_model()
+        if self.__shooting == ShootingMethod.MULTIPLE:
+            return self.__build_multiple_shooting_model()
+        raise NotImplementedError("unsupported shooting method")

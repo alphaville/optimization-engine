@@ -1,7 +1,6 @@
 import importlib
 import os
 import sys
-
 import casadi.casadi as cs
 
 from opengen.builder.optimizer_builder import OpEnOptimizerBuilder
@@ -26,6 +25,7 @@ class GeneratedOptimizer:
         self.__backend = backend
         self.__backend_kind = backend_kind
         self.__started = False
+        self.__symbolic_model = self.__ocp.build_symbolic_model()
         self.__rollout_function = self.__make_rollout_function()
 
     @property
@@ -48,21 +48,38 @@ class GeneratedOptimizer:
             self.__started = False
 
     def __make_rollout_function(self):
-        model = self.__ocp.build_symbolic_model()
-        states = cs.horzcat(*model["state_trajectory"])
-        return cs.Function("ocp_rollout", [model["u"], model["p"]], [states])
+        if self.__ocp.shooting == ShootingMethod.MULTIPLE:
+            return None
+        states = cs.horzcat(*self.__symbolic_model["state_trajectory"])
+        return cs.Function("ocp_rollout", [self.__symbolic_model["u"], self.__symbolic_model["p"]], [states])
 
     def __pack_parameters(self, solve_kwargs):
         return self.__ocp.parameters.pack(solve_kwargs)
 
     def __extract_inputs(self, flat_solution):
-        nu = self.__ocp.nu
+        if self.__ocp.shooting == ShootingMethod.SINGLE:
+            nu = self.__ocp.nu
+            return [
+                flat_solution[stage_idx * nu:(stage_idx + 1) * nu]
+                for stage_idx in range(self.__ocp.horizon)
+            ]
+
         return [
-            flat_solution[stage_idx * nu:(stage_idx + 1) * nu]
-            for stage_idx in range(self.__ocp.horizon)
+            flat_solution[start:stop]
+            for start, stop in self.__symbolic_model["input_slices"]
         ]
 
     def __extract_states(self, flat_solution, packed_parameters):
+        if self.__ocp.shooting == ShootingMethod.MULTIPLE:
+            x0_start, x0_stop = self.__ocp.parameters.slices()["x0"]
+            x0 = packed_parameters[x0_start:x0_stop]
+            states = [x0]
+            states.extend(
+                flat_solution[start:stop]
+                for start, stop in self.__symbolic_model["state_slices"]
+            )
+            return states
+
         state_matrix = self.__rollout_function(flat_solution, packed_parameters).full()
         return [state_matrix[:, idx].reshape((-1,)).tolist() for idx in range(state_matrix.shape[1])]
 
@@ -139,13 +156,38 @@ class OCPBuilder:
         constraints = [stage_constraints] * self.__ocp.horizon
         return CartesianProduct(segments, constraints)
 
-    def build_problem(self):
-        if self.__ocp.shooting != ShootingMethod.SINGLE:
-            raise NotImplementedError("multiple shooting is not implemented yet")
+    def __make_multiple_shooting_constraints(self):
+        stage_constraints = self.__ocp.input_constraints
+        if stage_constraints is None:
+            stage_constraints = NoConstraints()
 
+        segments = []
+        constraints = []
+        offset = -1
+
+        for _ in range(self.__ocp.horizon):
+            offset += self.__ocp.nu
+            segments.append(offset)
+            constraints.append(stage_constraints)
+
+            offset += self.__ocp.nx
+            segments.append(offset)
+            constraints.append(NoConstraints())
+
+        return CartesianProduct(segments, constraints)
+
+    def build_problem(self):
         model = self.__ocp.build_symbolic_model()
         low_level_problem = Problem(model["u"], model["p"], model["cost"])
-        low_level_problem = low_level_problem.with_constraints(self.__make_input_constraints())
+
+        if self.__ocp.shooting == ShootingMethod.SINGLE:
+            constraints = self.__make_input_constraints()
+        elif self.__ocp.shooting == ShootingMethod.MULTIPLE:
+            constraints = self.__make_multiple_shooting_constraints()
+        else:
+            raise NotImplementedError("unsupported shooting method")
+
+        low_level_problem = low_level_problem.with_constraints(constraints)
 
         if model["penalty_mapping"] is not None:
             low_level_problem = low_level_problem.with_penalty_constraints(
