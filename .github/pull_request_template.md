@@ -8,8 +8,12 @@
 - Closes #1
 - Addresses #2
 
+## Target versions
 
-## TODOs
+- OpEn version ...
+- opengen version ...
+
+## Checklist
 
 - [ ] Documentation 
 - [ ] All tests must pass
