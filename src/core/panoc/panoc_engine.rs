@@ -179,9 +179,7 @@ where
 
         // Compute the cost at the half step
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
-
-        // Compute the cost at u_current (save it in `cache.cost_value`)
-        (self.problem.cost)(u_current, &mut self.cache.cost_value)?;
+        debug_assert!(matrix_operations::is_finite(&[self.cache.cost_value]));
 
         let mut it_lipschitz_search = 0;
 
@@ -237,8 +235,7 @@ where
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2
         //            + 0.5 * dist squared / gamma
         //            - sigma * norm_gamma_fpr^2
-        let fbe = cache.cost_value
-            - 0.5 * cache.gamma * cache.gradient_u_norm_sq
+        let fbe = cache.cost_value - 0.5 * cache.gamma * cache.gradient_u_norm_sq
             + 0.5 * cache.gradient_step_u_half_step_diff_norm_sq / cache.gamma;
         let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr * cache.norm_gamma_fpr;
         cache.rhs_ls = fbe - sigma_fpr_sq;
@@ -263,8 +260,7 @@ where
         self.half_step(); // u_half_step ← project(gradient_step)
 
         // Update the LHS of the line search condition
-        self.cache.lhs_ls = self.cache.cost_value
-            - 0.5 * gamma * self.cache.gradient_u_norm_sq
+        self.cache.lhs_ls = self.cache.cost_value - 0.5 * gamma * self.cache.gradient_u_norm_sq
             + 0.5 * self.cache.gradient_step_u_half_step_diff_norm_sq / self.cache.gamma;
 
         Ok(self.cache.lhs_ls > self.cache.rhs_ls)
@@ -381,12 +377,14 @@ where
 /* --------------------------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
+    use std::cell::Cell;
 
     use crate::constraints;
     use crate::core::panoc::panoc_engine::PANOCEngine;
     use crate::core::panoc::*;
     use crate::core::Problem;
     use crate::mocks;
+    use crate::FunctionCallResult;
 
     #[test]
     fn t_compute_fpr() {
@@ -571,6 +569,42 @@ mod tests {
             1e-10,
             1e-8,
             "rhs_ls is wrong",
+        );
+    }
+
+    #[test]
+    fn t_update_lipschitz_constant_reuses_cached_cost_at_current_iterate() {
+        let n = 2;
+        let mem = 5;
+        let bounds = constraints::NoConstraints::new();
+        let cost_calls = Cell::new(0usize);
+        let cost = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+            cost_calls.set(cost_calls.get() + 1);
+            *c = 0.5 * crate::matrix_operations::norm2_squared(u);
+            Ok(())
+        };
+        let grad = |u: &[f64], g: &mut [f64]| -> FunctionCallResult {
+            g.copy_from_slice(u);
+            Ok(())
+        };
+        let problem = Problem::new(&bounds, grad, cost);
+        let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
+        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+
+        let u_current = [1.0, -2.0];
+        panoc_engine.cache.cost_value = 2.5;
+        panoc_engine.cache.u_half_step.copy_from_slice(&[0.1, -0.1]);
+        panoc_engine.cache.gradient_u.copy_from_slice(&u_current);
+        panoc_engine.cache.gamma = 0.5;
+        panoc_engine.cache.lipschitz_constant = 1.9;
+        panoc_engine.compute_fpr(&u_current);
+
+        panoc_engine.update_lipschitz_constant(&u_current).unwrap();
+
+        assert_eq!(
+            1,
+            cost_calls.get(),
+            "update_lipschitz_constant should only evaluate the half-step cost"
         );
     }
 }
