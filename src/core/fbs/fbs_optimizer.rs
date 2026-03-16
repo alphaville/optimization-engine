@@ -99,7 +99,7 @@ where
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
-        let now = instant::Instant::now();
+        let now = web_time::Instant::now();
 
         // Initialize - propagate error upstream, if any
         self.fbs_engine.init(u)?;

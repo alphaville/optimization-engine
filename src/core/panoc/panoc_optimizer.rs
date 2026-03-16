@@ -123,7 +123,7 @@ where
     ConstraintType: constraints::Constraint + 'life,
 {
     fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
-        let now = instant::Instant::now();
+        let now = web_time::Instant::now();
 
         /*
          * Initialise [call panoc_engine.init()]
@@ -218,7 +218,7 @@ mod tests {
         let mut panoc_cache = PANOCCache::new(n_dimension, tolerance, lbfgs_memory);
         let problem = Problem::new(&bounds, cost_gradient, cost_function);
         let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
-        let now = instant::Instant::now();
+        let now = web_time::Instant::now();
         let status = panoc.solve(&mut u_solution).unwrap();
 
         println!("{} iterations", status.iterations());
