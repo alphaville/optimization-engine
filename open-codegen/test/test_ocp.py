@@ -160,8 +160,8 @@ class OcpTestCase(unittest.TestCase):
             .with_initial_tolerance(1e-5) \
             .with_delta_tolerance(1e-5) \
             .with_initial_penalty(10.0) \
-            .with_penalty_weight_update_factor(5.0) \
-            .with_max_inner_iterations(50) \
+            .with_penalty_weight_update_factor(1.2) \
+            .with_max_inner_iterations(500) \
             .with_max_outer_iterations(10)
 
         builder = og.ocp.OCPBuilder(
@@ -170,24 +170,17 @@ class OcpTestCase(unittest.TestCase):
             build_configuration=build_config,
             solver_configuration=solver_config,
         )
-        builder.build()
-
-        mng = og.tcp.OptimizerTcpManager(
-            optimizer_path=os.path.join(OcpTestCase.TEST_DIR, optimizer_name)
-        )
-        mng.start()
+        optimizer = builder.build()
 
         try:
-            pong = mng.ping()
-            self.assertEqual(1, pong["Pong"])
-
-            response = mng.call(p=[1.0, 0.0])
-            self.assertTrue(response.is_ok())
-            status = response.get()
-            self.assertEqual("Converged", status.exit_status)
-            self.assertEqual(2, len(status.solution))
+            result = optimizer.solve(x0=[1.0], xref=[0.0])
+            print(result)
+            self.assertEqual("Converged", result.exit_status)
+            self.assertEqual(2, len(result.solution))
+            self.assertEqual(2, len(result.inputs))
+            self.assertEqual(3, len(result.states))
         finally:
-            mng.kill()
+            optimizer.kill()
 
 
 if __name__ == "__main__":
