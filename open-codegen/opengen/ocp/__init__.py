@@ -1,3 +1,5 @@
+"""High-level OCP interface for building optimizers with ``opengen``."""
+
 from .builder import GeneratedOptimizer, OCPBuilder
 from .parameter import ParameterDefinition, ParameterPack, ParameterView
 from .problem import OptimalControlProblem, ShootingMethod

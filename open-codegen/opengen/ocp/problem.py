@@ -1,3 +1,5 @@
+"""High-level optimal control problem definitions for ``opengen``."""
+
 from enum import Enum
 
 import casadi.casadi as cs
@@ -9,14 +11,29 @@ from .parameter import ParameterPack
 
 
 class ShootingMethod(Enum):
+    """Available OCP formulations."""
+
     SINGLE = "single"
     MULTIPLE = "multiple"
 
 
 class OptimalControlProblem:
-    """High-level optimal control specification."""
+    """High-level specification of a finite-horizon optimal control problem.
+
+    The OCP layer collects dynamics, costs, parameters and constraints in an
+    OCP-oriented format and later lowers them to the low-level
+    :class:`opengen.builder.problem.Problem` abstraction.
+    """
 
     def __init__(self, nx, nu, horizon, shooting=ShootingMethod.SINGLE):
+        """Construct a new optimal control problem.
+
+        :param nx: state dimension
+        :param nu: input dimension
+        :param horizon: prediction horizon
+        :param shooting: shooting formulation, either single or multiple
+        :raises ValueError: if dimensions are invalid
+        """
         if not isinstance(nx, int) or nx <= 0:
             raise ValueError("nx must be a positive integer")
         if not isinstance(nu, int) or nu <= 0:
@@ -46,92 +63,169 @@ class OptimalControlProblem:
 
     @property
     def nx(self):
+        """State dimension."""
         return self.__nx
 
     @property
     def nu(self):
+        """Input dimension."""
         return self.__nu
 
     @property
     def horizon(self):
+        """Prediction horizon."""
         return self.__horizon
 
     @property
     def shooting(self):
+        """Selected shooting formulation."""
         return self.__shooting
 
     @property
     def symbol_type(self):
+        """CasADi symbol constructor used internally."""
         return self.__symbol_type
 
     @property
     def parameters(self):
+        """Declared named parameters."""
         return self.__parameters
 
     @property
     def dynamics(self):
+        """User-defined dynamics callback."""
         return self.__dynamics
 
     @property
     def input_constraints(self):
+        """Hard stage-wise input constraints."""
         return self.__input_constraints
 
     @property
     def hard_stage_state_input_constraints(self):
+        """Hard multiple-shooting constraints on stage-wise ``(x_t, u_t)``."""
         return self.__hard_stage_state_input_constraints
 
     @property
     def hard_terminal_state_constraints(self):
+        """Hard multiple-shooting constraints on the terminal state ``x_N``."""
         return self.__hard_terminal_state_constraints
 
     @property
     def path_constraints(self):
+        """Stage-wise symbolic PM/ALM constraints."""
         return list(self.__path_constraints)
 
     @property
     def terminal_constraints(self):
+        """Terminal symbolic PM/ALM constraints."""
         return list(self.__terminal_constraints)
 
     def add_parameter(self, name, size, default=None):
+        """Add a named parameter block to the OCP.
+
+        :param name: parameter name
+        :param size: parameter dimension
+        :param default: optional default numeric value
+        :return: current instance
+        """
         self.__parameters.add(name, size, default=default)
         return self
 
     def with_dynamics(self, dynamics):
+        """Specify the system dynamics callback.
+
+        The callback must accept ``(x, u, param)`` and return the next state
+        :math:`x^+ = F(x, u, p)`.
+
+        :param dynamics: dynamics callback
+        :return: current instance
+        """
         self.__dynamics = dynamics
         return self
 
     def with_dynamics_constraints(self, kind="penalty"):
+        """Choose how multiple-shooting defect constraints are imposed.
+
+        Supported values are ``"penalty"`` and ``"alm"``. This option is only
+        relevant in multiple shooting. The corresponding defect constraints are
+        of the form :math:`x_{t+1} - F(x_t, u_t, p)`.
+
+        :param kind: constraint treatment for dynamics defects
+        :return: current instance
+        :raises ValueError: if ``kind`` is invalid
+        """
         if kind not in ("penalty", "alm"):
             raise ValueError("dynamics constraint kind must be either 'penalty' or 'alm'")
         self.__dynamics_constraint_kind = kind
         return self
 
     def with_stage_cost(self, stage_cost):
+        """Specify the stage cost callback.
+
+        The callback must accept ``(x, u, param, stage_idx)``.
+
+        :param stage_cost: stage cost callback
+        :return: current instance
+        """
         self.__stage_cost = stage_cost
         return self
 
     def with_terminal_cost(self, terminal_cost):
+        """Specify the terminal cost callback.
+
+        The callback must accept ``(x, param)``.
+
+        :param terminal_cost: terminal cost callback
+        :return: current instance
+        """
         self.__terminal_cost = terminal_cost
         return self
 
     def with_input_constraints(self, constraints):
+        """Specify hard constraints on the stage-wise control inputs.
+
+        In single shooting these are the only hard constraints that act
+        directly on decision variables. In multiple shooting they are applied
+        to every input block :math:`u_t`.
+
+        :param constraints: instance of ``opengen.constraints.Constraint``
+        :return: current instance
+        """
         self.__input_constraints = constraints
         return self
 
     def with_hard_stage_state_input_constraints(self, constraints):
+        r"""Specify hard stage-wise constraints on :math:`(x_t, u_t)`.
+
+        This method is only meaningful in the multiple-shooting formulation.
+
+        :param constraints: set acting on the stacked vector
+            :math:`\operatorname{vertcat}(x_t, u_t)`
+        :return: current instance
+        """
         self.__hard_stage_state_input_constraints = constraints
         return self
 
     def with_hard_terminal_state_constraints(self, constraints):
+        """Specify hard constraints on the terminal state :math:`x_N`.
+
+        This method is only meaningful in the multiple-shooting formulation.
+
+        :param constraints: set acting on :math:`x_N`
+        :return: current instance
+        """
         self.__hard_terminal_state_constraints = constraints
         return self
 
     @staticmethod
     def __constraint_dimension(mapping):
+        """Return the scalar dimension of a CasADi mapping."""
         return mapping.size1() * mapping.size2()
 
     @staticmethod
     def __append_constraint_definition(container, kind, constraint, set_c=None, set_y=None):
+        """Validate and append a symbolic PM/ALM constraint definition."""
         if kind not in ("penalty", "alm"):
             raise ValueError("constraint kind must be either 'penalty' or 'alm'")
         if kind == "alm" and set_c is None:
@@ -145,6 +239,7 @@ class OptimalControlProblem:
 
     @staticmethod
     def __assemble_constraint_set(blocks, key):
+        """Assemble repeated constraint blocks into a set or Cartesian product."""
         if not blocks:
             return None
         if len(blocks) == 1:
@@ -160,6 +255,20 @@ class OptimalControlProblem:
         return CartesianProduct(segments, constraints)
 
     def with_path_constraint(self, constraint, kind="penalty", set_c=None, set_y=None):
+        r"""Add a stage-wise symbolic constraint.
+
+        The callback must accept ``(x, u, param, stage_idx)``. When
+        ``kind="penalty"``, its output is appended to the penalty mapping
+        :math:`F_2`. When ``kind="alm"``, its output is appended to the ALM
+        mapping :math:`F_1` and the user must also provide ``set_c`` so that
+        the constraints take the form :math:`F_1(x_t, u_t, p) \in C`.
+
+        :param constraint: stage constraint callback
+        :param kind: either ``"penalty"`` or ``"alm"``
+        :param set_c: set :math:`C` for ALM constraints
+        :param set_y: optional dual set :math:`Y` for ALM constraints
+        :return: current instance
+        """
         self.__append_constraint_definition(
             self.__path_constraints,
             kind,
@@ -170,6 +279,17 @@ class OptimalControlProblem:
         return self
 
     def with_terminal_constraint(self, constraint, kind="penalty", set_c=None, set_y=None):
+        """Add a terminal symbolic constraint.
+
+        The callback must accept ``(x, param)``. PM and ALM semantics are the
+        same as in :meth:`with_path_constraint`.
+
+        :param constraint: terminal constraint callback
+        :param kind: either ``"penalty"`` or ``"alm"``
+        :param set_c: set :math:`C` for ALM constraints
+        :param set_y: optional dual set :math:`Y` for ALM constraints
+        :return: current instance
+        """
         self.__append_constraint_definition(
             self.__terminal_constraints,
             kind,
@@ -180,6 +300,12 @@ class OptimalControlProblem:
         return self
 
     def validate(self):
+        """Validate the OCP definition before lowering it.
+
+        :return: current instance
+        :raises ValueError: if mandatory components are missing or a hard
+            state-based constraint is used in single shooting
+        """
         if self.__dynamics is None:
             raise ValueError("dynamics must be specified")
         if self.__stage_cost is None:
@@ -196,6 +322,7 @@ class OptimalControlProblem:
         return self
 
     def __build_single_shooting_model(self):
+        """Build the symbolic low-level model for single shooting."""
         u = self.__symbol_type("u", self.__nu * self.__horizon)
         p = self.__parameters.symbol()
         param = self.__parameters.view(p)
@@ -275,6 +402,7 @@ class OptimalControlProblem:
         }
 
     def __build_multiple_shooting_model(self):
+        """Build the symbolic low-level model for multiple shooting."""
         p = self.__parameters.symbol()
         param = self.__parameters.view(p)
 
@@ -380,6 +508,16 @@ class OptimalControlProblem:
         }
 
     def build_symbolic_model(self):
+        r"""Lower the OCP to a symbolic model understood by the OCP builder.
+
+        The returned dictionary contains the decision variables, packed
+        parameter vector, symbolic cost, optional ALM/penalty mappings and the
+        symbolic state trajectory. In particular, the returned mappings are the
+        low-level objects later used to define constraints of the form
+        :math:`F_1(u, p) \in C` and :math:`F_2(u, p) = 0`.
+
+        :return: symbolic model dictionary
+        """
         self.validate()
         if self.__shooting == ShootingMethod.SINGLE:
             return self.__build_single_shooting_model()

@@ -240,8 +240,9 @@ class OcpTestCase(unittest.TestCase):
             .with_max_inner_iterations(5000) \
             .with_max_outer_iterations(20)
 
+        ocp_single = make_problem(og.ocp.ShootingMethod.SINGLE)
         single_optimizer = og.ocp.OCPBuilder(
-            make_problem(og.ocp.ShootingMethod.SINGLE),
+            ocp_single,
             metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_single_tcp"),
             build_configuration=og.config.BuildConfiguration()
                 .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
@@ -252,8 +253,9 @@ class OcpTestCase(unittest.TestCase):
                 ),
             solver_configuration=solver_config,
         ).build()
+        ocp_multiple = make_problem(og.ocp.ShootingMethod.MULTIPLE)
         multiple_optimizer = og.ocp.OCPBuilder(
-            make_problem(og.ocp.ShootingMethod.MULTIPLE),
+            ocp_multiple,
             metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_multiple_tcp"),
             build_configuration=og.config.BuildConfiguration()
                 .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())

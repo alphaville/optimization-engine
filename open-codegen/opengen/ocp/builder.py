@@ -1,3 +1,5 @@
+"""Builders and runtime wrappers for OCP-generated optimizers."""
+
 import importlib
 import os
 import sys
@@ -16,9 +18,22 @@ from .solution import OcpSolution
 
 
 class GeneratedOptimizer:
-    """Wrapper around generated OpEn optimizers using named parameters."""
+    """High-level runtime wrapper around a generated optimizer.
+
+    This class hides whether the underlying solver is consumed through direct
+    Python bindings or through the TCP interface and exposes a uniform
+    ``solve(x0=..., xref=...)`` API based on named parameters.
+    """
 
     def __init__(self, ocp, optimizer_name, target_dir, backend, backend_kind):
+        """Construct a generated optimizer wrapper.
+
+        :param ocp: source OCP definition
+        :param optimizer_name: generated optimizer name
+        :param target_dir: generated optimizer directory
+        :param backend: low-level backend object
+        :param backend_kind: backend type, e.g. ``"direct"`` or ``"tcp"``
+        """
         self.__ocp = ocp
         self.__optimizer_name = optimizer_name
         self.__target_dir = target_dir
@@ -30,33 +45,43 @@ class GeneratedOptimizer:
 
     @property
     def target_dir(self):
+        """Directory of the generated optimizer project."""
         return self.__target_dir
 
     @property
     def backend_kind(self):
+        """Backend kind used by this optimizer wrapper."""
         return self.__backend_kind
 
     def start(self):
+        """Start the backend if it is a local TCP server.
+
+        :return: current instance
+        """
         if self.__backend_kind == "tcp" and not self.__started:
             self.__backend.start()
             self.__started = True
         return self
 
     def kill(self):
+        """Stop the backend if it is a local TCP server."""
         if self.__backend_kind == "tcp" and self.__started:
             self.__backend.kill()
             self.__started = False
 
     def __make_rollout_function(self):
+        """Create the state rollout function for single shooting."""
         if self.__ocp.shooting == ShootingMethod.MULTIPLE:
             return None
         states = cs.horzcat(*self.__symbolic_model["state_trajectory"])
         return cs.Function("ocp_rollout", [self.__symbolic_model["u"], self.__symbolic_model["p"]], [states])
 
     def __pack_parameters(self, solve_kwargs):
+        """Pack named keyword arguments into the flat solver parameter vector."""
         return self.__ocp.parameters.pack(solve_kwargs)
 
     def __extract_inputs(self, flat_solution):
+        r"""Extract stage-wise inputs :math:`u_0, \ldots, u_{N-1}` from the flat solution."""
         if self.__ocp.shooting == ShootingMethod.SINGLE:
             nu = self.__ocp.nu
             return [
@@ -70,6 +95,7 @@ class GeneratedOptimizer:
         ]
 
     def __extract_states(self, flat_solution, packed_parameters):
+        r"""Extract or reconstruct the state trajectory :math:`x_0, \ldots, x_N`."""
         if self.__ocp.shooting == ShootingMethod.MULTIPLE:
             x0_start, x0_stop = self.__ocp.parameters.slices()["x0"]
             x0 = packed_parameters[x0_start:x0_stop]
@@ -90,6 +116,22 @@ class GeneratedOptimizer:
         initial_penalty=None,
         **parameter_values,
     ):
+        r"""Solve the generated OCP optimizer.
+
+        Named keyword arguments are packed according to the declared OCP
+        parameters. For example, if the OCP declares ``x0`` and ``xref``, the
+        solver can be called as ``optimizer.solve(x0=x0, xref=xref)`` to solve
+        the OCP for a given initial condition :math:`x_0` and reference
+        :math:`x^{\mathrm{ref}}`.
+
+        :param initial_guess: optional initial decision-variable guess
+        :param initial_lagrange_multipliers: optional initial ALM multipliers
+        :param initial_penalty: optional initial penalty parameter
+        :param parameter_values: named parameter values
+        :return: :class:`OcpSolution`
+        :raises RuntimeError: if the backend is unavailable or the low-level
+            solve call fails
+        """
         packed_parameters = self.__pack_parameters(parameter_values)
 
         if self.__backend_kind == "direct":
@@ -121,7 +163,7 @@ class GeneratedOptimizer:
 
 
 class OCPBuilder:
-    """Builder that lowers an OCP to the existing OpEn Problem abstraction."""
+    """Builder that lowers an OCP to the low-level OpEn builder stack."""
 
     def __init__(
         self,
@@ -130,6 +172,13 @@ class OCPBuilder:
         build_configuration=BuildConfiguration(),
         solver_configuration=None,
     ):
+        """Construct an OCP builder.
+
+        :param problem: instance of :class:`OptimalControlProblem`
+        :param metadata: optimizer metadata
+        :param build_configuration: OpEn build configuration
+        :param solver_configuration: OpEn solver configuration
+        """
         self.__ocp = problem
         self.__metadata = metadata
         self.__build_configuration = build_configuration
@@ -141,10 +190,20 @@ class OCPBuilder:
         self.__generate_not_build = False
 
     def with_generate_not_build_flag(self, flag):
+        """Generate code without compiling it.
+
+        :param flag: whether to generate only
+        :return: current instance
+        """
         self.__generate_not_build = flag
         return self
 
     def __make_input_constraints(self):
+        r"""Build the hard input constraint set for single shooting.
+
+        This produces a stage-wise product set for the control inputs
+        :math:`u_0, \ldots, u_{N-1}`.
+        """
         stage_constraints = self.__ocp.input_constraints
         if stage_constraints is None:
             return NoConstraints()
@@ -157,6 +216,12 @@ class OCPBuilder:
         return CartesianProduct(segments, constraints)
 
     def __make_multiple_shooting_constraints(self):
+        """Build the hard decision-variable set for multiple shooting.
+
+        Depending on the selected OCP options, this acts on input blocks
+        :math:`u_t`, stage-wise state-input blocks :math:`(x_t, u_t)`, or the
+        terminal state :math:`x_N`.
+        """
         stage_constraints = self.__ocp.input_constraints
         if stage_constraints is None:
             stage_constraints = NoConstraints()
@@ -226,6 +291,10 @@ class OCPBuilder:
         return CartesianProduct(segments, constraints)
 
     def build_problem(self):
+        """Lower the OCP to a low-level :class:`opengen.builder.problem.Problem`.
+
+        :return: low-level OpEn problem
+        """
         model = self.__ocp.build_symbolic_model()
         low_level_problem = Problem(model["u"], model["p"], model["cost"])
 
@@ -253,6 +322,7 @@ class OCPBuilder:
         return low_level_problem
 
     def __make_backend(self, target_dir):
+        """Create the runtime backend associated with the generated optimizer."""
         optimizer_name = self.__metadata.optimizer_name
 
         if self.__build_configuration.build_python_bindings:
@@ -267,6 +337,10 @@ class OCPBuilder:
         return None, "none"
 
     def build(self):
+        """Generate, optionally compile, and wrap the optimizer.
+
+        :return: :class:`GeneratedOptimizer`
+        """
         low_level_problem = self.build_problem()
         builder = OpEnOptimizerBuilder(
             low_level_problem,
