@@ -7,6 +7,7 @@
     "Python": [
       "python-interface",
       "python-advanced",
+      "python-ocp",
       "python-c",
       "python-bindings",
       "python-tcp-ip",
