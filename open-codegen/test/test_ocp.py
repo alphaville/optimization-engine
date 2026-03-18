@@ -59,17 +59,17 @@ class OcpTestCase(unittest.TestCase):
             ocp,
             metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
             build_configuration=og.config.BuildConfiguration()
-            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
-            .with_build_directory(OcpTestCase.TEST_DIR)
-            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
-            .with_build_python_bindings(),
+                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+                .with_build_directory(OcpTestCase.TEST_DIR)
+                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+                .with_build_python_bindings(),
             solver_configuration=og.config.SolverConfiguration()
-            .with_tolerance(1e-5)
-            .with_delta_tolerance(1e-5)
-            .with_initial_penalty(10.0)
-            .with_penalty_weight_update_factor(1.2)
-            .with_max_inner_iterations(500)
-            .with_max_outer_iterations(10),
+                .with_tolerance(1e-5)
+                .with_delta_tolerance(1e-5)
+                .with_initial_penalty(10.0)
+                .with_penalty_weight_update_factor(1.2)
+                .with_max_inner_iterations(500)
+                .with_max_outer_iterations(10),
         ).build()
         cls.ocp1_optimizer.save()
         cls.ocp1_manifest_path = os.path.join(cls.ocp1_optimizer.target_dir, "optimizer_manifest.json")
@@ -138,11 +138,49 @@ class OcpTestCase(unittest.TestCase):
             cls.ocp2_single_optimizer.target_dir, "optimizer_manifest.json")
         cls.ocp2_multiple_manifest_path = os.path.join(
             cls.ocp2_multiple_optimizer.target_dir, "optimizer_manifest.json")
+
+    @classmethod
+    def setUpOCP3(cls):
+        nx, nu, ts = 2, 1, 0.1
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: cs.vertcat(x[1], -x[0] + u[0]),
+            sampling_time=ts,
+        )
+
+        ocp = og.ocp.OptimalControlProblem(nx=nx, nu=nu, horizon=5)
+        ocp.add_parameter("x0", nx)
+        ocp.add_parameter("xref", nx, default=[0.0, 0.0])
+        ocp.with_dynamics(discretizer.multistep(method="rk4", num_steps=3))
+        ocp.with_stage_cost(
+            lambda xk, uk, param, _t: cs.dot(xk - param["xref"], xk - param["xref"]) + cs.dot(uk, uk)
+        )
+        ocp.with_terminal_cost(
+            lambda xk, param: cs.dot(xk - param["xref"], xk - param["xref"])
+        )
+        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
+
+        cls.ocp3_optimizer = og.ocp.OCPBuilder(
+            ocp,
+            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_multistep_rk4_bindings"),
+            build_configuration=og.config.BuildConfiguration()
+                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+                .with_build_directory(OcpTestCase.TEST_DIR)
+                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+                .with_build_python_bindings(),
+            solver_configuration=og.config.SolverConfiguration()
+                .with_tolerance(1e-5)
+                .with_delta_tolerance(1e-5)
+                .with_initial_penalty(10.0)
+                .with_penalty_weight_update_factor(1.2)
+                .with_max_inner_iterations(500)
+                .with_max_outer_iterations(10),
+        ).build()
         
     @classmethod
     def setUpClass(cls):
         cls.setUpOCP1()
         cls.setUpOCP2()
+        cls.setUpOCP3()
 
     def make_ocp(self, shooting=og.ocp.ShootingMethod.SINGLE):
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3, shooting=shooting)
@@ -281,46 +319,7 @@ class OcpTestCase(unittest.TestCase):
             discretizer.multistep(method="euler", num_steps=0)
 
     def test_multistep_rk4_codegen(self):
-        nx, nu, ts = 2, 1, 0.1
-        discretizer = og.ocp.DynamicsDiscretizer(
-            lambda x, u, param: cs.vertcat(x[1], -x[0] + u[0]),
-            sampling_time=ts,
-        )
-
-        ocp = og.ocp.OptimalControlProblem(nx=nx, nu=nu, horizon=5)
-        ocp.add_parameter("x0", nx)
-        ocp.add_parameter("xref", nx, default=[0.0, 0.0])
-        ocp.with_dynamics(discretizer.multistep(method="rk4", num_steps=3))
-        ocp.with_stage_cost(
-            lambda xk, uk, param, _t: cs.dot(xk - param["xref"], xk - param["xref"]) + cs.dot(uk, uk)
-        )
-        ocp.with_terminal_cost(
-            lambda xk, param: cs.dot(xk - param["xref"], xk - param["xref"])
-        )
-        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
-
-        meta = og.config.OptimizerMeta().with_optimizer_name("ocp_multistep_rk4_bindings")
-        build_config = og.config.BuildConfiguration() \
-            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path()) \
-            .with_build_directory(OcpTestCase.TEST_DIR) \
-            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-            .with_build_python_bindings()
-        solver_config = og.config.SolverConfiguration() \
-            .with_tolerance(1e-5) \
-            .with_delta_tolerance(1e-5) \
-            .with_initial_penalty(10.0) \
-            .with_penalty_weight_update_factor(1.2) \
-            .with_max_inner_iterations(500) \
-            .with_max_outer_iterations(10)
-
-        optimizer = og.ocp.OCPBuilder(
-            ocp,
-            metadata=meta,
-            build_configuration=build_config,
-            solver_configuration=solver_config,
-        ).build()
-
-        result = optimizer.solve(
+        result = self.ocp3_optimizer.solve(
             x0=[1.0, 0.0],
             xref=[0.0, 0.0],
             initial_guess=[0.0] * 5,
