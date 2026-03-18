@@ -91,9 +91,7 @@ class GeneratedOptimizer:
             )
         self.__input_slices = metadata.get("input_slices")
         self.__state_slices = metadata.get("state_slices")
-        rollout_serialized = metadata.get("rollout_function")
-        if rollout_serialized is not None:
-            self.__rollout_function = cs.Function.deserialize(rollout_serialized)
+        self.__rollout_function = metadata.get("rollout_function")
 
     @property
     def target_dir(self):
@@ -192,19 +190,33 @@ class GeneratedOptimizer:
             ],
             "input_slices": self.__input_slices,
             "state_slices": self.__state_slices,
-            "rollout_function": None
-            if self.__rollout_function is None
-            else self.__rollout_function.serialize(),
+            "rollout_file": "rollout.casadi" if self.__rollout_function is not None else None,
         }
 
-    def save(self, json_path):
-        """Save a JSON manifest that can later recreate this optimizer.
+    def save(self, json_path=None):
+        """Save a manifest that can later recreate this optimizer.
 
-        :param json_path: destination manifest path
+        The manifest is stored in the generated optimizer directory by default.
+        For single-shooting optimizers, the rollout function is stored in a
+        separate ``rollout.casadi`` file next to the manifest.
+
+        :param json_path: optional destination manifest path
         :return: current instance
         """
+        if json_path is None:
+            json_path = os.path.join(self.__target_dir, "optimizer_manifest.json")
+
+        json_path = os.path.abspath(json_path)
+        manifest_dir = os.path.dirname(json_path)
+        os.makedirs(manifest_dir, exist_ok=True)
+
+        metadata = self.__metadata_dict()
+        rollout_file = metadata.get("rollout_file")
+        if rollout_file is not None:
+            self.__rollout_function.save(os.path.join(manifest_dir, rollout_file))
+
         with open(json_path, "w") as fh:
-            json.dump(self.__metadata_dict(), fh, indent=2)
+            json.dump(metadata, fh, indent=2)
         return self
 
     @staticmethod
@@ -228,8 +240,14 @@ class GeneratedOptimizer:
         :param json_path: path to a JSON manifest created by :meth:`save`
         :return: reconstructed :class:`GeneratedOptimizer`
         """
+        json_path = os.path.abspath(json_path)
         with open(json_path, "r") as fh:
             metadata = json.load(fh)
+        rollout_file = metadata.get("rollout_file")
+        if rollout_file is not None:
+            metadata["rollout_function"] = cs.Function.load(
+                os.path.join(os.path.dirname(json_path), rollout_file)
+            )
         backend = cls.__load_backend(
             metadata["target_dir"],
             metadata["optimizer_name"],

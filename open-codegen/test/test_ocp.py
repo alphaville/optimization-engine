@@ -325,8 +325,6 @@ class OcpTestCase(unittest.TestCase):
 
     def test_optimizer_manifest_roundtrip(self):
         optimizer_name = "ocp_manifest_bindings"
-        manifest_path = os.path.join(OcpTestCase.TEST_DIR, f"{optimizer_name}.json")
-
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
         ocp.add_parameter("x0", 2)
         ocp.add_parameter("xref", 2, default=[0.0, 0.0])
@@ -356,7 +354,13 @@ class OcpTestCase(unittest.TestCase):
             .with_max_outer_iterations(10),
         ).build()
 
-        optimizer.save(manifest_path)
+        optimizer.save()
+        manifest_path = os.path.join(optimizer.target_dir, "optimizer_manifest.json")
+        rollout_path = os.path.join(optimizer.target_dir, "rollout.casadi")
+
+        self.assertTrue(os.path.exists(manifest_path))
+        self.assertTrue(os.path.exists(rollout_path))
+
         loaded_optimizer = og.ocp.GeneratedOptimizer.load(manifest_path)
 
         result = loaded_optimizer.solve(
