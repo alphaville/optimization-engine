@@ -323,6 +323,54 @@ class OcpTestCase(unittest.TestCase):
         self.assertAlmostEqual(result.states[-1][0], 0.6)
         self.assertAlmostEqual(result.states[-1][1], -0.6)
 
+    def test_optimizer_manifest_roundtrip(self):
+        optimizer_name = "ocp_manifest_bindings"
+        manifest_path = os.path.join(OcpTestCase.TEST_DIR, f"{optimizer_name}.json")
+
+        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
+        ocp.add_parameter("x0", 2)
+        ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+        ocp.with_stage_cost(
+            lambda x, u, param, _t: cs.dot(x - param["xref"], x - param["xref"]) + 0.1 * cs.dot(u, u)
+        )
+        ocp.with_terminal_cost(
+            lambda x, param: cs.dot(x - param["xref"], x - param["xref"])
+        )
+        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
+
+        optimizer = og.ocp.OCPBuilder(
+            ocp,
+            metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
+            build_configuration=og.config.BuildConfiguration()
+            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+            .with_build_directory(OcpTestCase.TEST_DIR)
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+            .with_build_python_bindings(),
+            solver_configuration=og.config.SolverConfiguration()
+            .with_tolerance(1e-5)
+            .with_delta_tolerance(1e-5)
+            .with_initial_penalty(10.0)
+            .with_penalty_weight_update_factor(1.2)
+            .with_max_inner_iterations(500)
+            .with_max_outer_iterations(10),
+        ).build()
+
+        optimizer.save(manifest_path)
+        loaded_optimizer = og.ocp.GeneratedOptimizer.load(manifest_path)
+
+        result = loaded_optimizer.solve(
+            x0=[1.0, 0.0],
+            xref=[0.0, 0.0],
+            initial_guess=[0.0] * 3,
+        )
+
+        self.assertEqual(optimizer_name, loaded_optimizer.optimizer_name)
+        self.assertEqual("direct", loaded_optimizer.backend_kind)
+        self.assertEqual("Converged", result.exit_status)
+        self.assertEqual(3, len(result.inputs))
+        self.assertEqual(4, len(result.states))
+
     def test_multiple_shooting_penalty(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
         builder = og.ocp.OCPBuilder(

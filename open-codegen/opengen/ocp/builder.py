@@ -1,6 +1,7 @@
 """Builders and runtime wrappers for OCP-generated optimizers."""
 
 import importlib
+import json
 import os
 import sys
 import casadi.casadi as cs
@@ -13,6 +14,7 @@ from opengen.constraints.cartesian import CartesianProduct
 from opengen.constraints.no_constraints import NoConstraints
 from opengen.tcp.optimizer_tcp_manager import OptimizerTcpManager
 
+from .parameter import ParameterPack
 from .problem import ShootingMethod
 from .solution import OcpSolution
 
@@ -25,28 +27,83 @@ class GeneratedOptimizer:
     ``solve(x0=..., xref=...)`` API based on named parameters.
     """
 
-    def __init__(self, ocp, optimizer_name, target_dir, backend, backend_kind):
+    def __init__(
+        self,
+        optimizer_name,
+        target_dir,
+        backend,
+        backend_kind,
+        ocp=None,
+        symbolic_model=None,
+        metadata=None,
+    ):
         """Construct a generated optimizer wrapper.
 
-        :param ocp: source OCP definition
         :param optimizer_name: generated optimizer name
         :param target_dir: generated optimizer directory
         :param backend: low-level backend object
         :param backend_kind: backend type, e.g. ``"direct"`` or ``"tcp"``
+        :param ocp: source OCP definition
+        :param symbolic_model: precomputed symbolic model of the OCP
+        :param metadata: serialized optimizer metadata used when reloading an
+            optimizer from disk
         """
-        self.__ocp = ocp
         self.__optimizer_name = optimizer_name
-        self.__target_dir = target_dir
+        self.__target_dir = os.path.abspath(target_dir)
         self.__backend = backend
         self.__backend_kind = backend_kind
         self.__started = False
-        self.__symbolic_model = self.__ocp.build_symbolic_model()
-        self.__rollout_function = self.__make_rollout_function()
+        self.__rollout_function = None
+        self.__input_slices = None
+        self.__state_slices = None
+
+        if metadata is not None:
+            self.__initialize_from_metadata(metadata)
+        elif ocp is not None:
+            self.__initialize_from_ocp(ocp, symbolic_model=symbolic_model)
+        else:
+            raise ValueError("either ocp or metadata must be provided")
+
+    def __initialize_from_ocp(self, ocp, symbolic_model=None):
+        """Populate runtime metadata from an in-memory OCP object."""
+        self.__shooting = ocp.shooting
+        self.__nx = ocp.nx
+        self.__nu = ocp.nu
+        self.__horizon = ocp.horizon
+        self.__parameters = ocp.parameters
+        model = symbolic_model if symbolic_model is not None else ocp.build_symbolic_model()
+        self.__input_slices = model.get("input_slices")
+        self.__state_slices = model.get("state_slices")
+        self.__rollout_function = self.__make_rollout_function(model)
+
+    def __initialize_from_metadata(self, metadata):
+        """Populate runtime metadata from a saved JSON manifest."""
+        self.__shooting = ShootingMethod(metadata["shooting"])
+        self.__nx = metadata["nx"]
+        self.__nu = metadata["nu"]
+        self.__horizon = metadata["horizon"]
+        self.__parameters = ParameterPack()
+        for definition in metadata["parameters"]:
+            self.__parameters.add(
+                definition["name"],
+                definition["size"],
+                default=definition["default"],
+            )
+        self.__input_slices = metadata.get("input_slices")
+        self.__state_slices = metadata.get("state_slices")
+        rollout_serialized = metadata.get("rollout_function")
+        if rollout_serialized is not None:
+            self.__rollout_function = cs.Function.deserialize(rollout_serialized)
 
     @property
     def target_dir(self):
         """Directory of the generated optimizer project."""
         return self.__target_dir
+
+    @property
+    def optimizer_name(self):
+        """Name of the generated optimizer."""
+        return self.__optimizer_name
 
     @property
     def backend_kind(self):
@@ -69,45 +126,122 @@ class GeneratedOptimizer:
             self.__backend.kill()
             self.__started = False
 
-    def __make_rollout_function(self):
-        """Create the state rollout function for single shooting."""
-        if self.__ocp.shooting == ShootingMethod.MULTIPLE:
+    def __make_rollout_function(self, symbolic_model):
+        """
+        Create the state rollout function for single shooting
+        
+        The function is used in single shooting formualations only;
+        a function is constructed to compute the sequence of states
+        from the sequence of inputs.
+        """
+        if self.__shooting == ShootingMethod.MULTIPLE:
             return None
-        states = cs.horzcat(*self.__symbolic_model["state_trajectory"])
-        return cs.Function("ocp_rollout", [self.__symbolic_model["u"], self.__symbolic_model["p"]], [states])
+        states = cs.horzcat(*symbolic_model["state_trajectory"])
+        return cs.Function("ocp_rollout", [symbolic_model["u"], symbolic_model["p"]], [states])
 
     def __pack_parameters(self, solve_kwargs):
         """Pack named keyword arguments into the flat solver parameter vector."""
-        return self.__ocp.parameters.pack(solve_kwargs)
+        return self.__parameters.pack(solve_kwargs)
 
     def __extract_inputs(self, flat_solution):
         r"""Extract stage-wise inputs :math:`u_0, \ldots, u_{N-1}` from the flat solution."""
-        if self.__ocp.shooting == ShootingMethod.SINGLE:
-            nu = self.__ocp.nu
+        if self.__shooting == ShootingMethod.SINGLE:
+            nu = self.__nu
             return [
-                flat_solution[stage_idx * nu:(stage_idx + 1) * nu]
-                for stage_idx in range(self.__ocp.horizon)
+                list(flat_solution[stage_idx * nu:(stage_idx + 1) * nu])
+                for stage_idx in range(self.__horizon)
             ]
 
         return [
-            flat_solution[start:stop]
-            for start, stop in self.__symbolic_model["input_slices"]
+            list(flat_solution[start:stop])
+            for start, stop in self.__input_slices
         ]
 
     def __extract_states(self, flat_solution, packed_parameters):
         r"""Extract or reconstruct the state trajectory :math:`x_0, \ldots, x_N`."""
-        if self.__ocp.shooting == ShootingMethod.MULTIPLE:
-            x0_start, x0_stop = self.__ocp.parameters.slices()["x0"]
+        if self.__shooting == ShootingMethod.MULTIPLE:
+            x0_start, x0_stop = self.__parameters.slices()["x0"]
             x0 = packed_parameters[x0_start:x0_stop]
             states = [x0]
             states.extend(
-                flat_solution[start:stop]
-                for start, stop in self.__symbolic_model["state_slices"]
+                list(flat_solution[start:stop])
+                for start, stop in self.__state_slices
             )
             return states
 
         state_matrix = self.__rollout_function(flat_solution, packed_parameters).full()
         return [state_matrix[:, idx].reshape((-1,)).tolist() for idx in range(state_matrix.shape[1])]
+
+    def __metadata_dict(self):
+        """Return the JSON-serializable optimizer manifest."""
+        return {
+            "optimizer_name": self.__optimizer_name,
+            "target_dir": self.__target_dir,
+            "backend_kind": self.__backend_kind,
+            "shooting": self.__shooting.value,
+            "nx": self.__nx,
+            "nu": self.__nu,
+            "horizon": self.__horizon,
+            "parameters": [
+                {
+                    "name": definition.name,
+                    "size": definition.size,
+                    "default": definition.default,
+                }
+                for definition in self.__parameters.definitions()
+            ],
+            "input_slices": self.__input_slices,
+            "state_slices": self.__state_slices,
+            "rollout_function": None
+            if self.__rollout_function is None
+            else self.__rollout_function.serialize(),
+        }
+
+    def save(self, json_path):
+        """Save a JSON manifest that can later recreate this optimizer.
+
+        :param json_path: destination manifest path
+        :return: current instance
+        """
+        with open(json_path, "w") as fh:
+            json.dump(self.__metadata_dict(), fh, indent=2)
+        return self
+
+    @staticmethod
+    def __load_backend(target_dir, optimizer_name, backend_kind):
+        """Create a backend object from saved metadata."""
+        if backend_kind == "direct":
+            if target_dir not in sys.path:
+                sys.path.insert(0, target_dir)
+            module = importlib.import_module(optimizer_name)
+            return module.solver()
+        if backend_kind == "tcp":
+            return OptimizerTcpManager(target_dir)
+        if backend_kind == "none":
+            return None
+        raise ValueError(f"unknown backend kind '{backend_kind}'")
+
+    @classmethod
+    def load(cls, json_path):
+        """Load a previously saved optimizer manifest.
+
+        :param json_path: path to a JSON manifest created by :meth:`save`
+        :return: reconstructed :class:`GeneratedOptimizer`
+        """
+        with open(json_path, "r") as fh:
+            metadata = json.load(fh)
+        backend = cls.__load_backend(
+            metadata["target_dir"],
+            metadata["optimizer_name"],
+            metadata["backend_kind"],
+        )
+        return cls(
+            optimizer_name=metadata["optimizer_name"],
+            target_dir=metadata["target_dir"],
+            backend=backend,
+            backend_kind=metadata["backend_kind"],
+            metadata=metadata,
+        )
 
     def solve(
         self,
@@ -290,12 +424,12 @@ class OCPBuilder:
 
         return CartesianProduct(segments, constraints)
 
-    def build_problem(self):
+    def build_problem(self, symbolic_model=None):
         """Lower the OCP to a low-level :class:`opengen.builder.problem.Problem`.
 
         :return: low-level OpEn problem
         """
-        model = self.__ocp.build_symbolic_model()
+        model = symbolic_model if symbolic_model is not None else self.__ocp.build_symbolic_model()
         low_level_problem = Problem(model["u"], model["p"], model["cost"])
 
         if self.__ocp.shooting == ShootingMethod.SINGLE:
@@ -341,7 +475,8 @@ class OCPBuilder:
 
         :return: :class:`GeneratedOptimizer`
         """
-        low_level_problem = self.build_problem()
+        symbolic_model = self.__ocp.build_symbolic_model()
+        low_level_problem = self.build_problem(symbolic_model=symbolic_model)
         builder = OpEnOptimizerBuilder(
             low_level_problem,
             metadata=self.__metadata,
@@ -354,9 +489,10 @@ class OCPBuilder:
         target_dir = os.path.abspath(info["paths"]["target"])
         backend, backend_kind = self.__make_backend(target_dir)
         return GeneratedOptimizer(
-            ocp=self.__ocp,
             optimizer_name=self.__metadata.optimizer_name,
             target_dir=target_dir,
             backend=backend,
             backend_kind=backend_kind,
+            ocp=self.__ocp,
+            symbolic_model=symbolic_model,
         )
