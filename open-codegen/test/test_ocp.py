@@ -12,6 +12,12 @@ class DummySolverStatus:
         self.cost = 1.23
         self.exit_status = "Converged"
         self.solve_time_ms = 0.7
+        self.penalty = 12.5
+        self.num_outer_iterations = 3
+        self.num_inner_iterations = 27
+        self.last_problem_norm_fpr = 1e-6
+        self.f1_infeasibility = 2e-5
+        self.f2_norm = 3e-5
         self.lagrange_multipliers = []
 
 
@@ -71,7 +77,6 @@ class OcpTestCase(unittest.TestCase):
                 .with_max_inner_iterations(500)
                 .with_max_outer_iterations(10),
         ).build()
-        cls.ocp1_optimizer.save()
         cls.ocp1_manifest_path = os.path.join(cls.ocp1_optimizer.target_dir, "optimizer_manifest.json")
         cls.ocp1_rollout_path = os.path.join(cls.ocp1_optimizer.target_dir, "rollout.casadi")
 
@@ -132,8 +137,6 @@ class OcpTestCase(unittest.TestCase):
             solver_configuration=solver_config,
         ).build()
 
-        cls.ocp2_single_optimizer.save()
-        cls.ocp2_multiple_optimizer.save()
         cls.ocp2_single_manifest_path = os.path.join(
             cls.ocp2_single_optimizer.target_dir, "optimizer_manifest.json")
         cls.ocp2_multiple_manifest_path = os.path.join(
@@ -325,10 +328,46 @@ class OcpTestCase(unittest.TestCase):
             initial_guess=[0.0] * 5,
         )
 
+        # Check the result has all necessary attributes
+        self.assertTrue(hasattr(result, "raw"))
+        self.assertTrue(hasattr(result, "solution"))
+        self.assertTrue(hasattr(result, "inputs"))
+        self.assertTrue(hasattr(result, "states"))
+        self.assertTrue(hasattr(result, "cost"))
+        self.assertTrue(hasattr(result, "exit_status"))
+        self.assertTrue(hasattr(result, "solve_time_ms"))
+        self.assertTrue(hasattr(result, "penalty"))
+        self.assertTrue(hasattr(result, "num_outer_iterations"))
+        self.assertTrue(hasattr(result, "num_inner_iterations"))
+        self.assertTrue(hasattr(result, "last_problem_norm_fpr"))
+        self.assertTrue(hasattr(result, "f1_infeasibility"))
+        self.assertTrue(hasattr(result, "f2_norm"))
+        self.assertTrue(hasattr(result, "lagrange_multipliers"))
+
+        # Check all attributes of `result`
         self.assertEqual("Converged", result.exit_status)
+        self.assertIsInstance(result.solution, list)
+        self.assertIsInstance(result.inputs, list)
+        self.assertIsInstance(result.states, list)
         self.assertEqual(5, len(result.solution))
         self.assertEqual(5, len(result.inputs))
         self.assertEqual(6, len(result.states))
+        self.assertIsInstance(result.cost, float)
+        self.assertGreaterEqual(result.cost, 0.0)
+        self.assertIsInstance(result.solve_time_ms, float)
+        self.assertGreater(result.solve_time_ms, 0.0)
+        self.assertIsInstance(result.penalty, float)
+        self.assertIsInstance(result.num_outer_iterations, int)
+        self.assertGreaterEqual(result.num_outer_iterations, 1)
+        self.assertIsInstance(result.num_inner_iterations, int)
+        self.assertGreaterEqual(result.num_inner_iterations, 1)
+        self.assertIsInstance(result.last_problem_norm_fpr, float)
+        self.assertGreaterEqual(result.last_problem_norm_fpr, 0.0)
+        self.assertIsInstance(result.f1_infeasibility, float)
+        self.assertGreaterEqual(result.f1_infeasibility, 0.0)
+        self.assertIsInstance(result.f2_norm, float)
+        self.assertGreaterEqual(result.f2_norm, 0.0)
+        self.assertIsInstance(result.lagrange_multipliers, list)
         self.assertAlmostEqual(result.states[0][0], 1.0)
         self.assertAlmostEqual(result.states[0][1], 0.0)
 
@@ -421,6 +460,12 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(result.states[0], [0.0, 0.0])
         self.assertAlmostEqual(result.states[-1][0], 0.6)
         self.assertAlmostEqual(result.states[-1][1], -0.6)
+        self.assertEqual(result.penalty, 12.5)
+        self.assertEqual(result.num_outer_iterations, 3)
+        self.assertEqual(result.num_inner_iterations, 27)
+        self.assertEqual(result.last_problem_norm_fpr, 1e-6)
+        self.assertEqual(result.f1_infeasibility, 2e-5)
+        self.assertEqual(result.f2_norm, 3e-5)
 
     def test_optimizer_manifest_roundtrip(self):
         manifest_path = self.ocp1_manifest_path
@@ -520,6 +565,58 @@ class OcpTestCase(unittest.TestCase):
 
         self.assertEqual(result.inputs, [[0.1], [0.2], [0.4]])
         self.assertEqual(result.states, [[0.0, 0.0], [0.1, -0.1], [0.3, -0.3], [0.7, -0.7]])
+
+    def test_tcp_optimizer_result(self):
+        optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_single_manifest_path)
+
+        try:
+            result = optimizer.solve(
+                x0=[1.0, -1.0],
+                xref=[0.0, 0.0],
+            )
+
+            self.assertTrue(hasattr(result, "raw"))
+            self.assertTrue(hasattr(result, "solution"))
+            self.assertTrue(hasattr(result, "inputs"))
+            self.assertTrue(hasattr(result, "states"))
+            self.assertTrue(hasattr(result, "cost"))
+            self.assertTrue(hasattr(result, "exit_status"))
+            self.assertTrue(hasattr(result, "solve_time_ms"))
+            self.assertTrue(hasattr(result, "penalty"))
+            self.assertTrue(hasattr(result, "num_outer_iterations"))
+            self.assertTrue(hasattr(result, "num_inner_iterations"))
+            self.assertTrue(hasattr(result, "last_problem_norm_fpr"))
+            self.assertTrue(hasattr(result, "f1_infeasibility"))
+            self.assertTrue(hasattr(result, "f2_norm"))
+            self.assertTrue(hasattr(result, "lagrange_multipliers"))
+
+            self.assertEqual("Converged", result.exit_status)
+            self.assertIsInstance(result.solution, list)
+            self.assertIsInstance(result.inputs, list)
+            self.assertIsInstance(result.states, list)
+            self.assertEqual(5, len(result.inputs))
+            self.assertEqual(6, len(result.states))
+            self.assertIsInstance(result.cost, float)
+            self.assertGreaterEqual(result.cost, 0.0)
+            self.assertIsInstance(result.solve_time_ms, float)
+            self.assertGreater(result.solve_time_ms, 0.0)
+            self.assertIsInstance(result.penalty, float)
+            self.assertGreater(result.penalty, 0.0)
+            self.assertIsInstance(result.num_outer_iterations, int)
+            self.assertGreaterEqual(result.num_outer_iterations, 1)
+            self.assertIsInstance(result.num_inner_iterations, int)
+            self.assertGreaterEqual(result.num_inner_iterations, 1)
+            self.assertIsInstance(result.last_problem_norm_fpr, float)
+            self.assertGreaterEqual(result.last_problem_norm_fpr, 0.0)
+            self.assertIsInstance(result.f1_infeasibility, float)
+            self.assertGreaterEqual(result.f1_infeasibility, 0.0)
+            self.assertIsInstance(result.f2_norm, float)
+            self.assertGreaterEqual(result.f2_norm, 0.0)
+            self.assertIsInstance(result.lagrange_multipliers, list)
+            self.assertAlmostEqual(result.states[0][0], 1.0)
+            self.assertAlmostEqual(result.states[0][1], -1.0)
+        finally:
+            optimizer.kill()
 
     def test_single_vs_multiple(self):
         single_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_single_manifest_path)

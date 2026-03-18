@@ -6,6 +6,30 @@ description: Optimal Control with OpEn/opengen
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: #348c4f;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #e9e642;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
 
 <div class="alert alert-warning">
 <b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.10.0a1</code>.
@@ -17,6 +41,8 @@ of optimal control problems. In an intuitive and straightforward way,
 the user defines the problem ingredients (stage/terminal costs, 
 state/input constraints, dynamics). 
 
+<a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank"><button class="but but1" ><b>Try this on Google Colab</b></button></a>
+
 ## In a nutshell: quick overview
 
 Suppose you want to solve the optimal control problem 
@@ -25,9 +51,9 @@ Suppose you want to solve the optimal control problem
     \begin{align}
     \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
     \sum_{t=1}^{N - 1} 
-        \underbrace{\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}} 
+        \underbrace{q\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}} 
         + 
-        \underbrace{\|x_N-x^{\mathrm{ref}}\|^2}_{\text{terminal cost}}
+        \underbrace{10\|x_N-x^{\mathrm{ref}}\|^2}_{\text{terminal cost}}
     \\
     \text{subject to: }& x_{t+1} = F(x_t, u_t), t=0,\ldots, N-1
     \\
@@ -38,6 +64,37 @@ Suppose you want to solve the optimal control problem
     &x_0=x
     \end{align}
 \]</div>
+Suppose the state is two-dimensional and the input is one-dimensional.
+The dynamics is 
+<div class="math">
+\[
+    \begin{align}
+    F(x, u; a) = 
+        \begin{bmatrix}
+        ax_1 + 0.2x_1^2 - 1.2 x_2 + u \\
+        \sin(x_2) + 0.2 x_1^3 - u
+        \end{bmatrix},
+    \end{align}
+\]</div>
+where $a$ is a constant parameter. Suppose the stage cost
+function is
+<div class="math">
+\[
+    \begin{align}
+    \ell(x, u; x^{\rm ref}, q, r)
+    {}={}
+    q\| x - x^{\rm ref}\|^2 + r \|u\|^2,
+    \end{align}
+\]</div>
+where $x^{\rm ref}$, $q$, and $r$ are parameters. The terminal 
+cost function is 
+<div class="math">
+\[
+    \begin{align}
+    V_f(x; x^{\mathrm{ref}}) = 10\|x_N-x^{\mathrm{ref}}\|^2.
+    \end{align}
+\]</div>
+Lastly, we 
 This can be done as follows:
 
 ```python
