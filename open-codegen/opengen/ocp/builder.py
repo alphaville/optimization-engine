@@ -4,7 +4,12 @@ import importlib
 import json
 import os
 import sys
+import hashlib
+import platform
+from datetime import datetime, timezone
+import casadi
 import casadi.casadi as cs
+from importlib.metadata import version, PackageNotFoundError
 
 from opengen.builder.optimizer_builder import OpEnOptimizerBuilder
 from opengen.builder.problem import Problem
@@ -172,14 +177,28 @@ class GeneratedOptimizer:
 
     def __metadata_dict(self):
         """Return the JSON-serializable optimizer manifest."""
+        rollout_sha256 = None
+        if self.__rollout_function is not None:
+            rollout_sha256 = None
+
         return {
+            "manifest_version": 1,
             "optimizer_name": self.__optimizer_name,
             "target_dir": self.__target_dir,
             "backend_kind": self.__backend_kind,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "platform": platform.platform(),
+            "python_version": sys.version,
+            "opengen_version": self.__safe_package_version("opengen"),
+            "casadi_version": self.__casadi_version(),
             "shooting": self.__shooting.value,
             "nx": self.__nx,
             "nu": self.__nu,
             "horizon": self.__horizon,
+            "decision_dimension": self.__nu * self.__horizon
+            if self.__shooting == ShootingMethod.SINGLE
+            else self.__horizon * (self.__nu + self.__nx),
+            "parameter_dimension": self.__parameters.total_size(),
             "parameters": [
                 {
                     "name": definition.name,
@@ -191,7 +210,24 @@ class GeneratedOptimizer:
             "input_slices": self.__input_slices,
             "state_slices": self.__state_slices,
             "rollout_file": "rollout.casadi" if self.__rollout_function is not None else None,
+            "rollout_sha256": rollout_sha256,
         }
+
+    @staticmethod
+    def __safe_package_version(package_name):
+        """Return the installed version of a package if available."""
+        try:
+            return version(package_name)
+        except PackageNotFoundError:
+            return None
+
+    @staticmethod
+    def __casadi_version():
+        """Return the installed CasADi version if available."""
+        casadi_version = getattr(casadi, "__version__", None)
+        if casadi_version is not None:
+            return casadi_version
+        return GeneratedOptimizer.__safe_package_version("casadi")
 
     def save(self, json_path=None):
         """Save a manifest that can later recreate this optimizer.
@@ -213,7 +249,10 @@ class GeneratedOptimizer:
         metadata = self.__metadata_dict()
         rollout_file = metadata.get("rollout_file")
         if rollout_file is not None:
-            self.__rollout_function.save(os.path.join(manifest_dir, rollout_file))
+            rollout_path = os.path.join(manifest_dir, rollout_file)
+            self.__rollout_function.save(rollout_path)
+            with open(rollout_path, "rb") as fh:
+                metadata["rollout_sha256"] = hashlib.sha256(fh.read()).hexdigest()
 
         with open(json_path, "w") as fh:
             json.dump(metadata, fh, indent=2)
@@ -245,9 +284,16 @@ class GeneratedOptimizer:
             metadata = json.load(fh)
         rollout_file = metadata.get("rollout_file")
         if rollout_file is not None:
-            metadata["rollout_function"] = cs.Function.load(
-                os.path.join(os.path.dirname(json_path), rollout_file)
-            )
+            rollout_path = os.path.join(os.path.dirname(json_path), rollout_file)
+            metadata["rollout_function"] = cs.Function.load(rollout_path)
+            rollout_sha256 = metadata.get("rollout_sha256")
+            if rollout_sha256 is not None:
+                with open(rollout_path, "rb") as fh:
+                    current_sha256 = hashlib.sha256(fh.read()).hexdigest()
+                if current_sha256 != rollout_sha256:
+                    raise ValueError("rollout.casadi checksum mismatch")
+            else:
+                raise ValueError("manifest is missing rollout_sha256")
         backend = cls.__load_backend(
             metadata["target_dir"],
             metadata["optimizer_name"],
@@ -489,7 +535,7 @@ class OCPBuilder:
         return None, "none"
 
     def build(self):
-        """Generate, optionally compile, and wrap the optimizer.
+        """Generate, compile, and wrap the optimizer.
 
         :return: :class:`GeneratedOptimizer`
         """
@@ -506,7 +552,7 @@ class OCPBuilder:
         info = builder.build()
         target_dir = os.path.abspath(info["paths"]["target"])
         backend, backend_kind = self.__make_backend(target_dir)
-        return GeneratedOptimizer(
+        optimizer = GeneratedOptimizer(
             optimizer_name=self.__metadata.optimizer_name,
             target_dir=target_dir,
             backend=backend,
@@ -514,3 +560,5 @@ class OCPBuilder:
             ocp=self.__ocp,
             symbolic_model=symbolic_model,
         )
+        optimizer.save()
+        return optimizer

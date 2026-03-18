@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 
@@ -38,11 +39,110 @@ class OcpTestCase(unittest.TestCase):
 
     @classmethod
     def setUpOCP1(cls):
-        pass
+        optimizer_name = "ocp_manifest_bindings"
+        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
+        ocp.add_parameter("x0", 2)
+        ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+        ocp.add_parameter("q", 1, default=1)
+        ocp.add_parameter("r", 1, default=0.1)
+        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+        ocp.with_stage_cost(
+            lambda x, u, param, _t: 
+            param["q"] * cs.dot(x - param["xref"], x - param["xref"]) + param["r"] * cs.dot(u, u)
+        )
+        ocp.with_terminal_cost(
+            lambda x, param: cs.dot(x - param["xref"], x - param["xref"])
+        )
+        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
+
+        cls.ocp1_optimizer = og.ocp.OCPBuilder(
+            ocp,
+            metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
+            build_configuration=og.config.BuildConfiguration()
+            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+            .with_build_directory(OcpTestCase.TEST_DIR)
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+            .with_build_python_bindings(),
+            solver_configuration=og.config.SolverConfiguration()
+            .with_tolerance(1e-5)
+            .with_delta_tolerance(1e-5)
+            .with_initial_penalty(10.0)
+            .with_penalty_weight_update_factor(1.2)
+            .with_max_inner_iterations(500)
+            .with_max_outer_iterations(10),
+        ).build()
+        cls.ocp1_optimizer.save()
+        cls.ocp1_manifest_path = os.path.join(cls.ocp1_optimizer.target_dir, "optimizer_manifest.json")
+        cls.ocp1_rollout_path = os.path.join(cls.ocp1_optimizer.target_dir, "rollout.casadi")
 
     @classmethod
     def setUpOCP2(cls):
-        pass
+        def make_problem(shooting):
+            ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=5, shooting=shooting)
+            ocp.add_parameter("x0", 2)
+            ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+            ocp.with_dynamics(lambda x, u, param:
+                              cs.vertcat(x[0] + u[0], x[1] - u[0]))
+            ocp.with_stage_cost(
+                lambda x, u, param, _t:
+                cs.dot(x - param["xref"], x - param["xref"]) + 0.01 * cs.dot(u, u)
+            )
+            ocp.with_terminal_cost(
+                lambda x, param:
+                2.0 * cs.dot(x - param["xref"], x - param["xref"])
+            )
+            ocp.with_input_constraints(og.constraints.Rectangle([-0.4], [0.4]))
+            ocp.with_path_constraint(
+                lambda x, u, param, _t: cs.fmax(0.0, x[0] - 1.5)
+            )
+            if shooting == og.ocp.ShootingMethod.MULTIPLE:
+                ocp.with_dynamics_constraints("alm")
+            return ocp
+
+        solver_config = og.config.SolverConfiguration() \
+            .with_tolerance(1e-5) \
+            .with_delta_tolerance(1e-5) \
+            .with_initial_penalty(10.0) \
+            .with_penalty_weight_update_factor(1.2) \
+            .with_max_inner_iterations(5000) \
+            .with_max_outer_iterations(20)
+
+        cls.ocp2_single_optimizer = og.ocp.OCPBuilder(
+            make_problem(og.ocp.ShootingMethod.SINGLE),
+            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_single_tcp"),
+            build_configuration=og.config.BuildConfiguration()
+                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+                .with_build_directory(OcpTestCase.TEST_DIR)
+                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+                .with_tcp_interface_config(
+                    tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3391)
+                ),
+            solver_configuration=solver_config,
+        ).build()
+        cls.ocp2_multiple_optimizer = og.ocp.OCPBuilder(
+            make_problem(og.ocp.ShootingMethod.MULTIPLE),
+            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_multiple_tcp"),
+            build_configuration=og.config.BuildConfiguration()
+                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
+                .with_build_directory(OcpTestCase.TEST_DIR)
+                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
+                .with_tcp_interface_config(
+                    tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3392)
+                ),
+            solver_configuration=solver_config,
+        ).build()
+
+        cls.ocp2_single_optimizer.save()
+        cls.ocp2_multiple_optimizer.save()
+        cls.ocp2_single_manifest_path = os.path.join(
+            cls.ocp2_single_optimizer.target_dir, "optimizer_manifest.json")
+        cls.ocp2_multiple_manifest_path = os.path.join(
+            cls.ocp2_multiple_optimizer.target_dir, "optimizer_manifest.json")
+        
+    @classmethod
+    def setUpClass(cls):
+        cls.setUpOCP1()
+        cls.setUpOCP2()
 
     def make_ocp(self, shooting=og.ocp.ShootingMethod.SINGLE):
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3, shooting=shooting)
@@ -324,52 +424,35 @@ class OcpTestCase(unittest.TestCase):
         self.assertAlmostEqual(result.states[-1][1], -0.6)
 
     def test_optimizer_manifest_roundtrip(self):
-        optimizer_name = "ocp_manifest_bindings"
-        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
-        ocp.add_parameter("x0", 2)
-        ocp.add_parameter("xref", 2, default=[0.0, 0.0])
-        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
-        ocp.with_stage_cost(
-            lambda x, u, param, _t: cs.dot(x - param["xref"], x - param["xref"]) + 0.1 * cs.dot(u, u)
-        )
-        ocp.with_terminal_cost(
-            lambda x, param: cs.dot(x - param["xref"], x - param["xref"])
-        )
-        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
-
-        optimizer = og.ocp.OCPBuilder(
-            ocp,
-            metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
-            build_configuration=og.config.BuildConfiguration()
-            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
-            .with_build_directory(OcpTestCase.TEST_DIR)
-            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
-            .with_build_python_bindings(),
-            solver_configuration=og.config.SolverConfiguration()
-            .with_tolerance(1e-5)
-            .with_delta_tolerance(1e-5)
-            .with_initial_penalty(10.0)
-            .with_penalty_weight_update_factor(1.2)
-            .with_max_inner_iterations(500)
-            .with_max_outer_iterations(10),
-        ).build()
-
-        optimizer.save()
-        manifest_path = os.path.join(optimizer.target_dir, "optimizer_manifest.json")
-        rollout_path = os.path.join(optimizer.target_dir, "rollout.casadi")
+        manifest_path = self.ocp1_manifest_path
+        rollout_path = self.ocp1_rollout_path
 
         self.assertTrue(os.path.exists(manifest_path))
         self.assertTrue(os.path.exists(rollout_path))
 
+        with open(manifest_path, "r") as fh:
+            manifest = json.load(fh)
+
+        self.assertEqual(1, manifest["manifest_version"])
+        self.assertEqual("ocp_manifest_bindings", manifest["optimizer_name"])
+        self.assertEqual("direct", manifest["backend_kind"])
+        self.assertEqual("single", manifest["shooting"])
+        self.assertEqual(2, manifest["nx"])
+        self.assertEqual(1, manifest["nu"])
+        self.assertEqual(3, manifest["horizon"])
+        self.assertEqual(3, manifest["decision_dimension"])
+        self.assertEqual(6, manifest["parameter_dimension"]) # p = (x0, xref, q, r)
+        self.assertEqual("rollout.casadi", manifest["rollout_file"])
+        self.assertIsNotNone(manifest["rollout_sha256"])
+        self.assertIn("created_at", manifest)
+
         loaded_optimizer = og.ocp.GeneratedOptimizer.load(manifest_path)
 
         result = loaded_optimizer.solve(
-            x0=[1.0, 0.0],
-            xref=[0.0, 0.0],
-            initial_guess=[0.0] * 3,
+            x0=[1.0, 0.0]
         )
 
-        self.assertEqual(optimizer_name, loaded_optimizer.optimizer_name)
+        self.assertEqual("ocp_manifest_bindings", loaded_optimizer.optimizer_name)
         self.assertEqual("direct", loaded_optimizer.backend_kind)
         self.assertEqual("Converged", result.exit_status)
         self.assertEqual(3, len(result.inputs))
@@ -440,62 +523,8 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(result.states, [[0.0, 0.0], [0.1, -0.1], [0.3, -0.3], [0.7, -0.7]])
 
     def test_single_vs_multiple(self):
-        def make_problem(shooting):
-            ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=5, shooting=shooting)
-            ocp.add_parameter("x0", 2)
-            ocp.add_parameter("xref", 2, default=[0.0, 0.0])
-            ocp.with_dynamics(lambda x, u, param: 
-                              cs.vertcat(x[0] + u[0], x[1] - u[0]))
-            ocp.with_stage_cost(
-                lambda x, u, param, _t:
-                cs.dot(x - param["xref"], x - param["xref"]) + 0.01 * cs.dot(u, u)
-            )
-            ocp.with_terminal_cost(
-                lambda x, param:
-                2.0 * cs.dot(x - param["xref"], x - param["xref"])
-            )
-            ocp.with_input_constraints(og.constraints.Rectangle([-0.4], [0.4]))
-            ocp.with_path_constraint(
-                lambda x, u, param, _t: cs.fmax(0.0, x[0] - 1.5)
-            )
-            if shooting == og.ocp.ShootingMethod.MULTIPLE:
-                ocp.with_dynamics_constraints("alm")
-            return ocp
-
-        solver_config = og.config.SolverConfiguration() \
-            .with_tolerance(1e-5) \
-            .with_delta_tolerance(1e-5) \
-            .with_initial_penalty(10.0) \
-            .with_penalty_weight_update_factor(1.2) \
-            .with_max_inner_iterations(5000) \
-            .with_max_outer_iterations(20)
-
-        ocp_single = make_problem(og.ocp.ShootingMethod.SINGLE)
-        single_optimizer = og.ocp.OCPBuilder(
-            ocp_single,
-            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_single_tcp"),
-            build_configuration=og.config.BuildConfiguration()
-                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
-                .with_build_directory(OcpTestCase.TEST_DIR)
-                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
-                .with_tcp_interface_config(
-                    tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3391)
-                ),
-            solver_configuration=solver_config,
-        ).build()
-        ocp_multiple = make_problem(og.ocp.ShootingMethod.MULTIPLE)
-        multiple_optimizer = og.ocp.OCPBuilder(
-            ocp_multiple,
-            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_multiple_tcp"),
-            build_configuration=og.config.BuildConfiguration()
-                .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path())
-                .with_build_directory(OcpTestCase.TEST_DIR)
-                .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE)
-                .with_tcp_interface_config(
-                    tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3392)
-                ),
-            solver_configuration=solver_config,
-        ).build()
+        single_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_single_manifest_path)
+        multiple_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_multiple_manifest_path)
 
         try:
             x0 = [1.0, -1.0]
