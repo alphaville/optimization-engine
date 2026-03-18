@@ -6,22 +6,24 @@
     ],
     "Python": [
       "python-interface",
-      "python-advanced",
-      "python-ocp",
+      "python-advanced",      
       "python-c",
       "python-bindings",
       "python-tcp-ip",
       "python-ros",
       "python-examples"
     ],
-    "MATLAB": [
-      "matlab-interface",
-      "matlab-examples"
-    ],
+    "Optimal Control": [
+      "python-ocp"
+    ],    
     "Rust": [
       "openrust-basic",
       "openrust-alm",
       "openrust-features"
+    ],
+    "MATLAB": [
+      "matlab-interface",
+      "matlab-examples"
     ],
     "Docker": [
       "docker"
