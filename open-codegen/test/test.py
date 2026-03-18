@@ -195,7 +195,8 @@ class RustBuildTestCase(unittest.TestCase):
         solver_config = og.config.SolverConfiguration() \
             .with_tolerance(1e-6) \
             .with_initial_tolerance(1e-4) \
-            .with_delta_tolerance(1e-5)
+            .with_delta_tolerance(1e-5) \
+            .with_penalty_weight_update_factor(5)
         og.builder.OpEnOptimizerBuilder(
             problem, meta, build_config, solver_config).build()
 
