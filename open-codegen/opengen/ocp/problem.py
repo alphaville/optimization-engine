@@ -128,6 +128,9 @@ class OptimalControlProblem:
         :param size: parameter dimension
         :param default: optional default numeric value
         :return: current instance
+
+        :raises ValueError: if the parameter definition is invalid or a
+            parameter with the same name has already been declared
         """
         self.__parameters.add(name, size, default=default)
         return self
@@ -137,6 +140,9 @@ class OptimalControlProblem:
 
         The callback must accept ``(x, u, param)`` and return the next state
         :math:`x^+ = F(x, u, p)`.
+
+        Note that the callback must be a function involving 
+        symbolic computations using CasADi functions.
 
         :param dynamics: dynamics callback
         :return: current instance

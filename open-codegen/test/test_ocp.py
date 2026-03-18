@@ -36,6 +36,14 @@ class OcpTestCase(unittest.TestCase):
     def get_open_local_absolute_path():
         return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
+    @classmethod
+    def setUpOCP1(cls):
+        pass
+
+    @classmethod
+    def setUpOCP2(cls):
+        pass
+
     def make_ocp(self, shooting=og.ocp.ShootingMethod.SINGLE):
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3, shooting=shooting)
         ocp.add_parameter("x0", 2)
@@ -59,12 +67,181 @@ class OcpTestCase(unittest.TestCase):
         ocp.with_path_constraint(lambda x, u, param, _t: x[0] + u[0] - param["xref"][0])
         return ocp
 
-    def test_parameter_defaults_are_packed(self):
+    def test_parameter_defaults(self):
         ocp = self.make_ocp()
         packed = ocp.parameters.pack({"x0": [0.5, -0.25]})
         self.assertEqual(packed, [0.5, -0.25, 1.0, -1.0])
 
-    def test_single_shooting_rejects_hard_state_based_constraints(self):
+    def test_duplicate_parameters(self):
+        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
+        ocp.add_parameter("x0", 2)
+        with self.assertRaises(ValueError):
+            ocp.add_parameter("x0", 2)
+
+    def test_missing_parameter(self):
+        ocp = self.make_ocp()
+        with self.assertRaises(ValueError):
+            ocp.parameters.pack({"xref": [0.0, 0.0]})
+
+    def test_parameter_dimension_mismatch(self):
+        ocp = self.make_ocp()
+        with self.assertRaises(ValueError):
+            ocp.parameters.pack({"x0": [1.0], "xref": [0.0, 0.0]})
+
+        with self.assertRaises(ValueError):
+            ocp.parameters.pack({"x0": [1.0, 2.0], "xref": [0.0]})
+
+    def test_parameter_default_shapes(self):
+        pack = og.ocp.ParameterPack()
+        pack.add("alpha", 1, default=2.5)
+        pack.add("beta", 2, default=[1.0, -1.0])
+
+        self.assertEqual(pack.pack(), [2.5, 1.0, -1.0])
+
+    def test_invalid_default_dimension(self):
+        with self.assertRaises(ValueError):
+            og.ocp.ParameterDefinition("xref", 2, default=[0.0])
+
+    def test_discretizer_euler(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: -x + u,
+            sampling_time=0.1,
+        )
+        x = cs.SX.sym("x", 1)
+        u = cs.SX.sym("u", 1)
+        p = cs.SX.sym("p", 0)
+        discrete = discretizer.euler()
+        fun = cs.Function("euler_discrete", [x, u, p], [discrete(x, u, p)])
+
+        y = fun([2.0], [1.0], []).full().reshape(-1).tolist()
+        self.assertAlmostEqual(y[0], 1.9)
+
+    def test_discretizer_rk4(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: -x,
+            sampling_time=0.1,
+        )
+        x = cs.SX.sym("x", 1)
+        u = cs.SX.sym("u", 1)
+        p = cs.SX.sym("p", 0)
+        discrete = discretizer.rk4()
+        fun = cs.Function("rk4_discrete", [x, u, p], [discrete(x, u, p)])
+
+        y = fun([1.0], [0.0], []).full().reshape(-1).tolist()
+        self.assertAlmostEqual(y[0], 0.9048375, places=6)
+
+    def test_discretizer_midpoint(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: -x,
+            sampling_time=0.1,
+        )
+        x = cs.SX.sym("x", 1)
+        u = cs.SX.sym("u", 1)
+        p = cs.SX.sym("p", 0)
+        discrete = discretizer.midpoint()
+        fun = cs.Function("midpoint_discrete", [x, u, p], [discrete(x, u, p)])
+
+        y = fun([1.0], [0.0], []).full().reshape(-1).tolist()
+        self.assertAlmostEqual(y[0], 0.905)
+
+    def test_discretizer_heun(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: -x,
+            sampling_time=0.1,
+        )
+        x = cs.SX.sym("x", 1)
+        u = cs.SX.sym("u", 1)
+        p = cs.SX.sym("p", 0)
+        discrete = discretizer.heun()
+        fun = cs.Function("heun_discrete", [x, u, p], [discrete(x, u, p)])
+
+        y = fun([1.0], [0.0], []).full().reshape(-1).tolist()
+        self.assertAlmostEqual(y[0], 0.905)
+
+    def test_discretizer_multistep(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: -x,
+            sampling_time=0.1,
+        )
+        x = cs.SX.sym("x", 1)
+        u = cs.SX.sym("u", 1)
+        p = cs.SX.sym("p", 0)
+        discrete = discretizer.multistep(method="euler", num_steps=2)
+        fun = cs.Function("multistep_discrete", [x, u, p], [discrete(x, u, p)])
+
+        y = fun([1.0], [0.0], []).full().reshape(-1).tolist()
+        self.assertAlmostEqual(y[0], 0.9025)
+
+    def test_discretizer_invalid_multistep(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: x,
+            sampling_time=0.1,
+        )
+        with self.assertRaises(ValueError):
+            discretizer.multistep(method="euler", num_steps=0)
+
+    def test_multistep_rk4_codegen(self):
+        nx, nu, ts = 2, 1, 0.1
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: cs.vertcat(x[1], -x[0] + u[0]),
+            sampling_time=ts,
+        )
+
+        ocp = og.ocp.OptimalControlProblem(nx=nx, nu=nu, horizon=5)
+        ocp.add_parameter("x0", nx)
+        ocp.add_parameter("xref", nx, default=[0.0, 0.0])
+        ocp.with_dynamics(discretizer.multistep(method="rk4", num_steps=3))
+        ocp.with_stage_cost(
+            lambda xk, uk, param, _t: cs.dot(xk - param["xref"], xk - param["xref"]) + cs.dot(uk, uk)
+        )
+        ocp.with_terminal_cost(
+            lambda xk, param: cs.dot(xk - param["xref"], xk - param["xref"])
+        )
+        ocp.with_input_constraints(og.constraints.Rectangle([-1.0], [1.0]))
+
+        meta = og.config.OptimizerMeta().with_optimizer_name("ocp_multistep_rk4_bindings")
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=OcpTestCase.get_open_local_absolute_path()) \
+            .with_build_directory(OcpTestCase.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
+            .with_build_python_bindings()
+        solver_config = og.config.SolverConfiguration() \
+            .with_tolerance(1e-5) \
+            .with_delta_tolerance(1e-5) \
+            .with_initial_penalty(10.0) \
+            .with_penalty_weight_update_factor(1.2) \
+            .with_max_inner_iterations(500) \
+            .with_max_outer_iterations(10)
+
+        optimizer = og.ocp.OCPBuilder(
+            ocp,
+            metadata=meta,
+            build_configuration=build_config,
+            solver_configuration=solver_config,
+        ).build()
+
+        result = optimizer.solve(
+            x0=[1.0, 0.0],
+            xref=[0.0, 0.0],
+            initial_guess=[0.0] * 5,
+        )
+
+        self.assertEqual("Converged", result.exit_status)
+        self.assertEqual(5, len(result.solution))
+        self.assertEqual(5, len(result.inputs))
+        self.assertEqual(6, len(result.states))
+        self.assertAlmostEqual(result.states[0][0], 1.0)
+        self.assertAlmostEqual(result.states[0][1], 0.0)
+
+    def test_discretizer_invalid_method(self):
+        discretizer = og.ocp.DynamicsDiscretizer(
+            lambda x, u, param: x,
+            sampling_time=0.1,
+        )
+        with self.assertRaises(ValueError):
+            discretizer.discretize("unknown")
+
+    def test_single_shooting_hard_constraints(self):
         ocp_stage = self.make_ocp()
         ocp_stage.with_hard_stage_state_input_constraints(
             og.constraints.Rectangle([-1.0, -1.0, -1.0], [1.0, 1.0, 1.0])
@@ -79,7 +256,7 @@ class OcpTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             ocp_terminal.build_symbolic_model()
 
-    def test_symbolic_lowering_builds_penalty_mapping_and_cartesian_constraints(self):
+    def test_lowering_penalty_constraints(self):
         ocp = self.make_ocp()
         builder = og.ocp.OCPBuilder(
             ocp,
@@ -93,7 +270,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertIsInstance(low_level.constraints, og.constraints.CartesianProduct)
         self.assertEqual(low_level.constraints.segments, [0, 1, 2])
 
-    def test_symbolic_lowering_supports_alm_path_and_terminal_constraints(self):
+    def test_lowering_alm_constraints(self):
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
         ocp.add_parameter("x0", 2)
         ocp.add_parameter("xref", 2, default=[0.0, 0.0])
@@ -126,7 +303,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertIsInstance(low_level.alm_set_c, og.constraints.CartesianProduct)
         self.assertEqual(low_level.alm_set_c.segments, [0, 1, 2, 3])
 
-    def test_generated_optimizer_uses_named_parameters_and_defaults(self):
+    def test_generated_optimizer_defaults(self):
         ocp = self.make_ocp()
         backend = DummyDirectSolver(solution=[0.1, 0.2, 0.3])
         optimizer = og.ocp.GeneratedOptimizer(
@@ -146,7 +323,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertAlmostEqual(result.states[-1][0], 0.6)
         self.assertAlmostEqual(result.states[-1][1], -0.6)
 
-    def test_multiple_shooting_builds_decision_vector_and_defect_constraints(self):
+    def test_multiple_shooting_penalty(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
         builder = og.ocp.OCPBuilder(
             ocp,
@@ -160,7 +337,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertIsInstance(low_level.constraints, og.constraints.CartesianProduct)
         self.assertEqual(low_level.constraints.segments, [0, 2, 3, 5, 6, 8])
 
-    def test_multiple_shooting_can_impose_dynamics_with_alm(self):
+    def test_multiple_shooting_alm(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
         ocp.with_dynamics_constraints("alm")
         builder = og.ocp.OCPBuilder(
@@ -175,7 +352,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertIsInstance(low_level.alm_set_c, og.constraints.Zero)
         self.assertIsInstance(low_level.alm_set_y, og.constraints.BallInf)
 
-    def test_multiple_shooting_supports_hard_terminal_state_constraints(self):
+    def test_multiple_shooting_terminal_constraints(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
         ocp.with_hard_terminal_state_constraints(
             og.constraints.Rectangle([-10.0, -10.0], [10.0, 10.0])
@@ -190,7 +367,7 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(low_level.constraints.segments, [0, 2, 3, 5, 6, 8])
         self.assertIsInstance(low_level.constraints.constraints[-1], og.constraints.Rectangle)
 
-    def test_multiple_shooting_solution_extracts_states_from_decision_vector(self):
+    def test_multiple_shooting_state_extraction(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
         backend = DummyDirectSolver(solution=[
             0.1, 0.1, -0.1,
@@ -210,12 +387,13 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(result.inputs, [[0.1], [0.2], [0.4]])
         self.assertEqual(result.states, [[0.0, 0.0], [0.1, -0.1], [0.3, -0.3], [0.7, -0.7]])
 
-    def test_single_and_multiple_shooting_give_approximately_equal_results(self):
+    def test_single_vs_multiple(self):
         def make_problem(shooting):
             ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=5, shooting=shooting)
             ocp.add_parameter("x0", 2)
             ocp.add_parameter("xref", 2, default=[0.0, 0.0])
-            ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+            ocp.with_dynamics(lambda x, u, param: 
+                              cs.vertcat(x[0] + u[0], x[1] - u[0]))
             ocp.with_stage_cost(
                 lambda x, u, param, _t:
                 cs.dot(x - param["xref"], x - param["xref"]) + 0.01 * cs.dot(u, u)
