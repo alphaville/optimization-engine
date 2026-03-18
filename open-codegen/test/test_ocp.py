@@ -405,8 +405,9 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(low_level.dim_decision_variables(), 3)
         self.assertEqual(low_level.dim_parameters(), 4)
         self.assertEqual(low_level.dim_constraints_penalty(), 3)
-        self.assertIsInstance(low_level.constraints, og.constraints.CartesianProduct)
-        self.assertEqual(low_level.constraints.segments, [0, 1, 2])
+        self.assertIsInstance(low_level.constraints, og.constraints.Rectangle)
+        self.assertEqual(low_level.constraints.xmin, [-2.0, -2.0, -2.0])
+        self.assertEqual(low_level.constraints.xmax, [2.0, 2.0, 2.0])
 
     def test_lowering_alm_constraints(self):
         ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
@@ -440,6 +441,30 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(low_level.dim_constraints_penalty(), 1)
         self.assertIsInstance(low_level.alm_set_c, og.constraints.CartesianProduct)
         self.assertEqual(low_level.alm_set_c.segments, [0, 1, 2, 3])
+
+    def test_lowering_alm_rectangle_constraints(self):
+        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=3)
+        ocp.add_parameter("x0", 2)
+        ocp.add_parameter("xmin", 1, default=[-0.5])
+        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+        ocp.with_stage_cost(lambda x, u, param, _t: cs.dot(x, x) + cs.dot(u, u))
+        ocp.with_terminal_cost(lambda x, param: cs.dot(x, x))
+        ocp.with_path_constraint(
+            lambda x, u, param, _t: x[1] - param["xmin"],
+            kind="alm",
+            set_c=og.constraints.Rectangle([0.0], [float("inf")]),
+        )
+
+        builder = og.ocp.OCPBuilder(
+            ocp,
+            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_alm_rect_test"),
+        )
+        low_level = builder.build_problem()
+
+        self.assertEqual(low_level.dim_constraints_aug_lagrangian(), 3)
+        self.assertIsInstance(low_level.alm_set_c, og.constraints.Rectangle)
+        self.assertEqual(low_level.alm_set_c.xmin, [0.0, 0.0, 0.0])
+        self.assertEqual(low_level.alm_set_c.xmax, [float("inf"), float("inf"), float("inf")])
 
     def test_generated_optimizer_defaults(self):
         ocp = self.make_ocp()
@@ -513,8 +538,13 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(low_level.dim_decision_variables(), 9)
         self.assertEqual(low_level.dim_parameters(), 4)
         self.assertEqual(low_level.dim_constraints_penalty(), 9)
-        self.assertIsInstance(low_level.constraints, og.constraints.CartesianProduct)
-        self.assertEqual(low_level.constraints.segments, [0, 2, 3, 5, 6, 8])
+        self.assertIsInstance(low_level.constraints, og.constraints.Rectangle)
+        self.assertEqual(low_level.constraints.xmin, [-2.0, float("-inf"), float("-inf"),
+                                                      -2.0, float("-inf"), float("-inf"),
+                                                      -2.0, float("-inf"), float("-inf")])
+        self.assertEqual(low_level.constraints.xmax, [2.0, float("inf"), float("inf"),
+                                                      2.0, float("inf"), float("inf"),
+                                                      2.0, float("inf"), float("inf")])
 
     def test_multiple_shooting_alm(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)
@@ -542,9 +572,35 @@ class OcpTestCase(unittest.TestCase):
         )
         low_level = builder.build_problem()
 
-        self.assertIsInstance(low_level.constraints, og.constraints.CartesianProduct)
-        self.assertEqual(low_level.constraints.segments, [0, 2, 3, 5, 6, 8])
-        self.assertIsInstance(low_level.constraints.constraints[-1], og.constraints.Rectangle)
+        self.assertIsInstance(low_level.constraints, og.constraints.Rectangle)
+        self.assertEqual(low_level.constraints.xmin, [-2.0, float("-inf"), float("-inf"),
+                                                      -2.0, float("-inf"), float("-inf"),
+                                                      -2.0, -10.0, -10.0])
+        self.assertEqual(low_level.constraints.xmax, [2.0, float("inf"), float("inf"),
+                                                      2.0, float("inf"), float("inf"),
+                                                      2.0, 10.0, 10.0])
+
+    def test_multiple_shooting_zero_constraints(self):
+        ocp = og.ocp.OptimalControlProblem(
+            nx=2,
+            nu=1,
+            horizon=3,
+            shooting=og.ocp.ShootingMethod.MULTIPLE,
+        )
+        ocp.add_parameter("x0", 2)
+        ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+        ocp.with_stage_cost(lambda x, u, param, _t: cs.dot(x - param["xref"], x - param["xref"]))
+        ocp.with_terminal_cost(lambda x, param: cs.dot(x - param["xref"], x - param["xref"]))
+        ocp.with_hard_stage_state_input_constraints(og.constraints.Zero())
+
+        builder = og.ocp.OCPBuilder(
+            ocp,
+            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_ms_zero"),
+        )
+        low_level = builder.build_problem()
+
+        self.assertIsInstance(low_level.constraints, og.constraints.Zero)
 
     def test_multiple_shooting_state_extraction(self):
         ocp = self.make_ocp(shooting=og.ocp.ShootingMethod.MULTIPLE)

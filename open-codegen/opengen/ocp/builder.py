@@ -15,10 +15,10 @@ from opengen.builder.optimizer_builder import OpEnOptimizerBuilder
 from opengen.builder.problem import Problem
 from opengen.config.build_config import BuildConfiguration
 from opengen.config.solver_config import SolverConfiguration
-from opengen.constraints.cartesian import CartesianProduct
 from opengen.constraints.no_constraints import NoConstraints
 from opengen.tcp.optimizer_tcp_manager import OptimizerTcpManager
 
+from .constraint_utils import make_constraint_product
 from .parameter import ParameterPack
 from .problem import ShootingMethod
 from .solution import OcpSolution
@@ -411,7 +411,7 @@ class OCPBuilder:
 
         segments = [((idx + 1) * self.__ocp.nu) - 1 for idx in range(self.__ocp.horizon)]
         constraints = [stage_constraints] * self.__ocp.horizon
-        return CartesianProduct(segments, constraints)
+        return make_constraint_product(segments, constraints)
 
     def __make_multiple_shooting_constraints(self):
         """Build the hard decision-variable set for multiple shooting.
@@ -447,7 +447,7 @@ class OCPBuilder:
                 for idx in range(self.__ocp.horizon)
             ]
             constraints = [hard_stage_constraints] * self.__ocp.horizon
-            return CartesianProduct(segments, constraints)
+            return make_constraint_product(segments, constraints)
 
         if hard_terminal_constraints is not None:
             segments = []
@@ -471,7 +471,7 @@ class OCPBuilder:
             segments.append(offset)
             constraints.append(hard_terminal_constraints)
 
-            return CartesianProduct(segments, constraints)
+            return make_constraint_product(segments, constraints)
 
         segments = []
         constraints = []
@@ -486,7 +486,7 @@ class OCPBuilder:
             segments.append(offset)
             constraints.append(NoConstraints())
 
-        return CartesianProduct(segments, constraints)
+        return make_constraint_product(segments, constraints)
 
     def build_problem(self, symbolic_model=None):
         """Lower the OCP to a low-level :class:`opengen.builder.problem.Problem`.

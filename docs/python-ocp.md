@@ -71,12 +71,12 @@ The dynamics is
     \begin{align}
     F(x, u; a) = 
         \begin{bmatrix}
-        ax_1 + 0.2x_1^2 - 1.2 x_2 + u \\
-        \sin(x_2) + 0.2 x_1^3 - u
+        0.98 \sin(x_1) + x_2 \\
+        0.1x_1^2 - 0.5 x_1 + a x_2 + u
         \end{bmatrix},
     \end{align}
 \]</div>
-where $a$ is a constant parameter. Suppose the stage cost
+where $a$ is a parameter. Suppose the stage cost
 function is
 <div class="math">
 \[
@@ -91,69 +91,117 @@ cost function is
 <div class="math">
 \[
     \begin{align}
-    V_f(x; x^{\mathrm{ref}}) = 10\|x_N-x^{\mathrm{ref}}\|^2.
+    V_f(x; x^{\mathrm{ref}}) = 100\|x_N-x^{\mathrm{ref}}\|^2.
     \end{align}
 \]</div>
-Lastly, we 
-This can be done as follows:
+Lastly, we have the state constraint $x_t \geq x_{\rm min}$, where $x_{\rm min}$ is a parameter,
+and the hard input constraints $|u_t| \leq 0.2$.
+
+<br>
+
+This optimal control problem can be constructed as follows:
 
 ```python
-# Check this out...
-ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=5, 
-                                   shooting=og.ocp.ShootingMethod.SINGLE)
+optimizer_name = "ocp_alm"
+
+# Construct the OCP
+ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=20)
+
+# Define the parameters
 ocp.add_parameter("x0", 2)
 ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+ocp.add_parameter("q", 1, default=1)
+ocp.add_parameter("r", 1, default=0.1)
+ocp.add_parameter("a", 1, default=1)
+ocp.add_parameter("xmin", 1, default=-1)
 
 # System dynamics
-ocp.with_dynamics(lambda x, u, param: 
-                  cs.vertcat(x[0] + u[0], x[1] - u[0]))
-
-# A typical stage cost function
+ocp.with_dynamics(lambda x, u, param:
+                  cs.vertcat(0.98 * cs.sin(x[0]) + x[1],
+                             0.1 * x[0]**2 - 0.5 * x[0] + param["a"] * x[1] + u[0]))
+# Stage cost
 ocp.with_stage_cost(
     lambda x, u, param, _t:
-    cs.dot(x - param["xref"], x - param["xref"]) + 0.01 * cs.dot(u, u)
+    param["q"] * cs.dot(x - param["xref"], x - param["xref"])
+    + param["r"] * cs.dot(u, u)
 )
 
-# Terminal cost function
+# Terminal cost
 ocp.with_terminal_cost(
-    lambda x, param:
-    2.0 * cs.dot(x - param["xref"], x - param["xref"])
+    lambda x, param: 100 * cs.dot(x - param["xref"], x - param["xref"])
+)
+
+# State constraint: x1 <= xmax, imposed with ALM
+ocp.with_path_constraint(
+    lambda x, u, param, _t: x[1] - param["xmin"],
+    kind="alm",
+    set_c=og.constraints.Rectangle([0.], [1000.0]),
 )
 
 # Input constraints
-ocp.with_input_constraints(og.constraints.Rectangle([-0.4], [0.4]))
-
-# State/input joint constraints
-ocp.with_path_constraint(
-    lambda x, u, param, _t: cs.fmax(0.0, x[0] - 1.5)
-)
+ocp.with_input_constraints(og.constraints.BallInf(radius=0.2))
 ```
 
 Having defined the above OCP, we can build the optimizer...
 
+<!--DOCUSAURUS_CODE_TABS-->
 
+<!--Direct intercafe-->
 ```python
-solver_config = ...
-optimizer = og.ocp.OCPBuilder(
-            ocp,
-            metadata=og.config.OptimizerMeta().with_optimizer_name("ocp_single_tcp"),
-            build_configuration=og.config.BuildConfiguration()
-                .with_build_directory(".")
-                .with_tcp_interface_config(
-                    tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3391)
-                ),
-            solver_configuration=solver_config,
-        ).build()
+ocp_optimizer = og.ocp.OCPBuilder(
+    ocp,
+    metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
+    build_configuration=og.config.BuildConfiguration()
+        .with_build_python_bindings().with_rebuild(True),
+    solver_configuration=og.config.SolverConfiguration()
+        .with_tolerance(1e-5)
+        .with_delta_tolerance(1e-5)
+        .with_preconditioning(True)
+        .with_penalty_weight_update_factor(1.8)
+        .with_max_inner_iterations(2000)
+        .with_max_outer_iterations(40),
+).build()
 ```
+
+<!--TCP socket interface-->
+```python
+ocp_optimizer = og.ocp.OCPBuilder(
+    ocp,
+    metadata=og.config.OptimizerMeta().with_optimizer_name(optimizer_name),
+    build_configuration=og.config.BuildConfiguration()
+        .with_tcp_interface_config(
+            tcp_interface_config=og.config.TcpServerConfiguration(bind_port=3391)
+        ).with_rebuild(True),
+    solver_configuration=og.config.SolverConfiguration()
+        .with_tolerance(1e-5)
+        .with_delta_tolerance(1e-5)
+        .with_preconditioning(True)
+        .with_penalty_weight_update_factor(1.8)
+        .with_max_inner_iterations(2000)
+        .with_max_outer_iterations(40),
+).build()
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 The optimizer can then be called as follows:
 
 ```python
-result = single_optimizer.solve(x0=[1,-1], xref=[0, 0])
+result = ocp_optimizer.solve(x0=[0.4, 0.2], q=30, r=1, a=0.8, xmin=-0.2)
 ```
 
-and note that the parameter `xref=xref` is optional; if not specified,
-the default value will be used (the default was set when we constructed the 
-OCP).
+and note that all parameters except `x0` are optional; if not specified,
+their default values will be used (the defaults were set when we constructed the 
+OCP). We can now plot the optimal sequence of inputs (`result.inputs`)
+
+<img src="/optimization-engine/img/ocp-inputs.png" alt="Seq. inputs" width="60%">
+
+and the corresponding sequence of states (`result.states`)
+
+<img src="/optimization-engine/img/ocp-states.png" alt="Seq. states" width="60%">
+
+The object `result` contains the above sequences of inputs and states and additional
+information about the solution, solver time, Lagrange multipliers, etc.
+
 
 ## Step-by-step documentation

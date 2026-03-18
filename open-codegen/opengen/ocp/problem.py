@@ -4,9 +4,9 @@ from enum import Enum
 
 import casadi.casadi as cs
 
-from opengen.constraints.cartesian import CartesianProduct
 from opengen.constraints.zero import Zero
 
+from .constraint_utils import make_constraint_product
 from .parameter import ParameterPack
 
 
@@ -258,7 +258,7 @@ class OptimalControlProblem:
             offset += block["dimension"]
             segments.append(offset)
             constraints.append(block[key])
-        return CartesianProduct(segments, constraints)
+        return make_constraint_product(segments, constraints)
 
     def with_path_constraint(self, constraint, kind="penalty", set_c=None, set_y=None):
         r"""Add a stage-wise symbolic constraint.
