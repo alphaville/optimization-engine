@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Solving OCPs · OpEn</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Optimal Control with OpEn/opengen"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Solving OCPs · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="Optimal Control with OpEn/opengen"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">Rust API</a></li><li class=""><a href="https://alphaville.github.io/optimization-engine/api-dox/html/index.html" target="_self">Opengen API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Optimal Control</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">OpEn Guide<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Python<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Additional options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-bindings">Direct interface</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ros">ROS packages</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Optimal Control<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-1">Getting started</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-2">Constructing OCPs</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-3">Building OCPs</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-ocp-4">Solving OCPs</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Rust<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">ALM/PM</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-features">Features</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">MATLAB<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Docker<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/docker">Docker</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Extras<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/cite_open">Cite OpEn</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Solving OCPs</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: #348c4f;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #e9e642;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+<div class="alert alert-warning">
+<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
+</div>
+<p>After an OCP optimizer has been built, it can be called using the method
+<code>solve(...)</code>. The main difference compared to the low-level interface is that
+the OCP optimizer accepts <strong>named parameters</strong> rather than a manually packed
+parameter vector.</p>
+<p>For example, if the OCP declares the parameters <code>x0</code>, <code>xref</code>, <code>q</code>, and <code>r</code>,
+the optimizer can be called as</p>
+<pre><code class="hljs css language-python">result = ocp_optimizer.solve(
+    x0=[<span class="hljs-number">0.4</span>, <span class="hljs-number">0.2</span>],
+    xref=[<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>],
+    q=<span class="hljs-number">30.0</span>,
+    r=<span class="hljs-number">1.0</span>,
+)
+</code></pre>
+<p>Any parameter with a default value may be omitted. For example, if <code>xref</code>,
+<code>q</code>, and <code>r</code> have defaults, then the following is also valid:</p>
+<pre><code class="hljs css language-python">result = ocp_optimizer.solve(x0=[<span class="hljs-number">0.4</span>, <span class="hljs-number">0.2</span>])
+</code></pre>
+<p>Optional warm-start information may also be provided:</p>
+<pre><code class="hljs css language-python">result = ocp_optimizer.solve(
+    x0=[<span class="hljs-number">0.4</span>, <span class="hljs-number">0.2</span>],
+    initial_guess=[<span class="hljs-number">0.0</span>] * <span class="hljs-number">20</span>,
+    initial_lagrange_multipliers=[<span class="hljs-number">0.0</span>] * <span class="hljs-number">5</span>,
+    initial_penalty=<span class="hljs-number">10.0</span>,
+)
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="solution-object"></a><a href="#solution-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solution object</h2>
+<p>The method <code>solve(...)</code> returns an object of type <code>OcpSolution</code>. This object
+contains both the raw low-level solver status and OCP-oriented views such as
+the stage-wise inputs and the state trajectory.</p>
+<p>The most commonly used fields are:</p>
+<ul>
+<li><code>result.inputs</code>: sequence of optimal inputs</li>
+<li><code>result.states</code>: sequence of states</li>
+<li><code>result.cost</code>: value of the objective at the solution</li>
+<li><code>result.exit_status</code>: solver exit status</li>
+<li><code>result.solve_time_ms</code>: total solver time in milliseconds</li>
+</ul>
+<p>Additional solver diagnostics are also available:</p>
+<ul>
+<li><code>result.penalty</code></li>
+<li><code>result.num_outer_iterations</code></li>
+<li><code>result.num_inner_iterations</code></li>
+<li><code>result.last_problem_norm_fpr</code></li>
+<li><code>result.f1_infeasibility</code></li>
+<li><code>result.f2_norm</code></li>
+<li><code>result.lagrange_multipliers</code></li>
+</ul>
+<p>For convenience, the solution object can be printed directly:</p>
+<pre><code class="hljs css language-python">print(result)
+</code></pre>
+<p>This displays a compact summary of the solution, including inputs, states, and
+solver diagnostics.</p>
+<h2><a class="anchor" aria-hidden="true" id="direct-bindings-and-tcp"></a><a href="#direct-bindings-and-tcp" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Direct bindings and TCP</h2>
+<p>The same high-level <code>solve(...)</code> interface is used regardless of whether the
+optimizer was built with direct Python bindings or with the TCP interface.
+When TCP is used, the underlying server is managed automatically by the
+generated optimizer wrapper.</p>
+<p>When the optimizer is accessed over TCP, the server is started automatically
+the first time <code>solve(...)</code> is called and remains alive for subsequent calls.
+When you are done with the optimizer, you should stop the TCP server
+explicitly by calling:</p>
+<pre><code class="hljs css language-python">ocp_optimizer.kill()
+</code></pre>
+<p>This has no effect for optimizers using direct Python bindings.</p>
+<h2><a class="anchor" aria-hidden="true" id="reloading-a-generated-optimizer"></a><a href="#reloading-a-generated-optimizer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reloading a generated optimizer</h2>
+<p>Generated OCP optimizers save a manifest automatically when they are built.
+They can later be reloaded without rebuilding:</p>
+<pre><code class="hljs css language-python">optimizer = og.ocp.GeneratedOptimizer.load(
+    <span class="hljs-string">"path/to/optimizer_manifest.json"</span>
+)
+
+result = optimizer.solve(x0=[<span class="hljs-number">0.4</span>, <span class="hljs-number">0.2</span>], xref=[<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>])
+</code></pre>
+<p>This is useful when you want to reuse a previously generated solver across
+Python sessions.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-ocp-3"><span class="arrow-prev">← </span><span>Building OCPs</span></a><a class="docs-next button" href="/optimization-engine/docs/openrust-basic"><span>Introduction</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#solution-object">Solution object</a></li><li><a href="#direct-bindings-and-tcp">Direct bindings and TCP</a></li><li><a href="#reloading-a-generated-optimizer">Reloading a generated optimizer</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2026 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>

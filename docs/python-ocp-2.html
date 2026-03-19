@@ -1,0 +1,440 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Constructing OCPs · OpEn</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Optimal Control with OpEn/opengen"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Constructing OCPs · OpEn"/><meta property="og:type" content="website"/><meta property="og:url" content="https://alphaville.github.io/optimization-engine/"/><meta property="og:description" content="Optimal Control with OpEn/opengen"/><meta property="og:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus2.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://alphaville.github.io/optimization-engine/img/docusaurus.png"/><link rel="shortcut icon" href="/optimization-engine/img/box.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="alternate" type="application/atom+xml" href="https://alphaville.github.io/optimization-engine/blog/atom.xml" title="OpEn Blog ATOM Feed"/><link rel="alternate" type="application/rss+xml" href="https://alphaville.github.io/optimization-engine/blog/feed.xml" title="OpEn Blog RSS Feed"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/optimization-engine/js/scrollSpy.js"></script><link rel="stylesheet" href="/optimization-engine/css/main.css"/><script src="/optimization-engine/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/optimization-engine/"><img class="logo" src="/optimization-engine/img/box.png" alt="OpEn"/><h2 class="headerTitleWithLogo">OpEn</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/optimization-engine/docs/open-intro" target="_self">Docs</a></li><li class=""><a href="/optimization-engine/blog/" target="_self">Blog</a></li><li class=""><a href="https://docs.rs/optimization_engine/*/optimization_engine/" target="_self">Rust API</a></li><li class=""><a href="https://alphaville.github.io/optimization-engine/api-dox/html/index.html" target="_self">Opengen API</a></li><li class=""><a href="/optimization-engine/blog/2019/03/06/talk-to-us" target="_self">Chat</a></li><li class=""><a href="https://www.github.com/alphaville/optimization-engine" target="_self">Github</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Optimal Control</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">OpEn Guide<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/open-intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/installation">Installation</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Python<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-interface">Opengen basics</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-advanced">Additional options</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-c">C/C++ Bindings</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-bindings">Direct interface</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-tcp-ip">TCP Sockets</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ros">ROS packages</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Optimal Control<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-1">Getting started</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/optimization-engine/docs/python-ocp-2">Constructing OCPs</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-3">Building OCPs</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/python-ocp-4">Solving OCPs</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Rust<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-basic">Introduction</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-alm">ALM/PM</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/openrust-features">Features</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">MATLAB<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-interface">MATLAB</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/matlab-examples">Examples</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Docker<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/docker">Docker</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Extras<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/algorithm">Algorithm</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/faq">FAQ</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/cite_open">Cite OpEn</a></li><li class="navListItem"><a class="navItem" href="/optimization-engine/docs/contributing">Contributing</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Constructing OCPs</h1></header><article><div><span><script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+.but{
+  border: none;
+  color: #348c4f;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0px 0px;
+  cursor: pointer;
+  width: 250px;
+  border-radius: 8px;
+}
+</style>
+<style>
+.but1 {
+    background-color: #e9e642;
+}
+</style><style>
+.but2 {
+    background-color: #008CBA;
+}
+</style>
+<div class="alert alert-warning">
+<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
+</div>
+<p>Here we will look at how we can construct an optimal control problem (OCP)
+by defining its state and terminal cost functions, input and state
+constraints, prediction horizon and other options.</p>
+<p>Generally, we want to solve problems of the form</p>
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
+    \sum_{t=0}^{N - 1} \ell_t(x_t, u_t; p) + V_f(x_N; p)
+    \\
+    \text{subject to: }& x_{t+1} = F(x_t, u_t; p),
+    \\
+    &u_t \in U, 
+    \\
+    &(x_t, u_t) \in Z_t(p), \text{ for } t=0,\ldots, N - 1
+    \\
+    &x_N \in X_N, 
+    \\
+    &x_0=x
+    \end{align}
+\]</div>
+<h2><a class="anchor" aria-hidden="true" id="ocp-formulations"></a><a href="#ocp-formulations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OCP Formulations</h2>
+<h3><a class="anchor" aria-hidden="true" id="single-shooting"></a><a href="#single-shooting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Single shooting</h3>
+<p>There are two main ways to formulate an optimal control
+problem. The <strong>single shooting</strong> approach consists in
+eliminating the sequence of states; the decision variables
+are the control actions $u_0, \ldots, u_{N-1}$, i.e., the OCP looks
+like (simplified version — additional constraints can be present)</p>
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
+    \sum_{t=0}^{N - 1} \ell_t(x_t, u_t; p) + V_f(x_N; p)
+    \\
+    \text{subject to: }& u_t \in U, 
+    \\
+    &x_0=x
+    \end{align}
+\]</div>
+<p>where $x_t$ is a function of the initial state, $x_0$, and
+the sequence of inputs $u_0, \ldots, u_{t-1}$. For example,
+$x_1 = F(x_0, u_0)$, and $x_2 = F(x_1, u_1) = F(F(x_0, u_0), u_1)$.
+The single shooting formulation is the default one as we have
+observed that it leads to better performance. To construct a
+single shooting OCP do</p>
+<pre><code class="hljs css language-python"><span class="hljs-keyword">import</span> opengen <span class="hljs-keyword">as</span> og
+<span class="hljs-keyword">import</span> casadi.casadi <span class="hljs-keyword">as</span> cs
+
+ocp = og.ocp.OptimalControlProblem(
+    nx=<span class="hljs-number">2</span>, nu=<span class="hljs-number">1</span>, 
+    horizon=<span class="hljs-number">20</span>,
+    shooting=og.ocp.ShootingMethod.SINGLE)
+</code></pre>
+<p>Since $\mathbf{u} = (u_0, \ldots, u_{N-1})$ is the decision
+variable, we can impose hard constraints of the form
+$u_t \in U$ for all $t$. For example, to impose the constraint
+$\Vert u_t \Vert_\infty \leq 0.2$ we can do</p>
+<pre><code class="hljs css language-python">set_U = og.constraints.BallInf(radius=<span class="hljs-number">0.2</span>)
+ocp.with_input_constraints(set_U)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="multiple-shooting"></a><a href="#multiple-shooting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Multiple shooting</h3>
+<p>Alternatively, we can formulate the problem using the
+<strong>multiple shooting</strong> approach, where the sequence of states
+is not eliminated. The OCP now has the form (simplified version — additional constraints can be present)</p>
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{\substack{u_0, \ldots, u_{N-1} \\ x_0, \ldots, x_{N}}}& 
+    \sum_{t=0}^{N - 1} \ell_t(x_t, u_t; p) + V_f(x_N; p)
+    \\
+    \text{subject to: }& 
+    x_{t+1} = F(x_t, u_t; p),
+    \\
+    &(x_t, u_t) \in Z, \text{ for } t=0,\ldots, N - 1
+    \\
+    &x_N \in X_N, 
+    \\
+    &x_0=x
+    \end{align}
+\]</div>
+<p>A multiple shooting problem can be constructed as follows</p>
+<pre><code class="hljs css language-python">ocp = og.ocp.OptimalControlProblem(
+    nx=<span class="hljs-number">2</span>, nu=<span class="hljs-number">1</span>, 
+    horizon=<span class="hljs-number">20</span>,
+    shooting=og.ocp.ShootingMethod.MULTIPLE)
+</code></pre>
+<p>Here the decision variable is the vector $\mathbf{z} = (u_0, x_0, \ldots, u_{N-1}, x_{N-1}, x_N)$
+and the system dynamics become equality constraints, which can be imposed via ALM (default)
+or PM; this can be configured using <code>with_dynamics_constraints</code> and either <code>&quot;alm&quot;</code> or <code>&quot;penalty&quot;</code>.</p>
+<pre><code class="hljs css language-python">ocp.with_dynamics_constraints(<span class="hljs-string">"alm"</span>)
+</code></pre>
+<p>When using the multiple shooting formulation, we can impose constraints of the form $(x_t, u_t)\in Z$
+using <code>with_hard_stage_state_input_constraints</code>.</p>
+<pre><code class="hljs css language-python">set_Z = og.constraints.BallInf(radius=<span class="hljs-number">1.0</span>)
+ocp.with_hard_stage_state_input_constraints(set_Z)
+</code></pre>
+<p>Likewise, since $x_N$ is part of the decision variable vector, $\mathbf{z}$,
+we can impose hard constraints. This can be done as follows</p>
+<pre><code class="hljs">set_XN = og.constraints.<span class="hljs-constructor">Ball1(<span class="hljs-params">radius</span>=0.1)</span>
+ocp.<span class="hljs-keyword">with</span><span class="hljs-constructor">_hard_terminal_state_constraints(<span class="hljs-params">set_XN</span>)</span>
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="parameters"></a><a href="#parameters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters</h2>
+<p>The OCP API supports <strong>named parameters</strong>. Parameters are packed internally
+into the flat vector expected by the low-level OpEn builder, but the user does
+not need to keep track of slices manually. Instead, parameters are declared by
+name and are later accessed by name inside the callback functions.</p>
+<p>Parameters are added using <code>add_parameter(name, size, default=None)</code>.</p>
+<pre><code class="hljs css language-python">ocp.add_parameter(<span class="hljs-string">"x0"</span>, <span class="hljs-number">2</span>)
+ocp.add_parameter(<span class="hljs-string">"xref"</span>, <span class="hljs-number">2</span>, default=[<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>])
+ocp.add_parameter(<span class="hljs-string">"q"</span>, <span class="hljs-number">1</span>, default=<span class="hljs-number">10.0</span>)
+</code></pre>
+<p>In the above example:</p>
+<ul>
+<li><code>x0</code> is required because no default value is provided</li>
+<li><code>xref</code> and <code>q</code> are optional when calling the optimizer</li>
+<li>scalar defaults such as <code>10.0</code> are allowed for one-dimensional parameters</li>
+</ul>
+<p>If the same parameter name is declared twice, <code>add_parameter</code> raises a
+<code>ValueError</code>. Additional checks are in place to validate parameter dimensions.</p>
+<p>Parameters can be used in callback functions (dynamics, cost functions,
+constraints); more on this later.</p>
+<div class="alert alert-info">
+<b>Important:</b> The parameter <code>x0</code> should always be declared because it defines the initial
+state of the OCP.
+</div>
+<h2><a class="anchor" aria-hidden="true" id="dynamics"></a><a href="#dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Dynamics</h2>
+<p>The system dynamics is specified using <code>with_dynamics</code>. The callback must
+return the next state, that is, it must implement the map</p>
+<div class="math">
+\[
+    x^+ = F(x, u; p)
+\]</div>
+<p>where <code>x</code> is the current state, <code>u</code> is the current input, and <code>p</code> is the
+parameter view introduced earlier. In other words, the OCP layer expects
+<strong>discrete-time</strong> dynamics.</p>
+<p>A typical discrete-time model can be provided as follows:</p>
+<pre><code class="hljs css language-python">ocp.with_dynamics(
+    <span class="hljs-keyword">lambda</span> x, u, p:
+    cs.vertcat(
+        <span class="hljs-number">0.98</span> * cs.sin(x[<span class="hljs-number">0</span>]) + x[<span class="hljs-number">1</span>],
+        <span class="hljs-number">0.1</span> * x[<span class="hljs-number">0</span>]**<span class="hljs-number">2</span> - <span class="hljs-number">0.5</span> * x[<span class="hljs-number">0</span>] + p[<span class="hljs-string">"a"</span>] * x[<span class="hljs-number">1</span>] + u[<span class="hljs-number">0</span>]
+    )
+)
+</code></pre>
+<p>Note that the parameter argument behaves like a dictionary of CasADi
+symbols, so named parameters can be accessed with expressions such as
+<code>p[&quot;a&quot;]</code>, <code>p[&quot;xref&quot;]</code>, and so on.</p>
+<h3><a class="anchor" aria-hidden="true" id="continuous-time-dynamics"></a><a href="#continuous-time-dynamics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Continuous-time dynamics</h3>
+<p>If your model is given in continuous time as</p>
+<div class="math">
+\[
+    \dot{x} = f(x, u; p),
+\]</div>
+<p>you can discretize it using <code>og.ocp.DynamicsDiscretizer</code>. This helper
+constructs a discrete-time callback that is directly compatible with
+<code>with_dynamics</code>.</p>
+<p>For example, suppose</p>
+<div class="math">
+\[
+    \dot{x} = \begin{bmatrix}
+    x_2 \\
+    -x_1 + u
+    \end{bmatrix}.
+\]</div>
+<p>Then we can discretize it as follows:</p>
+<pre><code class="hljs css language-python">continuous_dynamics = <span class="hljs-keyword">lambda</span> x, u, p: cs.vertcat(
+    x[<span class="hljs-number">1</span>],
+    -x[<span class="hljs-number">0</span>] + u[<span class="hljs-number">0</span>]
+)
+
+discretizer = og.ocp.DynamicsDiscretizer(
+    continuous_dynamics,
+    sampling_time=<span class="hljs-number">0.1</span>,
+)
+
+ocp.with_dynamics(discretizer.rk4())
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="available-discretization-methods"></a><a href="#available-discretization-methods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Available discretization methods</h3>
+<p>The following discretization methods are currently available:</p>
+<ul>
+<li><code>euler()</code></li>
+<li><code>midpoint()</code></li>
+<li><code>heun()</code></li>
+<li><code>rk4()</code></li>
+<li><code>multistep(method=..., num_steps=...)</code></li>
+</ul>
+<p>For example, if a higher-accuracy internal integration is needed over one
+sampling interval, we can use a multistep method:</p>
+<pre><code class="hljs css language-python">ocp.with_dynamics(
+    discretizer.multistep(method=<span class="hljs-string">"rk4"</span>, num_steps=<span class="hljs-number">4</span>)
+)
+</code></pre>
+<p>This subdivides the sampling interval into four smaller substeps and applies
+RK4 on each one.</p>
+<h3><a class="anchor" aria-hidden="true" id="choosing-a-discretization"></a><a href="#choosing-a-discretization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Choosing a discretization</h3>
+<p>As a rule of thumb:</p>
+<ul>
+<li><code>euler()</code> is the simplest and cheapest option</li>
+<li><code>midpoint()</code> and <code>heun()</code> offer better accuracy than Euler at modest cost</li>
+<li><code>rk4()</code> is a good default when accuracy matters</li>
+<li><code>multistep(...)</code> is useful when the controller sampling time is relatively
+large compared to the time scale of the plant</li>
+</ul>
+<p>In all cases, the result of the discretizer is a standard discrete-time
+callback, so once it is passed to <code>with_dynamics</code>, the remainder of the OCP
+construction is unchanged.</p>
+<h2><a class="anchor" aria-hidden="true" id="stage-cost-function"></a><a href="#stage-cost-function" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Stage cost function</h2>
+<p>The stage cost is specified using <code>with_stage_cost</code>. The callback must accept
+<code>(x, u, p, stage_idx)</code> and return the scalar quantity $\ell_t(x_t, u_t; p)$.
+Here <code>x</code> is the current state, $x_t$, <code>u</code> is the current input, $u_t$,
+<code>p</code> is the parameter view, <code>stage_idx</code> is the stage index, $t$.</p>
+<h3><a class="anchor" aria-hidden="true" id="typical-quadratic-stage-cost"></a><a href="#typical-quadratic-stage-cost" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Typical quadratic stage cost</h3>
+<p>A common choice in optimal control is a quadratic tracking term plus a control
+effort penalty:</p>
+<div class="math">
+\[
+    \ell_t(x_t, u_t; p)
+    =
+    q \|x_t - x^{\mathrm{ref}}\|^2 + r \|u_t - u^{\rm ref}\|^2.
+\]</div>
+<p>This can be written as:</p>
+<pre><code class="hljs css language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_stage_cost</span><span class="hljs-params">(x, u, p, _t)</span>:</span>
+    xref = p[<span class="hljs-string">"xref"</span>]
+    uref = p[<span class="hljs-string">"uref"</span>]
+    ex = x - xref
+    eu = u - uref
+    <span class="hljs-keyword">return</span>  p[<span class="hljs-string">"q"</span>] * cs.dot(ex, ex) + p[<span class="hljs-string">"r"</span>] * cs.dot(eu, eu)
+
+ocp.with_stage_cost(my_stage_cost)
+</code></pre>
+<p>The stage index is written as <code>_t</code> above because it is not used in this
+example.</p>
+<h3><a class="anchor" aria-hidden="true" id="time-varying-stage-costs"></a><a href="#time-varying-stage-costs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Time-varying stage costs</h3>
+<p>If the cost depends explicitly on the stage, the argument <code>stage_idx</code> can be
+used directly. For example, a discounted quadratic stage cost can be written
+as</p>
+<p>$$\ell_t(x_t, u_t; p) = \gamma^t \left( q \Vert x_t - x^{\mathrm{ref}} \Vert^2 + r \Vert u_t - u^{\rm ref} \Vert^2 \right),$$</p>
+<p>where $\gamma \in (0, 1]$ is a discount factor. This can be implemented
+as follows (this time using a lambda):</p>
+<pre><code class="hljs css language-python">ocp.with_stage_cost(
+    <span class="hljs-keyword">lambda</span> x, u, p, t:
+    (p[<span class="hljs-string">"gamma"</span>][<span class="hljs-number">0</span>] ** t) * (
+        p[<span class="hljs-string">"q"</span>] * cs.dot(x - p[<span class="hljs-string">"xref"</span>], x - p[<span class="hljs-string">"xref"</span>])
+        + p[<span class="hljs-string">"r"</span>] * cs.dot(u - p[<span class="hljs-string">"uref"</span>], u - p[<span class="hljs-string">"uref"</span>])
+    )
+)
+</code></pre>
+<p>In that case, <code>gamma</code>, <code>q</code>, and <code>r</code> should be declared as parameters, for example:</p>
+<pre><code class="hljs css language-python">ocp.add_parameter(<span class="hljs-string">"gamma"</span>, <span class="hljs-number">1</span>, default=<span class="hljs-number">0.95</span>)
+ocp.add_parameter(<span class="hljs-string">"q"</span>, <span class="hljs-number">1</span>, default=<span class="hljs-number">1.0</span>)
+ocp.add_parameter(<span class="hljs-string">"r"</span>, <span class="hljs-number">1</span>, default=<span class="hljs-number">0.5</span>)
+</code></pre>
+<p>More generally, <code>stage_idx</code> can be used to encode stage-dependent references,
+weights, or economic costs.</p>
+<p>Note that the return value must be a scalar CasADi expression.</p>
+<h2><a class="anchor" aria-hidden="true" id="terminal-cost-function"></a><a href="#terminal-cost-function" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Terminal cost function</h2>
+<p>The terminal cost is specified using <code>with_terminal_cost</code>. The callback must
+accept <code>(x, p)</code> and return the scalar quantity $V_f(x_N; p)$.
+Here <code>x</code> is the terminal state $x_N$ and <code>p</code> is the parameter view.</p>
+<p>A common choice is a quadratic tracking penalty of the form</p>
+<div class="math">
+\[
+    V_f(x_N; p) = \|x_N - x^{\mathrm{ref}}\|_{P}^{2},
+\]</div>
+<p>where $P$ is a symmetric positive definite matrix. This can be
+implemented as follows:</p>
+<pre><code class="hljs css language-python"><span class="hljs-comment"># Terminal cost matrix</span>
+P = cs.DM([
+    [<span class="hljs-number">10.0</span>, <span class="hljs-number">0.0</span>],
+    [<span class="hljs-number">0.0</span>, <span class="hljs-number">2.0</span>],
+])
+
+<span class="hljs-comment"># Terminal cost function</span>
+ocp.with_terminal_cost(
+    <span class="hljs-keyword">lambda</span> x, p:
+    cs.mtimes([
+        (x - p[<span class="hljs-string">"xref"</span>]).T,
+        P,
+        (x - p[<span class="hljs-string">"xref"</span>]),
+    ])
+)
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="general-symbolic-constraints"></a><a href="#general-symbolic-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General symbolic constraints</h2>
+<p>In addition to hard constraints on the decision variables, the OCP API supports
+general <strong>symbolic constraints</strong>. These are constraints defined by CasADi
+expressions and handled either by the penalty method (PM) or by the augmented
+Lagrangian method (ALM).</p>
+<p>There are two variants:</p>
+<ul>
+<li><code>with_path_constraint</code> for stage-wise constraints, evaluated at every
+stage $t = 0, \ldots, N-1$</li>
+<li><code>with_terminal_constraint</code> for terminal constraints, evaluated at $x_N$</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="penalty-type-symbolic-constraints"></a><a href="#penalty-type-symbolic-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Penalty-type symbolic constraints</h3>
+<p>Penalty constraints are appended to the mapping $F_2$ (see <a href="/optimization-engine/docs/python-interface#penalty-method">PM docs</a>).
+Such sonstraints are treated through the penalty method.
+For example, to impose the state inequality $x_{2,t} \geq x_{\min}$
+we may write</p>
+<pre><code class="hljs css language-python">ocp.with_path_constraint(
+    <span class="hljs-keyword">lambda</span> x, u, p, _t: cs.fmax(<span class="hljs-number">0.0</span>, -x[<span class="hljs-number">1</span>] + p[<span class="hljs-string">"xmin"</span>]),
+    kind=<span class="hljs-string">"penalty"</span>,
+)
+</code></pre>
+<p>Likewise, a terminal penalty constraint can be used to encode an inequality
+such as</p>
+<p>$$
+x_{1,N} + x_{2,N} \leq 0.1.
+$$</p>
+<p>This can be written as</p>
+<pre><code class="hljs css language-python">ocp.with_terminal_constraint(
+    <span class="hljs-keyword">lambda</span> x, p: cs.fmax(<span class="hljs-number">0.0</span>, x[<span class="hljs-number">0</span>] + x[<span class="hljs-number">1</span>] - <span class="hljs-number">0.1</span>),
+    kind=<span class="hljs-string">"penalty"</span>,
+)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="alm-type-symbolic-constraints"></a><a href="#alm-type-symbolic-constraints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ALM-type symbolic constraints</h3>
+<p>ALM constraints are appended to the mapping $F_1$ and must be combined
+with a set :math:<code>C</code>, so that the constraint has the form</p>
+<div class="math">
+\[
+    F_1(x_t, u_t; p) \in C
+\]</div>
+<p>or, for terminal constraints,</p>
+<div class="math">
+\[
+    F_1(x_N; p) \in C.
+\]</div>
+<p>In that case, $C$ (<code>set_c</code>) must be provided.
+For example, the inequality</p>
+<div class="math">
+\[
+    x_{2,t} - x_{\min} \geq 0
+\]</div>
+<p>can be written as an ALM constraint by taking $C = [0, \infty)$, that is,</p>
+<pre><code class="hljs css language-python">set_c = og.constraints.Rectangle([<span class="hljs-number">0.0</span>], [float(<span class="hljs-string">"inf"</span>)])
+ocp.with_path_constraint(
+    <span class="hljs-keyword">lambda</span> x, u, p, _t: x[<span class="hljs-number">1</span>] - p[<span class="hljs-string">"xmin"</span>],
+    kind=<span class="hljs-string">"alm"</span>,
+    set_c=set_c,
+)
+</code></pre>
+<p>A terminal ALM constraint can be defined similarly:</p>
+<pre><code class="hljs css language-python">set_c = set_c=og.constraints.Rectangle([<span class="hljs-number">-0.1</span>], [<span class="hljs-number">0.1</span>])
+ocp.with_terminal_constraint(
+    <span class="hljs-keyword">lambda</span> x, p: x[<span class="hljs-number">0</span>],
+    kind=<span class="hljs-string">"alm"</span>,
+    set_c=set_c,
+)
+</code></pre>
+<p>An optional dual set <code>set_y</code> may also be provided, but in many cases it is
+best to leave it unspecified and let the lower-level OpEn machinery choose it
+(see the <a href="/optimization-engine/docs/python-interface#augmented-lagrangian-method">documentation</a>).</p>
+<h2><a class="anchor" aria-hidden="true" id="next-steps"></a><a href="#next-steps" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Next steps</h2>
+<p>Once you have defined your optimal control problem, the next step is to
+<a href="/optimization-engine/docs/python-ocp-3">build an optimizer</a>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/optimization-engine/docs/python-ocp-1"><span class="arrow-prev">← </span><span>Getting started</span></a><a class="docs-next button" href="/optimization-engine/docs/python-ocp-3"><span>Building OCPs</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#ocp-formulations">OCP Formulations</a><ul class="toc-headings"><li><a href="#single-shooting">Single shooting</a></li><li><a href="#multiple-shooting">Multiple shooting</a></li></ul></li><li><a href="#parameters">Parameters</a></li><li><a href="#dynamics">Dynamics</a><ul class="toc-headings"><li><a href="#continuous-time-dynamics">Continuous-time dynamics</a></li><li><a href="#available-discretization-methods">Available discretization methods</a></li><li><a href="#choosing-a-discretization">Choosing a discretization</a></li></ul></li><li><a href="#stage-cost-function">Stage cost function</a><ul class="toc-headings"><li><a href="#typical-quadratic-stage-cost">Typical quadratic stage cost</a></li><li><a href="#time-varying-stage-costs">Time-varying stage costs</a></li></ul></li><li><a href="#terminal-cost-function">Terminal cost function</a></li><li><a href="#general-symbolic-constraints">General symbolic constraints</a><ul class="toc-headings"><li><a href="#penalty-type-symbolic-constraints">Penalty-type symbolic constraints</a></li><li><a href="#alm-type-symbolic-constraints">ALM-type symbolic constraints</a></li></ul></li><li><a href="#next-steps">Next steps</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/optimization-engine/" class="nav-home"><img src="/optimization-engine/img/box.png" alt="OpEn" width="66" height="58"/></a><div><h5>Docs</h5><a href="/optimization-engine/docs/open-intro.html">Getting Started</a><a href="/optimization-engine/docs/python-interface.html">Python interface</a><a href="/optimization-engine/docs/matlab-interface.html">MATLAB interface</a><a href="/optimization-engine/docs/docker">Docker</a></div><div><h5>Community</h5><a href="/optimization-engine/users.html">User Showcase</a><a href="https://discord.gg/mfYpn4V" target="_blank" rel="noreferrer noopener">Discord community</a><a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noreferrer noopener">Chat on Gitter</a><a href="https://twitter.com/isToxic" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/optimization-engine/blog">Blog</a><a href="https://github.com/alphaville/optimization-engine" target="_blank">GitHub</a><a href="https://www.openhub.net/p/optimization-engine" target="_blank">Openhub</a><a class="github-button" href="https://github.com/alphaville/optimization-engine" data-icon="octicon-star" data-count-href="/alphaville/optimization-engine/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><br/><br/><a href="https://twitter.com/share?ref_src=twsrc%5Etfw&amp;via=isToxic" class="twitter-share-button" data-show-count="false" data-text="Fast and accurate embedded nonconvex optimization with #OptimizationEngine">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script></div></section><section class="copyright">Copyright © 2026 Pantelis Sopasakis and Emil Fresk</section><section class="copyright"><div>Box Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></section></footer></div></body></html>
