@@ -195,7 +195,8 @@ class RustBuildTestCase(unittest.TestCase):
         solver_config = og.config.SolverConfiguration() \
             .with_tolerance(1e-6) \
             .with_initial_tolerance(1e-4) \
-            .with_delta_tolerance(1e-5)
+            .with_delta_tolerance(1e-5) \
+            .with_penalty_weight_update_factor(5)
         og.builder.OpEnOptimizerBuilder(
             problem, meta, build_config, solver_config).build()
 
@@ -547,6 +548,22 @@ class RustBuildTestCase(unittest.TestCase):
         fun = cs.Function('fun', [u], [f])
         y = fun([3, 4])
         self.assertAlmostEqual(25., y, places=12)
+
+    def test_optimizer_meta_valid_version(self):
+        meta = og.config.OptimizerMeta().with_version("1.2.3-alpha.1+build.5")
+        self.assertEqual("1.2.3-alpha.1+build.5", meta.version)
+
+    def test_optimizer_meta_invalid_version1(self):
+        with self.assertRaises(ValueError) as context:
+            og.config.OptimizerMeta().with_version("^1.2")
+
+        self.assertIn("Cargo package version", str(context.exception))
+    
+    def test_optimizer_meta_invalid_version2(self):
+        with self.assertRaises(ValueError) as context:
+            og.config.OptimizerMeta().with_version("0.1")
+
+        self.assertIn("Cargo package version", str(context.exception))
 
 
 if __name__ == '__main__':

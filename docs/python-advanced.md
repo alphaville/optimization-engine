@@ -1,6 +1,6 @@
 ---
 id: python-advanced
-title: Advanced options
+title: Additional options
 description: Advanced options of opengen, OpEn's Python interface
 ---
 

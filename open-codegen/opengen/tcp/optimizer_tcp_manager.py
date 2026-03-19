@@ -11,6 +11,9 @@ from retry import retry
 from .solver_response import SolverResponse
 from importlib.metadata import version
 
+# A bit of warning suppressing for the retry module
+logging.getLogger("retry").setLevel(logging.ERROR)
+
 class OptimizerTcpManager:
     """Client for TCP interface of parametric optimizers
 

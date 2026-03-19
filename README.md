@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://alphaville.github.io/optimization-engine/">
-    <img alt="OpEn logo" src="design/optimization-engine.png" width="400">
+    <img alt="OpEn logo" src="design/optimization-engine.png" width="250">
   </a>
 </p>
 
@@ -13,48 +13,23 @@
   <a href="https://ci.appveyor.com/project/alphaville/optimization-engine/branch/master">
     <img alt="build status" src="https://ci.appveyor.com/api/projects/status/fy9tr4xmqq3ka4aj/branch/master?svg=true">
   </a>
-</p>
-
-<p align="center">
+  <br>
   <a href="https://lbesson.mit-license.org/">
     <img alt="MIT license" src="https://img.shields.io/badge/License-MIT-blue.svg">
   </a>
   <a href="https://github.com/alphaville/optimization-engine/blob/master/LICENSE-APACHE">
     <img alt="Apache v2 license" src="https://img.shields.io/badge/License-Apache%20v2-blue.svg">
   </a>
-</p>
-
-<p align="center">
-  <a href="https://gitter.im/alphaville/optimization-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img alt="Gitter" src="https://badges.gitter.im/alphaville/optimization-engine.svg">
-  </a>
-   <a href="https://twitter.com/intent/tweet?text=Fast%20and%20accurate%20nonconvex%20optimization&url=https://alphaville.github.io/optimization-engine/&via=isToxic&hashtags=optimization,rustlang,matlab,python">
-    <img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social">
-  </a>
   <a href="https://discord.gg/mfYpn4V">
     <img alt="Chat on Discord" src="https://img.shields.io/badge/chat-on%20discord-gold.svg">
   </a>
 </p>
 
-Optimization Engine (OpEn) is a solver for Fast & Accurate Embedded Optimization for next-generation Robotics and Autonomous Systems.
+
+Optimization Engine (OpEn) is a solver for Fast & Accurate Embedded Optimization for next-generation Robotics and Autonomous Systems. Read on to see how you can use OpEn on your robot today.
 
 **Documentation available at** [**alphaville.github.io/optimization-engine**](https://alphaville.github.io/optimization-engine/)
 
-## Table of contents
-
-- [Features](#features)
-- [Demos](#demos)
-  - [Code generation](#code-generation)
-  - [Embedded applications](#embedded-applications)
-- [Parametric optimization problems](#parametric-problems)
-- [Code generation example](#code-generation-example)
-- [Getting started](#getting-started)
-- [Contact](#contact-us)
-- [Show us your love](#do-you-like-open)
-- [Licence](#license)
-- [Core team](#core-team)
-- [Contributions](#contributions)
-- [Cite OpEn](#citing-open)
 
 ## Features
 
@@ -67,11 +42,9 @@ Optimization Engine (OpEn) is a solver for Fast & Accurate Embedded Optimization
 
 **OpEn** is ideal for:
 
-- Embedded **Nonlinear Model Predictive Control**,
-- Embedded **Nonlinear Moving Horizon Estimation** and their applications in 
-- Robotics and Advanced Manufacturing Systems
-- Autonomous vehicles
-- Aerial Vehicles and Aerospace
+- Embedded **nonlinear nonlinear model predictive control** and **moving horizon estimation**
+- Robotics and advanced manufacturing 
+- Autonomous (aerial/ground) vehicles
 
 
 ## Demos
@@ -82,9 +55,7 @@ Code generation? Piece of cake!
 
 **OpEn** generates parametric optimizer modules in Rust - it's blazingly fast - it's safe - it can run on embedded devices.
 
-You can use the [MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface) or [Python interface](https://alphaville.github.io/optimization-engine/docs/python-interface) of OpEn to generate Rust code for your parametric optimizer.
-
-This can then be called directly, using Rust, or, it can be consumed as a service over a socket.
+You can use the [Python interface](https://alphaville.github.io/optimization-engine/docs/python-interface) of OpEn, `opengen`, to generate Rust code for your parametric optimizer. The optimizer can then be called from Python, used as a solver in Rust, consumed as a service over TCP (even remotely), or used in ROS on your robot.
 
 <img src="https://alphaville.github.io/optimization-engine/img/open-promo.gif" alt="Easy Code Generation" width="55%"/>
 
@@ -98,17 +69,70 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 <img src="https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif" alt="Fast NMPC of MAV" width="55%"/>
 
 
-## Parametric Problems
+## Optimal Control
+
+Optimal control problems can now be set up directly from their natural ingredients: dynamics, prediction horizon, stage cost, terminal cost, and constraints. You can easily choose between a single or multiple shooting formulation. The solver is parametrizable, so you don't have to recompile whenever a parameter changes.
+
+OpEn allows to solve optimal control problems of the form
+
+<img width="489" height="207" alt="image" src="https://github.com/user-attachments/assets/10efdcd8-2386-4956-bdce-e2a7b7961c73" />
+
+Here is a minimal Python example (try it in [Google Colab](https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing)):
+
+<a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab">
+</a>
+
+
+```python
+import opengen as og
+import casadi.casadi as cs
+
+ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=20)
+ocp.add_parameter("x0", 2)
+ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+
+ocp.with_dynamics(
+  lambda x, u, p: 
+    cs.vertcat(x[1], -x[0] + u[0]))
+
+ocp.with_stage_cost(
+  lambda x, u, p, t: 
+    cs.dot(x - p["xref"], x - p["xref"]) 
+    + 0.1 * cs.dot(u, u))
+
+ocp.with_terminal_cost(
+  lambda x, p: 
+    10.0 * cs.dot(x - p["xref"], x - p["xref"]))
+
+ocp.with_input_constraints(og.constraints.BallInf(radius=1.))
+
+optimizer = og.ocp.OCPBuilder(
+    ocp, 
+    meta=..., 
+    build_config=..., 
+    solver_config=...).build()
+
+result = optimizer.solve(x0=[1.0, 0.0], xref=[0.0, 0.0])
+```
+
+See the dedicated [OCP documentation](https://alphaville.github.io/optimization-engine/docs/python-ocp-1) for more details and examples.
+
+## General Parametric Optimization
 
 **OpEn** can solve nonconvex parametric optimization problems of the general form
 
-<img src="design/parametric_optimization.png" alt="standard parametric optimziation problem"/>
+<img width="268" height="137" alt="standard parametric optimziation problem" src="https://github.com/user-attachments/assets/22104383-34ae-480f-805f-bd764968184a" />
+
 
 where *f* is a smooth cost, *U* is a simple - possibly nonconvex - set, *F<sub>1</sub>* and *F<sub>2</sub>* are nonlinear smooth mappings and *C* is a convex set ([read more](https://alphaville.github.io/optimization-engine/docs/open-intro)).
 
-## Code Generation Example
 
 Code generation in **Python** in just a few lines of code (read the [docs](https://alphaville.github.io/optimization-engine/docs/python-examples) for details)
+
+<a href="https://colab.research.google.com/drive/14F6IQWo8Q65mIz5Ru4FGxRPqyFMRMyzE?usp=sharing" target="_blank">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+</a>
 
 ```python
 import opengen as og
@@ -143,39 +167,44 @@ builder = og.builder.OpEnOptimizerBuilder(problem, meta,
 builder.build()
 ```
 
-Code generation in a few lines of **MATLAB** code (read the [docs](https://alphaville.github.io/optimization-engine/docs/matlab-interface) for details)
+## Use the Solver in Rust
 
-```matlab
-% Define variables
-% ------------------------------------
-u = casadi.SX.sym('u', 5);
-p = casadi.SX.sym('p', 2);
+You can also use OpEn directly in Rust by defining a cost function, its gradient, and a set of constraints, then solving the problem.
 
-% Define cost function and constraints
-% ------------------------------------
-phi = rosenbrock(u, p);
-f2 = [1.5*u(1) - u(2);
-      max(0, u(3)-u(4)+0.1)];
+Here is a minimal Rust example:
 
-bounds = OpEnConstraints.make_ball_at_origin(5.0);
+```rust
+use optimization_engine::{constraints, panoc::*, Problem, SolverError};
 
-opEnBuilder = OpEnOptimizerBuilder()...
-    .with_problem(u, p, phi, bounds)...
-    .with_build_name('penalty_new')...
-    .with_fpr_tolerance(1e-5)...
-    .with_constraints_as_penalties(f2);
+let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+    *c = (1.0 - u[0]).powi(2) + 200.0 * (u[1] - u[0].powi(2)).powi(2);
+    Ok(())
+};
 
-opEnOptimizer = opEnBuilder.build();
+let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    grad[0] = 2.0 * (u[0] - 1.0) - 800.0 * u[0] * (u[1] - u[0].powi(2));
+    grad[1] = 400.0 * (u[1] - u[0].powi(2));
+    Ok(())
+};
+
+let bounds = constraints::Ball2::new(None, 1.0);
+let problem = Problem::new(&bounds, df, f);
+let mut cache = PANOCCache::new(2, 1e-8, 10);
+let mut optimizer = PANOCOptimizer::new(problem, &mut cache).with_max_iter(100);
+let mut u = [-1.5, 0.9];
+let status = optimizer.solve(&mut u)?;
 ```
 
+See the dedicated [Rust documentation](https://alphaville.github.io/optimization-engine/docs/openrust-basic) for a full introduction and more complete examples.
+See more Rust examples [here](examples).
 
-## Getting started
+## Check out next...
 
 - [More information about OpEn](https://alphaville.github.io/optimization-engine/docs/open-intro)
 - [Quick installation guide](https://alphaville.github.io/optimization-engine/docs/installation)
 - [OpEn in Rust](https://alphaville.github.io/optimization-engine/docs/openrust-basic)
 - [OpEn in Python](https://alphaville.github.io/optimization-engine/docs/python-interface) ([Examples](https://alphaville.github.io/optimization-engine/docs/python-examples))
-- [OpEn in MATLAB](https://alphaville.github.io/optimization-engine/docs/matlab-interface) ([Examples](https://alphaville.github.io/optimization-engine/docs/matlab-examples))
+- [Optimal control](https://alphaville.github.io/optimization-engine/docs/python-ocp-1)
 - [OpEn+Jupyter in Docker](https://alphaville.github.io/optimization-engine/docs/docker)
 - [Generation of ROS packages](https://alphaville.github.io/optimization-engine/docs/python-ros)
 - [Call OpEn in C/C++](https://alphaville.github.io/optimization-engine/docs/python-c)
