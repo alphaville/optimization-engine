@@ -29,6 +29,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 - Avoid duplicate builder log messages by disabling propagation to the root logger
 - Use reliable package version lookup when recording the installed CasADi version in optimizer manifests
+- Check valid version in `with_version`
 
 
 ## [0.9.6] - 2026-03-14

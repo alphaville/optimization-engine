@@ -122,7 +122,7 @@ result = optimizer.solve(x0=[1.0, 0.0], xref=[0.0, 0.0])
 
 See the dedicated [OCP documentation](https://alphaville.github.io/optimization-engine/docs/python-ocp-1) for more details and examples.
 
-## Parametric Problems
+## General Parametric Optimization
 
 **OpEn** can solve nonconvex parametric optimization problems of the general form
 
@@ -131,8 +131,6 @@ See the dedicated [OCP documentation](https://alphaville.github.io/optimization-
 
 where *f* is a smooth cost, *U* is a simple - possibly nonconvex - set, *F<sub>1</sub>* and *F<sub>2</sub>* are nonlinear smooth mappings and *C* is a convex set ([read more](https://alphaville.github.io/optimization-engine/docs/open-intro)).
 
-
-## Code Generation Example
 
 Code generation in **Python** in just a few lines of code (read the [docs](https://alphaville.github.io/optimization-engine/docs/python-examples) for details)
 

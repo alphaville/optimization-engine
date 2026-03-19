@@ -549,6 +549,22 @@ class RustBuildTestCase(unittest.TestCase):
         y = fun([3, 4])
         self.assertAlmostEqual(25., y, places=12)
 
+    def test_optimizer_meta_valid_version(self):
+        meta = og.config.OptimizerMeta().with_version("1.2.3-alpha.1+build.5")
+        self.assertEqual("1.2.3-alpha.1+build.5", meta.version)
+
+    def test_optimizer_meta_invalid_version1(self):
+        with self.assertRaises(ValueError) as context:
+            og.config.OptimizerMeta().with_version("^1.2")
+
+        self.assertIn("Cargo package version", str(context.exception))
+    
+    def test_optimizer_meta_invalid_version2(self):
+        with self.assertRaises(ValueError) as context:
+            og.config.OptimizerMeta().with_version("0.1")
+
+        self.assertIn("Cargo package version", str(context.exception))
+
 
 if __name__ == '__main__':
     logging.getLogger('retry').setLevel(logging.ERROR)
