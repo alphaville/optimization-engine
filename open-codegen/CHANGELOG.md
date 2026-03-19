@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
+## [0.10.0] - Unreleased
+
+
+### Added
+
+- New high-level `opengen.ocp` package for constructing optimal control problems from dynamics, stage/terminal costs, named parameters, and OCP-oriented constraints
+- Support for both single-shooting and multiple-shooting formulations, including penalty- and ALM-based constraint lowering
+- `GeneratedOptimizer` wrapper with `solve(x0=..., xref=...)` API and persistent optimizer metadata via `optimizer_manifest.json` plus `rollout.casadi`
+- Continuous-time dynamics discretization helpers in `opengen.ocp.DynamicsDiscretizer`, including Euler, midpoint, Heun, RK4, and multistep discretizations
+- Extended `OcpSolution` with solver diagnostics such as cost, penalty, iteration counts, infeasibility, fixed-point residual, and Lagrange multipliers
+
+### Changed
+
+- Changed the default penalty weight update factor to `1.75`
+- Added and refined OCP documentation, docstrings, notebook examples, and automated tests
+- Improved readability of printed OCP solver results
+
+### Fixed
+
+- Avoid duplicate builder log messages by disabling propagation to the root logger
+- Use reliable package version lookup when recording the installed CasADi version in optimizer manifests
+
+
 ## [0.9.6] - 2026-03-14
 
 ### Fixed
@@ -255,7 +278,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
-[0.9.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.5...opengen-0.9.6
+[0.10.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.6...opengen-0.10.0
+[0.9.6]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.5...opengen-0.9.6
 [0.9.5]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.4...opengen-0.9.5
 [0.9.4]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.3...opengen-0.9.4
 [0.9.3]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.2...opengen-0.9.3
