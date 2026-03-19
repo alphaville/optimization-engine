@@ -42,11 +42,9 @@ Optimization Engine (OpEn) is a solver for Fast & Accurate Embedded Optimization
 
 **OpEn** is ideal for:
 
-- Embedded **nonlinear Model Predictive Control**,
-- Embedded **nonlinear Moving Horizon Estimation** and their applications in 
-- Robotics and Advanced Manufacturing Systems
-- Autonomous vehicles
-- Aerial Vehicles and Aerospace
+- Embedded **nonlinear nonlinear model predictive control** and **moving horizon estimation**
+- Robotics and advanced manufacturing 
+- Autonomous (aerial/ground) vehicles
 
 
 ## Demos
