@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-## [0.10.0] - Unreleased
+## [0.10.0] - 2026-03-19
 
 
 ### Added
@@ -18,6 +18,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - `GeneratedOptimizer` wrapper with `solve(x0=..., xref=...)` API and persistent optimizer metadata via `optimizer_manifest.json` plus `rollout.casadi`
 - Continuous-time dynamics discretization helpers in `opengen.ocp.DynamicsDiscretizer`, including Euler, midpoint, Heun, RK4, and multistep discretizations
 - Extended `OcpSolution` with solver diagnostics such as cost, penalty, iteration counts, infeasibility, fixed-point residual, and Lagrange multipliers
+- Detailed documentation available [here](https://alphaville.github.io/optimization-engine/docs/python-ocp-1), incl. Google Colab notebooks, and updated [API docs](https://alphaville.github.io/optimization-engine/api-dox/html/index.html) 
 
 ### Changed
 
