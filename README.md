@@ -126,7 +126,8 @@ See the dedicated [OCP documentation](https://alphaville.github.io/optimization-
 
 **OpEn** can solve nonconvex parametric optimization problems of the general form
 
-<img src="design/parametric_optimization.png" alt="standard parametric optimziation problem"/>
+<img width="268" height="137" alt="standard parametric optimziation problem" src="https://github.com/user-attachments/assets/22104383-34ae-480f-805f-bd764968184a" />
+
 
 where *f* is a smooth cost, *U* is a simple - possibly nonconvex - set, *F<sub>1</sub>* and *F<sub>2</sub>* are nonlinear smooth mappings and *C* is a convex set ([read more](https://alphaville.github.io/optimization-engine/docs/open-intro)).
 

@@ -39,3 +39,23 @@ The API is still young and is likely to change in version <code>0.11</code>.
 Here we will look at how we can construct an optimal control problem (OCP)
 by defining its state and terminal cost functions, input and state 
 constraints, prediction horizon and other options.
+
+
+Generally, we want to solve problems of the form 
+<div class="math">
+\[
+    \begin{align}
+    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
+    \sum_{t=0}^{N - 1} \ell_t(x_t, u_t; p) + V_f(x_N; p)
+    \\
+    \text{subject to: }& x_{t+1} = F(x_t, u_t; p),
+    \\
+    &u_t \in U, 
+    \\
+    &(x_t, u_t) \in Z_t(p), \text{ for } t=0,\ldots, N - 1
+    \\
+    &x_N \in X_N, 
+    \\
+    &x_0=x
+    \end{align}
+\]</div>

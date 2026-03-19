@@ -50,7 +50,7 @@ Suppose you want to solve the optimal control problem
 \[
     \begin{align}
     \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
-    \sum_{t=1}^{N - 1} 
+    \sum_{t=0}^{N - 1} 
         \underbrace{q\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}} 
         + 
         \underbrace{10\|x_N-x^{\mathrm{ref}}\|^2}_{\text{terminal cost}}
