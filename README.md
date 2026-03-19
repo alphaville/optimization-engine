@@ -198,8 +198,9 @@ let status = optimizer.solve(&mut u)?;
 ```
 
 See the dedicated [Rust documentation](https://alphaville.github.io/optimization-engine/docs/openrust-basic) for a full introduction and more complete examples.
+See more Rust examples [here](examples).
 
-## Getting started
+## Check out next...
 
 - [More information about OpEn](https://alphaville.github.io/optimization-engine/docs/open-intro)
 - [Quick installation guide](https://alphaville.github.io/optimization-engine/docs/installation)
