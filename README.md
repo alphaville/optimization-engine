@@ -75,13 +75,13 @@ OpEn can run on embedded devices; here we see it running on an intel Atom for th
 
 ## Optimal Control
 
-Optimal control problems can now be set up directly from their natural ingredients: dynamics, prediction horizon, stage cost, terminal cost, and constraints. The high-level `opengen.ocp` API takes care of lowering the problem to the standard OpEn form, so you no longer need to manually construct `u`, `p`, `F1`, `F2`, or switch APIs when moving between single and multiple shooting.
+Optimal control problems can now be set up directly from their natural ingredients: dynamics, prediction horizon, stage cost, terminal cost, and constraints. You can easily choose between a single or multiple shooting formulation. The solver is parametrizable, so you don't have to recompile whenever a parameter changes.
 
 OpEn allows to solve optimal control problems of the form
 
 <img width="489" height="207" alt="image" src="https://github.com/user-attachments/assets/10efdcd8-2386-4956-bdce-e2a7b7961c73" />
 
-Here is a minimal Python example (try it in Google Colab):
+Here is a minimal Python example (try it in [Google Colab](https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing)):
 
 <a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab">
@@ -171,9 +171,35 @@ builder = og.builder.OpEnOptimizerBuilder(problem, meta,
 builder.build()
 ```
 
+## Use the Solver in Rust
 
+You can also use OpEn directly in Rust by defining a cost function, its gradient, and a set of constraints, then solving the problem.
 
+Here is a minimal Rust example:
 
+```rust
+use optimization_engine::{constraints, panoc::*, Problem, SolverError};
+
+let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
+    *c = (1.0 - u[0]).powi(2) + 200.0 * (u[1] - u[0].powi(2)).powi(2);
+    Ok(())
+};
+
+let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    grad[0] = 2.0 * (u[0] - 1.0) - 800.0 * u[0] * (u[1] - u[0].powi(2));
+    grad[1] = 400.0 * (u[1] - u[0].powi(2));
+    Ok(())
+};
+
+let bounds = constraints::Ball2::new(None, 1.0);
+let problem = Problem::new(&bounds, df, f);
+let mut cache = PANOCCache::new(2, 1e-8, 10);
+let mut optimizer = PANOCOptimizer::new(problem, &mut cache).with_max_iter(100);
+let mut u = [-1.5, 0.9];
+let status = optimizer.solve(&mut u)?;
+```
+
+See the dedicated [Rust documentation](https://alphaville.github.io/optimization-engine/docs/openrust-basic) for a full introduction and more complete examples.
 
 ## Getting started
 

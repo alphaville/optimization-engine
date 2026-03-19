@@ -102,6 +102,11 @@ and the hard input constraints $|u_t| \leq 0.2$.
 This optimal control problem can be constructed as follows:
 
 ```python
+import opengen as og
+import casadi.casadi as cs
+import numpy as np
+import matplotlib.pyplot as plt
+
 optimizer_name = "ocp_alm"
 
 # Construct the OCP
@@ -112,7 +117,7 @@ ocp.add_parameter("x0", 2)
 ocp.add_parameter("xref", 2, default=[0.0, 0.0])
 ocp.add_parameter("q", 1, default=1)
 ocp.add_parameter("r", 1, default=0.1)
-ocp.add_parameter("a", 1, default=1)
+ocp.add_parameter("a", 1, default=0.8)
 ocp.add_parameter("xmin", 1, default=-1)
 
 # System dynamics
@@ -135,7 +140,7 @@ ocp.with_terminal_cost(
 ocp.with_path_constraint(
     lambda x, u, param, _t: x[1] - param["xmin"],
     kind="alm",
-    set_c=og.constraints.Rectangle([0.], [1000.0]),
+    set_c=og.constraints.Rectangle([0.], [np.inf]),
 )
 
 # Input constraints
@@ -187,7 +192,7 @@ ocp_optimizer = og.ocp.OCPBuilder(
 The optimizer can then be called as follows:
 
 ```python
-result = ocp_optimizer.solve(x0=[0.4, 0.2], q=30, r=1, a=0.8, xmin=-0.2)
+result = ocp_optimizer.solve(x0=[0.4, 0.2], q=30, r=1, xmin=-0.2)
 ```
 
 and note that all parameters except `x0` are optional; if not specified,
@@ -202,4 +207,3 @@ and the corresponding sequence of states (`result.states`)
 
 The object `result` contains the above sequences of inputs and states and additional
 information about the solution, solver time, Lagrange multipliers, etc.
-
