@@ -1,6 +1,6 @@
 ---
-id: python-ocp
-title: Optimal Control
+id: python-ocp-1
+title: Getting started
 description: Optimal Control with OpEn/opengen
 ---
 
@@ -33,7 +33,7 @@ description: Optimal Control with OpEn/opengen
 
 <div class="alert alert-warning">
 <b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.10.0a1</code>.
-The API is still young and is likely to change in versions <code>0.10</code> and <code>0.11</code>.
+The API is still young and is likely to change in version <code>0.11</code>.
 </div>
 
 Opegen now comes with a new module that facilitates the construction 
@@ -59,7 +59,7 @@ Suppose you want to solve the optimal control problem
     \\
     &u_{\min} \leq u_t \leq u_{\max}, t=0,\ldots, N-1
     \\
-    &x_t \leq x_{\max}, t=0,\ldots, N
+    &x_{2,t} \geq x_{\min}, t=0,\ldots, N
     \\
     &x_0=x
     \end{align}
@@ -203,5 +203,3 @@ and the corresponding sequence of states (`result.states`)
 The object `result` contains the above sequences of inputs and states and additional
 information about the solution, solver time, Lagrange multipliers, etc.
 
-
-## Step-by-step documentation

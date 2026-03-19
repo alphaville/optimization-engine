@@ -14,7 +14,8 @@
       "python-examples"
     ],
     "Optimal Control": [
-      "python-ocp"
+      "python-ocp-1",
+      "python-ocp-2"
     ],    
     "Rust": [
       "openrust-basic",
