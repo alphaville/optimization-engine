@@ -79,23 +79,7 @@ Optimal control problems can now be set up directly from their natural ingredien
 
 OpEn allows to solve optimal control problems of the form
 
-$$
-    \begin{align*}
-    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
-    \sum_{t=1}^{N - 1} 
-        \underbrace{q\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}} 
-        + 
-        \underbrace{10\|x_N-x^{\mathrm{ref}}\|^2}_{\text{terminal cost}}
-    \\
-    \text{subject to: }& x_{t+1} = F(x_t, u_t; p), t=0,\ldots, N-1
-    \\
-    &u_t\in U(p), t=0,\ldots, N-1
-    \\
-    &x_t \in X(p), t=0,\ldots, N
-    \\
-    &x_0=x
-    \end{align*}
-$$
+<img width="489" height="207" alt="image" src="https://github.com/user-attachments/assets/10efdcd8-2386-4956-bdce-e2a7b7961c73" />
 
 Here is a minimal Python example (try it in Google Colab):
 
