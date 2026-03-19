@@ -243,6 +243,31 @@ class OcpTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             og.ocp.ParameterDefinition("xref", 2, default=[0.0])
 
+    def test_matrix_weighted_terminal_cost(self):
+        ocp = og.ocp.OptimalControlProblem(nx=2, nu=1, horizon=2)
+        ocp.add_parameter("x0", 2)
+        ocp.add_parameter("xref", 2, default=[0.0, 0.0])
+        ocp.with_dynamics(lambda x, u, param: cs.vertcat(x[0] + u[0], x[1] - u[0]))
+        ocp.with_stage_cost(lambda x, u, param, _t: cs.dot(u, u))
+
+        p_matrix = cs.DM([
+            [10.0, 0.0],
+            [0.0, 2.0],
+        ])
+        ocp.with_terminal_cost(
+            lambda x, param: cs.mtimes([
+                (x - param["xref"]).T,
+                p_matrix,
+                (x - param["xref"]),
+            ])
+        )
+
+        model = ocp.build_symbolic_model()
+        cost_fun = cs.Function("terminal_cost_test", [model["u"], model["p"]], [model["cost"]])
+
+        value = float(cost_fun([0.0, 0.0], [1.0, -2.0, 0.0, 0.0]).full().reshape(-1)[0])
+        self.assertAlmostEqual(value, 18.0)
+
     def test_discretizer_euler(self):
         discretizer = og.ocp.DynamicsDiscretizer(
             lambda x, u, param: -x + u,

@@ -9,7 +9,7 @@ description: Optimal Control with OpEn/opengen
 <style>
 .but{
   border: none;
-  color: #348c4f;
+  color: #0074d2;
   padding: 15px 20px;
   text-align: center;
   text-decoration: none;
@@ -23,7 +23,7 @@ description: Optimal Control with OpEn/opengen
 </style>
 <style>
 .but1 {
-    background-color: #e9e642;
+    background-color: #d7e4d8;
 }
 </style><style>
 .but2 {
@@ -32,8 +32,7 @@ description: Optimal Control with OpEn/opengen
 </style>
 
 <div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.10.0a1</code>.
-The API is still young and is likely to change in version <code>0.11</code>.
+<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
 </div>
 
 Opegen now comes with a new module that facilitates the construction 
@@ -99,7 +98,13 @@ and the hard input constraints $|u_t| \leq 0.2$.
 
 <br>
 
+
+<a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank"><img align="left" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
+
 This optimal control problem can be constructed as follows:
+
+
+
 
 ```python
 import opengen as og

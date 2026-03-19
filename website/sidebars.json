@@ -15,7 +15,9 @@
     ],
     "Optimal Control": [
       "python-ocp-1",
-      "python-ocp-2"
+      "python-ocp-2",
+      "python-ocp-3",
+      "python-ocp-4"
     ],    
     "Rust": [
       "openrust-basic",

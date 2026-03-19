@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://alphaville.github.io/optimization-engine/">
-    <img alt="OpEn logo" src="design/optimization-engine.png" width="400">
+    <img alt="OpEn logo" src="design/optimization-engine.png" width="250">
   </a>
 </p>
 
@@ -13,9 +13,7 @@
   <a href="https://ci.appveyor.com/project/alphaville/optimization-engine/branch/master">
     <img alt="build status" src="https://ci.appveyor.com/api/projects/status/fy9tr4xmqq3ka4aj/branch/master?svg=true">
   </a>
-</p>
-
-<p align="center">
+  <br>
   <a href="https://lbesson.mit-license.org/">
     <img alt="MIT license" src="https://img.shields.io/badge/License-MIT-blue.svg">
   </a>
