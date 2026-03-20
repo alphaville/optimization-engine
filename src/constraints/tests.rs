@@ -1247,3 +1247,189 @@ fn t_ballp_at_xc_projection() {
         "wrong projection on lp-ball centered at xc != 0",
     );
 }
+
+#[test]
+#[should_panic]
+fn t_rectangle_no_bounds() {
+    let _rectangle = Rectangle::new(None, None);
+}
+
+#[test]
+#[should_panic]
+fn t_rectangle_only_xmin_wrong_dimension() {
+    let xmin = [1.0, 2.0, 3.0];
+    let rectangle = Rectangle::new(Some(&xmin), None);
+    let mut x = [0.0, 1.0];
+    rectangle.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_rectangle_only_xmax_wrong_dimension() {
+    let xmax = [1.0, 2.0, 3.0];
+    let rectangle = Rectangle::new(None, Some(&xmax));
+    let mut x = [0.0, 1.0];
+    rectangle.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_halfspace_wrong_dimension() {
+    let normal_vector = [1.0, 2.0, 3.0];
+    let halfspace = Halfspace::new(&normal_vector, 1.0);
+    let mut x = [1.0, 2.0];
+    halfspace.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_ball2_wrong_dimensions() {
+    let center = [1.0, 2.0];
+    let ball = Ball2::new(Some(&center), 1.0);
+    let mut x = [1.0, 2.0, 3.0];
+    ball.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_ball2_nonpositive_radius() {
+    let _ball = Ball2::new(None, 0.0);
+}
+
+#[test]
+#[should_panic]
+fn t_ball_inf_wrong_dimensions() {
+    let center = [1.0, 2.0];
+    let ball_inf = BallInf::new(Some(&center), 1.0);
+    let mut x = [1.0, 2.0, 3.0];
+    ball_inf.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_ball_inf_nonpositive_radius() {
+    let _ball_inf = BallInf::new(None, 0.0);
+}
+
+#[test]
+#[should_panic]
+fn t_epigraph_squared_norm_short_vector() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1.0];
+    epi.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_affine_space_empty_b() {
+    let _affine_set = AffineSpace::new(vec![1.0, 2.0], vec![]);
+}
+
+#[test]
+#[should_panic]
+fn t_affine_space_project_wrong_dimension() {
+    let a = vec![1.0, 0.0, 0.0, 1.0];
+    let b = vec![0.0, 0.0];
+    let affine_set = AffineSpace::new(a, b);
+    let mut x = [1.0];
+    affine_set.project(&mut x);
+}
+
+#[test]
+#[should_panic]
+fn t_affine_space_rank_deficient_matrix() {
+    let a = vec![1.0, 2.0, 1.0, 2.0];
+    let b = vec![1.0, 1.0];
+    let _affine_set = AffineSpace::new(a, b);
+}
+
+#[test]
+fn t_is_convex_sphere2() {
+    let sphere = Sphere2::new(None, 1.0);
+    assert!(!sphere.is_convex());
+}
+
+#[test]
+fn t_is_convex_no_constraints() {
+    let whole_space = NoConstraints::new();
+    assert!(whole_space.is_convex());
+}
+
+#[test]
+fn t_is_convex_rectangle() {
+    let xmin = [-1.0, -2.0];
+    let xmax = [1.0, 2.0];
+    let rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
+    assert!(rectangle.is_convex());
+}
+
+#[test]
+fn t_is_convex_simplex() {
+    let simplex = Simplex::new(1.0);
+    assert!(simplex.is_convex());
+}
+
+#[test]
+fn t_is_convex_ball1() {
+    let ball1 = Ball1::new(None, 1.0);
+    assert!(ball1.is_convex());
+}
+
+#[test]
+fn t_is_convex_ballp() {
+    let ballp = BallP::new(None, 1.0, 3.0, 1e-12, 100);
+    assert!(ballp.is_convex());
+}
+
+#[test]
+fn t_is_convex_epigraph_squared_norm() {
+    let epi = EpigraphSquaredNorm::new();
+    assert!(epi.is_convex());
+}
+
+#[test]
+fn t_is_convex_affine_space() {
+    let a = vec![1.0, 0.0, 0.0, 1.0];
+    let b = vec![1.0, -1.0];
+    let affine_set = AffineSpace::new(a, b);
+    assert!(affine_set.is_convex());
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_nonpositive_radius() {
+    let _ballp = BallP::new(None, 0.0, 2.0, 1e-12, 100);
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_exponent_too_small() {
+    let _ballp = BallP::new(None, 1.0, 1.0, 1e-12, 100);
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_nonfinite_exponent() {
+    let _ballp = BallP::new(None, 1.0, f64::INFINITY, 1e-12, 100);
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_nonpositive_tolerance() {
+    let _ballp = BallP::new(None, 1.0, 2.0, 0.0, 100);
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_zero_max_iters() {
+    let _ballp = BallP::new(None, 1.0, 2.0, 1e-12, 0);
+}
+
+#[test]
+#[should_panic]
+fn t_ballp_wrong_dimensions() {
+    let center = [1.0, 2.0];
+    let ballp = BallP::new(Some(&center), 1.0, 3.0, 1e-12, 100);
+    let mut x = [1.0, 2.0, 3.0];
+    ballp.project(&mut x);
+}
