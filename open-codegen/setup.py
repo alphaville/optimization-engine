@@ -34,14 +34,21 @@ setup(name=NAME,
       packages=find_packages(
           exclude=["icasadi", "templates"]),
       include_package_data=True,
+      python_requires='>=3.12',
       install_requires=[
-          'jinja2', 'casadi', 'pyyaml', 'retry', 'numpy', 'setuptools'
+          'jinja2>=3.1,<4',
+          'casadi>=3.6,<4',
+          'pyyaml>=6,<7',
+          'retry>=0.9,<1',
+          'numpy>=1.26,<3',
       ],
       classifiers=[
           'Development Status :: 4 - Beta',
           'License :: OSI Approved :: MIT License',
           'License :: OSI Approved :: Apache Software License',
           'Programming Language :: Python',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.12',
           'Programming Language :: Rust',
           'Intended Audience :: Science/Research',
           'Topic :: Software Development :: Libraries',
@@ -50,7 +57,14 @@ setup(name=NAME,
           'Topic :: Software Development :: Code Generators',
           'Topic :: Software Development :: Embedded Systems'
       ],
-      keywords=['optimization', 'nonconvex', 'embedded'],
+      keywords=[
+          'optimization',
+          'code-generation',
+          'optimal-control',
+          'mpc',
+          'nmpc',
+          'embedded',
+      ],
       url=(
           'https://github.com/alphaville/optimization-engine'
       ),
