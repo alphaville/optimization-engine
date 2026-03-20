@@ -23,11 +23,21 @@ function run_clippy_test() {
     popd
 }
 
-regular_test() {
+generated_clippy_tests() {
+    cd .python_test_build
+    run_clippy_test "only_f1"
+    run_clippy_test "only_f2"
+    run_clippy_test "halfspace_optimizer"
+    run_clippy_test "parametric_f2"
+    run_clippy_test "plain"
+    run_clippy_test "python_bindings"
+    run_clippy_test "rosenbrock_ros"
+}
+
+python_tests() {
     # Run Python tests
     # ------------------------------------
 
-    # --- create virtual environment
     cd open-codegen
     export PYTHONPATH=.
 
@@ -52,19 +62,9 @@ regular_test() {
         python -W ignore test/test_raspberry_pi.py -v
     fi
 
-
     # Run Clippy for generated optimizers
     # ------------------------------------
-
-    cd .python_test_build
-    run_clippy_test "only_f1"
-    run_clippy_test "only_f2"
-    run_clippy_test "halfspace_optimizer"
-    run_clippy_test "parametric_f2"
-    run_clippy_test "plain"
-    run_clippy_test "python_bindings"
-    run_clippy_test "rosenbrock_ros"
-    
+    generated_clippy_tests
 }
 
 test_docker() {
@@ -74,8 +74,8 @@ test_docker() {
 
 main() {
     if [ $DO_DOCKER -eq 0 ]; then
-        echo "Running regular tests"
-        regular_test
+        echo "Running Python and generated Clippy tests"
+        python_tests
     else
         echo "Building Docker image"
         test_docker

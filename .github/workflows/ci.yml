@@ -13,34 +13,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci_linux:
-    name: Linux
-    runs-on: ubuntu-latest
+  rust_tests:
+    name: Rust tests (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 45
-    env:
-      DO_DOCKER: 0
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          target: arm-unknown-linux-gnueabihf
           rustflags: ""
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          architecture: "x64"
-          cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
-
-      - uses: egor-tensin/setup-clang@v1
-
-      - name: Install ARM cross-compiler and C libraries
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
 
       - name: Cargo tests
         run: cargo test
@@ -50,43 +41,63 @@ jobs:
           cargo test --features rp
           cargo test --features jem
 
-      - name: Run tests (script.sh)
+  python_tests:
+    name: Python tests (${{ matrix.name }})
+    needs: rust_tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+            skip_rpi_test: 0
+          - name: macOS
+            os: macos-latest
+            skip_rpi_test: 1
+    env:
+      DO_DOCKER: 0
+      SKIP_RPI_TEST: ${{ matrix.skip_rpi_test }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: open-codegen/setup.py
+
+      - uses: egor-tensin/setup-clang@v1
+        if: runner.os == 'Linux'
+
+      - name: Install Linux ARM target
+        if: runner.os == 'Linux'
+        run: rustup target add arm-unknown-linux-gnueabihf
+
+      - name: Install ARM cross-compiler and C libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+
+      - name: Install LLVM
+        if: runner.os == 'macOS'
+        run: brew install llvm
+
+      - name: Run Python tests and generated Clippy checks
+        if: runner.os == 'Linux'
         env:
           CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
           AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
         run: bash ./ci/script.sh
 
-  ci_macos:
-    name: macOS
-    runs-on: macos-latest
-    timeout-minutes: 45
-    env:
-      DO_DOCKER: 0
-      SKIP_RPI_TEST: 1
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-          rustflags: ""
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
-
-      - name: Install LLVM
-        run: brew install llvm
-
-      - name: Cargo tests
-        run: cargo test
-
-      - name: Cargo tests (RP and JEM)
-        run: |
-          cargo test --features rp
-          cargo test --features jem
-
-      - name: Run tests (script.sh)
+      - name: Run Python tests and generated Clippy checks
+        if: runner.os == 'macOS'
         run: bash ./ci/script.sh
