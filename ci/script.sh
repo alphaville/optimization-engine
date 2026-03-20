@@ -2,6 +2,7 @@
 set -euxo pipefail
 
 SKIP_RPI_TEST="${SKIP_RPI_TEST:-0}"
+TASK="${1:-all-python-tests}"
 
 function run_clippy_test() {
     pushd $1
@@ -23,8 +24,18 @@ function run_clippy_test() {
     popd
 }
 
+setup_python_test_env() {
+    cd open-codegen
+    export PYTHONPATH=.
+
+    python -m venv venv
+    source venv/bin/activate
+    python -m pip install --upgrade pip
+    python -m pip install .
+}
+
 generated_clippy_tests() {
-    cd .python_test_build
+    pushd .python_test_build
     run_clippy_test "only_f1"
     run_clippy_test "only_f2"
     run_clippy_test "halfspace_optimizer"
@@ -32,32 +43,14 @@ generated_clippy_tests() {
     run_clippy_test "plain"
     run_clippy_test "python_bindings"
     run_clippy_test "rosenbrock_ros"
+    popd
 }
 
-python_tests() {
-    # Run Python tests
-    # ------------------------------------
-
-    cd open-codegen
+run_python_core_tests() {
     export PYTHONPATH=.
 
-    # --- create virtualenv
-    python -m venv venv
-
-    # --- activate venv
-    source venv/bin/activate
-
-    # --- upgrade pip within venv
-    python -m pip install --upgrade pip
-
-    # --- install opengen
-    python -m pip install .
-
-    # --- run the tests
-    export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
-    python -W ignore test/test_ocp.py -v
     if [ "$SKIP_RPI_TEST" -eq 0 ]; then
         python -W ignore test/test_raspberry_pi.py -v
     fi
@@ -67,6 +60,17 @@ python_tests() {
     generated_clippy_tests
 }
 
+run_python_ocp_tests() {
+    export PYTHONPATH=.
+    python -W ignore test/test_ocp.py -v
+}
+
+all_python_tests() {
+    setup_python_test_env
+    run_python_core_tests
+    run_python_ocp_tests
+}
+
 test_docker() {
     cd docker
     docker image build -t alphaville/open .
@@ -74,8 +78,26 @@ test_docker() {
 
 main() {
     if [ $DO_DOCKER -eq 0 ]; then
-        echo "Running Python and generated Clippy tests"
-        python_tests
+        case "$TASK" in
+            python-tests)
+                echo "Running Python tests and generated Clippy tests"
+                setup_python_test_env
+                run_python_core_tests
+                ;;
+            ocp-tests)
+                echo "Running OCP Python tests"
+                setup_python_test_env
+                run_python_ocp_tests
+                ;;
+            all-python-tests)
+                echo "Running Python tests, generated Clippy tests, and OCP tests"
+                all_python_tests
+                ;;
+            *)
+                echo "Unknown task: $TASK"
+                exit 1
+                ;;
+        esac
     else
         echo "Building Docker image"
         test_docker

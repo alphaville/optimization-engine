@@ -96,8 +96,44 @@ jobs:
         env:
           CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
           AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
-        run: bash ./ci/script.sh
+        run: bash ./ci/script.sh python-tests
 
       - name: Run Python tests and generated Clippy checks
         if: runner.os == 'macOS'
-        run: bash ./ci/script.sh
+        run: bash ./ci/script.sh python-tests
+
+  ocp_tests:
+    name: OCP tests (${{ matrix.name }})
+    needs: python_tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: macOS
+            os: macos-latest
+    env:
+      DO_DOCKER: 0
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: open-codegen/setup.py
+
+      - name: Install LLVM
+        if: runner.os == 'macOS'
+        run: brew install llvm
+
+      - name: Run OCP Python tests
+        run: bash ./ci/script.sh ocp-tests
