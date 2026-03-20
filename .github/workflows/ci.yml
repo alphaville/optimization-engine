@@ -131,9 +131,5 @@ jobs:
           cache: "pip"
           cache-dependency-path: open-codegen/setup.py
 
-      - name: Install LLVM
-        if: runner.os == 'macOS'
-        run: brew install llvm
-
       - name: Run OCP Python tests
         run: bash ./ci/script.sh ocp-tests
