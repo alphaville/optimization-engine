@@ -1,6 +1,6 @@
 ## Main Changes
 
-- Describe main changes
+Give a summary of the key changes
 
 
 ## Associated Issues
@@ -8,11 +8,16 @@
 - Closes #1
 - Addresses #2
 
+## Merge Dependencies
 
-## TODOs
+- Either: this PR has no merge dependencies, or
+- Depends on: ...
+- Should be merged before: ...
 
-- [ ] Documentation 
-- [ ] All tests must pass
+## Checklist
+
+- [ ] API documentation updated
+- [ ] Appropriate testing
 - [ ] Update `CHANGELOG`(s)
-- [ ] Update webpage documentation
-- [ ] Bump versions (in `CHANGELOG`, `Cargo.toml` and `VERSION`)
+- [ ] Update webpage documentation, if necessary
+- [ ] Bump versions (in `CHANGELOG`, `Cargo.toml` and `VERSION`), if necessary
