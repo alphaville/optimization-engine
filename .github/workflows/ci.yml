@@ -1,100 +1,92 @@
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-
 name: Continuous integration
 
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+  ci_linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       DO_DOCKER: 0
     steps:
-      - uses: actions/checkout@v2
-      - uses: egor-tensin/setup-clang@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v5
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
+          target: arm-unknown-linux-gnueabihf
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
         with:
-          command: test
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          architecture: 'x64'
+          python-version: "3.12"
+          architecture: "x64"
+          cache: "pip"
+          cache-dependency-path: open-codegen/setup.py
+
+      - uses: egor-tensin/setup-clang@v1
+
       - name: Install ARM cross-compiler and C libraries
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
-          # If icasadi_rosenbrock or other deps need C++:
-          # sudo apt-get install -y g++-arm-linux-gnueabihf
+
+      - name: Cargo tests
+        run: cargo test
+
       - name: Cargo tests (RP and JEM)
         run: |
           cargo test --features rp
           cargo test --features jem
+
       - name: Run tests (script.sh)
-        # Set environment variables for the cc crate
         env:
           CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
           AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
-          # If C++ is involved and you installed g++-arm-linux-gnueabihf:
-          # CXX_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
-        run: |          
-          bash ./ci/script.sh
+        run: bash ./ci/script.sh
 
   ci_macos:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
+    name: macOS
+    runs-on: macos-latest
+    timeout-minutes: 45
     env:
       DO_DOCKER: 0
+      SKIP_RPI_TEST: 1
     steps:
-      - uses: actions/checkout@v2
-      - run: brew install llvm
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: cargo test --features rp
-      - run: cargo test --features jem
-      - name: Install ARM cross-compiler toolchain (via Homebrew)
-        run: |
-          # Tap the repository that provides the cross-compiler
-          brew tap messense/macos-cross-toolchains
-          # Update brew to ensure the tap is recognized (can sometimes be needed)
-          brew update 
-          # Install the full toolchain (includes gcc, binutils, sysroot)
-          # This specific formula provides the entire toolchain.
-          brew install arm-unknown-linux-gnueabihf 
-          
-          # The above `brew install` might have linking conflicts if other partial
-          # toolchains were somehow pre-installed or installed by other steps.
-          # If it fails with link errors, you might need:
-          # brew link --overwrite arm-unknown-linux-gnueabihf
+      - uses: actions/checkout@v5
 
-          # Verify the compiler is found
-          which arm-linux-gnueabihf-gcc || (echo "arm-linux-gnueabihf-gcc not found in PATH" && exit 1)
-      - name: Run tests (script.sh)
-        # Set environment variables for the cc crate and PyO3 (if needed)
-        env:
-          CC_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
-          AR_arm_unknown_linux_gnueabihf: arm-linux-gnueabihf-ar
-          # If you are building PyO3 bindings and need to specify Python libs from the sysroot:
-          # PYO3_CROSS_LIB_DIR: "/opt/homebrew/opt/arm-unknown-linux-gnueabihf/arm-unknown-linux-gnueabihf/sysroot/usr/lib" # Adjust path and Python version
-          # PYO3_CROSS_INCLUDE_DIR: "/opt/homebrew/opt/arm-unknown-linux-gnueabihf/arm-unknown-linux-gnueabihf/sysroot/usr/include/python3.x" # Adjust path and Python version
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: open-codegen/setup.py
+
+      - name: Install LLVM
+        run: brew install llvm
+
+      - name: Cargo tests
+        run: cargo test
+
+      - name: Cargo tests (RP and JEM)
         run: |
-          bash ./ci/script.sh
+          cargo test --features rp
+          cargo test --features jem
+
+      - name: Run tests (script.sh)
+        run: bash ./ci/script.sh

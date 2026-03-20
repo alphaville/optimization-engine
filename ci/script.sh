@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euxo pipefail
 
+SKIP_RPI_TEST="${SKIP_RPI_TEST:-0}"
+
 function run_clippy_test() {
     pushd $1
     cargo clippy --all-targets --all-features
@@ -29,31 +31,26 @@ regular_test() {
     cd open-codegen
     export PYTHONPATH=.
 
-    # --- install virtualenv
-    pip install virtualenv
-
     # --- create virtualenv
-    virtualenv -p python3.12 venv
+    python -m venv venv
 
     # --- activate venv
     source venv/bin/activate
 
     # --- upgrade pip within venv
-    pip install --upgrade pip
+    python -m pip install --upgrade pip
 
     # --- install opengen
-    pip install .
-
-    # --- rust dependencies
-    rustup update
-    rustup target add arm-unknown-linux-gnueabihf
+    python -m pip install .
 
     # --- run the tests
     export PYTHONPATH=.
     python -W ignore test/test_constraints.py -v
     python -W ignore test/test.py -v
     python -W ignore test/test_ocp.py -v
-    python -W ignore test/test_raspberry_pi.py -v
+    if [ "$SKIP_RPI_TEST" -eq 0 ]; then
+        python -W ignore test/test_raspberry_pi.py -v
+    fi
 
 
     # Run Clippy for generated optimizers
