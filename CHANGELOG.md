@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the main Changelog file for the Rust solver. The Changelog file for the Python interface (`opengen`) can be found in [/open-codegen/CHANGELOG.md](open-codegen/CHANGELOG.md)
 
 <!-- ---------------------
+      v0.11.1
+     --------------------- -->
+## [v0.11.1] - Unreleased
+
+### Changed
+
+- Expanded Rust constraint test coverage with constructor validation, translated `BallP` cases across multiple `p` values, and idempotence checks for projection operators; all tests pass
+
+<!-- ---------------------
       v0.11.0
      --------------------- -->
 ## [v0.11.0] - 2026-03-14

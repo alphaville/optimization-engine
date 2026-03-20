@@ -342,6 +342,16 @@ fn t_ball2_elsewhere() {
 }
 
 #[test]
+fn t_ball2_boundary_no_change() {
+    let radius = 2.0;
+    let mut x = [0.0, 2.0];
+    let x_expected = x;
+    let ball = Ball2::new(None, radius);
+    ball.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
+}
+
+#[test]
 fn t_no_constraints() {
     let mut x = [1.0, 2.0, 3.0];
     let whole_space = NoConstraints::new();
@@ -621,6 +631,15 @@ fn t_ball_inf_center() {
 }
 
 #[test]
+fn t_ball_inf_boundary_no_change() {
+    let ball_inf = BallInf::new(None, 1.0);
+    let mut x = [-1.0, 0.2, 1.0];
+    let x_expected = x;
+    ball_inf.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
+}
+
+#[test]
 fn t_is_convex_ball_inf() {
     let ball_inf = BallInf::new(None, 1.5);
     assert!(ball_inf.is_convex());
@@ -698,6 +717,17 @@ fn t_simplex_projection() {
         1e-10,
         "sum of projected vector not equal to alpha",
     );
+}
+
+#[test]
+fn t_halfspace_boundary_no_change() {
+    let normal_vector = [1.0, 2.0];
+    let offset = 5.0;
+    let halfspace = Halfspace::new(&normal_vector, offset);
+    let mut x = [1.0, 2.0];
+    let x_expected = x;
+    halfspace.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
 #[test]
@@ -963,6 +993,15 @@ fn t_epigraph_squared_norm_inside() {
 }
 
 #[test]
+fn t_epigraph_squared_norm_boundary_no_change() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1.0, 2.0, 5.0];
+    let x_expected = x;
+    epi.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
+}
+
+#[test]
 fn t_epigraph_squared_norm() {
     let epi = EpigraphSquaredNorm::new();
     for i in 0..100 {
@@ -1015,6 +1054,26 @@ fn t_affine_space() {
         1e-10,
         1e-12,
         "projection on affine set is wrong",
+    );
+}
+
+#[test]
+fn t_affine_space_projection_feasibility() {
+    let a = vec![
+        0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,
+    ];
+    let b = vec![1., 2., -0.5];
+    let affine_set = AffineSpace::new(a.clone(), b.clone());
+    let mut x = [1., -2., -0.3, 0.5];
+    affine_set.project(&mut x);
+    let residual = [
+        a[0] * x[0] + a[1] * x[1] + a[2] * x[2] + a[3] * x[3] - b[0],
+        a[4] * x[0] + a[5] * x[1] + a[6] * x[2] + a[7] * x[3] - b[1],
+        a[8] * x[0] + a[9] * x[1] + a[10] * x[2] + a[11] * x[3] - b[2],
+    ];
+    assert!(
+        crate::matrix_operations::norm_inf(&residual) <= 1e-10,
+        "projection does not satisfy Ax = b"
     );
 }
 
@@ -1188,6 +1247,15 @@ fn is_norm_p_projection(
     true
 }
 
+fn assert_projection_idempotent<C: Constraint>(constraint: &C, x0: &[f64], message: &'static str) {
+    let mut once = x0.to_vec();
+    let mut twice = x0.to_vec();
+    constraint.project(&mut once);
+    constraint.project(&mut twice);
+    constraint.project(&mut twice);
+    unit_test_utils::assert_nearly_equal_array(&once, &twice, 1e-10, 1e-12, message);
+}
+
 #[test]
 fn t_ballp_at_origin_projection() {
     let radius = 0.8;
@@ -1199,6 +1267,172 @@ fn t_ballp_at_origin_projection() {
     let ball = BallP::new(None, radius, p, tol, max_iters);
     ball.project(&mut x);
     assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
+}
+
+#[test]
+fn t_ballp_at_origin_projection_preserves_signs() {
+    let radius = 0.9;
+    let mut x = [1.0, -3.0, 2.5, -0.7];
+    let x0 = x;
+    let ball = BallP::new(None, radius, 3.0, 1e-14, 200);
+    ball.project(&mut x);
+    for (proj, original) in x.iter().zip(x0.iter()) {
+        assert!(proj.abs() <= original.abs() + 1e-12);
+        if *original != 0.0 {
+            assert_eq!(proj.signum(), original.signum());
+        }
+    }
+}
+
+#[test]
+fn t_ballp_zero_coordinates_branch() {
+    let radius = 0.7;
+    let p = 3.5;
+    let mut x = [0.0, -2.0, 0.0, 1.5];
+    let x0 = x;
+    let ball = BallP::new(None, radius, p, 1e-14, 300);
+    ball.project(&mut x);
+    assert_eq!(x[0], 0.0);
+    assert_eq!(x[2], 0.0);
+    assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
+}
+
+#[test]
+fn t_ballp_outside_projection_lands_on_boundary_for_multiple_p() {
+    let test_cases = [
+        (1.1, [2.0, -1.0, 0.5]),
+        (1.5, [1.0, -2.0, 3.0]),
+        (2.5, [3.0, -4.0, 1.0]),
+        (10.0, [1.2, -0.7, 2.1]),
+    ];
+    let radius = 0.8;
+
+    for (p, x_init) in test_cases {
+        let mut x = x_init;
+        let ball = BallP::new(None, radius, p, 1e-14, 400);
+        ball.project(&mut x);
+        let norm_p = x
+            .iter()
+            .map(|xi| xi.abs().powf(p))
+            .sum::<f64>()
+            .powf(1.0 / p);
+        unit_test_utils::assert_nearly_equal(
+            radius,
+            norm_p,
+            1e-9,
+            1e-11,
+            "projection should lie on the boundary",
+        );
+    }
+}
+
+#[test]
+fn t_ballp_boundary_no_change() {
+    let radius = 1.0;
+    let p = 4.0;
+    let mut x = [1.0, 0.0];
+    let x_expected = x;
+    let ball = BallP::new(None, radius, p, 1e-14, 200);
+    ball.project(&mut x);
+    unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
+}
+
+#[test]
+fn t_ballp_translated_projection_multiple_p_values() {
+    let center = [1.0, -2.0, 0.5];
+    let radius = 0.9;
+    let cases = [
+        (1.1, [3.0, -4.0, 2.0]),
+        (1.5, [2.5, -0.5, 1.8]),
+        (2.5, [4.0, -3.5, -1.0]),
+        (10.0, [1.8, 0.5, 3.0]),
+    ];
+
+    for (p, x_init) in cases {
+        let mut x = x_init;
+        let ball = BallP::new(Some(&center), radius, p, 1e-14, 400);
+        ball.project(&mut x);
+        let norm_p = x
+            .iter()
+            .zip(center.iter())
+            .map(|(xi, ci)| (xi - ci).abs().powf(p))
+            .sum::<f64>()
+            .powf(1.0 / p);
+        unit_test_utils::assert_nearly_equal(
+            radius,
+            norm_p,
+            1e-9,
+            1e-11,
+            "translated lp projection should lie on the boundary",
+        );
+    }
+}
+
+#[test]
+fn t_halfspace_projection_is_idempotent() {
+    let normal_vector = [1.0, 2.0];
+    let halfspace = Halfspace::new(&normal_vector, 1.0);
+    assert_projection_idempotent(
+        &halfspace,
+        &[-1.0, 3.0],
+        "halfspace projection not idempotent",
+    );
+}
+
+#[test]
+fn t_rectangle_projection_is_idempotent() {
+    let xmin = [-1.0, 0.0, -2.0];
+    let xmax = [1.0, 2.0, 0.5];
+    let rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
+    assert_projection_idempotent(
+        &rectangle,
+        &[-10.0, 1.5, 3.0],
+        "rectangle projection not idempotent",
+    );
+}
+
+#[test]
+fn t_ball2_projection_is_idempotent() {
+    let center = [0.5, -1.0];
+    let ball = Ball2::new(Some(&center), 0.8);
+    assert_projection_idempotent(&ball, &[3.0, 2.0], "ball2 projection not idempotent");
+}
+
+#[test]
+fn t_ball_inf_projection_is_idempotent() {
+    let center = [2.0, -3.0];
+    let ball_inf = BallInf::new(Some(&center), 1.2);
+    assert_projection_idempotent(&ball_inf, &[10.0, 1.0], "ballinf projection not idempotent");
+}
+
+#[test]
+fn t_affine_space_projection_is_idempotent() {
+    let a = vec![1.0, 1.0, 0.0, 1.0, -1.0, 2.0];
+    let b = vec![1.0, 0.5];
+    let affine_set = AffineSpace::new(a, b);
+    assert_projection_idempotent(
+        &affine_set,
+        &[3.0, -2.0, 4.0],
+        "affine-space projection not idempotent",
+    );
+}
+
+#[test]
+fn t_sphere2_projection_is_idempotent() {
+    let center = [1.0, 1.0, -1.0];
+    let sphere = Sphere2::new(Some(&center), 2.0);
+    assert_projection_idempotent(
+        &sphere,
+        &[4.0, -2.0, 3.0],
+        "sphere projection not idempotent",
+    );
+}
+
+#[test]
+fn t_ballp_projection_is_idempotent() {
+    let center = [0.0, 1.0, -1.0];
+    let ball = BallP::new(Some(&center), 0.75, 3.0, 1e-14, 300);
+    assert_projection_idempotent(&ball, &[2.0, -3.0, 1.5], "ballp projection not idempotent");
 }
 
 #[test]
