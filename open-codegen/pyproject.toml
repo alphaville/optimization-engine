@@ -7,12 +7,12 @@ name = "opengen"
 dynamic = ["version"]
 description = "Optimization Engine Code Generator"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 authors = [
   { name = "Pantelis Sopasakis", email = "xzu.trustful191@passinbox.com" },
   { name = "Emil Fresk" },
 ]
-license = { text = "MIT License" }
+license = "MIT OR Apache-2.0"
 keywords = [
   "optimization",
   "code-generation",
@@ -23,11 +23,12 @@ keywords = [
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
-  "License :: OSI Approved :: MIT License",
-  "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Rust",
   "Intended Audience :: Science/Research",
   "Topic :: Software Development :: Libraries",
@@ -46,6 +47,15 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/alphaville/optimization-engine"
+Documentation = "https://alphaville.github.io/optimization-engine/"
+Repository = "https://github.com/alphaville/optimization-engine"
+Changelog = "https://github.com/alphaville/optimization-engine/blob/master/open-codegen/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+  "build>=1",
+  "twine>=5",
+]
 
 [tool.setuptools]
 include-package-data = true

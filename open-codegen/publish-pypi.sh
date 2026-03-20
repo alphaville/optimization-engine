@@ -1,45 +1,42 @@
 #!/bin/sh
-# This is a script to faciliate the release of new versions
-# Make sure you have created a virtual environment, `venv`
-# and that you have installed twine
- 
+set -eu
+
+# This script facilitates releasing a new version of opengen to PyPI.
+# It expects a local virtual environment at ./venv with publishing tools.
+
 echo "[OpEnGen] Checking out master"
 git checkout master
 git pull origin master
 
-echo "[OpEnGen] Clean build"
-rm -rf ./build ./dist opengen.egg-info 
+echo "[OpEnGen] Cleaning previous build artifacts"
+rm -rf ./build ./dist ./opengen.egg-info
 
-echo "[OpEnGen] Build (within a virtual environment)"
-source venv/bin/activate
-pip install .
+echo "[OpEnGen] Activating virtual environment"
+. venv/bin/activate
 
-echo "[OpEnGen] Build dist"
-python setup.py sdist bdist_wheel
+echo "[OpEnGen] Installing packaging tools"
+python -m pip install --upgrade pip build twine
 
-echo "[OpEnGen] Check..."
-ok=`twine check dist/** | grep PASSED | wc -l`
-echo $ok
-if [ $ok -eq 2 ]; then
-    echo "[OpEnGen] twine check: all passed"
-else
-    echo "[OpEnGen] twine: some checks did not pass"
-    exit 2
-fi
+echo "[OpEnGen] Building source and wheel distributions"
+python -m build
 
-echo "[OpEnGen] Uploading to pypi..."
-read -r -p "Are you sure? [y/N] " response
+echo "[OpEnGen] Checking distributions with twine"
+python -m twine check dist/*
+
+echo "[OpEnGen] Uploading to PyPI..."
+printf "Are you sure? [y/N] "
+read -r response
 case "$response" in
-    [yY][eE][sS]|[yY]) 
-        echo "[OpEnGen] Thanks, uploading to PyPi now"
-        twine upload dist/*
+    [yY][eE][sS]|[yY])
+        echo "[OpEnGen] Uploading to PyPI now"
+        python -m twine upload dist/*
         ;;
     *)
-        echo "---"
+        echo "[OpEnGen] Upload cancelled"
         ;;
 esac
 
 echo "[OpEnGen] Don't forget to create a tag; run:"
-a=`cat VERSION`
-echo "\$ git tag -a opengen-$a -m 'opengen-$a'"
+version=$(cat VERSION)
+echo "\$ git tag -a opengen-$version -m 'opengen-$version'"
 echo "\$ git push --tags"
