@@ -31,9 +31,9 @@ description: Optimal Control with OpEn/opengen
 }
 </style>
 
-<div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
-</div>
+:::note Info
+The functionality presented here was introduced in `opengen` version [`0.10.0a1`](https://pypi.org/project/opengen/#history). The API is still young and is likely to change in version `0.11`.
+:::
 
 After an OCP optimizer has been built, it can be called using the method
 `solve(...)`. The main difference compared to the low-level interface is that

@@ -7,7 +7,7 @@ description: Optimal Control with OpEn/opengen
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-:::warning Info
+:::note Info
 The functionality presented here was introduced in `opengen` version [`0.10.0a1`](https://pypi.org/project/opengen/#history). The API is still young and is likely to change in version `0.11`.
 :::
 
@@ -59,7 +59,7 @@ Here, `a` is a parameter. Suppose the stage cost function is:
     \end{align}
 \]`}</div>
 
-Here, `x_ref`, `q`, and `r` are parameters. The terminal cost function is:
+Here, <span className="math">{String.raw`\(x^{\text{ref}}\)`}</span>, $q$, and $r$ are parameters. The terminal cost function is:
 
 <div className="math">{String.raw`\[
     \begin{align}
@@ -67,7 +67,7 @@ Here, `x_ref`, `q`, and `r` are parameters. The terminal cost function is:
     \end{align}
 \]`}</div>
 
-Lastly, we have the state constraint `x_t >= x_min`, where `x_min` is a parameter, and the hard input constraints `|u_t| <= 0.2`.
+Lastly, we have the state constraint <span className="math">{String.raw`\(x_t \geq x_{\min}\)`}</span>, where <span className="math">{String.raw`\(x_{\min}\)`}</span> is a parameter, and the hard input constraints <span className="math">{String.raw`\(\Vert u_t \Vert \leq 0.2\)`}</span>.
 
 This optimal control problem can be constructed as follows:
 
