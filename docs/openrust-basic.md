@@ -65,16 +65,17 @@ Constraints implement the namesake trait, [`Constraint`]. Implementations of [`C
 | [`AffineSpace`]      | $U {}={} \\{u\in\mathbb{R}^n : Au = b\\}$         |
 | [`Ball1`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_1 \leq r\\}$  |
 | [`Ball2`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 \leq r\\}$  |
-| [`BallP`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_p \leq r\\}$  |
-| [`Sphere2`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 = r\\}$     |
 | [`BallInf`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_\infty \leq r\\}$ |
+| [`BallP`]            | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_p \leq r\\}$  |
+| [`EpigraphSquaredNorm`] | $U {}={} \\{(z, t)\in\mathbb{R}^n \times \mathbb{R} : \Vert z\Vert^2 \leq t\\}$ |
+| [`FiniteSet`]        | $U {}={} \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
 | [`Halfspace`]        | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle \leq b\\}$ |
 | [`Hyperplane`]       | $U {}={} \\{u\in\mathbb{R}^n : \langle c, u\rangle {}={} b\\}$ |
-| [`Rectangle`]        | $U {}={} \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
-| [`Simplex`]          | $U {}={} \\{u \in \mathbb{R}^n {}:{} u \geq 0, \sum_i u_i = \alpha\\}$ |
 | [`NoConstraints`]    | $U {}={} \mathbb{R}^n$                                   |
-| [`FiniteSet`]        | $U {}={} \\{u^{(1)}, u^{(2)},\ldots,u^{(N)}\\}$          |
+| [`Rectangle`]        | $U {}={} \\{u\in\mathbb{R}^n : u_{\min} \leq u \leq u_{\max}\\}$ |
 | [`SecondOrderCone`]  | $U {}={} \\{u=(z,t), t\in\mathbb{R}, \Vert{}z{}\Vert \leq \alpha t\\}$ |
+| [`Simplex`]          | $U {}={} \\{u \in \mathbb{R}^n {}:{} u \geq 0, \sum_i u_i = \alpha\\}$ |
+| [`Sphere2`]          | $U {}={} \\{u\in\mathbb{R}^n : \Vert u-u^0\Vert_2 = r\\}$     |
 | [`Zero`]             | $U {}={} \\{0\\}$                                        |
 | [`CartesianProduct`] | Cartesian products of any of the above               |
 
@@ -137,7 +138,7 @@ why the caller function should not use `unwrap` directly, but should rather chec
 solver returned an error. The error can be propagated upstream using `let status = panoc.solve(&mut u)?;`.
 
 
-### Solver statistics
+### Solver status
 Method `solve`, if successful, returns an object of type [`SolverStatus`] which stores information about the solver, namely, whether the required tolerance was attained (`has_converged()`), the [exit status] (`exit_status()`), the number of iterations (`iterations()`), the norm of the residual (a measure of the accuracy of the solution) (`norm_fpr()`) and the cost value at the approximate solution (`cost_value()`).
 
 ## Complete Example in Rust
@@ -358,21 +359,22 @@ the imposition of a maximum allowed duration, the exit status will be
 <!-- Links -->
 
 [`Constraint`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/trait.Constraint.html
-[`Simplex`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Simplex.html
 [`AffineSpace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.AffineSpace.html
-[`Sphere2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Sphere2.html
 [`Ball1`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball1.html
 [`Ball2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Ball2.html
-[`BallP`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallP.html
 [`BallInf`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallInf.html
+[`BallP`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.BallP.html
+[`CartesianProduct`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.CartesianProduct.html
+[`EpigraphSquaredNorm`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.EpigraphSquaredNorm.html
+[`FiniteSet`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html
 [`Halfspace`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Halfspace.html
 [`Hyperplane`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Hyperplane.html
-[`Zero`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html
-[`FiniteSet`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.FiniteSet.html
-[`CartesianProduct`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.CartesianProduct.html
-[`SecondOrderCone`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.SecondOrderCone.html
-[`Rectangle`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Rectangle.html
 [`NoConstraints`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.NoConstraints.html
+[`Rectangle`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Rectangle.html
+[`SecondOrderCone`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.SecondOrderCone.html
+[`Simplex`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Simplex.html
+[`Sphere2`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Sphere2.html
+[`Zero`]: https://docs.rs/optimization_engine/*/optimization_engine/constraints/struct.Zero.html
 [`SolverError`]: https://docs.rs/optimization_engine/*/optimization_engine/enum.SolverError.html
 [`problem`]: https://docs.rs/optimization_engine/*/optimization_engine/core/problem/struct.Problem.html
 [`PANOCCache`]: https://docs.rs/optimization_engine/*/optimization_engine/core/panoc/struct.PANOCCache.html

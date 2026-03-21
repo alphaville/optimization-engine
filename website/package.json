@@ -1,21 +1,19 @@
 {
+  "name": "optimization-engine-docs",
+  "private": true,
   "scripts": {
-    "examples": "docusaurus-examples",
-    "start": "docusaurus-start",
-    "build": "docusaurus-build",
-    "publish-gh-pages": "docusaurus-publish",
-    "write-translations": "docusaurus-write-translations",
-    "version": "docusaurus-version",
-    "rename-version": "docusaurus-rename-version"
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear"
   },
   "license": "(MIT OR Apache-2.0)",
   "devDependencies": {
-    "@docusaurus/core": "2.0.0-alpha.49",
-    "@docusaurus/preset-classic": "2.0.0-alpha.49",
-    "docusaurus": "^1.14.7"
-  },
-  "dependencies": {
-    "remark-admonitions": "^1.2.1"
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/preset-classic": "^3.9.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

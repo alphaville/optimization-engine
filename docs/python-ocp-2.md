@@ -31,9 +31,9 @@ description: Optimal Control with OpEn/opengen
 }
 </style>
 
-<div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
-</div>
+:::note Info
+The functionality presented here was introduced in `opengen` version [`0.10.0a1`](https://pypi.org/project/opengen/#history). The API is still young and is likely to change in version `0.11`.
+:::
 
 Here we will look at how we can construct an optimal control problem (OCP)
 by defining its state and terminal cost functions, input and state 
@@ -132,9 +132,11 @@ is not eliminated. The OCP now has the form (simplified version — additional c
     \end{align}
 \]</div>
 
-<a href="https://colab.research.google.com/drive/1pjJLPBW0KgtAC_5z3zCHhJ4SV9WE7Jhg?usp=sharing" target="_blank"><img align="left" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
 
 A multiple shooting problem can be constructed as follows
+
+<a href="https://colab.research.google.com/drive/1pjJLPBW0KgtAC_5z3zCHhJ4SV9WE7Jhg?usp=sharing" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
+
 
 ```python
 ocp = og.ocp.OptimalControlProblem(
@@ -194,10 +196,10 @@ If the same parameter name is declared twice, `add_parameter` raises a
 Parameters can be used in callback functions (dynamics, cost functions, 
 constraints); more on this later.
 
-<div class="alert alert-info">
-<b>Important:</b> The parameter <code>x0</code> should always be declared because it defines the initial
+:::note
+The parameter <code>x0</code> should always be declared because it defines the initial
 state of the OCP.
-</div>
+:::
 
 
 
