@@ -72,7 +72,7 @@ const ecosystemCards = [
       'Formulate your problem in Python or MATLAB, generate a Rust optimizer, and consume it over TCP, C/C++, ROS, or native Rust.',
   },
   {
-    title: 'Research-Ready',
+    title: 'Benchmarks',
     image: 'img/openbenchmark.png',
     imageClassName: 'homeCard__image--feature homeCard__image--benchmark',
     zoomAlt: 'Detailed OpEn benchmark comparison figure',
@@ -92,8 +92,8 @@ const mpcCard = {
   title: 'Model Predictive Control',
   image: 'img/mpc56.png',
   body: [
-    'Model Predictive Control (MPC) is a powerful optimization-based control methodology. MPC has become the golden standard in control engineering as it can deal with nonlinear dynamics and state/input constraints. At its core, there is an optimization problem that needs to be solved in real time and within the ever so often stringent runtime requirements of modern applications (robotics, aerospace, automotive and more).',
-    'When the system dynamics is nonlinear, or there exist nonconvex constraints (e.g., set avoidance constraints), the MPC optimization problem poses significant challenges towards the implementation and deployment of fast and reliable predictive controllers. This is where OpEn comes in: it offers a toolkit of extremely fast and robust numerical optimization methods, especially tailored for embedded applications where both speed and memory usage are of the essense.',
+    'Model Predictive Control (MPC) is a powerful optimization-based control methodology. It has become a standard tool in control engineering because it can handle nonlinear dynamics and state or input constraints, but it also requires solving an optimization problem in real time under tight runtime limits.',
+    'When the dynamics are nonlinear or the constraints are nonconvex, implementation becomes significantly harder. This is where OpEn helps: it offers extremely fast and robust numerical optimization methods tailored for embedded applications where both speed and memory usage matter.',
   ],
 };
 

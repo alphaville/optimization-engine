@@ -150,7 +150,6 @@ module.exports = {
             {label: 'User Showcase', to: '/users'},
             {label: 'Discord community', href: 'https://discord.gg/mfYpn4V'},
             {label: 'Chat on Gitter', href: 'https://gitter.im/alphaville/optimization-engine'},
-            {label: 'Twitter', href: 'https://twitter.com/isToxic'},
           ],
         },
         {
@@ -159,6 +158,9 @@ module.exports = {
             {label: 'Blog', to: '/blog'},
             {label: 'GitHub', href: 'https://github.com/alphaville/optimization-engine'},
             {label: 'OpenHub', href: 'https://www.openhub.net/p/optimization-engine'},
+            {
+              html: '<a href="https://github.com/alphaville/optimization-engine" aria-label="GitHub stars for alphaville/optimization-engine"><img src="https://img.shields.io/github/stars/alphaville/optimization-engine?style=social" alt="GitHub stars for alphaville/optimization-engine" /></a>',
+            },
           ],
         },
       ],
