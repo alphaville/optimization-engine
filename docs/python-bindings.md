@@ -7,10 +7,6 @@ description: How to access the auto-generated optimizer from Python
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-<div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <code>0.6.4</code>.
-The API is still young and is likely to change in versions <code>0.8.X</code>.
-</div>
 
 
 As we [discussed previously](python-interface#about) there are various ways

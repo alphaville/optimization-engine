@@ -1,3 +1,5 @@
+const {themes} = require('prism-react-renderer');
+
 const baseUrl = '/optimization-engine/';
 
 const users = [
@@ -97,6 +99,7 @@ module.exports = {
       respectPrefersColorScheme: false,
     },
     prism: {
+      theme: themes.github,
       additionalLanguages: ['bash', 'matlab'],
     },
     navbar: {
