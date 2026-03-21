@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>OpEn Blog</title>
+        <link>https://alphaville.github.io/optimization-engine/blog</link>
+        <description>OpEn Blog</description>
+        <lastBuildDate>Sat, 21 Mar 2026 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[New Python OCP Module for Optimal Control and MPC]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2026/03/21/python-ocp-module</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2026/03/21/python-ocp-module</guid>
+            <pubDate>Sat, 21 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[State trajectories generated with the Python OCP module]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/ocp-states.png" alt="State trajectories generated with the Python OCP module" class="img_ev3q"></p>
+<p>OpEn now comes with a Python OCP module that facilitates the design of optimal control problems in a direct and intuitive way.</p>
+<p>With the new module, you can describe the key ingredients of an optimal control problem from Python, including:</p>
+<ul>
+<li class="">stage and terminal costs</li>
+<li class="">system dynamics</li>
+<li class="">state and input constraints</li>
+<li class="">problem parameters and defaults</li>
+</ul>
+<p>This makes it much easier to formulate nonlinear optimal control problems and model predictive control (MPC) schemes before generating an embedded optimizer with OpEn.</p>
+<p>The new OCP workflow is documented in the Python OCP guide:</p>
+<ul>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/python-ocp-1">Getting started with the OCP module</a></li>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/python-ocp-2">OCP problem formulation</a></li>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/python-ocp-3">Building the optimizer</a></li>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/python-ocp-4">Running closed-loop simulations</a></li>
+</ul>
+<p>If you want to try it right away, you can also run the Colab notebook:</p>
+<ul>
+<li class=""><a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank" rel="noopener noreferrer" class="">Try the Python OCP module in Google Colab</a></li>
+</ul>
+<p>This functionality was introduced in <code>opengen</code> version <code>0.10.0a1</code>, and it opens the door to a smoother workflow for designing optimal controllers and MPC applications directly in Python.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Autonomous Racing of Scale Vehicles at SMC22]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2022/07/30/blog</guid>
+            <pubDate>Sat, 30 Jul 2022 00:00:00 GMT</pubDate>
+            <description><![CDATA[Autonomous Racing of Scale Vehicles]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/f1-10-main-car_orig.png" alt="Autonomous Racing of Scale Vehicles" class="img_ev3q"></p>
+<p>Our paper titled "A Nonlinear Model Predictive Control Strategy for Autonomous Racing of Scale Vehicles" (authors: V. Cataffo, G. Silano, L. Iannelli, V. Puig and G. Glielmo) has been accepted for publication in IEEE International Conference on Systems, Man, and Cybernetics (SMC), 2022.</p>
+<p>A preprint is <a href="https://giuseppesilano.net/publications/SMC22.pdf" target="_blank" rel="noopener noreferrer" class="">available here</a>.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Faster UDP connection]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/21/fast-udp-connection</guid>
+            <pubDate>Thu, 21 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[After a recent update, the UDP interface if OpEn is now significantly faster. Make sure you use version 0.2.2 or later.]]></description>
+            <content:encoded><![CDATA[<p>After a recent update, the <a class="" href="https://alphaville.github.io/optimization-engine/docs/udp-sockets">UDP interface</a> if <strong>OpEn</strong> is now significantly faster. Make sure you use version <code>0.2.2</code> or later.</p>
+<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/udp_socket.png" alt="UDP socket interface" class="img_ev3q"></p>
+<p>Coming up: TCP interface</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Rust for robots]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/19/rust-robotics</guid>
+            <pubDate>Tue, 19 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[Is the Rust programming language the future of robotics? Some claim that its memory and thread safety model and the fact that it can run on embedded and bare metal devices makes it the perfect candidate for robotics.]]></description>
+            <content:encoded><![CDATA[<p>Is the <strong>Rust</strong> programming language the future of robotics? <a href="https://medium.com/luosrobotics/why-rust-is-the-future-of-robotics-81d7fb68fe37" target="_blank" rel="noopener noreferrer" class="">Some</a> claim that its memory and thread safety model and the fact that it can run on embedded and bare metal devices makes it the perfect candidate for robotics.</p>
+<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/rustybot.jpeg" alt="rusty bot" class="img_ev3q"></p>
+<p>Despite its young age, Rust has all but failed to go unnoticed: a <a href="https://insights.stackoverflow.com/survey/2018/#most-loved-dreaded-and-wanted" target="_blank" rel="noopener noreferrer" class="">stackoverflow survey</a> revealed that Rust is the top most loved programming language and nowhere around the 25 most dreaded ones.</p>
+<p>Rust comes with all the perks of high-level languages (such as C++ and Java) related to code structure and organisation, the capabilities and efficiency of low-level languages (such as C), plus it is t<strong>Rust</strong>worthy.</p>
+<p>This is why we decided to write <strong>OpEn</strong> in Rust.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[OpEn: a pure Rust optimizer]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/15/pure-rust-optimization</guid>
+            <pubDate>Fri, 15 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[The majority of optimization packages in Rust, such as IPOPT, OSQP, NLOPT, are essentially bindings (interfaces) to other software. There are a few pure-Rust packages, such as rustimization, argmin, they implement algorithms which are not suitable for embedded nonconvex optimization.]]></description>
+            <content:encoded><![CDATA[<p>The majority of optimization packages in Rust, such as <a href="https://crates.io/crates/ipopt" target="_blank" rel="noopener noreferrer" class="">IPOPT</a>, <a href="https://crates.io/crates/osqp" target="_blank" rel="noopener noreferrer" class="">OSQP</a>, <a href="https://crates.io/crates/nlopt" target="_blank" rel="noopener noreferrer" class="">NLOPT</a>, are essentially bindings (interfaces) to other software. There are a few pure-Rust packages, such as <a href="https://crates.io/crates/rustimization" target="_blank" rel="noopener noreferrer" class="">rustimization</a>, <a href="https://crates.io/crates/argmin" target="_blank" rel="noopener noreferrer" class="">argmin</a>, they implement algorithms which are not suitable for embedded nonconvex optimization.</p>
+<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/rust1.jpeg" alt="Rust language" class="img_ev3q"></p>
+<p><strong>OpEn</strong> is the first <strong>pure-Rust</strong> package</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Let's talk]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us</guid>
+            <pubDate>Wed, 06 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[Chat with us]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/chat.jpeg" alt="Chat with us" class="img_ev3q"></p>
+<p>Are you interested in <strong>OpEn</strong>? You may join our growing community:</p>
+<ul>
+<li class="">Join us on <a href="https://discord.gg/mfYpn4V" target="_blank" rel="noopener noreferrer" class="">Discord</a></li>
+<li class="">or on <a href="https://gitter.im/alphaville/optimization-engine" target="_blank" rel="noopener noreferrer" class="">Gitter</a></li>
+</ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[OpEn on Raspberry Pi]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/matlab-raspberry</guid>
+            <pubDate>Tue, 05 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[Here we give an example of building a parametric optimizer in MATLAB, which will run on a Raspberry Pi. The parametric optimizer will listen for requests on a UDP socket. We will then establish a connection to the optimizer, remotely, and consume the service.]]></description>
+            <content:encoded><![CDATA[<p>Here we give an example of building a parametric optimizer in MATLAB, which will run on a <strong>Raspberry Pi</strong>. The parametric optimizer will listen for requests on a <strong>UDP socket</strong>. We will then establish a connection to the optimizer, remotely, and consume the service.</p>
+<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/rpi.jpeg" alt="Raspberry Pi" class="img_ev3q"></p>
+<p><strong>NOTE:</strong> Please, read the documentation of the <a class="" href="https://alphaville.github.io/optimization-engine/docs/matlab-interface">MATLAB interface</a> and the <a class="" href="https://alphaville.github.io/optimization-engine/docs/udp-sockets">UDP communication protocol</a> first.</p>
+<p>In MATLAB, we run the following script:</p>
+<div class="language-matlab codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-matlab codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">nu = 6;                            % number of decision variables</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">np = 2;                            % number of parameters </span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">u = casadi.SX.sym('u', nu);        % decision variables</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">p = casadi.SX.sym('p', np);        % parameters</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">phi = rosenbrock(u, p);            % cost function phi(u; p) (Rosenbrock)</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">constraints = OpEnConstraints.make_ball_at_origin(1.0);</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">build_config = open_build_config();</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">build_config.target = 'rpi';</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">build_config.build_mode = 'release';</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">build_config.udp_interface.bind_address = '0.0.0.0';</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">build_config.udp_interface.port = 3498;</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">open_generate_code(build_config, constraints, u, p, phi);</span><br></span></code></pre></div></div>
+<p>Note that we have specified that the target hardware is a raspberry pi, <code>rpi</code> (equivalently <code>arm-unknown-linux-gnueabihf</code>), the bind address is <code>0.0.0.0</code> (so that the service will bind on all valid IP addresses) and the port is <code>3498</code>. We have also set the <code>build_mode</code> to <code>release</code> for maximum performance.</p>
+<p>After we execute the script, the code generator will have created a new project at</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">build/autogenerated_optimizer/</span><br></span></code></pre></div></div>
+<p>We then copy the binary file from</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">build/autogenerated_optimizer/target/arm-unknown-linux-gnueabihf/release</span><br></span></code></pre></div></div>
+<p>onto our Raspberry Pi and execute it.</p>
+<p>Then, on our PC (assuming we run on Linux), we run:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">netcat -u {ip_address_of_raspberry} 3498</span><br></span></code></pre></div></div>
+<p>where <code>{ip_address_of_raspberry}</code> is the IP address (or domain name) of our Raspberry. This will start a console, where we can send data to the PI. For example, we write</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token property">"parameter"</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token number" style="color:rgb(247, 140, 108)">50</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">100</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></span></code></pre></div></div>
+<p>and press Enter, to receive:</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">	</span><span class="token property">"p"</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token number" style="color:rgb(247, 140, 108)">50.0</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">100.0</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">	</span><span class="token property">"u"</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token number" style="color:rgb(247, 140, 108)">1.2597243950</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">1.3938323941</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">1.6995734606</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">2.6752011118</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">7.0289056698</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">49.3661825375</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">	</span><span class="token property">"n"</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">88</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">	</span><span class="token property">"f"</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">-5.243242641581731</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">	</span><span class="token property">"dt"</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">"1.207756ms"</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></span></code></pre></div></div>
+<p>So, <strong>what do you think</strong>? Let us know by providing some feedback (you can reach us live <a class="" href="https://alphaville.github.io/optimization-engine/blog/2019/03/06/talk-to-us"><strong>here</strong></a>).</p>
+<p>If you like <strong>OpEn</strong>, please give it <a href="https://github.com/alphaville/optimization-engine" target="_blank" rel="noopener noreferrer" class=""><strong>a star on github</strong></a>.</p>
+<p>If you find a bug, please create <a href="https://github.com/alphaville/optimization-engine/issues/new" target="_blank" rel="noopener noreferrer" class=""><strong>an issue on on github</strong></a>.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[OpEn UDP socket interface]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/05/udp-sockets</guid>
+            <pubDate>Tue, 05 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[You may now auto-generate an Optimization Engine module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over UDP sockets! Read more here. This way, the parametric optimizer can be easily called from any programming language. More importantly, the code generation can be carried out in one line of code, while, if necessary, it can be fully configured.]]></description>
+            <content:encoded><![CDATA[<p>You may now auto-generate an <strong>Optimization Engine</strong> module, which solves parametric optimization problems (such as model predictive control problems) and can be consumed over <strong>UDP sockets</strong>! Read more <a href="https://alphaville.github.io/optimization-engine/docs/matlab-interface" target="_blank" rel="noopener noreferrer" class="">here</a>. This way, the parametric optimizer can be easily called from any programming language. More importantly, the code generation can be carried out in one line of code, while, if necessary, it can be fully configured.</p>
+<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/udp_socket.png" alt="UDP socket interface" class="img_ev3q"></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Risk-averse optimal control]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/03/risk-averse</guid>
+            <pubDate>Sun, 03 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[Our paper titled "Risk-averse risk-constrained optimal control," (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.]]></description>
+            <content:encoded><![CDATA[<p>Our paper titled "Risk-averse risk-constrained optimal control," (authors: P. Sopasakis, M. Schuurmans, P. Patrinos) has been accepted for publication in European Control Conference 2019.</p>
+<p>This work is accompanied by the MATLAB toolbox <a href="https://github.com/kul-forbes/risk-averse" target="_blank" rel="noopener noreferrer" class=""><code>marietta</code></a> which is distributed under the MIT open source license.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[SuperSCS: OpEn's sister project]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/02/superscs</guid>
+            <pubDate>Sat, 02 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[SuperSCS is a sister project of OpEn.]]></description>
+            <content:encoded><![CDATA[<p><a href="https://kul-forbes.github.io/scs/" target="_blank" rel="noopener noreferrer" class="">SuperSCS</a> is a sister project of <strong>OpEn</strong>.</p>
+<p>SuperSCS is a fast solver for large-scale conic problems. It is written in C and can be interfaced from a lot of different programming languages.</p>
+<p>The paper titled "SuperSCS: fast and accurate large-scale conic optimization" (authors: P. Sopasakis, K. Menounou, P. Patrinos) has been accepted at European Control Conference 2019.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[UAV navigation at ECC19]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/03/01/blog</guid>
+            <pubDate>Fri, 01 Mar 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[Micro aerial vehicle]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" src="https://alphaville.github.io/optimization-engine/img/mav.png" alt="Micro aerial vehicle" class="img_ev3q"></p>
+<p>Our paper titled "Aerial navigation in obstructed environments with embedded nonlinear model predictive control" (authors: E. Small, P. Sopasakis, E. Fresk, P. Patrinos and G. Nikolakopoulos) has been accepted for publication in European Control Conference, 2019.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[First Release of OpEn]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version</guid>
+            <pubDate>Thu, 28 Feb 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[This is the first release of Optimization Engine (OpEn) and we're very excited about it!]]></description>
+            <content:encoded><![CDATA[<p>This is the first release of <strong>Optimization Engine</strong> (OpEn) and we're very excited about it!</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="additional-info">Additional Info<a href="https://alphaville.github.io/optimization-engine/blog/2019/02/28/new-version#additional-info" class="hash-link" aria-label="Direct link to Additional Info" title="Direct link to Additional Info" translate="no">​</a></h2>
+<p>Mauris vestibulum ullamcorper nibh, ut semper purus pulvinar ut. Donec volutpat orci sit amet mauris malesuada, non pulvinar augue aliquam. Vestibulum ultricies at urna ut suscipit. Morbi iaculis, erat at imperdiet semper, ipsum nulla sodales erat, eget tincidunt justo dui quis justo. Pellentesque dictum bibendum diam at aliquet. Sed pulvinar, dolor quis finibus ornare, eros odio facilisis erat, eu rhoncus nunc dui sed ex. Nunc gravida dui massa, sed ornare arcu tincidunt sit amet. Maecenas efficitur sapien neque, a laoreet libero feugiat ut.</p>
+<p>Nulla facilisi. Maecenas sodales nec purus eget posuere. Sed sapien quam, pretium a risus in, porttitor dapibus erat. Sed sit amet fringilla ipsum, eget iaculis augue. Integer sollicitudin tortor quis ultricies aliquam. Suspendisse fringilla nunc in tellus cursus, at placerat tellus scelerisque. Sed tempus elit a sollicitudin rhoncus. Nulla facilisi. Morbi nec dolor dolor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Cras et aliquet lectus. Pellentesque sit amet eros nisi. Quisque ac sapien in sapien congue accumsan. Nullam in posuere ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin lacinia leo a nibh fringilla pharetra.</p>
+<p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin venenatis lectus dui, vel ultrices ante bibendum hendrerit. Aenean egestas feugiat dui id hendrerit. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur in tellus laoreet, eleifend nunc id, viverra leo. Proin vulputate non dolor vel vulputate. Curabitur pretium lobortis felis, sit amet finibus lorem suscipit ut. Sed non mollis risus. Duis sagittis, mi in euismod tincidunt, nunc mauris vestibulum urna, at euismod est elit quis erat. Phasellus accumsan vitae neque eu placerat. In elementum arcu nec tellus imperdiet, eget maximus nulla sodales. Curabitur eu sapien eget nisl sodales fermentum.</p>
+<p>Phasellus pulvinar ex id commodo imperdiet. Praesent odio nibh, sollicitudin sit amet faucibus id, placerat at metus. Donec vitae eros vitae tortor hendrerit finibus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque vitae purus dolor. Duis suscipit ac nulla et finibus. Phasellus ac sem sed dui dictum gravida. Phasellus eleifend vestibulum facilisis. Integer pharetra nec enim vitae mattis. Duis auctor, lectus quis condimentum bibendum, nunc dolor aliquam massa, id bibendum orci velit quis magna. Ut volutpat nulla nunc, sed interdum magna condimentum non. Sed urna metus, scelerisque vitae consectetur a, feugiat quis magna. Donec dignissim ornare nisl, eget tempor risus malesuada quis.</p>]]></content:encoded>
+        </item>
+    </channel>
+</rss>
