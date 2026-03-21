@@ -214,7 +214,7 @@ builder.build()
 ```
 
 This will generate a solver in Rust as well as a [TCP server](./python-tcp-ip) that will 
-listen for requests at `localhost:8333` (this [can be configured](python-advanced#tcp-ip-interface)).
+listen for requests at `localhost:8333` (this [can be configured](python-advanced#tcpip-interface)).
 
 
 

@@ -10,7 +10,7 @@ description: How to use the TCP/IP API for OpEn
 As discussed [previously], one possible way of invoking an auto-generated parametric
 optimizer is over a TCP/IP socket. 
 
-[previously]: /optimization-engine/docs/python-interface#calling-the-optimizer
+[previously]: /optimization-engine/docs/python-interface#calling-the-optimizer-locally
 
 <img src="/optimization-engine/img/edge_intelligence.png" alt="Edge Intelligence Logo"/>
 
@@ -33,7 +33,7 @@ $ RUST_LOG=tcp_iface=info cargo run
 We can then call the server from any programming language. Next, we will give examples
 using a Linux terminal and the command `netcat` (or `nc`).
 
-[`OptimizerTcpManager`]: /optimization-engine/docs/python-interface#calling-the-optimizer
+[`OptimizerTcpManager`]: /optimization-engine/docs/python-interface#calling-the-optimizer-locally
 
 
 ## TCP/IP Socket interface
@@ -152,4 +152,3 @@ The following errors may be returned to the client
 | 1700      | Wrong dimension of Langrange multipliers    |
 | 2000      | Problem solution failed (solver error)      |
 | 3003      | Vector `parameter` has wrong length         |
-

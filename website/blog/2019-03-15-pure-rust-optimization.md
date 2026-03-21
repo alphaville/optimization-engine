@@ -1,5 +1,5 @@
 ---
-title: OpEn: a pure Rust optimizer
+title: "OpEn: a pure Rust optimizer"
 author: Pantelis Sopasakis
 authorURL: http://twitter.com/isToxic
 authorImageURL: https://pbs.twimg.com/profile_images/1062281000171003904/KkolV9Eg_400x400.jpg

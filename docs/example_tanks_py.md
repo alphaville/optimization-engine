@@ -221,7 +221,7 @@ builder.build()
 ```
 
 This will generate a solver in Rust as well as a [TCP server](./python-tcp-ip) that will 
-listen for requests at `localhost:8333` (this [can be configured](python-advanced#tcp-ip-interface)).
+listen for requests at `localhost:8333` (this [can be configured](python-advanced#tcpip-interface)).
 
 
 
@@ -286,4 +286,3 @@ In the above simulations, the average solution time is **134us** and the maximum
 We ran a second set of simulations with double the original prediction horizon,
 namely $N=240$, and the average solution time increased to **343us** and the maximum time was
 **1.44ms**.
-
