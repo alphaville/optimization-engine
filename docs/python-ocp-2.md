@@ -132,9 +132,11 @@ is not eliminated. The OCP now has the form (simplified version — additional c
     \end{align}
 \]</div>
 
-<a href="https://colab.research.google.com/drive/1pjJLPBW0KgtAC_5z3zCHhJ4SV9WE7Jhg?usp=sharing" target="_blank"><img align="left" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
 
 A multiple shooting problem can be constructed as follows
+
+<a href="https://colab.research.google.com/drive/1pjJLPBW0KgtAC_5z3zCHhJ4SV9WE7Jhg?usp=sharing" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
+
 
 ```python
 ocp = og.ocp.OptimalControlProblem(

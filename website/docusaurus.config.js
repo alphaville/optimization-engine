@@ -96,6 +96,9 @@ module.exports = {
       disableSwitch: true,
       respectPrefersColorScheme: false,
     },
+    prism: {
+      additionalLanguages: ['bash', 'matlab'],
+    },
     navbar: {
       title: 'Optimization Engine',
       logo: {

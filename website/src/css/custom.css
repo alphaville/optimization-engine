@@ -457,8 +457,8 @@ body {
   max-width: 100%;
 }
 
-.markdown button,
-.theme-doc-markdown button {
+.markdown button:not(.but),
+.theme-doc-markdown button:not(.but) {
   width: 100%;
   border: 0;
   border-radius: 14px;
@@ -472,9 +472,16 @@ body {
   text-align: left;
 }
 
-.markdown button:hover,
-.theme-doc-markdown button:hover {
+.markdown button:not(.but):hover,
+.theme-doc-markdown button:not(.but):hover {
   background: var(--ifm-color-primary-dark);
+}
+
+.markdown button.but,
+.theme-doc-markdown button.but {
+  width: 250px;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .homeCard__zoomButton {

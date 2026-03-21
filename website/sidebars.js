@@ -35,23 +35,8 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Examples',
-      items: [
-        'example_rosenbrock_py',
-        'example_navigation_py',
-        'example_estimation_py',
-        'example_bnp_py',
-        'example_tanks_py',
-        'example_invpend_py',
-        'example_navigation_ros_codegen',
-        'example-nav',
-        'example-nmpc',
-      ],
-    },
-    {
-      type: 'category',
       label: 'Extras',
-      items: ['docker', 'udp-sockets', 'irc', 'algorithm', 'faq', 'contributing'],
+      items: ['docker', 'algorithm', 'faq', 'contributing'],
     },
   ],
 };

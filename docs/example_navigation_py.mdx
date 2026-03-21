@@ -4,45 +4,22 @@ title: Navigation of ground vehicle
 description: Nonlinear model predictive control with OpEn
 ---
 
-<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<style>
-.but{
-  border: none;
-  color: white;
-  padding: 15px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 0px 0px;
-  cursor: pointer;
-  width: 250px;
-  border-radius: 8px;
-}
-</style>
-<style>
-.but1 {
-    background-color: #4CAF50;
-}
-</style><style>
-.but2 {
-    background-color: #008CBA;
-}
-</style>
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-<a href="https://colab.research.google.com/drive/1diHoqacIbLG-ojmiABS3JewkHxnZFaf8?usp=sharing" target="_blank"><button class="but but1" >Try this on Google Colab</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a>
+[![Try it In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1diHoqacIbLG-ojmiABS3JewkHxnZFaf8?usp=sharing)
+
+[Back to Examples](/optimization-engine/docs/python-examples)
 
 ## Unobstructed navigation
 
 Consider the navigation problem for an autonomous ground vehicle which 
 carries a trailer as illustrated in the following figure.
 
-<img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400"/>
+<img src="/optimization-engine/img/cart_schematic.jpg" alt="Cart Schematic" width="400" />
 
 This is non-holonomic vehicle governed by the dynamical equations [[Ref](https://core.ac.uk/download/pdf/153430972.pdf), Section IV]:
-<div class="math">
-\[
+<div className="math">{String.raw`\[
     \begin{align}
     \theta_{t+1} {}={}& \theta_t + t_s\tfrac{1}{L}(u_{y,t} \cos \theta_t - u_{x,t} \sin \theta_t),
     \\
@@ -50,12 +27,11 @@ This is non-holonomic vehicle governed by the dynamical equations [[Ref](https:/
     \\
     y_{t+1} {}={}& y_t - t_s [u_y + \cos\theta_t(u_{y,t} \cos \theta_t - u_{x,t} \sin \theta_t)].
     \end{align}
-\]</div>
+\]`}</div>
 
 We want to solve the following optimal control problem
 
-<div class="math">
-\[
+<div className="math">{String.raw`\[
     \begin{align}
     \mathbb{P}(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& \sum_{i=1}^{N - 1} 
         \|z_t-z^{\mathrm{ref}}\|_Q^2 + r \|u_t\|^2 + \|z_N-z^{\mathrm{ref}}\|_{Q_N}^2
@@ -66,14 +42,13 @@ We want to solve the following optimal control problem
     \\
     &z_0=p
     \end{align}
-\]</div>
+\]`}</div>
 
-where $z = (x,y,\theta)$ is the position and orientation of the vehicle,
-$z^{\mathrm{ref}}$ is the target position and orientation and $f$ describes 
-the vehicle dynamics, which in this example is
+Here, `z = (x, y, theta)` is the position and orientation of the vehicle,
+`z_ref` is the target position and orientation, and `f` describes the vehicle
+dynamics, which in this example is
 
-<div class="math">
-\[
+<div className="math">{String.raw`\[
     f(z, u) = \begin{bmatrix}
     x + t_s [u_x +  \sin\theta (u_y \cos\theta - u_x \sin\theta) ]
     \\
@@ -81,7 +56,7 @@ the vehicle dynamics, which in this example is
     \\
     \theta + t_s L^{-1} (u_y \cos\theta - u_x \sin\theta)
     \end{bmatrix}
-\]</div>
+\]`}</div>
 
 ```python
 import opengen as og
@@ -134,8 +109,9 @@ builder.build()
 
 We may now use the optimiser:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TCP Interface-->
+<Tabs>
+  <TabItem value="tcp-interface" label="TCP Interface" default>
+
 ```python
 # Use TCP server
 # ------------------------------------
@@ -164,7 +140,9 @@ plt.xlabel('Time')
 plt.show()
 ```
 
-<!--Direct Interface-->
+  </TabItem>
+  <TabItem value="direct-interface" label="Direct Interface">
+
 ```python
 # Note: to use the direct interface you need to build using
 #       .with_build_python_bindings()
@@ -196,7 +174,9 @@ plt.ylabel('u_y')
 plt.xlabel('Time')
 plt.show()
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+  </TabItem>
+</Tabs>
 
 This will produce the following plot:
 
@@ -239,19 +219,18 @@ plt.show()
 ## Obstructed navigation
 
 Let us add an obstable: consider a ball centered at the origin
-with radius $r=1$, which needs to be avoided. To that end, we
-introduce the constraint $c(u; p) = 0$ where
+with radius `r = 1`, which needs to be avoided. To that end, we
+introduce the constraint `c(u; p) = 0` where
 
-<div class="math">
-\[c(u; p) = \sum_{t=0}^{N-1}[1-\|z_t\|^2]_+,\]</div>
+<div className="math">{String.raw`\[c(u; p) = \sum_{t=0}^{N-1}[1-\|z_t\|^2]_+,\]`}</div>
 
-where $z_t=(x_t,y_t)$ is the position of the vehicle at time $t$ and 
-$[z]_+ = \max\\{0, z\\}$. 
+Here, `z_t = (x_t, y_t)` is the position of the vehicle at time `t` and
+`[z]_+ = max{0, z}`.
 
-The decision variable, as above, is $u = (u_0, \ldots, u_{N-1})$
-and $z_t = z_t(u)$.
+The decision variable, as above, is `u = (u_0, ..., u_{N-1})`
+and `z_t = z_t(u)`.
 
-In order to define function $c$ in Python, we need to add one 
+In order to define function `c` in Python, we need to add one
 line in the above code:
 
 ```python
@@ -283,13 +262,15 @@ solver_config = og.config.SolverConfiguration()\
     .with_initial_penalty_weights(100.0)
 ```
 
-Here is a trajectory of the system with $N=60$. 
+Here is a trajectory of the system with `N = 60`.
 
 <img src="/optimization-engine/img/obstructed_navigation_trajectories_python.png" alt="Matplotlib obstructed navigation" />
 
 
 ## Update reference in real time
-We may update the reference, $z^{\mathrm{ref}}$, in real time. If suffices to define $p = (z_0, z^{\mathrm{ref}})$. In other words, we use the parameter vector, $p$, to pass to the optimiser both the initial condition and the target.
+We may update the reference `z_ref` in real time. It suffices to define
+`p = (z_0, z_ref)`. In other words, we use the parameter vector `p` to pass to
+the optimiser both the initial condition and the target.
 
 We need to introduce the following changes. Firstly, we define the parameter vector:
 
@@ -310,4 +291,3 @@ Then, when we use the optimiser we to provide the vector `p`. For example, if `z
 ```python
 result = solver.run(p=[-1.0, 2.0, 0.0, 1.0, 0.6, 0.05])
 ```
-

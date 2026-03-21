@@ -4,7 +4,7 @@ title: Examples
 description: List of OpEn examples in Python
 ---
 
-<table style="border: 0px">
+<table>
     <tr>
         <td><a href="./example_rosenbrock_py"><img src="/optimization-engine/img/examples_rosenbrock.jpg" alt="Example: Rosenbrock Function"/></a></td>
         <td><a href="./example_bnp_py"><img src="/optimization-engine/img/examples_bnp_nmpc.jpg" alt="Example: Ball and Plate"/></a></td>
@@ -33,5 +33,4 @@ description: List of OpEn examples in Python
 
 <p>OpEn generates a complete ROS package that can run on the robot. To build your own ROS package <a href="python-ros">read the documentation first</a>.</p>
 </div>
-
 
