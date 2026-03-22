@@ -1,7 +1,9 @@
 #
 # Dockerfile for OpEn/opengen
-# Dockerfile version: 0.6.0
+# Dockerfile version: 0.7.0
 # Bundled Python package: opengen v0.10.0
+# Bundled Rust notebook dependency: optimization_engine v0.11.0
+# JupyterLab kernels: Python and Rust (Evcxr)
 #
 # Copyright (c) 2017 Pantelis Sopasakis and Emil Fresk
 #
@@ -21,11 +23,13 @@
 FROM python:3.12-slim-bookworm
 
 ARG OPENGEN_VERSION=0.10.0
+ARG OPTIMIZATION_ENGINE_CRATE_VERSION=0.11.0
+ARG EVCXR_JUPYTER_VERSION=0.21.1
 
 # Labels for the docker image
 LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
     license="MIT license" \
-    description="JupyterLab for Optimization Engine (OpEn)"
+    description="JupyterLab for Optimization Engine (OpEn) with Python and Rust kernels"
 
 WORKDIR /open
 
@@ -44,10 +48,20 @@ RUN apt-get update -y \
     ca-certificates \
     curl \
     && curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal \
+    && rustup component add rust-src \
+    && cargo install --locked "evcxr_jupyter@${EVCXR_JUPYTER_VERSION}" \
+    && NOTEBOOK_BOOTSTRAP_DIR="$(mktemp -d)" \
+    && mkdir -p "${NOTEBOOK_BOOTSTRAP_DIR}/src" \
+    && printf '[package]\nname = "open-rust-notebook-bootstrap"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\noptimization_engine = "=%s"\n' "${OPTIMIZATION_ENGINE_CRATE_VERSION}" > "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && printf 'fn main() {}\n' > "${NOTEBOOK_BOOTSTRAP_DIR}/src/main.rs" \
+    && cargo generate-lockfile --manifest-path "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && cargo fetch --locked --manifest-path "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && rm -rf "${NOTEBOOK_BOOTSTRAP_DIR}" \
     && python -m pip install --no-cache-dir --upgrade "pip>=26.0.1" \
     && python -m venv "${VIRTUAL_ENV}" \
     && "${VIRTUAL_ENV}/bin/python" -m pip install --no-cache-dir --upgrade "pip>=26.0.1" wheel \
-    && "${VIRTUAL_ENV}/bin/python" -m pip install --no-cache-dir "opengen==${OPENGEN_VERSION}" "jupyterlab<5" \
+    && "${VIRTUAL_ENV}/bin/python" -m pip install --no-cache-dir "opengen==${OPENGEN_VERSION}" "jupyterlab<5" "matplotlib<4" \
+    && JUPYTER_PATH="${VIRTUAL_ENV}/share/jupyter" evcxr_jupyter --install \
     && "${VIRTUAL_ENV}/bin/python" -m pip uninstall -y py \
     && apt-get clean  \
     &&  rm -rf /var/lib/apt/lists/* \
@@ -68,7 +82,7 @@ CMD ["/usr/local/bin/start_jupyter_notebook.sh"]
 # -------- Build Instructions --------------------------------------------------
 # Build the docker image by running (for DEVELOPERS only): 
 #
-# $ docker image build -t alphaville/open:0.6.0 .
+# $ docker image build -t alphaville/open:0.7.0 .
 #
 # from within the docker directory of this project.
 #
