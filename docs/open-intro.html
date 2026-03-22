@@ -13,9 +13,9 @@
 <script src="/optimization-engine/js/mathjax-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer="defer"></script>
 <script src="/optimization-engine/js/legacy-docs.js" defer="defer"></script>
-<script src="https://buttons.github.io/buttons.js" async></script><link rel="stylesheet" href="/optimization-engine/assets/css/styles.3c69840b.css">
-<script src="/optimization-engine/assets/js/runtime~main.2610a6b4.js" defer="defer"></script>
-<script src="/optimization-engine/assets/js/main.1201a950.js" defer="defer"></script>
+<script src="https://buttons.github.io/buttons.js" async></script><link rel="stylesheet" href="/optimization-engine/assets/css/styles.6996d4a6.css">
+<script src="/optimization-engine/assets/js/runtime~main.85c69d21.js" defer="defer"></script>
+<script src="/optimization-engine/assets/js/main.1f39943f.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -48,11 +48,8 @@
 $p\in\mathbb{R}^{n_p}$ is a vector of parameters.</p>
 <p>This is a very flexible problem formulation that allows the user to model a very broad
 class of optimization problems.</p>
-<button data-legacy-toggle-button="techConditionsButton" data-legacy-toggle-target="containerTechnicalConditions" data-legacy-toggle-label="Technical Conditions" id="techConditionsButton">
-  <i class="fa fa-cog fa-spin"></i>
-  Click to expand technical conditions
-</button>
-<div class="mycontainer" id="containerTechnicalConditions">
+<details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>Technical conditions</summary><div><div class="collapsibleContent_i85q">
+<!-- -->
 <ul>
 <li class="">$f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
   Function $f$ can be nonconvex.</li>
@@ -68,7 +65,7 @@ class of optimization problems.</p>
   such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function
   with Lipschitz-continuous gradient</li>
 </ul>
-</div>
+</div></div></details>
 <br><br>
 <p>We will explain the difference between the constraints $F_1(u, p) \in C$ and
 $F_2(u, p) = 0$ below. Briefly, $F_1$ will be treated using
@@ -107,16 +104,13 @@ It cannot guarantee that the solutions will be global.</p>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-power-of-panoc">The power of PANOC<a href="#the-power-of-panoc" class="hash-link" aria-label="Direct link to The power of PANOC" title="Direct link to The power of PANOC" translate="no">​</a></h3>
 <p>What makes OpEn so fast?</p>
 <p>The typical approach for solving nonconvex optimization problems in real time is the use of <em>Sequential Quadratic Programming</em> (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for <em>interior point methods</em> - they require heavyweight inner iteration procedures.</p>
-<button data-legacy-toggle-button="panocButton" data-legacy-toggle-target="containerPanoc" data-legacy-toggle-label="PANOC details" id="panocButton">
-  <i class="fa fa-cog fa-spin"></i>
-  Click to learn more about PANOC
-</button>
-<div class="mycontainer" id="containerPanoc">
+<details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>Learn more about PANOC</summary><div><div class="collapsibleContent_i85q">
+<!-- -->
 <p><b>OpEn</b> uses the proximal averaged Newton-type method (PANOC) which uses the same oracle as the projected gradient method, therefore, it involves only simple iterations. PANOC is a line-search method that combines forward-backward iterations with fast Newton-type steps over the <em>forward-backward envelope</em> - a real-valued continuous and exact merit function.</p>
 <p>This way, <b>OpEn</b> enables very fast convergence (up to superlinear convergence, under mild assumptions), while it features very simple iterations which involve access to first-order information of the cost function and low-cost linear algebra (only vector-vector operations).</p>
 <p>The result is a simple, yet rapidly convergent algorithm, which is perfectly suitable for embedded applications.</p>
 <p>Find out more about PANOC in the <a href="https://arxiv.org/pdf/1709.06487.pdf" target="_blank" rel="noopener noreferrer" class="">original publication</a>. See PANOC in action in obstacle avoidance scenarios in <a href="https://core.ac.uk/download/pdf/153430972.pdf" target="_blank" rel="noopener noreferrer" class="">this paper</a> and <a href="https://arxiv.org/pdf/1812.04755.pdf" target="_blank" rel="noopener noreferrer" class="">this paper</a>.</p>
-</div>
+</div></div></details>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="augmented-lagrangian-and-penalty-methods">Augmented Lagrangian and Penalty Methods<a href="#augmented-lagrangian-and-penalty-methods" class="hash-link" aria-label="Direct link to Augmented Lagrangian and Penalty Methods" title="Direct link to Augmented Lagrangian and Penalty Methods" translate="no">​</a></h3>
 <p>PANOC can solve problems that involve a smooth cost function, $f(u,p)$ and simple
 constraints of the form $u\in U$, where $U$ is a set on which we can compute
