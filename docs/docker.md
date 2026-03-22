@@ -37,6 +37,16 @@ This starts JupyterLab and makes it available at:
 
 - [http://127.0.0.1:8888/lab](http://127.0.0.1:8888/lab)
 
+After you open JupyterLab in your browser, you can browse to `/open/notebooks` and
+start from one of the three bundled example notebooks:
+
+- `example.ipynb`
+- `python_ocp_1.ipynb`
+- `openrust_basic.ipynb`
+
+The first two are Python notebooks. The third one is a Rust notebook and runs with
+the bundled `Rust` kernel powered by Evcxr.
+
 The image currently includes:
 
 - Python 3.12
@@ -108,25 +118,19 @@ Then JupyterLab will be available at `http://localhost/lab`.
 
 ### Work with notebooks
 
-The bundled example notebook is available inside the container at:
+The bundled notebooks are available inside the container at:
 
 ```text
 /open/notebooks/example.ipynb
-```
-
-The bundled Rust notebook is available at:
-
-```text
 /open/notebooks/openrust_basic.ipynb
-```
-
-The bundled Python OCP notebook is available at:
-
-```text
 /open/notebooks/python_ocp_1.ipynb
 ```
 
-It includes Matplotlib plots of the optimal input and state trajectories, similar to the documentation page.
+In JupyterLab, open the file browser and navigate to `/open/notebooks` to find them.
+
+- `example.ipynb`: a Python example notebook
+- `python_ocp_1.ipynb`: a Python optimal control notebook with Matplotlib plots
+- `openrust_basic.ipynb`: a Rust notebook based on the OpenRust basic example
 
 To persist your own notebooks across container restarts, mount a Docker volume onto `/open`:
 

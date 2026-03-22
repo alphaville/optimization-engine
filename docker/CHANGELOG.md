@@ -8,7 +8,7 @@ bundled notebooks, and image-facing documentation.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.7.0] - 2026-03-22
+## 0.7.0 - 2026-03-22
 
 ### Added
 
@@ -36,14 +36,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed the transient `py` package from the virtual environment after installing
   `opengen`.
 
-## [0.6.0] - 2026-03-21
+## 0.6.0
 
 ### Changed
 
 - Updated the Docker image version from `0.5.0` to `0.6.0`
 - Updated Python notebook 
 
-## [0.5.0] - 2026-03-21
+## 0.5.0
 
 ### Added
 
