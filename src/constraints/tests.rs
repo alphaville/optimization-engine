@@ -177,8 +177,8 @@ fn t_finite_set_project_wrong_dimension() {
 
 #[test]
 fn t_rectangle_bounded() {
-    let xmin = vec![2.0; 5];
-    let xmax = vec![4.5; 5];
+    let xmin = [2.0; 5];
+    let xmax = [4.5; 5];
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [1.0, 2.0, 3.0, 4.0, 5.0];
 
@@ -195,8 +195,8 @@ fn t_rectangle_bounded() {
 
 #[test]
 fn t_rectangle_bounded_f32() {
-    let xmin = vec![2.0_f32; 3];
-    let xmax = vec![4.5_f32; 3];
+    let xmin = [2.0_f32; 3];
+    let xmax = [4.5_f32; 3];
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [1.0_f32, 3.0, 5.0];
 
@@ -226,8 +226,8 @@ fn t_rectangle_infinite_bounds() {
 #[test]
 #[should_panic]
 fn t_rectangle_incompatible_dims() {
-    let xmin = vec![1.0; 5];
-    let xmax = vec![2.0; 4];
+    let xmin = [1.0; 5];
+    let xmax = [2.0; 4];
     let _rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
 }
 
@@ -259,7 +259,7 @@ fn t_rectangle_bounded_negative_entries() {
 
 #[test]
 fn t_rectangle_only_xmin() {
-    let xmin = vec![2.0; 5];
+    let xmin = [2.0; 5];
     let rectangle = Rectangle::new(Some(&xmin[..]), None);
     let mut x = [1.0, 2.0, 3.0, 4.0, 5.0];
 
@@ -276,7 +276,7 @@ fn t_rectangle_only_xmin() {
 
 #[test]
 fn t_rectangle_only_xmax() {
-    let xmax = vec![-3.0; 5];
+    let xmax = [-3.0; 5];
     let rectangle = Rectangle::new(None, Some(&xmax[..]));
     let mut x = [-10.0, -20.0, 0.0, 5.0, 3.0];
 
@@ -1059,7 +1059,7 @@ fn t_ball1_alpha_negative() {
 fn t_epigraph_squared_norm_inside() {
     let epi = EpigraphSquaredNorm::new();
     let mut x = [1., 2., 10.];
-    let x_correct = x.clone();
+    let x_correct = x;
     epi.project(&mut x);
     unit_test_utils::assert_nearly_equal_array(
         &x_correct,
@@ -1088,7 +1088,7 @@ fn t_epigraph_squared_norm_correctness() {
     let mut x = [1., 2., 3., 4.];
     let x_correct = [
         0.560142228903570,
-        1.120284457807140,
+        1.120_284_457_807_14,
         1.680426686710711,
         4.392630432414829,
     ];
@@ -1123,7 +1123,7 @@ fn t_affine_space() {
     let x_correct = [
         1.888564346697095,
         5.629857182200888,
-        1.796204902230790,
+        1.796_204_902_230_79,
         2.888362906715977,
     ];
     unit_test_utils::assert_nearly_equal_array(
@@ -1334,7 +1334,7 @@ fn is_norm_p_projection(
 fn t_ballp_at_origin_projection() {
     let radius = 0.8;
     let mut x = [1.0, -1.0, 6.0];
-    let x0 = x.clone();
+    let x0 = x;
     let p = 3.;
     let tol = 1e-16;
     let max_iters: usize = 200;
@@ -1347,7 +1347,7 @@ fn t_ballp_at_origin_projection() {
 fn t_ballp_at_origin_x_already_inside() {
     let radius = 1.5;
     let mut x = [0.5, -0.2, 0.1];
-    let x0 = x.clone();
+    let x0 = x;
     let p = 3.;
     let tol = 1e-16;
     let max_iters: usize = 1200;

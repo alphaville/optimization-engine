@@ -1027,21 +1027,27 @@ mod tests {
         FunctionCallResult,
     };
 
+    type DummyParametricGradient = fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult;
+    type DummyParametricCost = fn(&[f64], &[f64], &mut f64) -> FunctionCallResult;
+    type DummyMapping = MappingType;
+    type DummyConstraint = Ball2<'static>;
+    type DummyAlmProblem = AlmProblem<
+        DummyMapping,
+        DummyMapping,
+        DummyParametricGradient,
+        DummyParametricCost,
+        DummyConstraint,
+        DummyConstraint,
+        DummyConstraint,
+    >;
+
     fn make_dummy_alm_problem(
         n1: usize,
         n2: usize,
-    ) -> AlmProblem<
-        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-        impl Constraint,
-        impl Constraint,
-        impl Constraint,
-    > {
+    ) -> DummyAlmProblem {
         // Main problem data
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
+        let psi: DummyParametricCost = void_parameteric_cost;
+        let d_psi: DummyParametricGradient = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         // ALM-type data
         let f1: Option<MappingType> = if n1 == 0 {
@@ -1085,7 +1091,7 @@ mod tests {
 
         // Test: with_initial_penalty
         let alm_optimizer = alm_optimizer.with_initial_penalty(7.0);
-        assert!(!alm_optimizer.alm_cache.xi.is_none());
+        assert!(alm_optimizer.alm_cache.xi.is_some());
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
             unit_test_utils::assert_nearly_equal(
                 7.0,

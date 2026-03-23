@@ -260,12 +260,12 @@ where
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(y_lagrange_mult.iter())
-                .for_each(|(ti, yi)| *ti = *ti + *yi / penalty_scale);
+                .for_each(|(ti, yi)| *ti += *yi / penalty_scale);
             s.copy_from_slice(&f1_u_plus_y_over_c);
             set_c.project(&mut s);
             let dist_sq: T = matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
             let scaling: T = half::<T>() * penalty_parameter;
-            *cost = *cost + scaling * dist_sq;
+            *cost += scaling * dist_sq;
         }
         if let Some(f2) = &self.mapping_f2 {
             let c = xi[0];
@@ -273,7 +273,7 @@ where
             f2(u, &mut z)?;
             let norm_sq: T = matrix_operations::norm2_squared(&z);
             let scaling: T = half::<T>() * c;
-            *cost = *cost + scaling * norm_sq;
+            *cost += scaling * norm_sq;
         }
         Ok(())
     }
@@ -325,7 +325,7 @@ where
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(y_lagrange_mult.iter())
-                .for_each(|(ti, yi)| *ti = *ti + *yi / c_penalty_parameter);
+                .for_each(|(ti, yi)| *ti += *yi / c_penalty_parameter);
             s_aux_var.copy_from_slice(&f1_u_plus_y_over_c); // s = t
             set_c.project(&mut s_aux_var); // s = Proj_C(F1(u) + y/c)
 
@@ -340,7 +340,7 @@ where
             // grad += c*t
             grad.iter_mut()
                 .zip(jac_prod.iter())
-                .for_each(|(gradi, jac_prodi)| *gradi = *gradi + c_penalty_parameter * *jac_prodi);
+                .for_each(|(gradi, jac_prodi)| *gradi += c_penalty_parameter * *jac_prodi);
         }
 
         // Compute second part: JF2(u)'*F2(u)
@@ -354,7 +354,7 @@ where
 
             // grad += c * jf2u_times_f2u_aux
             grad.iter_mut().zip(jf2u_times_f2u_aux.iter()).for_each(
-                |(gradi, jf2u_times_f2u_aux_i)| *gradi = *gradi + c * *jf2u_times_f2u_aux_i,
+                |(gradi, jf2u_times_f2u_aux_i)| *gradi += c * *jf2u_times_f2u_aux_i,
             );
         }
         Ok(())
