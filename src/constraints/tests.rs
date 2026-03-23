@@ -21,6 +21,14 @@ fn t_zero_set() {
 }
 
 #[test]
+fn t_zero_set_f32() {
+    let zero = Zero::new();
+    let mut x = [1.0_f32, -2.0, 3.5];
+    zero.project(&mut x);
+    assert_eq!([0.0_f32, 0.0, 0.0], x);
+}
+
+#[test]
 fn t_hyperplane() {
     let normal_vector = [1.0, 2.0, 3.0];
     let offset = 1.0;
@@ -150,6 +158,15 @@ fn t_finite_set() {
 }
 
 #[test]
+fn t_finite_set_f32() {
+    let data: &[&[f32]] = &[&[0.0_f32, 0.0], &[1.0, 1.0], &[0.0, 1.0], &[1.0, 0.0]];
+    let finite_set = FiniteSet::new(data);
+    let mut x = [0.7_f32, 0.2];
+    finite_set.project(&mut x);
+    assert_eq!([1.0_f32, 0.0], x);
+}
+
+#[test]
 #[should_panic]
 fn t_finite_set_project_wrong_dimension() {
     let data: &[&[f64]] = &[&[0.0, 0.0], &[1.0, 1.0]];
@@ -174,6 +191,18 @@ fn t_rectangle_bounded() {
         1e-8,
         "projection on bounded rectangle",
     );
+}
+
+#[test]
+fn t_rectangle_bounded_f32() {
+    let xmin = vec![2.0_f32; 3];
+    let xmax = vec![4.5_f32; 3];
+    let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
+    let mut x = [1.0_f32, 3.0, 5.0];
+
+    rectangle.project(&mut x);
+
+    assert_eq!([2.0_f32, 3.0, 4.5], x);
 }
 
 #[test]
@@ -283,6 +312,19 @@ fn t_ball2_at_origin() {
 }
 
 #[test]
+fn t_ball2_at_origin_f32() {
+    let radius = 1.0_f32;
+    let mut x = [1.0_f32, 1.0];
+    let ball = Ball2::new(None, radius);
+
+    ball.project(&mut x);
+
+    let expected = std::f32::consts::FRAC_1_SQRT_2;
+    assert!((x[0] - expected).abs() < 1e-6);
+    assert!((x[1] - expected).abs() < 1e-6);
+}
+
+#[test]
 fn t_ball2_at_origin_different_radius_outside() {
     let radius = 0.8;
     let mut x = [1.0, 1.0];
@@ -350,6 +392,16 @@ fn t_no_constraints() {
     whole_space.project(&mut x);
 
     unit_test_utils::assert_nearly_equal_array(&[1., 2., 3.], &x, 1e-10, 1e-15, "x is wrong");
+}
+
+#[test]
+fn t_no_constraints_f32() {
+    let mut x = [1.0_f32, 2.0, 3.0];
+    let whole_space = NoConstraints::new();
+
+    whole_space.project(&mut x);
+
+    assert_eq!([1.0_f32, 2.0, 3.0], x);
 }
 
 #[test]
@@ -702,6 +754,18 @@ fn t_simplex_projection() {
 }
 
 #[test]
+fn t_simplex_projection_f32() {
+    let mut x = [1.0_f32, 2.0, 3.0];
+    let alpha = 3.0_f32;
+    let simplex = Simplex::new(alpha);
+    simplex.project(&mut x);
+
+    let sum = x[0] + x[1] + x[2];
+    assert!((sum - alpha).abs() < 1e-5);
+    assert!(x.iter().all(|&xi| xi >= -1e-6));
+}
+
+#[test]
 fn t_simplex_projection_random_spam() {
     let n = 10;
     let n_trials = 1000;
@@ -993,6 +1057,15 @@ fn t_epigraph_squared_norm_correctness() {
         1e-14,
         "wrong projection on epigraph of squared norm",
     );
+}
+
+#[test]
+fn t_epigraph_squared_norm_f32() {
+    let epi = EpigraphSquaredNorm::new();
+    let mut x = [1.0_f32, 0.0, 0.0];
+    epi.project(&mut x);
+    let err = (matrix_operations::norm2_squared(&x[..2]) - x[2]).abs();
+    assert!(err < 1e-4);
 }
 
 #[test]
