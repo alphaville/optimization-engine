@@ -264,6 +264,44 @@ mod tests {
     }
 
     #[test]
+    fn t_panoc_optimizer_rosenbrock_f32() {
+        let tolerance = 1e-4_f32;
+        let a_param = 1.0_f32;
+        let b_param = 200.0_f32;
+        let n_dimension = 2;
+        let lbfgs_memory = 8;
+        let max_iters = 120;
+        let mut u_solution = [-1.5_f32, 0.9_f32];
+
+        let cost_gradient = |u: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            mocks::rosenbrock_grad(a_param, b_param, u, grad);
+            Ok(())
+        };
+        let cost_function = |u: &[f32], c: &mut f32| -> FunctionCallResult {
+            *c = mocks::rosenbrock_cost(a_param, b_param, u);
+            Ok(())
+        };
+
+        let radius = 2.0_f32;
+        let bounds = constraints::Ball2::new(None, radius);
+        let mut panoc_cache = PANOCCache::<f32>::new(n_dimension, tolerance, lbfgs_memory);
+        let problem = Problem::new(&bounds, cost_gradient, cost_function);
+        let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
+        let status = panoc.solve(&mut u_solution).unwrap();
+
+        assert_eq!(max_iters, panoc.max_iter);
+        assert!(status.has_converged());
+        assert!(status.iterations() < max_iters);
+        assert!(status.norm_fpr() < tolerance);
+
+        let mut u_project = [0.0_f32; 2];
+        u_project.copy_from_slice(&u_solution);
+        bounds.project(&mut u_project);
+        assert!((u_solution[0] - u_project[0]).abs() < 1e-5_f32);
+        assert!((u_solution[1] - u_project[1]).abs() < 1e-5_f32);
+    }
+
+    #[test]
     fn t_panoc_in_loop() {
         /* USER PARAMETERS */
         let tolerance = 1e-5;

@@ -390,6 +390,80 @@ fn t_alm_numeric_test_1() {
     );
 }
 
+#[test]
+fn t_alm_numeric_test_1_f32() {
+    let tolerance = 1e-4_f32;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 0;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::<f32>::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::<f32>::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0_f32);
+    let bounds = Ball2::new(None, 10.0_f32);
+    let set_y = Ball2::new(None, 10_000.0_f32);
+
+    let factory = AlmFactory::new(
+        mocks::f0::<f32>,
+        mocks::d_f0::<f32>,
+        Some(mocks::mapping_f1_affine::<f32>),
+        Some(mocks::mapping_f1_affine_jacobian_product::<f32>),
+        no_mapping::<f32>(),
+        no_jacobian_mapping::<f32>(),
+        Some(set_c),
+        n2,
+    );
+
+    let set_c_b = Ball2::new(None, 1.0_f32);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c_b),
+        Some(set_y),
+        |u: &[f32], xi: &[f32], cost: &mut f32| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f32], xi: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            factory.d_psi(u, xi, grad)
+        },
+        Some(mocks::mapping_f1_affine::<f32>),
+        no_mapping::<f32>(),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-3_f32)
+        .with_max_outer_iterations(30)
+        .with_epsilon_tolerance(1e-4_f32)
+        .with_initial_inner_tolerance(1e-2_f32)
+        .with_inner_tolerance_update_factor(0.5_f32)
+        .with_initial_penalty(1.0_f32)
+        .with_penalty_update_factor(1.2_f32)
+        .with_sufficient_decrease_coefficient(0.1_f32)
+        .with_initial_lagrange_multipliers(&vec![5.0_f32; n1]);
+
+    let mut u = vec![0.0_f32; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 30);
+    assert!(r.last_problem_norm_fpr() < tolerance);
+    assert!(r.delta_y_norm_over_c() < 1e-3_f32);
+
+    let mut f1u = vec![0.0_f32; n1];
+    assert!(mocks::mapping_f1_affine(&u, &mut f1u).is_ok());
+    let mut projection = f1u.clone();
+    let set_c_check = Ball2::new(None, 1.0_f32);
+    set_c_check.project(&mut projection);
+    assert!((f1u[0] - projection[0]).abs() < 2e-3_f32);
+    assert!((f1u[1] - projection[1]).abs() < 2e-3_f32);
+
+    let cost_actual = r.cost();
+    let mut cost_expected = 0.0_f32;
+    assert!(mocks::f0(&u, &mut cost_expected).is_ok());
+    assert!((cost_actual - cost_expected).abs() < 2e-3_f32);
+}
+
 fn mapping_f2(u: &[f64], res: &mut [f64]) -> FunctionCallResult {
     res[0] = u[0];
     res[1] = u[1];

@@ -492,6 +492,27 @@ fn t_cartesian_product_ball_and_rectangle() {
 }
 
 #[test]
+fn t_cartesian_product_ball_and_rectangle_f32() {
+    let xmin1 = vec![-1.0_f32; 2];
+    let xmax1 = vec![1.0_f32; 2];
+    let rectangle1 = Rectangle::new(Some(&xmin1), Some(&xmax1));
+
+    let radius = 1.0_f32;
+    let ball = Ball2::new(None, radius);
+
+    let cart_prod = CartesianProduct::new()
+        .add_constraint(2, rectangle1)
+        .add_constraint(5, ball);
+
+    let mut x = [-4.0_f32, 0.25_f32, 2.0_f32, -1.0_f32, 2.0_f32];
+    cart_prod.project(&mut x);
+
+    assert_eq!([-1.0_f32, 0.25_f32], x[..2]);
+    let ball_norm = crate::matrix_operations::norm2(&x[2..5]);
+    assert!((ball_norm - radius).abs() < 1e-5_f32);
+}
+
+#[test]
 fn t_second_order_cone_case_i() {
     let soc = SecondOrderCone::new(1.0);
     let mut x = vec![1.0, 1.0, 1.42];
@@ -527,6 +548,17 @@ fn t_second_order_cone_case_iii() {
     assert!(norm_z <= alpha * x[2]);
     // in fact the projection should be on the boundary of the cone
     assert!((norm_z - alpha * x[2]).abs() <= 1e-7);
+}
+
+#[test]
+fn t_second_order_cone_case_iii_f32() {
+    let alpha = 1.5_f32;
+    let soc = SecondOrderCone::new(alpha);
+    let mut x = vec![1.0_f32, 1.0_f32, 0.1_f32];
+    soc.project(&mut x);
+    let norm_z = crate::matrix_operations::norm2(&x[..=1]);
+    assert!(norm_z <= alpha * x[2] + 1e-5_f32);
+    assert!((norm_z - alpha * x[2]).abs() <= 1e-4_f32);
 }
 
 #[test]
@@ -883,6 +915,17 @@ fn t_ball1_random_optimality_conditions() {
             }
         }
     }
+}
+
+#[test]
+fn t_ball1_projection_f32() {
+    let ball1 = Ball1::new(None, 1.0_f32);
+    let mut x = [2.0_f32, -1.0_f32, 0.0_f32];
+    ball1.project(&mut x);
+    assert!((x[0] - 1.0_f32).abs() < 1e-6_f32);
+    assert!(x[1].abs() < 1e-6_f32);
+    assert!(x[2].abs() < 1e-6_f32);
+    assert!(crate::matrix_operations::norm1(&x) <= 1.0_f32 + 1e-6_f32);
 }
 
 #[test]

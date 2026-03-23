@@ -13,6 +13,10 @@
 - OpEn version ...
 - opengen version ...
 
+## Merge dependencies
+
+- PR xyz should be merged first
+
 ## Checklist
 
 - [ ] Documentation 
