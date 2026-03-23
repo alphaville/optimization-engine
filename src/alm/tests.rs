@@ -235,6 +235,84 @@ fn t_alm_only_penalty_method() {
 }
 
 #[test]
+fn t_alm_only_penalty_method_f32() {
+    let tolerance = 1e-4_f32;
+    let nx = 3;
+    let n1 = 0;
+    let n2 = 1;
+    let lbfgs_mem = 5;
+    let panoc_cache = PANOCCache::<f32>::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::<f32>::new(panoc_cache, n1, n2);
+
+    let bounds = NoConstraints::new();
+
+    let f = |u: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+        *cost = 0.5_f32 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+        Ok(())
+    };
+
+    let df = |u: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+        grad.iter_mut()
+            .zip(u.iter())
+            .for_each(|(grad_i, u_i)| *grad_i = *u_i + 1.0_f32);
+        Ok(())
+    };
+
+    let f2 = |u: &[f32], res: &mut [f32]| -> Result<(), SolverError> {
+        res[0] = matrix_operations::norm2_squared(u) - 1.0_f32;
+        Ok(())
+    };
+    let jf2t = |u: &[f32], d: &[f32], res: &mut [f32]| -> Result<(), crate::SolverError> {
+        res.iter_mut()
+            .zip(u.iter())
+            .for_each(|(res_i, u_i)| *res_i = *u_i * d[0]);
+        Ok(())
+    };
+
+    let factory = AlmFactory::new(
+        f,
+        df,
+        no_mapping::<f32>(),
+        no_jacobian_mapping::<f32>(),
+        Some(f2),
+        Some(jf2t),
+        no_set::<f32>(),
+        n2,
+    );
+
+    let alm_problem = AlmProblem::new(
+        bounds,
+        no_set::<f32>(),
+        no_set::<f32>(),
+        |u: &[f32], xi: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f32], xi: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        no_mapping::<f32>(),
+        Some(f2),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-5_f32)
+        .with_epsilon_tolerance(1e-4_f32)
+        .with_max_outer_iterations(20)
+        .with_max_inner_iterations(1000)
+        .with_initial_penalty(5000.0_f32)
+        .with_penalty_update_factor(2.2_f32);
+
+    let mut u = vec![0.1_f32; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.f2_norm() < 1e-4_f32);
+}
+
+#[test]
 fn t_alm_numeric_test_1() {
     let tolerance = 1e-8;
     let nx = 3;

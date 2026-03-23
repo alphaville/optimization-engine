@@ -1,4 +1,5 @@
 use crate::core::ExitStatus;
+use num::Float;
 
 /// Solution statistics for `AlmOptimizer`
 ///
@@ -7,7 +8,10 @@ use crate::core::ExitStatus;
 /// `AlmOptimizerStatus` instances.
 ///
 #[derive(Debug)]
-pub struct AlmOptimizerStatus {
+pub struct AlmOptimizerStatus<T = f64>
+where
+    T: Float,
+{
     /// Exit status
     exit_status: ExitStatus,
     /// Number of outer iterations
@@ -18,23 +22,23 @@ pub struct AlmOptimizerStatus {
     /// inner solvers
     num_inner_iterations: usize,
     /// Norm of the fixed-point residual of the the problem
-    last_problem_norm_fpr: f64,
+    last_problem_norm_fpr: T,
     /// Lagrange multipliers vector
-    lagrange_multipliers: Option<Vec<f64>>,
+    lagrange_multipliers: Option<Vec<T>>,
     /// Total solve time
     solve_time: std::time::Duration,
     /// Last value of penalty parameter
-    penalty: f64,
+    penalty: T,
     /// A measure of infeasibility of constraints F1(u; p) in C
-    delta_y_norm: f64,
+    delta_y_norm: T,
     /// Norm of F2 at the solution, which is a measure of infeasibility
     /// of constraints F2(u; p) = 0
-    f2_norm: f64,
+    f2_norm: T,
     /// Value of cost function at optimal solution (optimal cost)
-    cost: f64,
+    cost: T,
 }
 
-impl AlmOptimizerStatus {
+impl<T: Float> AlmOptimizerStatus<T> {
     /// Constructor for instances of `AlmOptimizerStatus`
     ///
     /// This method is only accessibly within this crate.
@@ -60,13 +64,13 @@ impl AlmOptimizerStatus {
             exit_status,
             num_outer_iterations: 0,
             num_inner_iterations: 0,
-            last_problem_norm_fpr: -1.0,
+            last_problem_norm_fpr: -T::one(),
             lagrange_multipliers: None,
             solve_time: std::time::Duration::from_nanos(0),
-            penalty: 0.0,
-            delta_y_norm: 0.0,
-            f2_norm: 0.0,
-            cost: 0.0,
+            penalty: T::zero(),
+            delta_y_norm: T::zero(),
+            f2_norm: T::zero(),
+            cost: T::zero(),
         }
     }
 
@@ -129,7 +133,7 @@ impl AlmOptimizerStatus {
     /// Does not panic; it is the responsibility of the caller to provide a vector of
     /// Lagrange multipliers of correct length
     ///
-    pub(crate) fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[f64]) -> Self {
+    pub(crate) fn with_lagrange_multipliers(mut self, lagrange_multipliers: &[T]) -> Self {
         self.lagrange_multipliers = Some(vec![]);
         if let Some(y) = &mut self.lagrange_multipliers {
             y.extend_from_slice(lagrange_multipliers);
@@ -144,9 +148,9 @@ impl AlmOptimizerStatus {
     ///
     /// The method panics if the provided penalty parameter is negative
     ///
-    pub(crate) fn with_penalty(mut self, penalty: f64) -> Self {
+    pub(crate) fn with_penalty(mut self, penalty: T) -> Self {
         assert!(
-            penalty >= 0.0,
+            penalty >= T::zero(),
             "the penalty parameter should not be negative"
         );
         self.penalty = penalty;
@@ -161,28 +165,31 @@ impl AlmOptimizerStatus {
     /// The method panics if the provided norm of the fixed-point residual is
     /// negative
     ///
-    pub(crate) fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: f64) -> Self {
+    pub(crate) fn with_last_problem_norm_fpr(mut self, last_problem_norm_fpr: T) -> Self {
         assert!(
-            last_problem_norm_fpr >= 0.0,
+            last_problem_norm_fpr >= T::zero(),
             "last_problem_norm_fpr should not be negative"
         );
         self.last_problem_norm_fpr = last_problem_norm_fpr;
         self
     }
 
-    pub(crate) fn with_delta_y_norm(mut self, delta_y_norm: f64) -> Self {
-        assert!(delta_y_norm >= 0.0, "delta_y_norm must be nonnegative");
+    pub(crate) fn with_delta_y_norm(mut self, delta_y_norm: T) -> Self {
+        assert!(
+            delta_y_norm >= T::zero(),
+            "delta_y_norm must be nonnegative"
+        );
         self.delta_y_norm = delta_y_norm;
         self
     }
 
-    pub(crate) fn with_f2_norm(mut self, f2_norm: f64) -> Self {
-        assert!(f2_norm >= 0.0, "f2_norm must be nonnegative");
+    pub(crate) fn with_f2_norm(mut self, f2_norm: T) -> Self {
+        assert!(f2_norm >= T::zero(), "f2_norm must be nonnegative");
         self.f2_norm = f2_norm;
         self
     }
 
-    pub(crate) fn with_cost(mut self, cost: f64) -> Self {
+    pub(crate) fn with_cost(mut self, cost: T) -> Self {
         self.cost = cost;
         self
     }
@@ -192,17 +199,17 @@ impl AlmOptimizerStatus {
     // -------------------------------------------------
 
     /// Update cost (to be used when the cost needs to be scaled as a result of preconditioning)
-    pub fn update_cost(&mut self, new_cost: f64) {
+    pub fn update_cost(&mut self, new_cost: T) {
         self.cost = new_cost;
     }
 
     /// Update ALM infeasibility
-    pub fn update_f1_infeasibility(&mut self, new_alm_infeasibility: f64) {
+    pub fn update_f1_infeasibility(&mut self, new_alm_infeasibility: T) {
         self.delta_y_norm = new_alm_infeasibility;
     }
 
     /// Update PM infeasibility
-    pub fn update_f2_norm(&mut self, new_pm_infeasibility: f64) {
+    pub fn update_f2_norm(&mut self, new_pm_infeasibility: T) {
         self.f2_norm = new_pm_infeasibility;
     }
 
@@ -241,7 +248,7 @@ impl AlmOptimizerStatus {
 
     /// Vector of Lagrange multipliers at the solution
     ///
-    /// The method returns a reference to an `Option<Vec<f64>>` which contains
+    /// The method returns a reference to an `Option<Vec<T>>` which contains
     /// the vector of Lagrange multipliers at the solution, or is `None` if
     /// the problem has no ALM-type constraints.
     ///
@@ -249,7 +256,7 @@ impl AlmOptimizerStatus {
     ///
     /// Does not panic
     ///
-    pub fn lagrange_multipliers(&self) -> &Option<Vec<f64>> {
+    pub fn lagrange_multipliers(&self) -> &Option<Vec<T>> {
         &self.lagrange_multipliers
     }
 
@@ -259,7 +266,7 @@ impl AlmOptimizerStatus {
     ///
     /// Does not panic
     ///
-    pub fn last_problem_norm_fpr(&self) -> f64 {
+    pub fn last_problem_norm_fpr(&self) -> T {
         self.last_problem_norm_fpr
     }
 
@@ -278,23 +285,23 @@ impl AlmOptimizerStatus {
     /// # Panics
     ///
     /// Does not panic
-    pub fn penalty(&self) -> f64 {
+    pub fn penalty(&self) -> T {
         self.penalty
     }
 
     /// Norm of Delta y divided by max{c, 1} - measure of infeasibility
-    pub fn delta_y_norm_over_c(&self) -> f64 {
+    pub fn delta_y_norm_over_c(&self) -> T {
         let c = self.penalty();
-        self.delta_y_norm / if c < 1.0 { 1.0 } else { c }
+        self.delta_y_norm / if c < T::one() { T::one() } else { c }
     }
 
     /// Norm of F2(u) - measure of infeasibility of F2(u) = 0
-    pub fn f2_norm(&self) -> f64 {
+    pub fn f2_norm(&self) -> T {
         self.f2_norm
     }
 
     /// Value of the cost function at the solution
-    pub fn cost(&self) -> f64 {
+    pub fn cost(&self) -> T {
         self.cost
     }
 }

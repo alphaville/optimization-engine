@@ -6,6 +6,13 @@
 /* ---------------------------------------------------------------------------- */
 
 use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
+use num::Float;
+use std::marker::PhantomData;
+use std::{iter::Sum, ops::AddAssign};
+
+fn half<T: Float>() -> T {
+    T::from(0.5).expect("0.5 must be representable")
+}
 
 /// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
 /// and optionally $F_1$, $JF_1$, $C$ and $F_2$
@@ -72,14 +79,16 @@ pub struct AlmFactory<
     Cost,
     CostGradient,
     SetC,
+    T = f64,
 > where
-    Cost: Fn(&[f64], &mut f64) -> FunctionCallResult, // f(u, result)
-    CostGradient: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // df(u, result)
-    MappingF1: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // f1(u, result)
-    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf1(u, d, result)
-    MappingF2: Fn(&[f64], &mut [f64]) -> FunctionCallResult,                      // f2(u, result)
-    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf2(u, d, result)
-    SetC: Constraint,
+    T: Float + Sum<T> + AddAssign,
+    Cost: Fn(&[T], &mut T) -> FunctionCallResult, // f(u, result)
+    CostGradient: Fn(&[T], &mut [T]) -> FunctionCallResult, // df(u, result)
+    MappingF1: Fn(&[T], &mut [T]) -> FunctionCallResult, // f1(u, result)
+    JacobianMappingF1Trans: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult, // jf1(u, d, result)
+    MappingF2: Fn(&[T], &mut [T]) -> FunctionCallResult, // f2(u, result)
+    JacobianMappingF2Trans: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult, // jf2(u, d, result)
+    SetC: Constraint<T>,
 {
     f: Cost,
     df: CostGradient,
@@ -89,6 +98,7 @@ pub struct AlmFactory<
     jacobian_mapping_f2_trans: Option<JacobianMappingF2Trans>,
     set_c: Option<SetC>,
     n2: usize,
+    marker: PhantomData<T>,
 }
 
 impl<
@@ -99,6 +109,7 @@ impl<
         Cost,
         CostGradient,
         SetC,
+        T,
     >
     AlmFactory<
         MappingF1,
@@ -108,15 +119,17 @@ impl<
         Cost,
         CostGradient,
         SetC,
+        T,
     >
 where
-    Cost: Fn(&[f64], &mut f64) -> FunctionCallResult, // f(u, result)
-    CostGradient: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // df(u, result)
-    MappingF1: Fn(&[f64], &mut [f64]) -> FunctionCallResult, // f1(u, result)
-    JacobianMappingF1Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf1(u, d, result)
-    MappingF2: Fn(&[f64], &mut [f64]) -> FunctionCallResult,                      // f2(u, result)
-    JacobianMappingF2Trans: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult, // jf2(u, d, result)
-    SetC: Constraint,
+    T: Float + Sum<T> + AddAssign,
+    Cost: Fn(&[T], &mut T) -> FunctionCallResult, // f(u, result)
+    CostGradient: Fn(&[T], &mut [T]) -> FunctionCallResult, // df(u, result)
+    MappingF1: Fn(&[T], &mut [T]) -> FunctionCallResult, // f1(u, result)
+    JacobianMappingF1Trans: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult, // jf1(u, d, result)
+    MappingF2: Fn(&[T], &mut [T]) -> FunctionCallResult, // f2(u, result)
+    JacobianMappingF2Trans: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult, // jf2(u, d, result)
+    SetC: Constraint<T>,
 {
     /// Construct a new instance of `MockFactory`
     ///
@@ -190,6 +203,7 @@ where
             jacobian_mapping_f2_trans,
             set_c,
             n2,
+            marker: PhantomData,
         }
     }
 
@@ -215,15 +229,20 @@ where
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
     ///
-    pub fn psi(&self, u: &[f64], xi: &[f64], cost: &mut f64) -> FunctionCallResult {
+    pub fn psi(&self, u: &[T], xi: &[T], cost: &mut T) -> FunctionCallResult {
         (self.f)(u, cost)?;
         let ny = if !xi.is_empty() { xi.len() - 1 } else { 0 };
-        let mut f1_u_plus_y_over_c = vec![0.0; ny];
-        let mut s = vec![0.0; ny];
+        let mut f1_u_plus_y_over_c = vec![T::zero(); ny];
+        let mut s = vec![T::zero(); ny];
         if let (Some(set_c), Some(mapping_f1)) = (&self.set_c, &self.mapping_f1) {
             let penalty_parameter = xi[0];
             mapping_f1(u, &mut f1_u_plus_y_over_c)?; // f1_u = F1(u)
             let y_lagrange_mult = &xi[1..];
+            let penalty_scale = if penalty_parameter > T::one() {
+                penalty_parameter
+            } else {
+                T::one()
+            };
             // Note: In the first term below, we divide by 'max(c, 1)', instead of
             //       just 'c'. The reason is that this allows to set c=0 and
             //       retrieve the value of the original cost function
@@ -231,18 +250,20 @@ where
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(y_lagrange_mult.iter())
-                .for_each(|(ti, yi)| *ti += yi / f64::max(penalty_parameter, 1.0));
+                .for_each(|(ti, yi)| *ti = *ti + *yi / penalty_scale);
             s.copy_from_slice(&f1_u_plus_y_over_c);
             set_c.project(&mut s);
-            *cost += 0.5
-                * penalty_parameter
-                * matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
+            let dist_sq: T = matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
+            let scaling: T = half::<T>() * penalty_parameter;
+            *cost = *cost + scaling * dist_sq;
         }
         if let Some(f2) = &self.mapping_f2 {
             let c = xi[0];
-            let mut z = vec![0.0; self.n2];
+            let mut z = vec![T::zero(); self.n2];
             f2(u, &mut z)?;
-            *cost += 0.5 * c * matrix_operations::norm2_squared(&z);
+            let norm_sq: T = matrix_operations::norm2_squared(&z);
+            let scaling: T = half::<T>() * c;
+            *cost = *cost + scaling * norm_sq;
         }
         Ok(())
     }
@@ -267,7 +288,7 @@ where
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
     ///
-    pub fn d_psi(&self, u: &[f64], xi: &[f64], grad: &mut [f64]) -> FunctionCallResult {
+    pub fn d_psi(&self, u: &[T], xi: &[T], grad: &mut [T]) -> FunctionCallResult {
         let nu = u.len();
 
         // The following statement is needed to account for the case where n1=n2=0
@@ -285,16 +306,16 @@ where
             &self.jacobian_mapping_f1_trans,
         ) {
             let c_penalty_parameter = xi[0];
-            let mut f1_u_plus_y_over_c = vec![0.0; ny];
-            let mut s_aux_var = vec![0.0; ny]; // auxiliary variable `s`
+            let mut f1_u_plus_y_over_c = vec![T::zero(); ny];
+            let mut s_aux_var = vec![T::zero(); ny]; // auxiliary variable `s`
             let y_lagrange_mult = &xi[1..];
-            let mut jac_prod = vec![0.0; nu];
+            let mut jac_prod = vec![T::zero(); nu];
             mapping_f1(u, &mut f1_u_plus_y_over_c)?; // f1_u_plus_y_over_c = F1(u)
                                                      // f1_u_plus_y_over_c = F1(u) + y/c
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(y_lagrange_mult.iter())
-                .for_each(|(ti, yi)| *ti += yi / c_penalty_parameter);
+                .for_each(|(ti, yi)| *ti = *ti + *yi / c_penalty_parameter);
             s_aux_var.copy_from_slice(&f1_u_plus_y_over_c); // s = t
             set_c.project(&mut s_aux_var); // s = Proj_C(F1(u) + y/c)
 
@@ -302,29 +323,29 @@ where
             f1_u_plus_y_over_c
                 .iter_mut()
                 .zip(s_aux_var.iter())
-                .for_each(|(ti, si)| *ti -= si);
+                .for_each(|(ti, si)| *ti = *ti - *si);
 
             jf1t(u, &f1_u_plus_y_over_c, &mut jac_prod)?;
 
             // grad += c*t
             grad.iter_mut()
                 .zip(jac_prod.iter())
-                .for_each(|(gradi, jac_prodi)| *gradi += c_penalty_parameter * jac_prodi);
+                .for_each(|(gradi, jac_prodi)| *gradi = *gradi + c_penalty_parameter * *jac_prodi);
         }
 
         // Compute second part: JF2(u)'*F2(u)
         if let (Some(f2), Some(jf2)) = (&self.mapping_f2, &self.jacobian_mapping_f2_trans) {
             let c = xi[0];
-            let mut f2u_aux = vec![0.0; self.n2];
-            let mut jf2u_times_f2u_aux = vec![0.0; nu];
+            let mut f2u_aux = vec![T::zero(); self.n2];
+            let mut jf2u_times_f2u_aux = vec![T::zero(); nu];
             f2(u, &mut f2u_aux)?; // f2u_aux = F2(u)
             jf2(u, &f2u_aux, &mut jf2u_times_f2u_aux)?; // jf2u_times_f2u_aux = JF2(u)'*f2u_aux
                                                         //                    = JF2(u)'*F2(u)
 
             // grad += c * jf2u_times_f2u_aux
-            grad.iter_mut()
-                .zip(jf2u_times_f2u_aux.iter())
-                .for_each(|(gradi, jf2u_times_f2u_aux_i)| *gradi += c * jf2u_times_f2u_aux_i);
+            grad.iter_mut().zip(jf2u_times_f2u_aux.iter()).for_each(
+                |(gradi, jf2u_times_f2u_aux_i)| *gradi = *gradi + c * *jf2u_times_f2u_aux_i,
+            );
         }
         Ok(())
     }

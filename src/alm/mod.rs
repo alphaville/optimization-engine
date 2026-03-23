@@ -45,15 +45,15 @@ pub use alm_problem::AlmProblem;
 /// Mappings $F_1$ and $F_2$ are computed by functions with signature
 ///
 /// ```ignore
-/// fn mapping_f(&[f64], &mut [f64]) -> Result<(), crate::SolverError>
+/// fn mapping_f(&[T], &mut [T]) -> Result<(), crate::SolverError>
 /// ```
-pub type MappingType = fn(&[f64], &mut [f64]) -> Result<(), crate::SolverError>;
+pub type MappingType<T = f64> = fn(&[T], &mut [T]) -> Result<(), crate::SolverError>;
 
 /// Type of the Jacobian of mappings $F_1$ and $F_2$
 ///
 /// These are mappings $(u, d) \mapsto JF_1(u)^\top d$, for given vectors $u\in\mathbb{R}$
 /// and $d\in\mathbb{R}^{n_1}$ (similarly for $F_2$)
-pub type JacobianMappingType = fn(&[f64], &[f64], &mut [f64]) -> Result<(), crate::SolverError>;
+pub type JacobianMappingType<T = f64> = fn(&[T], &[T], &mut [T]) -> Result<(), crate::SolverError>;
 
 /// No mapping $F_1(u)$ or $F_2(u)$ is specified
 pub const NO_MAPPING: Option<MappingType> = None::<MappingType>;
@@ -64,6 +64,22 @@ pub const NO_JACOBIAN_MAPPING: Option<JacobianMappingType> = None::<JacobianMapp
 /// No set is specified (when specifying a set is optional)
 pub const NO_SET: Option<crate::constraints::NoConstraints> =
     None::<crate::constraints::NoConstraints>;
+
+/// Helper for the generic case where no mapping is provided.
+pub fn no_mapping<T>() -> Option<MappingType<T>> {
+    None::<MappingType<T>>
+}
+
+/// Helper for the generic case where no Jacobian mapping is provided.
+pub fn no_jacobian_mapping<T>() -> Option<JacobianMappingType<T>> {
+    None::<JacobianMappingType<T>>
+}
+
+/// Helper for the generic case where no set is provided.
+pub fn no_set<T>() -> Option<crate::constraints::NoConstraints> {
+    let _ = std::marker::PhantomData::<T>;
+    None::<crate::constraints::NoConstraints>
+}
 
 /* ---------------------------------------------------------------------------- */
 /*          TESTS                                                               */

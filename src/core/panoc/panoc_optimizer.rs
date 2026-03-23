@@ -8,6 +8,9 @@ use crate::{
     },
     matrix_operations, FunctionCallResult, SolverError,
 };
+use lbfgs::LbfgsPrecision;
+use num::Float;
+use std::iter::Sum;
 use std::time;
 
 const MAX_ITER: usize = 100_usize;
@@ -15,23 +18,25 @@ const MAX_ITER: usize = 100_usize;
 /// Optimizer using the PANOC algorithm
 ///
 ///
-pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
+pub struct PANOCOptimizer<'a, GradientType, ConstraintType, CostType, T = f64>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint,
+    T: Float + LbfgsPrecision + Sum<T>,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<T>,
 {
-    panoc_engine: PANOCEngine<'a, GradientType, ConstraintType, CostType>,
+    panoc_engine: PANOCEngine<'a, GradientType, ConstraintType, CostType, T>,
     max_iter: usize,
     max_duration: Option<time::Duration>,
 }
 
-impl<'a, GradientType, ConstraintType, CostType>
-    PANOCOptimizer<'a, GradientType, ConstraintType, CostType>
+impl<'a, GradientType, ConstraintType, CostType, T>
+    PANOCOptimizer<'a, GradientType, ConstraintType, CostType, T>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint,
+    T: Float + LbfgsPrecision + Sum<T>,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<T>,
 {
     /// Constructor of `PANOCOptimizer`
     ///
@@ -44,8 +49,8 @@ where
     ///
     /// Does not panic
     pub fn new(
-        problem: Problem<'a, GradientType, ConstraintType, CostType>,
-        cache: &'a mut PANOCCache,
+        problem: Problem<'a, GradientType, ConstraintType, CostType, T>,
+        cache: &'a mut PANOCCache<T>,
     ) -> Self {
         PANOCOptimizer {
             panoc_engine: PANOCEngine::new(problem, cache),
@@ -62,8 +67,8 @@ where
     /// ## Panics
     ///
     /// The method panics if the specified tolerance is not positive
-    pub fn with_tolerance(self, tolerance: f64) -> Self {
-        assert!(tolerance > 0.0, "tolerance must be larger than 0");
+    pub fn with_tolerance(self, tolerance: T) -> Self {
+        assert!(tolerance > T::zero(), "tolerance must be larger than 0");
 
         self.panoc_engine.cache.tolerance = tolerance;
         self
@@ -90,8 +95,11 @@ where
     /// The method panics if the provided value of the AKKT-specific tolerance is
     /// not positive.
     ///
-    pub fn with_akkt_tolerance(self, akkt_tolerance: f64) -> Self {
-        assert!(akkt_tolerance > 0.0, "akkt_tolerance must be positive");
+    pub fn with_akkt_tolerance(self, akkt_tolerance: T) -> Self {
+        assert!(
+            akkt_tolerance > T::zero(),
+            "akkt_tolerance must be positive"
+        );
         self.panoc_engine.cache.set_akkt_tolerance(akkt_tolerance);
         self
     }
@@ -113,16 +121,12 @@ where
         self.max_duration = Some(max_duation);
         self
     }
-}
 
-impl<'life, GradientType, ConstraintType, CostType> Optimizer
-    for PANOCOptimizer<'life, GradientType, ConstraintType, CostType>
-where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint + 'life,
-{
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+    /// Solves the optimization problem for decision variables of scalar type `T`.
+    ///
+    /// The returned [`SolverStatus`] stores the reported residual norm and cost
+    /// value as `f64`, so these values are converted from `T`.
+    pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus, SolverError> {
         let now = instant::Instant::now();
 
         /*
@@ -182,9 +186,27 @@ where
             exit_status,
             num_iter,
             now.elapsed(),
-            self.panoc_engine.cache.best_norm_gamma_fpr,
-            best_cost_value,
+            self.panoc_engine
+                .cache
+                .best_norm_gamma_fpr
+                .to_f64()
+                .expect("best norm gamma FPR must be representable as f64"),
+            best_cost_value
+                .to_f64()
+                .expect("best cost value must be representable as f64"),
         ))
+    }
+}
+
+impl<'life, GradientType, ConstraintType, CostType> Optimizer
+    for PANOCOptimizer<'life, GradientType, ConstraintType, CostType, f64>
+where
+    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
+    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<f64> + 'life,
+{
+    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+        PANOCOptimizer::solve(self, u)
     }
 }
 

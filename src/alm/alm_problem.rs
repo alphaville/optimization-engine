@@ -1,4 +1,6 @@
 use crate::{constraints::Constraint, FunctionCallResult};
+use num::Float;
+use std::marker::PhantomData;
 
 /// Definition of optimization problem to be solved with `AlmOptimizer`. The optimization
 /// problem has the general form
@@ -32,16 +34,18 @@ pub struct AlmProblem<
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
+    T = f64,
 > where
+    T: Float,
     // This is function F1: R^xn --> R^n1 (ALM)
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
     // This is function F2: R^xn --> R^n2 (PM)
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: Constraint,
-    AlmSetC: Constraint,
-    LagrangeSetY: Constraint,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: Constraint<T>,
+    AlmSetC: Constraint<T>,
+    LagrangeSetY: Constraint<T>,
 {
     //
     // NOTE: the reason why we need to define different set types (ConstraintsType,
@@ -67,6 +71,7 @@ pub struct AlmProblem<
     pub(crate) n1: usize,
     /// number of PM-type parameters (range dim of F2)
     pub(crate) n2: usize,
+    marker: PhantomData<T>,
 }
 
 impl<
@@ -77,6 +82,7 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
     AlmProblem<
         MappingAlm,
@@ -86,15 +92,17 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
 where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: Constraint,
-    AlmSetC: Constraint,
-    LagrangeSetY: Constraint,
+    T: Float,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: Constraint<T>,
+    AlmSetC: Constraint<T>,
+    LagrangeSetY: Constraint<T>,
 {
     ///Constructs new instance of `AlmProblem`
     ///
@@ -163,6 +171,7 @@ where
             mapping_f2,
             n1,
             n2,
+            marker: PhantomData,
         }
     }
 }
