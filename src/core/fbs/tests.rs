@@ -9,6 +9,13 @@ const N_DIM: usize = 2;
 #[cfg(test)]
 use crate::mocks;
 
+fn solve_with_optimizer_trait(
+    optimizer: &mut impl crate::core::Optimizer<f32>,
+    u: &mut [f32],
+) -> Result<crate::core::SolverStatus<f32>, crate::SolverError> {
+    optimizer.solve(u)
+}
+
 #[test]
 fn t_solve_fbs_hard() {
     let bounds = constraints::NoConstraints::new();
@@ -205,4 +212,33 @@ fn t_solve_fbs_f32() {
     assert!(status.norm_fpr() < tolerance);
     assert!((u[0] - expected[0]).abs() < 1e-4);
     assert!((u[1] - expected[1]).abs() < 1e-4);
+}
+
+#[test]
+fn t_solve_fbs_f32_via_optimizer_trait() {
+    let radius = 0.2_f32;
+    let box_constraints = constraints::Ball2::new(None, radius);
+    let problem = Problem::new(
+        &box_constraints,
+        |u: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            grad[0] = u[0] + u[1] + 1.0;
+            grad[1] = u[0] + 2.0 * u[1] - 1.0;
+            Ok(())
+        },
+        |u: &[f32], cost: &mut f32| -> FunctionCallResult {
+            *cost = u[0] * u[0] + 2.0 * u[1] * u[1] + u[0] - u[1] + 3.0;
+            Ok(())
+        },
+    );
+    let gamma = 0.1_f32;
+    let tolerance = 1e-6_f32;
+
+    let mut fbs_cache = FBSCache::<f32>::new(NonZeroUsize::new(N_DIM).unwrap(), gamma, tolerance);
+    let mut u = [0.0_f32; N_DIM];
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
+
+    let status = solve_with_optimizer_trait(&mut optimizer, &mut u).unwrap();
+
+    assert!(status.has_converged());
+    assert!(status.norm_fpr() < tolerance);
 }

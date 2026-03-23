@@ -1136,6 +1136,31 @@ fn t_affine_space() {
 }
 
 #[test]
+fn t_affine_space_f32() {
+    let a = vec![
+        0.5_f32, 0.1, 0.2, -0.3, -0.6, 0.3, 0.0, 0.5, 1.0, 0.1, -1.0, -0.4,
+    ];
+    let b = vec![1.0_f32, 2.0, -0.5];
+    let affine_set = AffineSpace::new(a.clone(), b.clone());
+    let mut x = [1.0_f32, -2.0, -0.3, 0.5];
+    affine_set.project(&mut x);
+
+    let x_correct = [1.888_564_3_f32, 5.629_857_f32, 1.796_204_9_f32, 2.888_363_f32];
+    assert!((x[0] - x_correct[0]).abs() < 1e-4_f32);
+    assert!((x[1] - x_correct[1]).abs() < 1e-4_f32);
+    assert!((x[2] - x_correct[2]).abs() < 1e-4_f32);
+    assert!((x[3] - x_correct[3]).abs() < 1e-4_f32);
+
+    for (row, bi) in a.chunks_exact(4).zip(b.iter()) {
+        let ax_i = row
+            .iter()
+            .zip(x.iter())
+            .fold(0.0_f32, |sum, (aij, xj)| sum + (*aij) * (*xj));
+        assert!((ax_i - *bi).abs() < 1e-4_f32);
+    }
+}
+
+#[test]
 fn t_affine_space_larger() {
     let a = vec![
         1.0f64, 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 0., 1., 1., 1., -1., 4., -1., 0., 2.,
@@ -1363,4 +1388,27 @@ fn t_ballp_at_xc_projection() {
         1e-12,
         "wrong projection on lp-ball centered at xc != 0",
     );
+}
+
+#[test]
+fn t_ballp_at_xc_projection_f32() {
+    let radius = 0.8_f32;
+    let mut x = [0.0_f32, 0.1];
+    let x_center = [1.0_f32, 3.0];
+    let p = 4.0_f32;
+    let tol = 1e-6_f32;
+    let max_iters: usize = 200;
+    let ball = BallP::new(Some(&x_center), radius, p, tol, max_iters);
+    ball.project(&mut x);
+
+    let nrm = x
+        .iter()
+        .zip(x_center.iter())
+        .fold(0.0_f32, |s, (xi, yi)| s + (*xi - *yi).abs().powf(p))
+        .powf(1.0_f32 / p);
+    assert!((radius - nrm).abs() < 1e-4_f32);
+
+    let proj_expected = [0.517_872_75_f32, 2.227_798_2_f32];
+    assert!((x[0] - proj_expected[0]).abs() < 1e-4_f32);
+    assert!((x[1] - proj_expected[1]).abs() < 1e-4_f32);
 }

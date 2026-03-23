@@ -435,7 +435,7 @@ where
     pub fn with_penalty_update_factor(mut self, penalty_update_factor: T) -> Self {
         assert!(
             penalty_update_factor > T::one() + T::epsilon(),
-            "`penalty_update_factor` must be larger than 1.0 + f64::EPSILON"
+            "`penalty_update_factor` must be larger than 1.0 + T::epsilon()"
         );
         self.penalty_update_factor = penalty_update_factor;
         self
@@ -465,7 +465,7 @@ where
         assert!(
             inner_tolerance_update_factor > T::epsilon()
                 && inner_tolerance_update_factor < T::one() - T::epsilon(),
-            "the tolerance update factor needs to be in (f64::EPSILON, 1)"
+            "the tolerance update factor needs to be in (T::epsilon(), 1)"
         );
         self.epsilon_update_factor = inner_tolerance_update_factor;
         self
@@ -533,7 +533,7 @@ where
         assert!(
             sufficient_decrease_coefficient < T::one() - T::epsilon()
                 && sufficient_decrease_coefficient > T::epsilon(),
-            "sufficient_decrease_coefficient must be in (f64::EPSILON, 1.0 - f64::EPSILON)"
+            "sufficient_decrease_coefficient must be in (T::epsilon(), 1.0 - T::epsilon())"
         );
         self.sufficient_decrease_coeff = sufficient_decrease_coefficient;
         self
@@ -587,7 +587,7 @@ where
     pub fn with_initial_penalty(self, c0: T) -> Self {
         assert!(
             c0 > T::epsilon(),
-            "the initial penalty must be larger than f64::EPSILON"
+            "the initial penalty must be larger than T::epsilon()"
         );
         if let Some(xi_in_cache) = &mut self.alm_cache.xi {
             xi_in_cache[0] = c0;
@@ -685,10 +685,10 @@ where
         let problem = &self.alm_problem;
         if let Some(y_set) = &problem.alm_set_y {
             // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
-            // * cache.y is                Option<Vec<f64>>
-            // * cache.y.as_mut is         Option<&mut Vec<f64>>
-            // *  which can be treated as  Option<&mut [f64]>
-            // * y_vec is                  &mut [f64]
+            // * cache.y is                Option<Vec<T>>
+            // * cache.y.as_mut is         Option<&mut Vec<T>>
+            // *  which can be treated as  Option<&mut [T]>
+            // * y_vec is                  &mut [T]
             if let Some(xi_vec) = self.alm_cache.xi.as_mut() {
                 y_set.project(&mut xi_vec[1..]);
             }
