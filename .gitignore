@@ -43,6 +43,7 @@ open-clib/Cargo.lock
 /website/node_modules/
 /website/yarn.lock
 /website/build/
+/website/.docusaurus/
 !/website/pages/
 !/website/static/
 !/website/*.js
@@ -73,3 +74,4 @@ open-clib/Cargo.lock
 *private*
 .DS_Store
 /img/
+private/

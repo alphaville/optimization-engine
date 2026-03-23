@@ -1,34 +1,43 @@
-# -------- Licence -------------------------------------------------------------
-# Dual license: MIT and Apache v2
+#
+# Dockerfile for OpEn/opengen
+# Dockerfile version: 0.7.0
+# Bundled Python package: opengen v0.10.0
+# Bundled Rust notebook dependency: optimization_engine v0.11.0
+# JupyterLab kernels: Python and Rust (Evcxr)
 #
 # Copyright (c) 2017 Pantelis Sopasakis and Emil Fresk
-# ------------------------------------------------------------------------------
-
-
+#
+#
+#
 # -------- Run Instructions ----------------------------------------------------
 # Run the docker image and start a terminal to access it by running:
 #
-# $ docker run -p 8888:8888 -it alphaville/open
+# $ docker run -p 127.0.0.1:8888:8888 -it alphaville/open
 #
-# You will be able to access your Jupyter Notebook at http://localhost:8888/
-# without a password. To set a password, read the documentation.
+# You will be able to access JupyterLab at http://localhost:8888/lab
+# using Jupyter's default token authentication. To set a password, read the
+# documentation.
 #
-# ------------------------------------------------------------------------------
+#
 
-FROM debian:stable
+FROM python:3.12-slim-bookworm
+
+ARG OPENGEN_VERSION=0.10.0
+ARG OPTIMIZATION_ENGINE_CRATE_VERSION=0.11.0
+ARG EVCXR_JUPYTER_VERSION=0.21.1
 
 # Labels for the docker image
 LABEL 	maintainer="Pantelis Sopasakis <p.sopasakis@gmail.com>" \
     license="MIT license" \
-    description="Jupyter notebook for Optimization Engine (OpEn)"
+    description="JupyterLab for Optimization Engine (OpEn) with Python and Rust kernels"
 
 WORKDIR /open
-VOLUME /open
 
-# Example Python notebook
-COPY example.ipynb /open/
+# Example notebook content bundled with the image
+COPY notebooks/ /open/notebooks/
 
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV VIRTUAL_ENV=/venv
+ENV PATH="${VIRTUAL_ENV}/bin:/root/.cargo/bin:${PATH}"
 
 # These commands are groupped into a separate RUN to faciliate
 # caching; it is unlikely that any of the following will change
@@ -36,35 +45,46 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN apt-get update -y \
     && apt-get -y --no-install-recommends install \
     build-essential \
+    ca-certificates \
     curl \
-    jupyter-notebook  \
-    python3 \
-    python3-pip \
-    python3-setuptools  \
-    python3-venv \
-    && curl https://sh.rustup.rs -sSf | bash -s -- -y  \
-    && cd /; python3 -m venv venv \
-    && /bin/bash -c "source /venv/bin/activate && pip install wheel && pip install opengen && pip install jupyter" \
+    && curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal \
+    && rustup component add rust-src \
+    && cargo install --locked "evcxr_jupyter@${EVCXR_JUPYTER_VERSION}" \
+    && NOTEBOOK_BOOTSTRAP_DIR="$(mktemp -d)" \
+    && mkdir -p "${NOTEBOOK_BOOTSTRAP_DIR}/src" \
+    && printf '[package]\nname = "open-rust-notebook-bootstrap"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\noptimization_engine = "=%s"\n' "${OPTIMIZATION_ENGINE_CRATE_VERSION}" > "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && printf 'fn main() {}\n' > "${NOTEBOOK_BOOTSTRAP_DIR}/src/main.rs" \
+    && cargo generate-lockfile --manifest-path "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && cargo fetch --locked --manifest-path "${NOTEBOOK_BOOTSTRAP_DIR}/Cargo.toml" \
+    && rm -rf "${NOTEBOOK_BOOTSTRAP_DIR}" \
+    && python -m pip install --no-cache-dir --upgrade "pip>=26.0.1" \
+    && python -m venv "${VIRTUAL_ENV}" \
+    && "${VIRTUAL_ENV}/bin/python" -m pip install --no-cache-dir --upgrade "pip>=26.0.1" wheel \
+    && "${VIRTUAL_ENV}/bin/python" -m pip install --no-cache-dir "opengen==${OPENGEN_VERSION}" "jupyterlab<5" "matplotlib<4" \
+    && JUPYTER_PATH="${VIRTUAL_ENV}/share/jupyter" evcxr_jupyter --install \
+    && "${VIRTUAL_ENV}/bin/python" -m pip uninstall -y py \
     && apt-get clean  \
     &&  rm -rf /var/lib/apt/lists/* \
-    && echo "source /venv/bin/activate" >> /root/.bashrc
+    && echo "source ${VIRTUAL_ENV}/bin/activate" >> /root/.bashrc
+
+VOLUME /open
 
 EXPOSE 8888
 
 # Run the following command every time this docker image
 # is executed
-COPY start_jupyter_notebook.sh /
-RUN ["chmod", "+x", "/start_jupyter_notebook.sh"]
-CMD ["/bin/bash", "/start_jupyter_notebook.sh"]
+COPY start_jupyter_notebook.sh /usr/local/bin/start_jupyter_notebook.sh
+RUN ["chmod", "+x", "/usr/local/bin/start_jupyter_notebook.sh"]
+CMD ["/usr/local/bin/start_jupyter_notebook.sh"]
 
 
 
 # -------- Build Instructions --------------------------------------------------
 # Build the docker image by running (for DEVELOPERS only): 
 #
-# $ docker image build -t alphaville/open .
+# $ docker image build -t alphaville/open:0.7.0 .
 #
-# from within the base directory of this project.
+# from within the docker directory of this project.
 #
 #
 # ------------------------------------------------------------------------------
