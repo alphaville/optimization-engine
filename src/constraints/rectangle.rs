@@ -1,4 +1,5 @@
 use super::Constraint;
+use num::Float;
 
 #[derive(Clone, Copy)]
 ///
@@ -7,12 +8,12 @@ use super::Constraint;
 /// A set of the form $\\{x \in \mathbb{R}^n {}:{} x_{\min} {}\leq{} x {}\leq{} x_{\max}\\}$,
 /// where $\leq$ is meant in the element-wise sense and either of $x_{\min}$ and $x_{\max}$ can
 /// be equal to infinity.
-pub struct Rectangle<'a> {
-    xmin: Option<&'a [f64]>,
-    xmax: Option<&'a [f64]>,
+pub struct Rectangle<'a, T = f64> {
+    xmin: Option<&'a [T]>,
+    xmax: Option<&'a [T]>,
 }
 
-impl<'a> Rectangle<'a> {
+impl<'a, T: Float> Rectangle<'a, T> {
     /// Construct a new rectangle with given $x_{\min}$ and $x_{\max}$
     ///
     /// # Arguments
@@ -34,7 +35,7 @@ impl<'a> Rectangle<'a> {
     /// - Both `xmin` and `xmax` have been provided, but they have incompatible
     ///   dimensions
     ///
-    pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Self {
+    pub fn new(xmin: Option<&'a [T]>, xmax: Option<&'a [T]>) -> Self {
         assert!(xmin.is_some() || xmax.is_some()); // xmin or xmax must be Some
         assert!(
             xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
@@ -53,8 +54,8 @@ impl<'a> Rectangle<'a> {
     }
 }
 
-impl<'a> Constraint for Rectangle<'a> {
-    fn project(&self, x: &mut [f64]) {
+impl<'a, T: Float> Constraint<T> for Rectangle<'a, T> {
+    fn project(&self, x: &mut [T]) {
         if let Some(xmin) = &self.xmin {
             assert_eq!(
                 x.len(),

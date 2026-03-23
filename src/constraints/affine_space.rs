@@ -2,21 +2,25 @@ use super::Constraint;
 use crate::matrix_operations;
 use crate::CholeskyFactorizer;
 
-use ndarray::{ArrayView1, ArrayView2};
+use ndarray::{ArrayView1, ArrayView2, LinalgScalar};
+use num::Float;
 
 #[derive(Clone)]
 /// An affine space here is defined as the set of solutions of a linear equation, $Ax = b$,
 /// that is, $E=\\{x\in\mathbb{R}^n: Ax = b\\}$, which is an affine space. It is assumed that
 /// the matrix $AA^\intercal$ is full-rank.
-pub struct AffineSpace {
-    a_mat: Vec<f64>,
-    b_vec: Vec<f64>,
-    factorizer: CholeskyFactorizer<f64>,
+pub struct AffineSpace<T = f64> {
+    a_mat: Vec<T>,
+    b_vec: Vec<T>,
+    factorizer: CholeskyFactorizer<T>,
     n_rows: usize,
     n_cols: usize,
 }
 
-impl AffineSpace {
+impl<T> AffineSpace<T>
+where
+    T: Float + LinalgScalar + 'static,
+{
     /// Construct a new affine space given the matrix $A\in\mathbb{R}^{m\times n}$ and
     /// the vector $b\in\mathbb{R}^m$
     ///
@@ -28,7 +32,7 @@ impl AffineSpace {
     /// ## Returns
     /// New Affine Space structure
     ///
-    pub fn new(a: Vec<f64>, b: Vec<f64>) -> Self {
+    pub fn new(a: Vec<T>, b: Vec<T>) -> Self {
         let n_rows = b.len();
         let n_elements_a = a.len();
         assert!(n_rows > 0, "b must not be empty");
@@ -50,7 +54,10 @@ impl AffineSpace {
     }
 }
 
-impl Constraint for AffineSpace {
+impl<T> Constraint<T> for AffineSpace<T>
+where
+    T: Float + LinalgScalar + 'static,
+{
     /// Projection onto the set $E = \\{x: Ax = b\\}$, which is computed by
     /// $$P_E(x) = x - A^\intercal z(x),$$
     /// where $z$ is the solution of the linear system
@@ -82,7 +89,7 @@ impl Constraint for AffineSpace {
     /// ```
     ///
     /// The result is stored in `x` and it can be verified that $Ax = b$.
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [T]) {
         let n = self.n_cols;
         assert!(x.len() == n, "x has wrong dimension");
 
@@ -92,7 +99,7 @@ impl Constraint for AffineSpace {
         let x_view = ArrayView1::from(&x[..]);
         let b = ArrayView1::from(&self.b_vec[..]);
         let e = a.dot(&x_view) - b;
-        let e_slice: &[f64] = e.as_slice().unwrap();
+        let e_slice: &[T] = e.as_slice().unwrap();
 
         // Step 2: Solve AA' z = e and compute z
         let z = self.factorizer.solve(e_slice).unwrap();
@@ -100,7 +107,7 @@ impl Constraint for AffineSpace {
         // Step 3: Compute x = x - A'z
         let at_z = a.t().dot(&ArrayView1::from(&z[..]));
         for (xi, corr) in x.iter_mut().zip(at_z.iter()) {
-            *xi -= *corr;
+            *xi = *xi - *corr;
         }
     }
 

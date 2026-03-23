@@ -308,7 +308,8 @@ fn t_ball2_at_center_different_radius_outside() {
     let center = [-0.8, -1.1];
     let ball = Ball2::new(Some(&center), radius);
     ball.project(&mut x);
-    let norm_x_minus_c = crate::matrix_operations::norm2_squared_diff(&x, &center).sqrt();
+    let norm_sq_x_minus_c: f64 = crate::matrix_operations::norm2_squared_diff(&x, &center);
+    let norm_x_minus_c = norm_sq_x_minus_c.sqrt();
     unit_test_utils::assert_nearly_equal(radius, norm_x_minus_c, 1e-10, 1e-12, "wrong norm");
 }
 
@@ -470,7 +471,7 @@ fn t_second_order_cone_case_iii() {
     let mut x = vec![1.0, 1.0, 0.1];
     soc.project(&mut x);
     // make sure the new `x` is in the cone
-    let norm_z = crate::matrix_operations::norm2(&x[..=1]);
+    let norm_z: f64 = crate::matrix_operations::norm2(&x[..=1]);
     assert!(norm_z <= alpha * x[2]);
     // in fact the projection should be on the boundary of the cone
     assert!((norm_z - alpha * x[2]).abs() <= 1e-7);
@@ -650,7 +651,7 @@ fn t_is_convex_soc() {
 #[test]
 fn t_is_convex_zero() {
     let zero = Zero::new();
-    assert!(zero.is_convex());
+    assert!(<Zero as Constraint<f64>>::is_convex(&zero));
 }
 
 #[test]
@@ -1231,11 +1232,14 @@ fn t_ballp_at_xc_projection() {
     let ball = BallP::new(Some(&x_center), radius, p, tol, max_iters);
     ball.project(&mut x);
 
-    let nrm = (x
+    let nrm: f64 = (x
         .iter()
         .zip(x_center.iter())
-        .fold(0.0, |s, (x, y)| (*x - *y).abs().powf(p) + s))
-    .powf(1. / p);
+        .fold(0.0_f64, |s, (x, y)| {
+            let diff: f64 = *x - *y;
+            diff.abs().powf(p) + s
+        }))
+    .powf(1.0_f64 / p);
     unit_test_utils::assert_nearly_equal(radius, nrm, 1e-10, 1e-12, "wrong distance to lp-ball");
 
     let proj_expected = [0.5178727276722618, 2.2277981662325224];

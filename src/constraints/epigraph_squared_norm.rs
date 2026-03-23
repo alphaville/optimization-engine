@@ -1,6 +1,13 @@
 use crate::matrix_operations;
 
 use super::Constraint;
+use num::Float;
+use roots::FloatType;
+use std::iter::Sum;
+
+fn cast<T: Float>(value: f64) -> T {
+    T::from(value).expect("constant must be representable")
+}
 
 #[derive(Copy, Clone, Default)]
 /// The epigraph of the squared Euclidean norm, that is,
@@ -22,7 +29,10 @@ impl EpigraphSquaredNorm {
     }
 }
 
-impl Constraint for EpigraphSquaredNorm {
+impl<T> Constraint<T> for EpigraphSquaredNorm
+where
+    T: Float + FloatType + Sum<T>,
+{
     /// Project on the epigraph of the squared Euclidean norm.
     ///
     /// Let the input be represented as $(z,t)$, where `z` is the vector formed
@@ -63,7 +73,7 @@ impl Constraint for EpigraphSquaredNorm {
     ///
     /// epi.project(&mut x);
     /// ```
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [T]) {
         assert!(
             x.len() >= 2,
             "EpigraphSquaredNorm::project requires x.len() >= 2"
@@ -81,25 +91,25 @@ impl Constraint for EpigraphSquaredNorm {
 
         // Cubic:
         // 4 r^3 + 4 theta r^2 + theta^2 r - ||z||^2 = 0
-        let theta = 1.0 - 2.0 * t;
-        let a3 = 4.0;
-        let a2 = 4.0 * theta;
+        let theta = cast::<T>(1.0) - cast::<T>(2.0) * t;
+        let a3 = cast::<T>(4.0);
+        let a2 = cast::<T>(4.0) * theta;
         let a1 = theta * theta;
         let a0 = -norm_z_sq;
 
         let cubic_poly_roots = roots::find_roots_cubic(a3, a2, a1, a0);
 
-        let root_tol = 1e-6;
-        let mut right_root: Option<f64> = None;
+        let root_tol = cast::<T>(1e-6);
+        let mut right_root: Option<T> = None;
 
         // Pick the first admissible real root
         for &ri in cubic_poly_roots.as_ref().iter() {
-            let denom = 1.0 + 2.0 * (ri - t);
+            let denom = cast::<T>(1.0) + cast::<T>(2.0) * (ri - t);
 
             // We need a valid scaling and consistency with ||z_proj||^2 = ri
-            if denom > 0.0 {
+            if denom > cast::<T>(0.0) {
                 let candidate_norm_sq = norm_z_sq / (denom * denom);
-                if (candidate_norm_sq - ri).abs() <= root_tol {
+                if num::Float::abs(candidate_norm_sq - ri) <= root_tol {
                     right_root = Some(ri);
                     break;
                 }
@@ -111,37 +121,37 @@ impl Constraint for EpigraphSquaredNorm {
 
         // Newton refinement
         let newton_max_iters: usize = 5;
-        let newton_eps = 1e-14;
+        let newton_eps = cast::<T>(1e-14);
 
         for _ in 0..newton_max_iters {
             let zsol_sq = zsol * zsol;
             let zsol_cb = zsol_sq * zsol;
 
             let p_z = a3 * zsol_cb + a2 * zsol_sq + a1 * zsol + a0;
-            if p_z.abs() <= newton_eps {
+            if num::Float::abs(p_z) <= newton_eps {
                 break;
             }
 
-            let dp_z = 3.0 * a3 * zsol_sq + 2.0 * a2 * zsol + a1;
+            let dp_z = cast::<T>(3.0) * a3 * zsol_sq + cast::<T>(2.0) * a2 * zsol + a1;
             assert!(
-                dp_z.abs() > 1e-15,
+                num::Float::abs(dp_z) > cast::<T>(1e-15),
                 "EpigraphSquaredNorm::project: Newton derivative too small"
             );
 
-            zsol -= p_z / dp_z;
+            zsol = zsol - p_z / dp_z;
         }
 
         let right_root = zsol;
-        let scaling = 1.0 + 2.0 * (right_root - t);
+        let scaling = cast::<T>(1.0) + cast::<T>(2.0) * (right_root - t);
 
         assert!(
-            scaling.abs() > 1e-15,
+            num::Float::abs(scaling) > cast::<T>(1e-15),
             "EpigraphSquaredNorm::project: scaling factor too small"
         );
 
         // Projection
         for xi in x.iter_mut().take(nx) {
-            *xi /= scaling;
+            *xi = *xi / scaling;
         }
         x[nx] = right_root;
     }
