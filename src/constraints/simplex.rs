@@ -69,8 +69,7 @@ impl<T: Float> Constraint<T> for Simplex<T> {
                 if *v_n <= rho {
                     hit_list.push(n);
                     current_len_v -= 1;
-                    rho = rho
-                        + (rho - *v_n) / T::from(current_len_v).expect("i64 must fit in T");
+                    rho = rho + (rho - *v_n) / T::from(current_len_v).expect("i64 must fit in T");
                 }
             });
             hit_list.iter().rev().for_each(|target| {

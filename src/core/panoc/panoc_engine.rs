@@ -212,8 +212,7 @@ where
             // update L, sigma and gamma...
             self.cache.lipschitz_constant =
                 self.cache.lipschitz_constant * T::from(2.0).expect("2.0 must be representable");
-            self.cache.gamma =
-                self.cache.gamma / T::from(2.0).expect("2.0 must be representable");
+            self.cache.gamma = self.cache.gamma / T::from(2.0).expect("2.0 must be representable");
 
             // recompute the half step...
             self.gradient_step(u_current); // updates self.cache.gradient_step
@@ -389,7 +388,8 @@ where
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
         self.cache_gradient_norm();
-        self.cache.gamma = gamma_l_coeff::<T>() / self.cache.lipschitz_constant.max(min_l_estimate());
+        self.cache.gamma =
+            gamma_l_coeff::<T>() / self.cache.lipschitz_constant.max(min_l_estimate());
         self.cache.sigma = (T::one() - gamma_l_coeff::<T>())
             / (T::from(4.0).expect("4.0 must be representable") * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step

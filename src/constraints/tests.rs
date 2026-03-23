@@ -1305,13 +1305,10 @@ fn t_ballp_at_xc_projection() {
     let ball = BallP::new(Some(&x_center), radius, p, tol, max_iters);
     ball.project(&mut x);
 
-    let nrm: f64 = (x
-        .iter()
-        .zip(x_center.iter())
-        .fold(0.0_f64, |s, (x, y)| {
-            let diff: f64 = *x - *y;
-            diff.abs().powf(p) + s
-        }))
+    let nrm: f64 = (x.iter().zip(x_center.iter()).fold(0.0_f64, |s, (x, y)| {
+        let diff: f64 = *x - *y;
+        diff.abs().powf(p) + s
+    }))
     .powf(1.0_f64 / p);
     unit_test_utils::assert_nearly_equal(radius, nrm, 1e-10, 1e-12, "wrong distance to lp-ball");
 

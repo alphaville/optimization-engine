@@ -124,13 +124,7 @@ impl<'a, T: Float> BallP<'a, T> {
     /// - `p`: norm exponent, must satisfy `p > 1.0` and be finite
     /// - `tolerance`: tolerance for the numerical solvers
     /// - `max_iter`: maximum number of iterations for the numerical solvers
-    pub fn new(
-        center: Option<&'a [T]>,
-        radius: T,
-        p: T,
-        tolerance: T,
-        max_iter: usize,
-    ) -> Self {
+    pub fn new(center: Option<&'a [T]>, radius: T, p: T, tolerance: T, max_iter: usize) -> Self {
         assert!(radius > T::zero());
         assert!(p > T::one() && p.is_finite());
         assert!(tolerance > T::zero());
@@ -194,7 +188,8 @@ impl<'a, T: Float> BallP<'a, T> {
         }
 
         for _ in 0..max_iter {
-            let lambda_mid = T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
+            let lambda_mid =
+                T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
             let err = radius_error(lambda_mid);
 
             if err.abs() <= tol {
@@ -210,7 +205,8 @@ impl<'a, T: Float> BallP<'a, T> {
             }
         }
 
-        let lambda_star = T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
+        let lambda_star =
+            T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
 
         x.iter_mut().zip(abs_x.iter()).for_each(|(xi, &a)| {
             let u = Self::solve_coordinate_newton(a, lambda_star, p, tol, max_iter);

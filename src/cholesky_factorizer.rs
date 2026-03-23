@@ -267,12 +267,7 @@ mod tests {
         factorizer.factorize(&a).unwrap();
 
         let expected_l = [2.0_f32, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0];
-        unit_test_utils::nearly_equal_array(
-            &expected_l,
-            factorizer.cholesky_factor(),
-            1e-5,
-            1e-6,
-        );
+        unit_test_utils::nearly_equal_array(&expected_l, factorizer.cholesky_factor(), 1e-5, 1e-6);
 
         let rhs = vec![-5.0_f32, 2.0, -3.0];
         let x = factorizer.solve(&rhs).unwrap();

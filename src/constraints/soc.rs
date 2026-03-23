@@ -71,8 +71,7 @@ where
         if self.alpha * norm_z <= -r {
             x.iter_mut().for_each(|v| *v = T::zero());
         } else if norm_z > self.alpha * r {
-            let beta =
-                (self.alpha * norm_z + r) / (self.alpha.powi(2) + T::one());
+            let beta = (self.alpha * norm_z + r) / (self.alpha.powi(2) + T::one());
             x[..n - 1]
                 .iter_mut()
                 .for_each(|v| *v = *v * self.alpha * beta / norm_z);

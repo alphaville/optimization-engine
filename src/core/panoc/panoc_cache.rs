@@ -128,7 +128,10 @@ where
     /// The method panics if `akkt_tolerance` is nonpositive
     ///
     pub fn set_akkt_tolerance(&mut self, akkt_tolerance: T) {
-        assert!(akkt_tolerance > T::zero(), "akkt_tolerance must be positive");
+        assert!(
+            akkt_tolerance > T::zero(),
+            "akkt_tolerance must be positive"
+        );
         self.akkt_tolerance = Some(akkt_tolerance);
         self.gradient_u_previous = Some(vec![T::zero(); self.gradient_step.len()]);
     }
