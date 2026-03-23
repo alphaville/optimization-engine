@@ -11,6 +11,17 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       v0.11.1
      --------------------- -->
+## [v0.11.2] - Unreleased
+
+
+### Fixed
+
+- Rust solver supports generic float types
+
+
+<!-- ---------------------
+      v0.11.1
+     --------------------- -->
 ## [v0.11.1] - 2026-03-23 
 
 
