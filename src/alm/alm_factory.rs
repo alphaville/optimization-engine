@@ -353,9 +353,9 @@ where
                                                         //                    = JF2(u)'*F2(u)
 
             // grad += c * jf2u_times_f2u_aux
-            grad.iter_mut().zip(jf2u_times_f2u_aux.iter()).for_each(
-                |(gradi, jf2u_times_f2u_aux_i)| *gradi += c * *jf2u_times_f2u_aux_i,
-            );
+            grad.iter_mut()
+                .zip(jf2u_times_f2u_aux.iter())
+                .for_each(|(gradi, jf2u_times_f2u_aux_i)| *gradi += c * *jf2u_times_f2u_aux_i);
         }
         Ok(())
     }

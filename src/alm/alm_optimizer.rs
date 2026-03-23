@@ -1041,10 +1041,7 @@ mod tests {
         DummyConstraint,
     >;
 
-    fn make_dummy_alm_problem(
-        n1: usize,
-        n2: usize,
-    ) -> DummyAlmProblem {
+    fn make_dummy_alm_problem(n1: usize, n2: usize) -> DummyAlmProblem {
         // Main problem data
         let psi: DummyParametricCost = void_parameteric_cost;
         let d_psi: DummyParametricGradient = void_parameteric_gradient;

@@ -1145,7 +1145,12 @@ fn t_affine_space_f32() {
     let mut x = [1.0_f32, -2.0, -0.3, 0.5];
     affine_set.project(&mut x);
 
-    let x_correct = [1.888_564_3_f32, 5.629_857_f32, 1.796_204_9_f32, 2.888_363_f32];
+    let x_correct = [
+        1.888_564_3_f32,
+        5.629_857_f32,
+        1.796_204_9_f32,
+        2.888_363_f32,
+    ];
     assert!((x[0] - x_correct[0]).abs() < 1e-4_f32);
     assert!((x[1] - x_correct[1]).abs() < 1e-4_f32);
     assert!((x[2] - x_correct[2]).abs() < 1e-4_f32);
