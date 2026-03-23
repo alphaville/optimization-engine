@@ -261,6 +261,26 @@ mod tests {
     }
 
     #[test]
+    fn t_cholesky_f32() {
+        let a = vec![4.0_f32, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0];
+        let mut factorizer = CholeskyFactorizer::new(3);
+        factorizer.factorize(&a).unwrap();
+
+        let expected_l = [2.0_f32, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0];
+        unit_test_utils::nearly_equal_array(
+            &expected_l,
+            factorizer.cholesky_factor(),
+            1e-5,
+            1e-6,
+        );
+
+        let rhs = vec![-5.0_f32, 2.0, -3.0];
+        let x = factorizer.solve(&rhs).unwrap();
+        let expected_sol = [-280.25_f32, 77.0, -12.0];
+        unit_test_utils::nearly_equal_array(&expected_sol, &x, 1e-4, 1e-5);
+    }
+
+    #[test]
     fn t_cholesky_not_square_matrix() {
         let a = vec![1.0_f64, 2., 7., 5., 9.];
         let mut factorizer = CholeskyFactorizer::new(3);
