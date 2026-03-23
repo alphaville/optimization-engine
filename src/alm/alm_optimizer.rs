@@ -115,6 +115,9 @@ impl InnerProblemStatus {
 /// of $C$ and $\delta_{U}$, $\delta_{C^{\ast}}$ are the indicator functions of $U$ and $C^{\ast}$
 /// respectively.
 ///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
+///
 pub struct AlmOptimizer<
     'life,
     MappingAlm,
@@ -216,8 +219,14 @@ where
     ///   $\nabla_u \psi(u, \xi)$, $F_1(u)$ (if any), $F_2(u)$ (if any), and sets
     ///   $C$, $U$ and $Y$)
     ///
+    /// The scalar type `T` is inferred from `alm_cache`, `alm_problem`, and the
+    /// supplied closures and sets.
+    ///
     ///
     /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
     ///
     /// ```rust
     /// use optimization_engine::{alm::*, FunctionCallResult, core::{panoc::*, constraints}};
@@ -420,7 +429,7 @@ where
     ///
     /// # Panics
     ///
-    /// The method panics if the update factor is not larger than `1.0 + f64::EPSILON`
+    /// The method panics if the update factor is not larger than `1.0 + T::epsilon()`
     ///
     ///
     pub fn with_penalty_update_factor(mut self, penalty_update_factor: T) -> Self {
@@ -450,7 +459,7 @@ where
     /// # Panics
     ///
     /// The method panics if the specified tolerance update factor is not in the
-    /// interval from `f64::EPSILON` to `1.0 - f64::EPSILON`.
+    /// interval from `T::epsilon()` to `1.0 - T::epsilon()`.
     ///
     pub fn with_inner_tolerance_update_factor(mut self, inner_tolerance_update_factor: T) -> Self {
         assert!(
@@ -515,7 +524,7 @@ where
     /// # Panics
     ///
     /// The method panics if the specified sufficient decrease coefficient is not
-    /// in the range `(f64::EPSILON, 1.0 - f64::EPSILON)`
+    /// in the range `(T::epsilon(), 1.0 - T::epsilon())`
     ///
     pub fn with_sufficient_decrease_coefficient(
         mut self,
@@ -534,7 +543,7 @@ where
     ///
     /// # Arguments
     ///
-    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]`) of
+    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[T]`) of
     ///   length equal to `n1`
     ///
     /// # Returns
@@ -573,7 +582,7 @@ where
     /// # Panics
     ///
     /// The method panics if the specified initial penalty parameter is not
-    /// larger than `f64::EPSILON`
+    /// larger than `T::epsilon()`
     ///
     pub fn with_initial_penalty(self, c0: T) -> Self {
         assert!(
@@ -919,6 +928,9 @@ where
     /* ---------------------------------------------------------------------------- */
 
     /// Solve the specified ALM problem
+    ///
+    /// The scalar type of `u` is the same generic floating-point type `T` used by
+    /// the optimizer, typically `f64` or `f32`.
     ///
     ///
     pub fn solve(&mut self, u: &mut [T]) -> Result<AlmOptimizerStatus<T>, SolverError> {

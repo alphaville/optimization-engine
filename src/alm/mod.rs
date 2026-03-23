@@ -16,6 +16,10 @@
 //! the iterative procedure, such as the solution time, number of iterations,
 //! measures of accuracy and more, in the form of an [`AlmOptimizerStatus`]
 //!
+//! All public ALM types are generic over a scalar type `T`, which is typically
+//! `f64` or `f32`. The default is `f64`, so existing code can often omit `T`.
+//! The examples in this module use `f64` for brevity.
+//!
 //! When using `AlmOptimizer`,  the user is expected to provide a modified cost
 //! function, `psi` (see [`AlmOptimizer`] for details). This should not be a problem
 //! for users that use Optimization Engine via its Python or MATLAB interfaces.
@@ -42,6 +46,8 @@ pub use alm_problem::AlmProblem;
 
 /// Type of mappings $F_1(u)$ and $F_2(u)$
 ///
+/// The scalar type `T` is a floating-point type, typically `f64` or `f32`.
+///
 /// Mappings $F_1$ and $F_2$ are computed by functions with signature
 ///
 /// ```ignore
@@ -50,6 +56,8 @@ pub use alm_problem::AlmProblem;
 pub type MappingType<T = f64> = fn(&[T], &mut [T]) -> Result<(), crate::SolverError>;
 
 /// Type of the Jacobian of mappings $F_1$ and $F_2$
+///
+/// The scalar type `T` is a floating-point type, typically `f64` or `f32`.
 ///
 /// These are mappings $(u, d) \mapsto JF_1(u)^\top d$, for given vectors $u\in\mathbb{R}$
 /// and $d\in\mathbb{R}^{n_1}$ (similarly for $F_2$)
@@ -66,16 +74,25 @@ pub const NO_SET: Option<crate::constraints::NoConstraints> =
     None::<crate::constraints::NoConstraints>;
 
 /// Helper for the generic case where no mapping is provided.
+///
+/// This is useful when the scalar type is not the default `f64`, for example
+/// when using `f32`.
 pub fn no_mapping<T>() -> Option<MappingType<T>> {
     None::<MappingType<T>>
 }
 
 /// Helper for the generic case where no Jacobian mapping is provided.
+///
+/// This is useful when the scalar type is not the default `f64`, for example
+/// when using `f32`.
 pub fn no_jacobian_mapping<T>() -> Option<JacobianMappingType<T>> {
     None::<JacobianMappingType<T>>
 }
 
 /// Helper for the generic case where no set is provided.
+///
+/// This is useful when the scalar type is not the default `f64`, for example
+/// when using `f32`.
 pub fn no_set<T>() -> Option<crate::constraints::NoConstraints> {
     let _ = std::marker::PhantomData::<T>;
     None::<crate::constraints::NoConstraints>

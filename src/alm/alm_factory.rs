@@ -23,7 +23,7 @@ fn half<T: Float>() -> T {
 ///   by a function with signature:
 ///
 ///```rust,ignore
-///fn f(u: &[f64], cost: &mut f64) -> FunctionCallResult
+///fn f(u: &[T], cost: &mut T) -> FunctionCallResult
 ///```
 ///
 ///  where `cost` is updated with the value $f(u)$,
@@ -32,7 +32,7 @@ fn half<T: Float>() -> T {
 ///   which is computed by a function with signature
 ///
 /// ```rust,ignore
-/// fn df(u: &[f64], grad: &mut [f64]) -> FunctionCallResult
+/// fn df(u: &[T], grad: &mut [T]) -> FunctionCallResult
 /// ```
 ///
 /// where on exit `grad` stores the
@@ -42,7 +42,7 @@ fn half<T: Float>() -> T {
 ///   with signature
 ///
 /// ```rust,ignore
-/// fn mapping(u: &[f64], fu: &mut [f64]) -> FunctionCallResult
+/// fn mapping(u: &[T], fu: &mut [T]) -> FunctionCallResult
 /// ```
 ///
 /// - `JacobianMappingF1Trans` and `JacobianMappingF2Trans`: functions that compute
@@ -51,6 +51,9 @@ fn half<T: Float>() -> T {
 ///
 /// - `SetC`: A set $C\subseteq \mathbb{R}^{n_1}$, which is used in the definition
 ///   of the constraints $F_1(u) \in C$
+///
+/// - `T`: scalar floating-point type used throughout the ALM data, typically
+///   `f64` or `f32`
 ///
 /// The above are used to compute $\psi:\mathbb{R}^{n_u}\to\mathbb{R}$ for given
 /// $u\in\mathbb{R}^{n_u}$ and $\xi=(c, y)\in\mathbb{R}^{n_1+1}$, where $c\in\mathbb{R}$
@@ -70,6 +73,8 @@ fn half<T: Float>() -> T {
 /// $$
 ///
 /// where $t(u) = F_1(u) + \bar{c}^{-1}y$.
+///
+/// The default scalar type is `f64`.
 ///
 pub struct AlmFactory<
     MappingF1,
@@ -143,7 +148,12 @@ where
     /// - `set_c` (optional) set $C$ or `NO_SET`
     /// - `n2` image dimension of $F_2$ (can be 0)
     ///
+    /// The scalar type `T` is inferred from the supplied functions and set.
+    ///
     /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
     ///
     /// ```rust
     /// use optimization_engine::{constraints::Ball2, alm::*, FunctionCallResult};

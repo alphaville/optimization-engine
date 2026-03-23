@@ -26,6 +26,9 @@ use std::marker::PhantomData;
 ///   are mappings with smooth partial derivatives, and
 /// - $C\subseteq\mathbb{R}^{n_1}$ is a convex closed set on which we can easily compute projections.
 ///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
+///
 pub struct AlmProblem<
     MappingAlm,
     MappingPm,
@@ -124,7 +127,12 @@ where
     ///
     /// Instance of `AlmProblem`
     ///
+    /// The scalar type `T` is inferred from the closures and constraint types.
+    ///
     /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
     ///
     ///
     /// ```rust

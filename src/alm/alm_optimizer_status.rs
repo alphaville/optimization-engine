@@ -7,6 +7,9 @@ use num::Float;
 /// The idea is that only Optimization Engine can create optimizer
 /// `AlmOptimizerStatus` instances.
 ///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
+///
 #[derive(Debug)]
 pub struct AlmOptimizerStatus<T = f64>
 where

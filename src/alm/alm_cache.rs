@@ -14,7 +14,10 @@ fn default_initial_penalty<T: Float>() -> T {
 /// the algorithm *updates*.
 ///
 /// On the other hand, the problem data are provided in an instance
-/// of `AlmProblem`
+/// of `AlmProblem`.
+///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
 ///
 #[derive(Debug)]
 pub struct AlmCache<T = f64>
@@ -64,6 +67,8 @@ where
     /// - `panoc_cache`: an instance of `PANOCCache` that will be used by
     ///   the inner problem
     /// - `n1`, `n2`: range dimensions of mappings `F1` and `F2` respectively
+    ///
+    /// The scalar type `T` is inferred from `panoc_cache`.
     ///
     /// # Panics
     ///
