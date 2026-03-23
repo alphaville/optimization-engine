@@ -5,6 +5,10 @@
 //!
 //! Functions are provided as closures.
 //!
+//! The estimator is generic over a scalar type `T` satisfying [`num::Float`].
+//! In practice this means it can be used with floating-point slices such as
+//! `&[f64]` or `&[f32]`. The examples below use `f64` for simplicity.
+//!
 //! # Method
 //!
 //! This method computes a numerical approximation of the norm of the directional
@@ -52,7 +56,10 @@ fn norm2<T: Float>(a: &[T]) -> T {
     a.iter().fold(T::zero(), |sum, &x| sum + x * x).sqrt()
 }
 
-/// Structure for the computation of estimates of the Lipschitz constant of mappings
+/// Structure for the computation of estimates of the Lipschitz constant of mappings.
+///
+/// The scalar type `T` is generic and must implement [`num::Float`]. This allows
+/// the estimator to operate on either `f64`, `f32`, or another compatible float type.
 pub struct LipschitzEstimator<'a, T, F>
 where
     T: Float,
@@ -82,6 +89,11 @@ where
     F: Fn(&[T], &mut [T]) -> Result<(), SolverError>,
 {
     /// Creates a new instance of this structure
+    ///
+    /// The type parameter `T` is inferred from `u_`, `f_`, and `function_value_`.
+    /// For example, if those use `f64`, then this constructs a
+    /// `LipschitzEstimator<'_, f64, _>`; if they use `f32`, it constructs a
+    /// `LipschitzEstimator<'_, f32, _>`.
     ///
     /// # Arguments
     ///
@@ -120,7 +132,8 @@ where
     ///
     /// # Arguments
     ///
-    /// - `delta`: parameter delta (the default value is `1e-6`)
+    /// - `delta`: parameter delta of type `T` (the default value is `1e-6`
+    ///   converted to `T`)
     ///
     /// # Panics
     /// The method will panic if `delta` is non positive
@@ -136,7 +149,8 @@ where
     ///
     /// # Arguments
     ///
-    /// - `epsilon`: parameter epsilon  (the default value is `1e-6`)
+    /// - `epsilon`: parameter epsilon of type `T` (the default value is `1e-6`
+    ///   converted to `T`)
     ///
     /// # Panics
     /// The method will panic if `epsilon` is non positive
@@ -151,7 +165,7 @@ where
     ///
     /// During the computation of the local lipschitz constant at `u`,
     /// the value of the given function at `u` is computed and stored
-    /// internally. This method returns a pointer to that vector.
+    /// internally. This method returns a pointer to that vector as a slice of `T`.
     ///
     /// If `estimate_local_lipschitz` has not been computed, the result
     /// will point to a zero vector.
@@ -163,6 +177,7 @@ where
     /// Evaluates a local Lipschitz constant of a given function
     ///
     /// Functions are closures of type `F` as shown here.
+    /// The returned estimate has the same scalar type `T` as the input data.
     ///
     /// # Returns
     ///
