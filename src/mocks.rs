@@ -1,81 +1,106 @@
 use crate::{matrix_operations, SolverError};
+use num::Float;
+use std::iter::Sum;
+use std::ops::Mul;
 
-pub const SOLUTION_A: [f64; 2] = [-0.148_959_718_255_77, 0.133_457_867_273_39];
-pub const SOLUTION_HARD: [f64; 3] = [
-    -0.041_123_164_672_281,
-    -0.028_440_417_469_206,
-    0.000_167_276_757_790,
-];
+fn cast<T: Float>(value: f64) -> T {
+    T::from(value).expect("floating-point constant must be representable")
+}
 
-pub fn lipschitz_mock(u: &[f64], g: &mut [f64]) -> Result<(), SolverError> {
-    g[0] = 3.0 * u[0];
-    g[1] = 2.0 * u[1];
-    g[2] = 4.5;
+pub fn solution_a<T: Float>() -> [T; 2] {
+    [
+        cast::<T>(-0.148_959_718_255_77),
+        cast::<T>(0.133_457_867_273_39),
+    ]
+}
+
+pub fn solution_hard<T: Float>() -> [T; 3] {
+    [
+        cast::<T>(-0.041_123_164_672_281),
+        cast::<T>(-0.028_440_417_469_206),
+        cast::<T>(0.000_167_276_757_790),
+    ]
+}
+
+pub fn lipschitz_mock<T: Float>(u: &[T], g: &mut [T]) -> Result<(), SolverError> {
+    g[0] = cast::<T>(3.0) * u[0];
+    g[1] = cast::<T>(2.0) * u[1];
+    g[2] = cast::<T>(4.5);
     Ok(())
 }
 
-pub fn void_parameteric_cost(_u: &[f64], _p: &[f64], _cost: &mut f64) -> Result<(), SolverError> {
-    Ok(())
-}
-
-pub fn void_parameteric_gradient(
-    _u: &[f64],
-    _p: &[f64],
-    _grad: &mut [f64],
+pub fn void_parameteric_cost<T: Float>(
+    _u: &[T],
+    _p: &[T],
+    _cost: &mut T,
 ) -> Result<(), SolverError> {
     Ok(())
 }
 
-pub fn void_mapping(_u: &[f64], _result: &mut [f64]) -> Result<(), SolverError> {
+pub fn void_parameteric_gradient<T: Float>(
+    _u: &[T],
+    _p: &[T],
+    _grad: &mut [T],
+) -> Result<(), SolverError> {
     Ok(())
 }
 
-pub fn void_cost(_u: &[f64], _cost: &mut f64) -> Result<(), SolverError> {
+pub fn void_mapping<T: Float>(_u: &[T], _result: &mut [T]) -> Result<(), SolverError> {
     Ok(())
 }
 
-pub fn void_gradient(_u: &[f64], _grad: &mut [f64]) -> Result<(), SolverError> {
+pub fn void_cost<T: Float>(_u: &[T], _cost: &mut T) -> Result<(), SolverError> {
     Ok(())
 }
 
-pub fn my_cost(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    *cost = 0.5 * (u[0].powi(2) + 2. * u[1].powi(2) + 2.0 * u[0] * u[1]) + u[0] - u[1] + 3.0;
+pub fn void_gradient<T: Float>(_u: &[T], _grad: &mut [T]) -> Result<(), SolverError> {
     Ok(())
 }
 
-pub fn my_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
-    grad[0] = u[0] + u[1] + 1.0;
-    grad[1] = u[0] + 2. * u[1] - 1.0;
+pub fn my_cost<T: Float>(u: &[T], cost: &mut T) -> Result<(), SolverError> {
+    *cost = cast::<T>(0.5)
+        * (u[0].powi(2) + cast::<T>(2.0) * u[1].powi(2) + cast::<T>(2.0) * u[0] * u[1])
+        + u[0]
+        - u[1]
+        + cast::<T>(3.0);
     Ok(())
 }
 
-pub fn rosenbrock_cost(a: f64, b: f64, u: &[f64]) -> f64 {
+pub fn my_gradient<T: Float>(u: &[T], grad: &mut [T]) -> Result<(), SolverError> {
+    grad[0] = u[0] + u[1] + T::one();
+    grad[1] = u[0] + cast::<T>(2.0) * u[1] - T::one();
+    Ok(())
+}
+
+pub fn rosenbrock_cost<T: Float>(a: T, b: T, u: &[T]) -> T {
     (a - u[0]).powi(2) + b * (u[1] - u[0].powi(2)).powi(2)
 }
 
-pub fn rosenbrock_grad(a: f64, b: f64, u: &[f64], grad: &mut [f64]) {
-    grad[0] = 2.0 * u[0] - 2.0 * a - 4.0 * b * u[0] * (-u[0].powi(2) + u[1]);
-    grad[1] = b * (-2.0 * u[0].powi(2) + 2.0 * u[1]);
+pub fn rosenbrock_grad<T: Float>(a: T, b: T, u: &[T], grad: &mut [T]) {
+    grad[0] = cast::<T>(2.0) * u[0]
+        - cast::<T>(2.0) * a
+        - cast::<T>(4.0) * b * u[0] * (-u[0].powi(2) + u[1]);
+    grad[1] = b * (-cast::<T>(2.0) * u[0].powi(2) + cast::<T>(2.0) * u[1]);
 }
 
-pub fn hard_quadratic_cost(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    *cost = (4. * u[0].powi(2)) / 2.
-        + 5.5 * u[1].powi(2)
-        + 500.5 * u[2].powi(2)
-        + 5. * u[0] * u[1]
-        + 25. * u[0] * u[2]
-        + 5. * u[1] * u[2]
+pub fn hard_quadratic_cost<T: Float>(u: &[T], cost: &mut T) -> Result<(), SolverError> {
+    *cost = (cast::<T>(4.0) * u[0].powi(2)) / cast::<T>(2.0)
+        + cast::<T>(5.5) * u[1].powi(2)
+        + cast::<T>(500.5) * u[2].powi(2)
+        + cast::<T>(5.0) * u[0] * u[1]
+        + cast::<T>(25.0) * u[0] * u[2]
+        + cast::<T>(5.0) * u[1] * u[2]
         + u[0]
         + u[1]
         + u[2];
     Ok(())
 }
 
-pub fn hard_quadratic_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+pub fn hard_quadratic_gradient<T: Float>(u: &[T], grad: &mut [T]) -> Result<(), SolverError> {
     // norm(Hessian) = 1000.653 (Lipschitz gradient)
-    grad[0] = 4. * u[0] + 5. * u[1] + 25. * u[2] + 1.;
-    grad[1] = 5. * u[0] + 11. * u[1] + 5. * u[2] + 1.;
-    grad[2] = 25. * u[0] + 5. * u[1] + 1001. * u[2] + 1.;
+    grad[0] = cast::<T>(4.0) * u[0] + cast::<T>(5.0) * u[1] + cast::<T>(25.0) * u[2] + T::one();
+    grad[1] = cast::<T>(5.0) * u[0] + cast::<T>(11.0) * u[1] + cast::<T>(5.0) * u[2] + T::one();
+    grad[2] = cast::<T>(25.0) * u[0] + cast::<T>(5.0) * u[1] + cast::<T>(1001.0) * u[2] + T::one();
     Ok(())
 }
 
@@ -85,28 +110,27 @@ pub fn hard_quadratic_gradient(u: &[f64], grad: &mut [f64]) -> Result<(), Solver
 ///
 /// where `m` is the length of `xi`. It is assumed that the length of
 /// `u` is larger than the length of `xi`
-pub fn psi_cost_dummy(u: &[f64], xi: &[f64], cost: &mut f64) -> Result<(), SolverError> {
+pub fn psi_cost_dummy<T>(u: &[T], xi: &[T], cost: &mut T) -> Result<(), SolverError>
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
     let u_len = u.len();
     let xi_len = xi.len();
     assert!(u_len > xi_len);
-    let sum_u = u.iter().fold(0.0, |mut sum, ui| {
-        sum += ui;
-        sum
-    });
+    let sum_u = u.iter().fold(T::zero(), |sum, ui| sum + *ui);
     // psi_cost = 0.5*SUM(ui^2) + xi[0] * sum_u
-    *cost =
-        0.5 * u.iter().fold(0.0, |mut sum_of_squares, ui| {
-            sum_of_squares += ui.powi(2);
-            sum_of_squares
-        }) + xi[0] * sum_u;
+    *cost = cast::<T>(0.5)
+        * u.iter()
+            .fold(T::zero(), |sum_of_squares, ui| sum_of_squares + ui.powi(2))
+        + xi[0] * sum_u;
     // psi_cost += xi[1..m]'*u[0..m-1]
     let m = std::cmp::min(u_len, xi_len - 1);
-    *cost += matrix_operations::inner_product(&u[..m], &xi[1..=m]);
+    *cost = *cost + matrix_operations::inner_product(&u[..m], &xi[1..=m]);
     Ok(())
 }
 
 /// Gradient of `psi_cost`
-pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+pub fn psi_gradient_dummy<T: Float>(u: &[T], xi: &[T], grad: &mut [T]) -> Result<(), SolverError> {
     let u_len = u.len();
     let xi_len = xi.len();
     assert!(
@@ -115,11 +139,11 @@ pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(),
     );
     assert!(u_len == grad.len(), "u and grad must have equal lengths");
     grad.copy_from_slice(u);
-    grad.iter_mut().for_each(|grad_i| *grad_i += xi[0]);
+    grad.iter_mut().for_each(|grad_i| *grad_i = *grad_i + xi[0]);
     xi[1..]
         .iter()
         .zip(grad.iter_mut())
-        .for_each(|(xi_i, grad_i)| *grad_i += xi_i);
+        .for_each(|(xi_i, grad_i)| *grad_i = *grad_i + *xi_i);
     Ok(())
 }
 
@@ -132,11 +156,11 @@ pub fn psi_gradient_dummy(u: &[f64], xi: &[f64], grad: &mut [f64]) -> Result<(),
 ///
 /// It is `F1: R^3 --> R^2`
 ///
-pub fn mapping_f1_affine(u: &[f64], f1u: &mut [f64]) -> Result<(), SolverError> {
+pub fn mapping_f1_affine<T: Float>(u: &[T], f1u: &mut [T]) -> Result<(), SolverError> {
     assert!(u.len() == 3, "the length of u must be equal to 3");
     assert!(f1u.len() == 2, "the length of F1(u) must be equal to 2");
-    f1u[0] = 2.0 * u[0] + u[2] - 1.0;
-    f1u[1] = u[0] + 3.0 * u[1];
+    f1u[0] = cast::<T>(2.0) * u[0] + u[2] - T::one();
+    f1u[1] = u[0] + cast::<T>(3.0) * u[1];
     Ok(())
 }
 
@@ -150,16 +174,16 @@ pub fn mapping_f1_affine(u: &[f64], f1u: &mut [f64]) -> Result<(), SolverError> 
 ///              3*d2
 ///              d1        ]
 /// ```
-///  
-pub fn mapping_f1_affine_jacobian_product(
-    _u: &[f64],
-    d: &[f64],
-    res: &mut [f64],
+///
+pub fn mapping_f1_affine_jacobian_product<T: Float>(
+    _u: &[T],
+    d: &[T],
+    res: &mut [T],
 ) -> Result<(), SolverError> {
     assert!(d.len() == 2, "the length of d must be equal to 3");
     assert!(res.len() == 3, "the length of res must be equal to 3");
-    res[0] = 2.0 * d[0] + d[1];
-    res[1] = 3.0 * d[1];
+    res[0] = cast::<T>(2.0) * d[0] + d[1];
+    res[1] = cast::<T>(3.0) * d[1];
     res[2] = d[0];
     Ok(())
 }
@@ -169,15 +193,18 @@ pub fn mapping_f1_affine_jacobian_product(
 /// ```
 /// f0(u) = 0.5*u'*u + 1'*u
 /// ```
-pub fn f0(u: &[f64], cost: &mut f64) -> Result<(), SolverError> {
-    *cost = 0.5 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+pub fn f0<T>(u: &[T], cost: &mut T) -> Result<(), SolverError>
+where
+    T: Float + Sum<T> + Mul<T, Output = T>,
+{
+    *cost = cast::<T>(0.5) * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
     Ok(())
 }
 
-pub fn d_f0(u: &[f64], grad: &mut [f64]) -> Result<(), SolverError> {
+pub fn d_f0<T: Float>(u: &[T], grad: &mut [T]) -> Result<(), SolverError> {
     grad.iter_mut()
         .zip(u.iter())
-        .for_each(|(grad_i, u_i)| *grad_i = u_i + 1.0);
+        .for_each(|(grad_i, u_i)| *grad_i = *u_i + T::one());
     Ok(())
 }
 

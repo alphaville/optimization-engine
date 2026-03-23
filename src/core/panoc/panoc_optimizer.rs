@@ -123,10 +123,7 @@ where
     }
 
     /// Solves the optimization problem for decision variables of scalar type `T`.
-    ///
-    /// The returned [`SolverStatus`] stores the reported residual norm and cost
-    /// value as `f64`, so these values are converted from `T`.
-    pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus, SolverError> {
+    pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         let now = instant::Instant::now();
 
         /*
@@ -186,26 +183,21 @@ where
             exit_status,
             num_iter,
             now.elapsed(),
-            self.panoc_engine
-                .cache
-                .best_norm_gamma_fpr
-                .to_f64()
-                .expect("best norm gamma FPR must be representable as f64"),
-            best_cost_value
-                .to_f64()
-                .expect("best cost value must be representable as f64"),
+            self.panoc_engine.cache.best_norm_gamma_fpr,
+            best_cost_value,
         ))
     }
 }
 
-impl<'life, GradientType, ConstraintType, CostType> Optimizer
-    for PANOCOptimizer<'life, GradientType, ConstraintType, CostType, f64>
+impl<'life, GradientType, ConstraintType, CostType, T> Optimizer<T>
+    for PANOCOptimizer<'life, GradientType, ConstraintType, CostType, T>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint<f64> + 'life,
+    T: Float + LbfgsPrecision + Sum<T>,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult + 'life,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<T> + 'life,
 {
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+    fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         PANOCOptimizer::solve(self, u)
     }
 }

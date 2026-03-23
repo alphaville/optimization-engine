@@ -114,7 +114,7 @@ fn t_solve_fbs() {
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);
 
-    unit_test_utils::assert_nearly_equal_array(&mocks::SOLUTION_A, &u, 1e-4, 1e-5, "u");
+    unit_test_utils::assert_nearly_equal_array(&mocks::solution_a(), &u, 1e-4, 1e-5, "u");
 }
 
 #[test]
@@ -201,7 +201,8 @@ fn t_solve_fbs_f32() {
     let status = optimizer.solve(&mut u).unwrap();
 
     assert!(status.has_converged());
-    assert!(status.norm_fpr() < tolerance as f64);
-    assert!((u[0] - crate::mocks::SOLUTION_A[0] as f32).abs() < 1e-4);
-    assert!((u[1] - crate::mocks::SOLUTION_A[1] as f32).abs() < 1e-4);
+    let expected = crate::mocks::solution_a::<f32>();
+    assert!(status.norm_fpr() < tolerance);
+    assert!((u[0] - expected[0]).abs() < 1e-4);
+    assert!((u[1] - expected[1]).abs() < 1e-4);
 }

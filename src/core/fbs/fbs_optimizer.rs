@@ -94,10 +94,7 @@ where
     }
 
     /// Solves the optimization problem for decision variables of scalar type `T`.
-    ///
-    /// The returned [`SolverStatus`] stores the reported norm of the fixed-point
-    /// residual and cost value as `f64`, so these values are converted from `T`.
-    pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus, SolverError> {
+    pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         let now = instant::Instant::now();
 
         self.fbs_engine.init(u)?;
@@ -132,26 +129,21 @@ where
             },
             num_iter,
             now.elapsed(),
-            self.fbs_engine
-                .cache
-                .norm_fpr
-                .to_f64()
-                .expect("norm_fpr must be representable as f64"),
-            cost_value
-                .to_f64()
-                .expect("cost value must be representable as f64"),
+            self.fbs_engine.cache.norm_fpr,
+            cost_value,
         ))
     }
 }
 
-impl<'life, GradientType, ConstraintType, CostType> Optimizer
-    for FBSOptimizer<'life, GradientType, ConstraintType, CostType, f64>
+impl<'life, GradientType, ConstraintType, CostType, T> Optimizer<T>
+    for FBSOptimizer<'life, GradientType, ConstraintType, CostType, T>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult + 'life,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult + 'life,
-    ConstraintType: constraints::Constraint<f64> + 'life,
+    T: Float,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult + 'life,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult + 'life,
+    ConstraintType: constraints::Constraint<T> + 'life,
 {
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+    fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         FBSOptimizer::solve(self, u)
     }
 }

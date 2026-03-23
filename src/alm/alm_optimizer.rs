@@ -705,12 +705,12 @@ where
     ///
     /// # Returns
     ///
-    /// Returns an instance of `Result<SolverStatus, SolverError>`, where `SolverStatus`
+    /// Returns an instance of `Result<SolverStatus<T>, SolverError>`, where `SolverStatus`
     /// is the solver status of the inner problem and `SolverError` is a potential
     /// error in solving the inner problem.
     ///
     ///
-    fn solve_inner_problem(&mut self, u: &mut [T]) -> Result<SolverStatus, SolverError> {
+    fn solve_inner_problem(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         let alm_problem = &self.alm_problem; // Problem
         let alm_cache = &mut self.alm_cache; // ALM cache
 
@@ -866,10 +866,9 @@ where
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
         // we should keep solving.
-        self.solve_inner_problem(u).map(|status: SolverStatus| {
+        self.solve_inner_problem(u).map(|status: SolverStatus<T>| {
             let inner_iters = status.iterations();
-            self.alm_cache.last_inner_problem_norm_fpr =
-                T::from(status.norm_fpr()).expect("inner problem norm FPR must fit in T");
+            self.alm_cache.last_inner_problem_norm_fpr = status.norm_fpr();
             self.alm_cache.inner_iteration_count += inner_iters;
             inner_exit_status = status.exit_status();
         })?;

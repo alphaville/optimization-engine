@@ -3,6 +3,8 @@
 //!
 //!
 
+use num::Float;
+
 pub mod fbs;
 pub mod panoc;
 pub mod problem;
@@ -29,12 +31,15 @@ pub enum ExitStatus {
 }
 
 /// A general optimizer
-pub trait Optimizer {
+pub trait Optimizer<T = f64>
+where
+    T: Float,
+{
     /// solves a given problem and updates the initial estimate `u` with the solution
     ///
     /// Returns the solver status
     ///
-    fn solve(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError>;
+    fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError>;
 }
 
 /// Engine supporting an algorithm
