@@ -9,12 +9,12 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
-      v0.11.2
+      v0.12.0
      --------------------- -->
-## [v0.11.2] - Unreleased
+## [v0.12.0] - Unreleased
 
 
-### Fixed
+### Changed
 
 - Rust solver supports generic float types
 
