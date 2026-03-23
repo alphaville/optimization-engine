@@ -147,3 +147,61 @@ fn t_solve_fbs_many_times() {
         assert!(status.norm_fpr() < tolerance);
     }
 }
+
+#[test]
+fn t_fbs_step_no_constraints_f32() {
+    let no_constraints = constraints::NoConstraints::new();
+    let problem = Problem::new(
+        &no_constraints,
+        |u: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            grad[0] = u[0] + u[1] + 1.0;
+            grad[1] = u[0] + 2.0 * u[1] - 1.0;
+            Ok(())
+        },
+        |u: &[f32], cost: &mut f32| -> FunctionCallResult {
+            *cost = u[0] * u[0] + 2.0 * u[1] * u[1] + u[0] - u[1] + 3.0;
+            Ok(())
+        },
+    );
+    let gamma = 0.1_f32;
+    let tolerance = 1e-6_f32;
+
+    let mut fbs_cache = FBSCache::<f32>::new(NonZeroUsize::new(N_DIM).unwrap(), gamma, tolerance);
+    let mut fbs_engine = FBSEngine::new(problem, &mut fbs_cache);
+    let mut u = [1.0_f32, 3.0_f32];
+
+    assert!(fbs_engine.step(&mut u).unwrap());
+    assert!((u[0] - 0.5_f32).abs() < 1e-6);
+    assert!((u[1] - 2.4_f32).abs() < 1e-6);
+}
+
+#[test]
+fn t_solve_fbs_f32() {
+    let radius = 0.2_f32;
+    let box_constraints = constraints::Ball2::new(None, radius);
+    let problem = Problem::new(
+        &box_constraints,
+        |u: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            grad[0] = u[0] + u[1] + 1.0;
+            grad[1] = u[0] + 2.0 * u[1] - 1.0;
+            Ok(())
+        },
+        |u: &[f32], cost: &mut f32| -> FunctionCallResult {
+            *cost = u[0] * u[0] + 2.0 * u[1] * u[1] + u[0] - u[1] + 3.0;
+            Ok(())
+        },
+    );
+    let gamma = 0.1_f32;
+    let tolerance = 1e-6_f32;
+
+    let mut fbs_cache = FBSCache::<f32>::new(NonZeroUsize::new(N_DIM).unwrap(), gamma, tolerance);
+    let mut u = [0.0_f32; N_DIM];
+    let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache);
+
+    let status = optimizer.solve(&mut u).unwrap();
+
+    assert!(status.has_converged());
+    assert!(status.norm_fpr() < tolerance as f64);
+    assert!((u[0] - crate::mocks::SOLUTION_A[0] as f32).abs() < 1e-4);
+    assert!((u[1] - crate::mocks::SOLUTION_A[1] as f32).abs() < 1e-4);
+}
