@@ -95,6 +95,12 @@ where
         cache.norm_gamma_fpr = matrix_operations::norm2(&cache.gamma_fpr);
     }
 
+    /// Score the current feasible half step and cache it if it is the best so far.
+    pub(crate) fn cache_best_half_step(&mut self, u_current: &[f64]) {
+        self.compute_fpr(u_current);
+        self.cache.cache_best_half_step();
+    }
+
     /// Computes a gradient step; does not compute the gradient
     fn gradient_step(&mut self, u_current: &[f64]) {
         // take a gradient step:
@@ -123,12 +129,19 @@ where
             .for_each(|((grad_step, u), grad)| *grad_step = *u - gamma * *grad);
     }
 
+    /// Cache the squared norm of the current gradient.
+    fn cache_gradient_norm(&mut self) {
+        self.cache.gradient_u_norm_sq = matrix_operations::norm2_squared(&self.cache.gradient_u);
+    }
+
     /// Computes a projection on `gradient_step`
     fn half_step(&mut self) {
         let cache = &mut self.cache;
         // u_half_step ← projection(gradient_step)
         cache.u_half_step.copy_from_slice(&cache.gradient_step);
         self.problem.constraints.project(&mut cache.u_half_step);
+        cache.gradient_step_u_half_step_diff_norm_sq =
+            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
     }
 
     /// Computes an LBFGS direction; updates `cache.direction_lbfgs`
@@ -157,7 +170,7 @@ where
 
         // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
         cost_value + LIPSCHITZ_UPDATE_EPSILON * cost_value.abs() - inner_prod_grad_fpr
-            + (GAMMA_L_COEFF / (2.0 * gamma)) * (cache.norm_gamma_fpr.powi(2))
+            + (GAMMA_L_COEFF / (2.0 * gamma)) * cache.norm_gamma_fpr * cache.norm_gamma_fpr
     }
 
     /// Updates the estimate of the Lipscthiz constant
@@ -166,9 +179,7 @@ where
 
         // Compute the cost at the half step
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
-
-        // Compute the cost at u_current (save it in `cache.cost_value`)
-        (self.problem.cost)(u_current, &mut self.cache.cost_value)?;
+        debug_assert!(matrix_operations::is_finite(&[self.cache.cost_value]));
 
         let mut it_lipschitz_search = 0;
 
@@ -221,16 +232,12 @@ where
         let cache = &mut self.cache;
 
         // dist squared ← norm(gradient step - u half step)^2
-        let dist_squared =
-            matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
-
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2
         //            + 0.5 * dist squared / gamma
         //            - sigma * norm_gamma_fpr^2
-        let fbe = cache.cost_value
-            - 0.5 * cache.gamma * matrix_operations::norm2_squared(&cache.gradient_u)
-            + 0.5 * dist_squared / cache.gamma;
-        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr.powi(2);
+        let fbe = cache.cost_value - 0.5 * cache.gamma * cache.gradient_u_norm_sq
+            + 0.5 * cache.gradient_step_u_half_step_diff_norm_sq / cache.gamma;
+        let sigma_fpr_sq = cache.sigma * cache.norm_gamma_fpr * cache.norm_gamma_fpr;
         cache.rhs_ls = fbe - sigma_fpr_sq;
     }
 
@@ -247,20 +254,14 @@ where
         // point `u_plus`
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value)?;
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u)?;
+        self.cache_gradient_norm();
 
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
         self.half_step(); // u_half_step ← project(gradient_step)
 
-        // Compute: dist_squared ← norm(gradient_step - u_half_step)^2
-        let dist_squared = matrix_operations::norm2_squared_diff(
-            &self.cache.gradient_step,
-            &self.cache.u_half_step,
-        );
-
         // Update the LHS of the line search condition
-        self.cache.lhs_ls = self.cache.cost_value
-            - 0.5 * gamma * matrix_operations::norm2_squared(&self.cache.gradient_u)
-            + 0.5 * dist_squared / self.cache.gamma;
+        self.cache.lhs_ls = self.cache.cost_value - 0.5 * gamma * self.cache.gradient_u_norm_sq
+            + 0.5 * self.cache.gradient_step_u_half_step_diff_norm_sq / self.cache.gamma;
 
         Ok(self.cache.lhs_ls > self.cache.rhs_ls)
     }
@@ -270,6 +271,7 @@ where
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
+        self.cache_gradient_norm();
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
 
@@ -294,6 +296,13 @@ where
         u_current.copy_from_slice(&self.cache.u_plus);
 
         Ok(())
+    }
+
+    /// Compute the cost value at the best cached feasible half step.
+    pub(crate) fn cost_value_at_best_half_step(&mut self) -> Result<f64, SolverError> {
+        let mut cost = 0.0;
+        (self.problem.cost)(&self.cache.best_u_half_step, &mut cost)?;
+        Ok(cost)
     }
 }
 
@@ -320,7 +329,7 @@ where
         self.cache.cache_previous_gradient();
 
         // compute the fixed point residual
-        self.compute_fpr(u_current);
+        self.cache_best_half_step(u_current);
 
         // exit if the exit conditions are satisfied (||gamma*fpr|| < eps and,
         // if activated, ||gamma*r + df - df_prev|| < eps_akkt)
@@ -353,6 +362,7 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
+        self.cache_gradient_norm();
         self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, MIN_L_ESTIMATE);
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
@@ -367,12 +377,14 @@ where
 /* --------------------------------------------------------------------------------------------- */
 #[cfg(test)]
 mod tests {
+    use std::cell::Cell;
 
     use crate::constraints;
     use crate::core::panoc::panoc_engine::PANOCEngine;
     use crate::core::panoc::*;
     use crate::core::Problem;
     use crate::mocks;
+    use crate::FunctionCallResult;
 
     #[test]
     fn t_compute_fpr() {
@@ -537,6 +549,13 @@ mod tests {
         panoc_engine.cache.cost_value = 24.0;
         panoc_engine.cache.gamma = 2.34;
         panoc_engine.cache.gradient_u.copy_from_slice(&[2.4, -9.7]);
+        panoc_engine.cache.gradient_u_norm_sq =
+            crate::matrix_operations::norm2_squared(&panoc_engine.cache.gradient_u);
+        panoc_engine.cache.gradient_step_u_half_step_diff_norm_sq =
+            crate::matrix_operations::norm2_squared_diff(
+                &panoc_engine.cache.gradient_step,
+                &panoc_engine.cache.u_half_step,
+            );
         panoc_engine.cache.sigma = 0.066;
         panoc_engine.cache.norm_gamma_fpr = 2.5974;
 
@@ -550,6 +569,42 @@ mod tests {
             1e-10,
             1e-8,
             "rhs_ls is wrong",
+        );
+    }
+
+    #[test]
+    fn t_update_lipschitz_constant_reuses_cached_cost_at_current_iterate() {
+        let n = 2;
+        let mem = 5;
+        let bounds = constraints::NoConstraints::new();
+        let cost_calls = Cell::new(0usize);
+        let cost = |u: &[f64], c: &mut f64| -> FunctionCallResult {
+            cost_calls.set(cost_calls.get() + 1);
+            *c = 0.5 * crate::matrix_operations::norm2_squared(u);
+            Ok(())
+        };
+        let grad = |u: &[f64], g: &mut [f64]| -> FunctionCallResult {
+            g.copy_from_slice(u);
+            Ok(())
+        };
+        let problem = Problem::new(&bounds, grad, cost);
+        let mut panoc_cache = PANOCCache::new(n, 1e-6, mem);
+        let mut panoc_engine = PANOCEngine::new(problem, &mut panoc_cache);
+
+        let u_current = [1.0, -2.0];
+        panoc_engine.cache.cost_value = 2.5;
+        panoc_engine.cache.u_half_step.copy_from_slice(&[0.1, -0.1]);
+        panoc_engine.cache.gradient_u.copy_from_slice(&u_current);
+        panoc_engine.cache.gamma = 0.5;
+        panoc_engine.cache.lipschitz_constant = 1.9;
+        panoc_engine.compute_fpr(&u_current);
+
+        panoc_engine.update_lipschitz_constant(&u_current).unwrap();
+
+        assert_eq!(
+            1,
+            cost_calls.get(),
+            "update_lipschitz_constant should only evaluate the half-step cost"
         );
     }
 }

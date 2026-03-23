@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Note: This is the main Changelog file for the Rust solver. The Changelog file for the Python interface (`opengen`) can be found in [/open-codegen/CHANGELOG.md](open-codegen/CHANGELOG.md)
 
+
+<!-- ---------------------
+      v0.11.1
+     --------------------- -->
+## [v0.11.1] - 2026-03-23 
+
+
+### Fixed
+
+- Return best PANOC half-step on early exit (issue #325)
+
+
 <!-- ---------------------
       v0.11.0
      --------------------- -->
@@ -330,6 +342,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[v0.11.1]: https://github.com/alphaville/optimization-engine/compare/v0.11.0...v0.11.1
 [v0.11.0]: https://github.com/alphaville/optimization-engine/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/alphaville/optimization-engine/compare/v0.9.1...v0.10.0
 [v0.9.1]: https://github.com/alphaville/optimization-engine/compare/v0.9.0...v0.9.1
