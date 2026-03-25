@@ -7,6 +7,9 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+
+# tells CMake's FindPython3 to prefer a venv if one is active
+# (instead of the system-wide python)
 set(Python3_FIND_VIRTUALENV FIRST)
 if(NOT Python3_EXECUTABLE AND DEFINED ENV{VIRTUAL_ENV})
   set(_open_python3_executable "$ENV{VIRTUAL_ENV}/bin/python")

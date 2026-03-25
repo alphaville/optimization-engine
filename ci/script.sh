@@ -75,6 +75,11 @@ run_python_ros2_tests() {
     fi
     set -u
 
+    if ! python -c "import em" >/dev/null 2>&1; then
+        # rosidl_adapter imports the `em` module from Empy during message generation
+        python -m pip install empy
+    fi
+
     command -v ros2 >/dev/null
     command -v colcon >/dev/null
     python -W ignore test/test_ros2.py -v
