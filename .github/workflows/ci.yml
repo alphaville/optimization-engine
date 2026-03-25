@@ -43,7 +43,9 @@ jobs:
 
   python_tests:
     name: Python tests (${{ matrix.name }})
-    needs: rust_tests
+    needs:
+      - rust_tests
+      - ros2_tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -101,6 +103,37 @@ jobs:
       - name: Run Python tests and generated Clippy checks
         if: runner.os == 'macOS'
         run: bash ./ci/script.sh python-tests
+
+  ros2_tests:
+    name: ROS2 tests
+    needs: rust_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ubuntu:noble
+    env:
+      DO_DOCKER: 0
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: open-codegen/setup.py
+
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Run ROS2 Python tests
+        run: bash ./ci/script.sh ros2-tests
 
   ocp_tests:
     name: OCP tests (${{ matrix.name }})

@@ -47,5 +47,6 @@ The generated benchmark looks like this:
 Run 
 ```
 python -W ignore test/test_constraints.py -v
+python -W ignore test/test_ros2.py -v
 python -W ignore test/test.py -v
 ```

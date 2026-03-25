@@ -60,6 +60,11 @@ run_python_core_tests() {
     generated_clippy_tests
 }
 
+run_python_ros2_tests() {
+    export PYTHONPATH=.
+    python -W ignore test/test_ros2.py -v
+}
+
 run_python_ocp_tests() {
     export PYTHONPATH=.
     python -W ignore test/test_ocp.py -v
@@ -83,6 +88,11 @@ main() {
                 echo "Running Python tests and generated Clippy tests"
                 setup_python_test_env
                 run_python_core_tests
+                ;;
+            ros2-tests)
+                echo "Running ROS2 Python tests"
+                setup_python_test_env
+                run_python_ros2_tests
                 ;;
             ocp-tests)
                 echo "Running OCP Python tests"
