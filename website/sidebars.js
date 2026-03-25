@@ -26,7 +26,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Rust',
-      items: ['openrust-basic', 'openrust-alm', 'openrust-features'],
+      items: ['openrust-basic', 'openrust-alm', 'openrust-features', 'openrust-arithmetic'],
     },
     {
       type: 'category',
