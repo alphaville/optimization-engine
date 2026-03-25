@@ -100,14 +100,22 @@ class Ros2BuildTestCase(unittest.TestCase):
     @staticmethod
     def _bash(command, cwd, env=None, timeout=180, check=True):
         """Run a bash command and return the completed process."""
-        return subprocess.run(
+        result = subprocess.run(
             ["/bin/bash", "-lc", command],
             cwd=cwd,
             env=env,
             text=True,
             capture_output=True,
             timeout=timeout,
-            check=check)
+            check=False)
+        if check and result.returncode != 0:
+            raise AssertionError(
+                "Command failed with exit code "
+                f"{result.returncode}: {command}\n"
+                f"stdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}"
+            )
+        return result
 
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
