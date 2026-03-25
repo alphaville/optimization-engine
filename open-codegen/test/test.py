@@ -173,6 +173,36 @@ class RustBuildTestCase(unittest.TestCase):
             .build()
 
     @classmethod
+    def setUpRos2PackageGeneration(cls):
+        u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
+        p = cs.MX.sym("p", 2)  # parameter (np = 2)
+        phi = og.functions.rosenbrock(u, p)
+        c = cs.vertcat(1.5 * u[0] - u[1],
+                       cs.fmax(0.0, u[2] - u[3] + 0.1))
+        bounds = og.constraints.Ball2(None, 1.5)
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("rosenbrock_ros2")
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds) \
+            .with_penalty_constraints(c)
+        ros_config = og.config.RosConfiguration() \
+            .with_package_name("parametric_optimizer_ros2") \
+            .with_node_name("open_node_ros2") \
+            .with_rate(35) \
+            .with_description("really cool ROS2 node")
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path())  \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
+            .with_build_c_bindings()  \
+            .with_ros2(ros_config)
+        og.builder.OpEnOptimizerBuilder(problem,
+                                        metadata=meta,
+                                        build_configuration=build_config,
+                                        solver_configuration=cls.solverConfig()) \
+            .build()
+
+    @classmethod
     def setUpOnlyParametricF2(cls):
         u = cs.MX.sym("u", 5)  # decision variable (nu = 5)
         p = cs.MX.sym("p", 3)  # parameter (np = 3)
@@ -231,12 +261,23 @@ class RustBuildTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.setUpPythonBindings()
         cls.setUpRosPackageGeneration()
+        cls.setUpRos2PackageGeneration()
         cls.setUpOnlyF1()
         cls.setUpOnlyF2()
         cls.setUpOnlyF2(is_preconditioned=True)
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
         cls.setUpHalfspace()
+
+    def test_ros2_package_generation(self):
+        ros2_dir = os.path.join(
+            RustBuildTestCase.TEST_DIR,
+            "rosenbrock_ros2",
+            "parametric_optimizer_ros2")
+        self.assertTrue(os.path.isfile(os.path.join(ros2_dir, "package.xml")))
+        self.assertTrue(os.path.isfile(os.path.join(ros2_dir, "CMakeLists.txt")))
+        self.assertTrue(os.path.isfile(
+            os.path.join(ros2_dir, "launch", "open_optimizer.launch.py")))
 
     def test_python_bindings(self):
         import sys

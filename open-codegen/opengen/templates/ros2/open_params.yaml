@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    result_topic: "{{ros.publisher_subtopic}}"
+    params_topic: "{{ros.subscriber_subtopic}}"
+    rate: {{ros.rate}}
