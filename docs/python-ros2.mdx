@@ -35,7 +35,7 @@ In ROS2, these settings are stored using the ROS2 parameter-file format in `conf
   ros__parameters:
     result_topic: "result"
     params_topic: "parameters"
-    rate: 10
+    rate: 10.0
 ```
 
 ## Code generation
@@ -118,7 +118,7 @@ In a second terminal:
 source install/setup.bash
 ros2 topic pub --once /parameters parametric_optimizer_ros2/msg/OptimizationParameters \
     "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}"
-ros2 topic echo /result
+ros2 topic echo /result --once
 ```
 
 </TabItem>
@@ -128,7 +128,7 @@ ros2 topic echo /result
 source install/setup.zsh
 ros2 topic pub --once /parameters parametric_optimizer_ros2/msg/OptimizationParameters \
     "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}"
-ros2 topic echo /result
+ros2 topic echo /result --once
 ```
 
 </TabItem>
@@ -191,18 +191,18 @@ ros2 launch parametric_optimizer_ros2 open_optimizer.launch.py
   def generate_launch_description():
       return LaunchDescription([
           Node(
-              package="custom_parametric_optimizer_ros2",
-              executable="custom_open_node_ros2",
-              name="custom_open_node_ros2",
+              package="parametric_optimizer_ros2",
+              executable="open_node_ros2",
+              name="open_node_ros2",
               output="screen",
               parameters=[PathJoinSubstitution([
-                  FindPackageShare("custom_parametric_optimizer_ros2"),
+                  FindPackageShare("parametric_optimizer_ros2"),
                   "config",
                   "open_params.yaml",
               ])],
           )
       ])
-    ```
+  ```
 </details>
 
 The launch file starts the auto-generated node and loads its parameters from `config/open_params.yaml`, where you can adjust settings such as the input topic, output topic, and node rate.

@@ -10,7 +10,7 @@ From within the folder `{{ros.package_name}}`, compile with:
 ```bash
 colcon build --packages-select {{ros.package_name}}
 source install/setup.bash 
-# or source install/setup.zsh on MacOS
+# or source install/setup.zsh if you are using zsh
 ```
 
 If you want to activate logging (recommended), do
@@ -31,6 +31,22 @@ the node is running.
 source install/setup.bash 
 # or: source install/setup.zsh
 ros2 run {{ros.package_name}} {{ros.node_name}}
+```
+
+If ROS2 cannot write to its default log directory, set an explicit writable log
+path:
+
+```bash
+mkdir -p .ros_log
+export ROS_LOG_DIR="$PWD/.ros_log"
+```
+
+If the node starts but does not appear in the ROS2 graph, try forcing Fast DDS
+in both terminals before sourcing the generated workspace and running any
+`ros2` commands:
+
+```bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ```
 
 In a second terminal, source the same environment and verify discovery:
@@ -58,7 +74,7 @@ The result will be announced on the configured result topic
 (default: `/{{ros.publisher_subtopic}}`):
 
 ```bash
-ros2 topic echo /{{ros.publisher_subtopic}}
+ros2 topic echo /{{ros.publisher_subtopic}} --once
 ```
 
 To get the optimal solution you can do:
@@ -66,6 +82,15 @@ To get the optimal solution you can do:
 ```bash
 ros2 topic echo /{{ros.publisher_subtopic}} --field solution
 ```
+
+You can also start the node using the generated launch file:
+
+```bash
+ros2 launch {{ros.package_name}} open_optimizer.launch.py
+```
+
+The launch file loads its runtime parameters from
+[`config/open_params.yaml`](config/open_params.yaml).
 
 
 ## Messages
