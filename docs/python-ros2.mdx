@@ -134,6 +134,41 @@ ros2 topic echo /result
 </TabItem>
 </Tabs>
 
+If ROS2 cannot write to its default log directory, set an explicit writable log path before running the node:
+
+```bash
+mkdir -p .ros_log
+export ROS_LOG_DIR="$PWD/.ros_log"
+```
+
+:::note Troubleshooting
+On some systems, the generated node may start but not appear in the ROS2 graph. If `ros2 topic pub` keeps printing `Waiting for at least 1 matching subscription(s)...`, set
+`RMW_IMPLEMENTATION=rmw_fastrtps_cpp` in both terminals before sourcing the generated workspace and running any `ros2` commands:
+
+```bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+```
+
+This should only be needed if ROS2 discovery is not working correctly with your default middleware.
+:::
+
+To verify that the node is visible, you can run:
+
+```bash
+ros2 node list --no-daemon --spin-time 5
+ros2 topic list --no-daemon --spin-time 5
+```
+
+The first command should list the running node, for example `/open_node_ros2`. The second should list the available topics, including `/parameters` and `/result`.
+
+To read a single optimizer response, you can use:
+
+```bash
+ros2 topic echo /result --once
+```
+
+This subscribes to the result topic, prints one `OptimizationResult` message, and then exits.
+
 Instead of starting the node with `ros2 run`, you can also use the generated launch file:
 
 ```bash
