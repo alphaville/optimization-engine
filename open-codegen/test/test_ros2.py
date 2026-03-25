@@ -1,8 +1,10 @@
 import logging
 import os
+import shlex
 import signal
 import shutil
 import subprocess
+import sys
 import time
 import unittest
 
@@ -166,10 +168,12 @@ class Ros2BuildTestCase(unittest.TestCase):
         ros2_dir = self.ros2_package_dir()
         env = self.ros2_test_env()
         shell_path, setup_script = self.ros2_shell()
+        python_executable = shlex.quote(sys.executable)
 
         self._run_shell(
             f"source {setup_script} >/dev/null 2>&1 || true; "
-            f"colcon build --packages-select {self.PACKAGE_NAME}",
+            f"colcon build --packages-select {self.PACKAGE_NAME} "
+            f"--cmake-args -DPython3_EXECUTABLE={python_executable}",
             cwd=ros2_dir,
             env=env,
             timeout=600)
