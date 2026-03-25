@@ -28,6 +28,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Install container bootstrap dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            curl \
+            ca-certificates \
+            git \
+            gnupg2 \
+            locales \
+            lsb-release
+
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
