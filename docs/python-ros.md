@@ -5,6 +5,10 @@ sidebar_label: ROS packages
 description: Code generation for ROS packages using opengen
 ---
 
+:::note Info
+Opengen now supports [ROS2](./python-ros2).
+:::
+
 ## What is ROS
 The [Robot Operating System](https://www.ros.org/) (ROS) is a collection of tools and libraries, as well as a framework that facilitates the data exchange among them. ROS is popular in the robotics community and is used to design and operate modern robotic systems.
 
@@ -21,7 +25,7 @@ OpEn (with opengen version `0.5.0` or newer) can generate ready-to-use ROS packa
 
 The input parameters message follows the following specification:
 
-```
+```msg
 float64[]      parameter         # parameter p (mandatory)
 float64[]      initial_guess     # u0 (optional/recommended)
 float64[]      initial_y         # y0 (optional)
@@ -40,9 +44,28 @@ initial_y: []
 
 #### Result
 
-A result message (`OptimizationResult`) contains the solution of the parametric optimization problem and details about the solution procedure such as the number of inner/outer iterations and the solution time. The result of an auto-generated OpEn node is a message with the following specification:
+A result message (`OptimizationResult`) contains the solution of the parametric optimization problem and details about the solution procedure such as the number of inner/outer iterations and the solution time. 
+An example of such a message is given below:
 
+```yaml
+solution: [0.5317, 0.7975, 0.6761, 0.7760, 0.5214]
+inner_iterations: 159
+outer_iterations: 5
+status: 0
+norm_fpr: 2.142283848e-06
+penalty: 111250.0
+lagrange_multipliers: []
+infeasibility_f1: 0.0
+infeasibility_f2: 2.44131958366e-05
+solve_time_ms: 2.665959
 ```
+
+<details>
+<summary>Specification of <code>OptimizationResult</code></summary>
+
+The message `OptimizationResult` is described by the following message file 
+
+```msg
 # Constants match the enumeration of status codes
 uint8 STATUS_CONVERGED=0
 uint8 STATUS_NOT_CONVERGED_ITERATIONS=1
@@ -63,20 +86,7 @@ float64      infeasibility_f2      # infeasibility wrt F2
 float64      solve_time_ms         # solution time in ms
 ```
 
-An example of such a message is given below:
-
-```yaml
-solution: [0.5317, 0.7975, 0.6761, 0.7760, 0.5214]
-inner_iterations: 159
-outer_iterations: 5
-status: 0
-norm_fpr: 2.142283848e-06
-penalty: 111250.0
-lagrange_multipliers: []
-infeasibility_f1: 0.0
-infeasibility_f2: 2.44131958366e-05
-solve_time_ms: 2.665959
-```
+</details>
 
 ### Configuration Parameters
 
