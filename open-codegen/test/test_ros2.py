@@ -12,6 +12,154 @@ import casadi.casadi as cs
 import opengen as og
 
 
+class BuildConfigurationRos2TestCase(unittest.TestCase):
+    """Unit tests for ROS2-specific build configuration behavior."""
+
+    def test_with_ros2_sets_ros2_config_and_enables_c_bindings(self):
+        """`with_ros2` should store the ROS2 config and enable C bindings."""
+        ros2_config = og.config.RosConfiguration().with_package_name("unit_test_ros2_pkg")
+        build_config = og.config.BuildConfiguration().with_ros2(ros2_config)
+
+        self.assertIs(build_config.ros2_config, ros2_config)
+        self.assertIsNone(build_config.ros_config)
+        self.assertTrue(build_config.build_c_bindings)
+
+        build_dict = build_config.to_dict()
+        self.assertIn("ros2_config", build_dict)
+        self.assertNotIn("ros_config", build_dict)
+        self.assertEqual("unit_test_ros2_pkg", build_dict["ros2_config"]["package_name"])
+
+    def test_ros_and_ros2_configs_clear_each_other(self):
+        """Selecting ROS1 or ROS2 should clear the other package configuration."""
+        ros1_config = og.config.RosConfiguration().with_package_name("unit_test_ros_pkg")
+        ros2_config = og.config.RosConfiguration().with_package_name("unit_test_ros2_pkg")
+        build_config = og.config.BuildConfiguration()
+
+        build_config.with_ros2(ros2_config)
+        self.assertIs(build_config.ros2_config, ros2_config)
+        self.assertIsNone(build_config.ros_config)
+
+        build_config.with_ros(ros1_config)
+        self.assertIs(build_config.ros_config, ros1_config)
+        self.assertIsNone(build_config.ros2_config)
+
+        build_config.with_ros2(ros2_config)
+        self.assertIs(build_config.ros2_config, ros2_config)
+        self.assertIsNone(build_config.ros_config)
+
+
+class Ros2TemplateCustomizationTestCase(unittest.TestCase):
+    """Generation tests for custom ROS2 configuration values."""
+
+    TEST_DIR = ".python_test_build"
+    OPTIMIZER_NAME = "rosenbrock_ros2_custom"
+    PACKAGE_NAME = "custom_parametric_optimizer_ros2"
+    NODE_NAME = "custom_open_node_ros2"
+    DESCRIPTION = "custom ROS2 package for generation tests"
+    RESULT_TOPIC = "custom_result_topic"
+    PARAMS_TOPIC = "custom_params_topic"
+    RATE = 17.5
+    RESULT_QUEUE_SIZE = 11
+    PARAMS_QUEUE_SIZE = 13
+
+    @staticmethod
+    def get_open_local_absolute_path():
+        """Return the absolute path to the local OpEn repository root."""
+        cwd = os.getcwd()
+        return cwd.split('open-codegen')[0]
+
+    @classmethod
+    def solverConfig(cls):
+        """Return a solver configuration shared by the ROS2 generation tests."""
+        return Ros2BuildTestCase.solverConfig()
+
+    @classmethod
+    def setUpCustomRos2PackageGeneration(cls):
+        """Generate a ROS2 package with non-default configuration values."""
+        u = cs.MX.sym("u", 5)
+        p = cs.MX.sym("p", 2)
+        phi = og.functions.rosenbrock(u, p)
+        c = cs.vertcat(1.5 * u[0] - u[1],
+                       cs.fmax(0.0, u[2] - u[3] + 0.1))
+        bounds = og.constraints.Ball2(None, 1.5)
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name(cls.OPTIMIZER_NAME)
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds) \
+            .with_penalty_constraints(c)
+        ros_config = og.config.RosConfiguration() \
+            .with_package_name(cls.PACKAGE_NAME) \
+            .with_node_name(cls.NODE_NAME) \
+            .with_description(cls.DESCRIPTION) \
+            .with_rate(cls.RATE) \
+            .with_queue_sizes(cls.RESULT_QUEUE_SIZE, cls.PARAMS_QUEUE_SIZE) \
+            .with_publisher_subtopic(cls.RESULT_TOPIC) \
+            .with_subscriber_subtopic(cls.PARAMS_TOPIC)
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=cls.get_open_local_absolute_path()) \
+            .with_build_directory(cls.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
+            .with_build_c_bindings() \
+            .with_ros2(ros_config)
+        og.builder.OpEnOptimizerBuilder(problem,
+                                        metadata=meta,
+                                        build_configuration=build_config,
+                                        solver_configuration=cls.solverConfig()) \
+            .build()
+
+    @classmethod
+    def setUpClass(cls):
+        """Generate the custom ROS2 package once before running tests."""
+        cls.setUpCustomRos2PackageGeneration()
+
+    @classmethod
+    def ros2_package_dir(cls):
+        """Return the filesystem path to the generated custom ROS2 package."""
+        return os.path.join(
+            cls.TEST_DIR,
+            cls.OPTIMIZER_NAME,
+            cls.PACKAGE_NAME)
+
+    def test_custom_ros2_configuration_is_rendered_into_generated_files(self):
+        """Custom ROS2 config values should appear in the generated package files."""
+        ros2_dir = self.ros2_package_dir()
+
+        with open(os.path.join(ros2_dir, "package.xml"), encoding="utf-8") as f:
+            package_xml = f.read()
+        self.assertIn(f"<name>{self.PACKAGE_NAME}</name>", package_xml)
+        self.assertIn(f"<description>{self.DESCRIPTION}</description>", package_xml)
+
+        with open(os.path.join(ros2_dir, "include", "open_optimizer.hpp"), encoding="utf-8") as f:
+            optimizer_header = f.read()
+        self.assertIn(f'#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_NODE_NAME "{self.NODE_NAME}"',
+                      optimizer_header)
+        self.assertIn(f'#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_RESULT_TOPIC "{self.RESULT_TOPIC}"',
+                      optimizer_header)
+        self.assertIn(f'#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_PARAMS_TOPIC "{self.PARAMS_TOPIC}"',
+                      optimizer_header)
+        self.assertIn(f"#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_RATE {self.RATE}",
+                      optimizer_header)
+        self.assertIn(
+            f"#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_RESULT_TOPIC_QUEUE_SIZE {self.RESULT_QUEUE_SIZE}",
+            optimizer_header)
+        self.assertIn(
+            f"#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_PARAMS_TOPIC_QUEUE_SIZE {self.PARAMS_QUEUE_SIZE}",
+            optimizer_header)
+
+        with open(os.path.join(ros2_dir, "config", "open_params.yaml"), encoding="utf-8") as f:
+            params_yaml = f.read()
+        self.assertIn(f'result_topic: "{self.RESULT_TOPIC}"', params_yaml)
+        self.assertIn(f'params_topic: "{self.PARAMS_TOPIC}"', params_yaml)
+        self.assertIn(f"rate: {self.RATE}", params_yaml)
+
+        with open(os.path.join(ros2_dir, "launch", "open_optimizer.launch.py"), encoding="utf-8") as f:
+            launch_file = f.read()
+        self.assertIn(f'package="{self.PACKAGE_NAME}"', launch_file)
+        self.assertIn(f'executable="{self.NODE_NAME}"', launch_file)
+        self.assertIn(f'name="{self.NODE_NAME}"', launch_file)
+        self.assertIn(f'FindPackageShare("{self.PACKAGE_NAME}")', launch_file)
+
+
 class Ros2BuildTestCase(unittest.TestCase):
     """Integration tests for auto-generated ROS2 packages."""
 
