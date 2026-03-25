@@ -4,9 +4,30 @@ set -eu
 # This script facilitates releasing a new version of opengen to PyPI.
 # It expects a local virtual environment at ./venv with publishing tools.
 
-echo "[OpEnGen] Checking out master"
-git checkout master
-git pull origin master
+version=$(cat VERSION)
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+is_alpha_version=false
+case "$version" in
+    *a[0-9]*)
+        is_alpha_version=true
+        ;;
+esac
+
+if [ "$current_branch" != "master" ] && [ "$is_alpha_version" = false ]; then
+    echo "[OpEnGen] Warning: version $version is not an alpha release and the current branch is '$current_branch' (not 'master')."
+    printf "Proceed anyway? [y/N] "
+    read -r response
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            echo "[OpEnGen] Proceeding from branch '$current_branch'"
+            ;;
+        *)
+            echo "[OpEnGen] Publish cancelled"
+            exit 0
+            ;;
+    esac
+fi
 
 echo "[OpEnGen] Cleaning previous build artifacts"
 rm -rf ./build ./dist ./opengen.egg-info
@@ -23,7 +44,7 @@ python -m build
 echo "[OpEnGen] Checking distributions with twine"
 python -m twine check dist/*
 
-echo "[OpEnGen] Uploading to PyPI..."
+echo "[OpEnGen] You are about to publish version $version from branch '$current_branch'."
 printf "Are you sure? [y/N] "
 read -r response
 case "$response" in
@@ -37,6 +58,5 @@ case "$response" in
 esac
 
 echo "[OpEnGen] Don't forget to create a tag; run:"
-version=$(cat VERSION)
 echo "\$ git tag -a opengen-$version -m 'opengen-$version'"
 echo "\$ git push --tags"
