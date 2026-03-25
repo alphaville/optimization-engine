@@ -45,7 +45,6 @@ jobs:
     name: Python tests (${{ matrix.name }})
     needs:
       - rust_tests
-      - ros2_tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -106,7 +105,7 @@ jobs:
 
   ros2_tests:
     name: ROS2 tests
-    needs: rust_tests
+    needs: python_tests
     runs-on: ubuntu-latest
     timeout-minutes: 45
     container:
