@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import shutil
 import subprocess
 import time
@@ -97,11 +98,24 @@ class Ros2BuildTestCase(unittest.TestCase):
         env.pop("ROS_LOCALHOST_ONLY", None)
         return env
 
-    @staticmethod
-    def _bash(command, cwd, env=None, timeout=180, check=True):
-        """Run a bash command and return the completed process."""
+    @classmethod
+    def ros2_shell(cls):
+        """Return the preferred shell executable and setup script for ROS2 commands."""
+        shell_path = "/bin/bash"
+        setup_script = "install/setup.bash"
+        preferred_shell = os.path.basename(os.environ.get("SHELL", ""))
+        zsh_setup = os.path.join(cls.ros2_package_dir(), "install", "setup.zsh")
+        if preferred_shell == "zsh" and os.path.isfile(zsh_setup):
+            shell_path = "/bin/zsh"
+            setup_script = "install/setup.zsh"
+        return shell_path, setup_script
+
+    @classmethod
+    def _run_shell(cls, command, cwd, env=None, timeout=180, check=True):
+        """Run a command in the preferred shell and return the completed process."""
+        shell_path, _ = cls.ros2_shell()
         result = subprocess.run(
-            ["/bin/bash", "-lc", command],
+            [shell_path, "-lc", command],
             cwd=cwd,
             env=env,
             text=True,
@@ -117,6 +131,28 @@ class Ros2BuildTestCase(unittest.TestCase):
             )
         return result
 
+    @staticmethod
+    def _terminate_process(process, timeout=10):
+        """Terminate a spawned shell process and its children, then collect output."""
+        if process.poll() is None:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait(timeout=timeout)
+        try:
+            stdout, _ = process.communicate(timeout=1)
+        except subprocess.TimeoutExpired:
+            stdout = ""
+        return stdout or ""
+
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
         ros2_dir = self.ros2_package_dir()
@@ -129,9 +165,10 @@ class Ros2BuildTestCase(unittest.TestCase):
         """Build, run, and call the generated ROS2 package."""
         ros2_dir = self.ros2_package_dir()
         env = self.ros2_test_env()
+        shell_path, setup_script = self.ros2_shell()
 
-        self._bash(
-            f"source install/setup.bash >/dev/null 2>&1 || true; "
+        self._run_shell(
+            f"source {setup_script} >/dev/null 2>&1 || true; "
             f"colcon build --packages-select {self.PACKAGE_NAME}",
             cwd=ros2_dir,
             env=env,
@@ -139,30 +176,31 @@ class Ros2BuildTestCase(unittest.TestCase):
 
         node_process = subprocess.Popen(
             [
-                "/bin/bash",
+                shell_path,
                 "-lc",
-                f"source install/setup.bash && "
+                f"source {setup_script} && "
                 f"ros2 run {self.PACKAGE_NAME} {self.NODE_NAME}"
             ],
             cwd=ros2_dir,
             env=env,
             text=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
+            stderr=subprocess.STDOUT,
+            start_new_session=True)
 
         try:
             node_seen = False
             topics_seen = False
             for _ in range(6):
-                node_result = self._bash(
-                    "source install/setup.bash && "
+                node_result = self._run_shell(
+                    f"source {setup_script} && "
                     "ros2 node list --no-daemon --spin-time 5",
                     cwd=ros2_dir,
                     env=env,
                     timeout=30,
                     check=False)
-                topic_result = self._bash(
-                    "source install/setup.bash && "
+                topic_result = self._run_shell(
+                    f"source {setup_script} && "
                     "ros2 topic list --no-daemon --spin-time 5",
                     cwd=ros2_dir,
                     env=env,
@@ -175,16 +213,7 @@ class Ros2BuildTestCase(unittest.TestCase):
                 time.sleep(1)
 
             if not (node_seen and topics_seen):
-                process_output = ""
-                if node_process.poll() is None:
-                    node_process.terminate()
-                    try:
-                        node_process.wait(timeout=10)
-                    except subprocess.TimeoutExpired:
-                        node_process.kill()
-                        node_process.wait(timeout=10)
-                if node_process.stdout is not None:
-                    process_output = node_process.stdout.read()
+                process_output = self._terminate_process(node_process)
                 self.fail(
                     "Generated ROS2 node did not become discoverable.\n"
                     f"ros2 node list output:\n{node_result.stdout}\n"
@@ -193,21 +222,22 @@ class Ros2BuildTestCase(unittest.TestCase):
 
             echo_process = subprocess.Popen(
                 [
-                    "/bin/bash",
+                    shell_path,
                     "-lc",
-                    "source install/setup.bash && "
+                    f"source {setup_script} && "
                     "ros2 topic echo /result --once"
                 ],
                 cwd=ros2_dir,
                 env=env,
                 text=True,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT,
+                start_new_session=True)
 
             try:
                 time.sleep(1)
-                self._bash(
-                    "source install/setup.bash && "
+                self._run_shell(
+                    f"source {setup_script} && "
                     "ros2 topic pub --once /parameters "
                     f"{self.PACKAGE_NAME}/msg/OptimizationParameters "
                     "'{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}'",
@@ -217,19 +247,13 @@ class Ros2BuildTestCase(unittest.TestCase):
                 echo_stdout, _ = echo_process.communicate(timeout=60)
             finally:
                 if echo_process.poll() is None:
-                    echo_process.terminate()
-                    echo_process.wait(timeout=10)
+                    self._terminate_process(echo_process)
 
             self.assertIn("solution", echo_stdout)
             self.assertIn("solve_time_ms", echo_stdout)
         finally:
             if node_process.poll() is None:
-                node_process.terminate()
-                try:
-                    node_process.wait(timeout=10)
-                except subprocess.TimeoutExpired:
-                    node_process.kill()
-                    node_process.wait(timeout=10)
+                self._terminate_process(node_process)
 
 
 if __name__ == '__main__':
