@@ -31,9 +31,9 @@ description: Optimal Control with OpEn/opengen
 }
 </style>
 
-<div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
-</div>
+:::note Info
+The functionality presented here was introduced in `opengen` version [`0.10.0a1`](https://pypi.org/project/opengen/#history). The API is still young and is likely to change in version `0.11`.
+:::
 
 Once an OCP has been defined, it can be turned into a generated optimizer
 using `og.ocp.OCPBuilder`. This builder lowers the high-level OCP to the

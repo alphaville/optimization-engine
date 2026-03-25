@@ -4,54 +4,27 @@ title: Getting started
 description: Optimal Control with OpEn/opengen
 ---
 
-<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<style>
-.but{
-  border: none;
-  color: #0074d2;
-  padding: 15px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 0px 0px;
-  cursor: pointer;
-  width: 250px;
-  border-radius: 8px;
-}
-</style>
-<style>
-.but1 {
-    background-color: #d7e4d8;
-}
-</style><style>
-.but2 {
-    background-color: #008CBA;
-}
-</style>
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-<div class="alert alert-warning">
-<b>Info:</b> The functionality presented here was introduced in <code>opengen</code> version <a href="https://pypi.org/project/opengen/#history"><code>0.10.0a1</code></a>. The API is still young and is likely to change in version <code>0.11</code>.
-</div>
+:::note Info
+The functionality presented here was introduced in `opengen` version [`0.10.0a1`](https://pypi.org/project/opengen/#history). The API is still young and is likely to change in version `0.11`.
+:::
 
-Opegen now comes with a new module that facilitates the construction 
-of optimal control problems. In an intuitive and straightforward way,
-the user defines the problem ingredients (stage/terminal costs, 
-state/input constraints, dynamics). 
+OpEn now comes with a new module that facilitates the construction of optimal control problems. In an intuitive and straightforward way, the user defines the problem ingredients: stage costs, terminal costs, state and input constraints, and dynamics.
 
-<a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank"><button class="but but1" ><b>Try this on Google Colab</b></button></a>
+[![Try it In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing)
 
 ## In a nutshell: quick overview
 
-Suppose you want to solve the optimal control problem 
-<div class="math">
-\[
+Suppose you want to solve the optimal control problem:
+
+<div className="math">{String.raw`\[
     \begin{align}
-    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}& 
-    \sum_{t=0}^{N - 1} 
-        \underbrace{q\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}} 
-        + 
+    \mathbb{P}_N(p){}:{}\operatorname*{Minimize}_{u_0, \ldots, u_{N-1}}&
+    \sum_{t=0}^{N - 1}
+        \underbrace{q\|x_t-x^{\mathrm{ref}}\|^2 + r \|u_t\|^2}_{\text{stage cost}}
+        +
         \underbrace{10\|x_N-x^{\mathrm{ref}}\|^2}_{\text{terminal cost}}
     \\
     \text{subject to: }& x_{t+1} = F(x_t, u_t), t=0,\ldots, N-1
@@ -62,49 +35,43 @@ Suppose you want to solve the optimal control problem
     \\
     &x_0=x
     \end{align}
-\]</div>
-Suppose the state is two-dimensional and the input is one-dimensional.
-The dynamics is 
-<div class="math">
-\[
+\]`}</div>
+
+Suppose the state is two-dimensional and the input is one-dimensional. The dynamics is:
+
+<div className="math">{String.raw`\[
     \begin{align}
-    F(x, u; a) = 
+    F(x, u; a) =
         \begin{bmatrix}
         0.98 \sin(x_1) + x_2 \\
         0.1x_1^2 - 0.5 x_1 + a x_2 + u
         \end{bmatrix},
     \end{align}
-\]</div>
-where $a$ is a parameter. Suppose the stage cost
-function is
-<div class="math">
-\[
+\]`}</div>
+
+Here, `a` is a parameter. Suppose the stage cost function is:
+
+<div className="math">{String.raw`\[
     \begin{align}
     \ell(x, u; x^{\rm ref}, q, r)
     {}={}
     q\| x - x^{\rm ref}\|^2 + r \|u\|^2,
     \end{align}
-\]</div>
-where $x^{\rm ref}$, $q$, and $r$ are parameters. The terminal 
-cost function is 
-<div class="math">
-\[
+\]`}</div>
+
+Here, <span className="math">{String.raw`\(x^{\text{ref}}\)`}</span>, $q$, and $r$ are parameters. The terminal cost function is:
+
+<div className="math">{String.raw`\[
     \begin{align}
     V_f(x; x^{\mathrm{ref}}) = 100\|x_N-x^{\mathrm{ref}}\|^2.
     \end{align}
-\]</div>
-Lastly, we have the state constraint $x_t \geq x_{\rm min}$, where $x_{\rm min}$ is a parameter,
-and the hard input constraints $|u_t| \leq 0.2$.
+\]`}</div>
 
-<br>
-
-
-<a href="https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing" target="_blank"><img align="left" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Try it In Colab"></a>
+Lastly, we have the state constraint <span className="math">{String.raw`\(x_t \geq x_{\min}\)`}</span>, where <span className="math">{String.raw`\(x_{\min}\)`}</span> is a parameter, and the hard input constraints <span className="math">{String.raw`\(\Vert u_t \Vert \leq 0.2\)`}</span>.
 
 This optimal control problem can be constructed as follows:
 
-
-
+[![Try it In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing)
 
 ```python
 import opengen as og
@@ -154,9 +121,11 @@ ocp.with_input_constraints(og.constraints.BallInf(radius=0.2))
 
 Having defined the above OCP, we can build the optimizer...
 
-<!--DOCUSAURUS_CODE_TABS-->
+[![Try it In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17vbVUbqcah9seIg17aN6bW0-T15FWrBo?usp=sharing)
 
-<!--Direct intercafe-->
+<Tabs>
+  <TabItem value="direct-interface" label="Direct interface" default>
+
 ```python
 ocp_optimizer = og.ocp.OCPBuilder(
     ocp,
@@ -173,7 +142,9 @@ ocp_optimizer = og.ocp.OCPBuilder(
 ).build()
 ```
 
-<!--TCP socket interface-->
+  </TabItem>
+  <TabItem value="tcp-socket-interface" label="TCP socket interface">
+
 ```python
 ocp_optimizer = og.ocp.OCPBuilder(
     ocp,
@@ -192,7 +163,8 @@ ocp_optimizer = og.ocp.OCPBuilder(
 ).build()
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+  </TabItem>
+</Tabs>
 
 The optimizer can then be called as follows:
 
@@ -204,11 +176,11 @@ and note that all parameters except `x0` are optional; if not specified,
 their default values will be used (the defaults were set when we constructed the 
 OCP). We can now plot the optimal sequence of inputs (`result.inputs`)
 
-<img src="/optimization-engine/img/ocp-inputs.png" alt="Seq. inputs" width="60%">
+<img src="/optimization-engine/img/ocp-inputs.png" alt="Seq. inputs" width="60%" />
 
 and the corresponding sequence of states (`result.states`)
 
-<img src="/optimization-engine/img/ocp-states.png" alt="Seq. states" width="60%">
+<img src="/optimization-engine/img/ocp-states.png" alt="Seq. states" width="60%" />
 
 The object `result` contains the above sequences of inputs and states and additional
 information about the solution, solver time, Lagrange multipliers, etc.

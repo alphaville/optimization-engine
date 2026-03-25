@@ -152,6 +152,11 @@ where
             }
         }
 
+        // Score the latest feasible half step before exiting: if we stopped
+        // because of time or iteration limits, it may be better than the last
+        // one that was fully evaluated inside `step`.
+        self.panoc_engine.cache_best_half_step(u);
+
         // check for possible NaN/inf
         if !matrix_operations::is_finite(u) {
             return Err(SolverError::NotFiniteComputation);
@@ -168,15 +173,17 @@ where
 
         // copy u_half_step into u (the algorithm should return u_bar,
         // because it's always feasible, while u may violate the constraints)
-        u.copy_from_slice(&self.panoc_engine.cache.u_half_step);
+        u.copy_from_slice(&self.panoc_engine.cache.best_u_half_step);
+
+        let best_cost_value = self.panoc_engine.cost_value_at_best_half_step()?;
 
         // export solution status (exit status, num iterations and more)
         Ok(SolverStatus::new(
             exit_status,
             num_iter,
             now.elapsed(),
-            self.panoc_engine.cache.norm_gamma_fpr,
-            self.panoc_engine.cache.cost_value,
+            self.panoc_engine.cache.best_norm_gamma_fpr,
+            best_cost_value,
         ))
     }
 }
@@ -334,5 +341,55 @@ mod tests {
         assert!(status.has_converged());
         assert!(status.iterations() < max_iters);
         assert!(status.norm_fpr() < tolerance);
+    }
+
+    #[test]
+    fn t_panoc_optimizer_premature_exit_returns_best_previous_half_step() {
+        let tolerance = 1e-6;
+        let radius = 0.05;
+        let n_dimension = 3;
+        let lbfgs_memory = 10;
+
+        let mut found_nonlast_best_half_step = false;
+
+        for max_iters in 2..=25 {
+            let bounds = constraints::Ball2::new(None, radius);
+            let problem = Problem::new(
+                &bounds,
+                mocks::hard_quadratic_gradient,
+                mocks::hard_quadratic_cost,
+            );
+            let mut panoc_cache = PANOCCache::new(n_dimension, tolerance, lbfgs_memory);
+            let mut panoc = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(max_iters);
+            let mut u_solution = [-20.0, 10.0, 0.2];
+
+            let status = panoc.solve(&mut u_solution).unwrap();
+
+            let distance_to_last_half_step =
+                crate::matrix_operations::norm_inf_diff(&u_solution, &panoc_cache.u_half_step);
+
+            if status.exit_status() == ExitStatus::NotConvergedIterations
+                && distance_to_last_half_step > 1e-12
+            {
+                found_nonlast_best_half_step = true;
+
+                unit_test_utils::assert_nearly_equal_array(
+                    &u_solution,
+                    &panoc_cache.best_u_half_step,
+                    1e-12,
+                    1e-12,
+                    "returned solution should equal the best cached half step",
+                );
+                assert!(
+                    status.norm_fpr() < panoc_cache.norm_gamma_fpr,
+                    "returned FPR should be strictly better than the last half step"
+                );
+            }
+        }
+
+        assert!(
+            found_nonlast_best_half_step,
+            "did not find a premature exit where the best half step differs from the last one"
+        );
     }
 }

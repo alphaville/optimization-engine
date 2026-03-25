@@ -20,6 +20,8 @@ pub struct PANOCCache {
     /// only if we need to check the AKKT-specific termination conditions
     pub(crate) gradient_u_previous: Option<Vec<f64>>,
     pub(crate) u_half_step: Vec<f64>,
+    /// Keeps track of best point so far
+    pub(crate) best_u_half_step: Vec<f64>,
     pub(crate) gradient_step: Vec<f64>,
     pub(crate) direction_lbfgs: Vec<f64>,
     pub(crate) u_plus: Vec<f64>,
@@ -29,6 +31,10 @@ pub struct PANOCCache {
     pub(crate) gamma: f64,
     pub(crate) tolerance: f64,
     pub(crate) norm_gamma_fpr: f64,
+    /// Keeps track of best FPR so far
+    pub(crate) best_norm_gamma_fpr: f64,
+    pub(crate) gradient_u_norm_sq: f64,
+    pub(crate) gradient_step_u_half_step_diff_norm_sq: f64,
     pub(crate) tau: f64,
     pub(crate) lipschitz_constant: f64,
     pub(crate) sigma: f64,
@@ -66,6 +72,7 @@ impl PANOCCache {
             gradient_u: vec![0.0; problem_size],
             gradient_u_previous: None,
             u_half_step: vec![0.0; problem_size],
+            best_u_half_step: vec![0.0; problem_size],
             gamma_fpr: vec![0.0; problem_size],
             direction_lbfgs: vec![0.0; problem_size],
             gradient_step: vec![0.0; problem_size],
@@ -73,6 +80,9 @@ impl PANOCCache {
             gamma: 0.0,
             tolerance,
             norm_gamma_fpr: f64::INFINITY,
+            best_norm_gamma_fpr: f64::INFINITY,
+            gradient_u_norm_sq: 0.0,
+            gradient_step_u_half_step_diff_norm_sq: 0.0,
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
                 .with_cbfgs_alpha(DEFAULT_CBFGS_ALPHA)
                 .with_cbfgs_epsilon(DEFAULT_CBFGS_EPSILON)
@@ -175,6 +185,11 @@ impl PANOCCache {
     ///   and `gamma` to 0.0
     pub fn reset(&mut self) {
         self.lbfgs.reset();
+        self.best_u_half_step.fill(0.0);
+        self.best_norm_gamma_fpr = f64::INFINITY;
+        self.norm_gamma_fpr = f64::INFINITY;
+        self.gradient_u_norm_sq = 0.0;
+        self.gradient_step_u_half_step_diff_norm_sq = 0.0;
         self.lhs_ls = 0.0;
         self.rhs_ls = 0.0;
         self.tau = 1.0;
@@ -183,6 +198,14 @@ impl PANOCCache {
         self.cost_value = 0.0;
         self.iteration = 0;
         self.gamma = 0.0;
+    }
+
+    /// Store the current half step if it improves the best fixed-point residual so far.
+    pub(crate) fn cache_best_half_step(&mut self) {
+        if self.norm_gamma_fpr < self.best_norm_gamma_fpr {
+            self.best_norm_gamma_fpr = self.norm_gamma_fpr;
+            self.best_u_half_step.copy_from_slice(&self.u_half_step);
+        }
     }
 
     /// Sets the CBFGS parameters `alpha` and `epsilon`
@@ -209,5 +232,36 @@ impl PANOCCache {
             .with_cbfgs_epsilon(epsilon)
             .with_sy_epsilon(sy_epsilon);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PANOCCache;
+
+    #[test]
+    fn t_cache_best_half_step() {
+        let mut cache = PANOCCache::new(2, 1e-6, 3);
+
+        cache.u_half_step.copy_from_slice(&[1.0, 2.0]);
+        cache.norm_gamma_fpr = 3.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(3.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[1.0, 2.0], &cache.best_u_half_step[..]);
+
+        cache.u_half_step.copy_from_slice(&[10.0, 20.0]);
+        cache.norm_gamma_fpr = 5.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(3.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[1.0, 2.0], &cache.best_u_half_step[..]);
+
+        cache.u_half_step.copy_from_slice(&[-1.0, -2.0]);
+        cache.norm_gamma_fpr = 2.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(2.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[-1.0, -2.0], &cache.best_u_half_step[..]);
     }
 }

@@ -4,41 +4,18 @@ title: Rosenbrock Function
 description: Minimization of the Rosenbrock function using OpEn
 ---
 
-<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<style>
-.but{
-  border: none;
-  color: white;
-  padding: 15px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 0px 0px;
-  cursor: pointer;
-  width: 250px;
-  border-radius: 8px;
-}
-</style>
-<style>
-.but1 {
-    background-color: #4CAF50;
-}
-</style><style>
-.but2 {
-    background-color: #008CBA;
-}
-</style>
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-<a href="https://colab.research.google.com/drive/14F6IQWo8Q65mIz5Ru4FGxRPqyFMRMyzE?usp=sharing" target="_blank"><button class="but but1" >Try this on Google Colab</button></a> <a href="python-examples"><button class="but but2" >Back to Examples</button></a>
+[![Try it In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14F6IQWo8Q65mIz5Ru4FGxRPqyFMRMyzE?usp=sharing)
+
+[Back to Examples](/optimization-engine/docs/python-examples)
 
 
 This is the example we presented in the previous section. You can copy
 it and experiment. The problem we need to solve is:
 
-<div class="math">
-\[
+<div className="math">{String.raw`\[
     \begin{align}
     \operatorname*{Minimize}_{\|u\|\leq r}& \sum_{i=1}^{n_u - 1} b (u_{i+1} - u_{i}^2)^2 + (a-u_i)^2
     \\
@@ -46,13 +23,13 @@ it and experiment. The problem we need to solve is:
     \\
     &u_3 - u_4 + 0.1 \leq 0
     \end{align}
-\]</div>
+\]`}</div>
 
-The parameter vector is $p=(a, b)$.
+The parameter vector is `p = (a, b)`.
 
-<!--DOCUSAURUS_CODE_TABS-->
+<Tabs>
+  <TabItem value="python" label="Python" default>
 
-<!--Python-->
 ```python
 import opengen as og
 import casadi.casadi as cs
@@ -99,7 +76,9 @@ if server_response.is_ok():
 mng.kill()
 ```
 
-<!--MATLAB-->
+  </TabItem>
+  <TabItem value="matlab" label="MATLAB">
+
 ```matlab
 % NOTE: The MATLAB API is currently unstable and very likely to change
 % Define variables
@@ -133,5 +112,5 @@ out = opEnOptimizer.consume([0.5,2])
 opEnOptimizer.stop();
 
 ```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
+  </TabItem>
+</Tabs>

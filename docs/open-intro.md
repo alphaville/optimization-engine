@@ -8,20 +8,7 @@ description: Introduction to OpEn and its capabilities for fast embedded optimiz
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<script type="text/javascript">
-function toggleCollapseExpand(buttonId, containerId, theText) {
-    conditionsElement = document.getElementById(containerId);
-    techhConditionsButtonElement = document.getElementById(buttonId);
-    conditionsDisplay = getComputedStyle(conditionsElement, null).display
-    if (conditionsDisplay === "none") {
-        conditionsElement.style.display = "block";
-        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-up"></i> Collapse ' + theText;
-    } else {
-        conditionsElement.style.display = "none";
-        techhConditionsButtonElement.innerHTML = '<i class="fa fa-angle-down"></i> Expand ' + theText;
-    }
-}
-</script>
+
 
 ## What is Optimization Engine (OpEn)?
 
@@ -65,12 +52,8 @@ $p\in\mathbb{R}^{n_p}$ is a vector of parameters.
 This is a very flexible problem formulation that allows the user to model a very broad
 class of optimization problems.
 
-<button onclick="toggleCollapseExpand('techConditionsButton', 'containerTechnicalConditions', 'Technical Conditions')" id="techConditionsButton">
-  <i class="fa fa-cog fa-spin"></i>
-  Click to expand technical conditions
-</button>
-
-<div class="mycontainer" id="containerTechnicalConditions">
+<details>
+<summary>Technical conditions</summary>
 <ul>
 <li>$f:\mathbb{R}^{n_u}\times\mathbb{R}^{n_p}\to\mathbb{R}$ is a smooth ($\mathcal{C}^{1,1}$-function).
   Function $f$ can be nonconvex.</li>
@@ -86,7 +69,7 @@ class of optimization problems.
   such that $\|F_2({}\cdot{}, p)\|^2$ is a continuously differentiable function
   with Lipschitz-continuous gradient</li>
 </ul>
-</div>
+</details>
 <br/><br/>
 
 We will explain the difference between the constraints $F_1(u, p) \in C$ and
@@ -149,12 +132,8 @@ What makes OpEn so fast?
 
 <p>The typical approach for solving nonconvex optimization problems in real time is the use of <em>Sequential Quadratic Programming</em> (SQP). At every iteration, SQP approximates the given nonconvex problem by a Quadratic Program. This is its main drawback: it necessitates inner iterative procedures, which will perform poorly especially when the problem at hand is ill-conditioned. The same holds for <em>interior point methods</em> - they require heavyweight inner iteration procedures.</p>
 
-<button onclick="toggleCollapseExpand('panocButton', 'containerPanoc', 'PANOC details')" id="panocButton">
-  <i class="fa fa-cog fa-spin"></i>
-  Click to learn more about PANOC
-</button>
-
-<div class="mycontainer" id="containerPanoc">
+<details>
+<summary>Learn more about PANOC</summary>
 <p><b>OpEn</b> uses the proximal averaged Newton-type method (PANOC) which uses the same oracle as the projected gradient method, therefore, it involves only simple iterations. PANOC is a line-search method that combines forward-backward iterations with fast Newton-type steps over the <em>forward-backward envelope</em> - a real-valued continuous and exact merit function.</p>
 
 <p>This way, <b>OpEn</b> enables very fast convergence (up to superlinear convergence, under mild assumptions), while it features very simple iterations which involve access to first-order information of the cost function and low-cost linear algebra (only vector-vector operations).</p>
@@ -162,7 +141,7 @@ What makes OpEn so fast?
 <p>The result is a simple, yet rapidly convergent algorithm, which is perfectly suitable for embedded applications.</p>
 
 <p>Find out more about PANOC in the <a href='https://arxiv.org/pdf/1709.06487.pdf' target='_blank'>original publication</a>. See PANOC in action in obstacle avoidance scenarios in <a href='https://core.ac.uk/download/pdf/153430972.pdf' target='_blank'>this paper</a> and <a href='https://arxiv.org/pdf/1812.04755.pdf' target='_blank'>this paper</a>.</p>
-</div>
+</details>
 
 
 

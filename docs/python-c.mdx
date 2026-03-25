@@ -4,6 +4,9 @@ title: C/C++ Bindings
 description: How to call OpEn from C/C++ or from Robot Operating System (ROS)
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
@@ -185,7 +188,7 @@ However, OpEn generates automatically a `CMakeLists.txt` file
 to facilitate the compilation/linking procedure. To build the
 auto-generated example run
 
-```console
+```bash
 cmake .
 make
 ```
@@ -193,47 +196,70 @@ make
 once you build your optimizer you can run the executable (`optimizer`)
 with 
 
-```console
+```bash
 make run
 ```
 
 #### Compile your own code 
 When building and running an application based on the generated libraries 
 it is good to know that GCC is a bit temperamental when linking libraries,
-so when linking the static library the following can be used as reference:
+so the following can be used as reference:
 
-```console
+<Tabs>
+  <TabItem value="static-linking" label="Static linking" default>
+
+```bash
 gcc example_optimizer.c -l:libthe_optimizer.a \
   -L./target/release -pthread -lm -ldl -o optimizer
 ```
 
-Or using direct linking (this is the only thing that works with clang):
+  </TabItem>
 
-```console
-gcc example_optimizer.c ./target/release/libthe_optimizer.a \
-  -pthread -lm -ldl -o optimizer
-```
+  <TabItem value="dynamic-linking" label="Dynamic linking">
 
-While the following can be used when using the shared library:
-
-```console
+```bash
 gcc example_optimizer.c -lthe_optimizer \
   -L./target/release -pthread -lm -ldl -o optimizer
 ```
+
+  </TabItem>
+
+    <TabItem value="direct-linking" label="Direct linking">
+
+```bash
+# Only works with clang
+clang example_optimizer.c ./target/release/libthe_optimizer.a \
+  -pthread -lm -ldl -o optimizer
+```
+
+  </TabItem>
+
+</Tabs>
 
 ### Running
 
 Which will solve the problem and output the following when run:
 
-```console
-# When linking with static lib
+<Tabs>
+  <TabItem value="static-lib" label="Static lib" default>
+
+```bash
 ./optimizer
 ```
 
-```console
-# When linking with dynamic lib
-LD_LIBRARY_PATH=./target/release ./optimizer
+  </TabItem>
+  <TabItem value="dynamic-lib" label="Dynamic lib">
 
+```bash
+LD_LIBRARY_PATH=./target/release ./optimizer
+```
+
+  </TabItem>
+</Tabs>
+
+The output looks like this:
+
+```text
 u[0] = 0.654738
 u[1] = 0.982045
 u[2] = 0.98416
@@ -243,4 +269,5 @@ exit status = 0
 iterations = 69
 outer iterations = 5
 solve time = 0.140401 ms
+```
 ```

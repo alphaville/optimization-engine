@@ -8,11 +8,19 @@ Give a summary of the key changes
 - Closes #1
 - Addresses #2
 
+
 ## Merge Dependencies
 
-- Either: this PR has no merge dependencies, or
-- Depends on: ...
+Either: 
+- This PR has no merge dependencies, or
+- Depends on: ..., or
 - Should be merged before: ...
+
+## Target versions
+
+- OpEn version ...
+- opengen version ...
+
 
 ## Checklist
 
