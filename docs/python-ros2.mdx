@@ -1,0 +1,186 @@
+---
+id: python-ros2
+title: Generation of ROS2 packages
+sidebar_label: ROS2 packages
+description: Code generation for ROS2 packages using opengen
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+:::note Info
+The functionality presented here was introduced in `opengen` version [`0.11.0a1`](https://pypi.org/project/opengen/#history). 
+:::
+
+## What is ROS2
+
+[ROS2](https://docs.ros.org/en/jazzy/index.html) is the successor of the Robot Operating System (ROS). It provides tools, libraries, and communication mechanisms that make it easier to build distributed robotic applications.
+
+In ROS2, functionality is organised in **nodes** which exchange data by publishing and subscribing to **topics** using typed **messages**. This makes ROS2 a natural fit for connecting optimizers, controllers, estimators, and sensors in robotics systems.
+
+## ROS2 + OpEn
+
+OpEn can generate ready-to-use ROS2 packages directly from a parametric optimizer. The generated package exposes the optimizer as a ROS2 node, includes the required message definitions, and provides the files needed to build, configure, and launch it inside a ROS2 workspace.
+
+The input and output messages are the same as in the [ROS1 package documentation](./python-ros#messages).
+
+## Configuration Parameters
+
+The configuration parameters are the same as in the [ROS1 package documentation](./python-ros#configuration-parameters): you can configure the node rate, the input topic name, and the output topic name.
+
+In ROS2, these settings are stored using the ROS2 parameter-file format in `config/open_params.yaml`:
+
+```yaml
+/**:
+  ros__parameters:
+    result_topic: "result"
+    params_topic: "parameters"
+    rate: 10
+```
+
+## Code generation
+
+To generate a ROS2 package from Python, create a `RosConfiguration` object and attach it to the build configuration using `.with_ros2(...)`.
+
+### Example
+
+```py
+import opengen as og
+import casadi.casadi as cs
+
+u = cs.SX.sym("u", 5)
+p = cs.SX.sym("p", 2)
+phi = og.functions.rosenbrock(u, p)
+
+problem = og.builder.Problem(u, p, phi) \
+    .with_constraints(og.constraints.Ball2(None, 1.5))
+
+meta = og.config.OptimizerMeta() \
+    .with_optimizer_name("rosenbrock_ros2")
+
+ros2_config = og.config.RosConfiguration() \
+    .with_package_name("parametric_optimizer_ros2") \
+    .with_node_name("open_node_ros2") \
+    .with_rate(10)
+
+build_config = og.config.BuildConfiguration() \
+    .with_build_directory("my_optimizers") \
+    .with_ros2(ros2_config)
+
+builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config)
+builder.build()
+```
+
+Note the use of `with_ros2` and note that `RosConfiguration` is the same config
+class as in [ROS1](./python-ros).
+This generates the optimizer in `my_optimizers/rosenbrock_ros2`, and the ROS2 
+package is created inside that directory as `parametric_optimizer_ros2`.
+
+
+## Use the auto-generated ROS2 package
+
+OpEn generates a `README.md` file inside the generated ROS2 package with detailed instructions. In brief, the workflow is:
+
+1. Build the package with `colcon build`
+2. Source the generated workspace setup script
+3. Run the node with `ros2 run`
+4. Publish optimization requests on the input topic and read results from the output topic
+
+For example, from inside the generated package directory:
+
+<Tabs>
+<TabItem value="bash" label="bash">
+
+```bash
+colcon build --packages-select parametric_optimizer_ros2
+source install/setup.bash
+ros2 run parametric_optimizer_ros2 open_node_ros2
+```
+
+</TabItem>
+<TabItem value="zsh" label="zsh">
+
+```bash
+colcon build --packages-select parametric_optimizer_ros2
+source install/setup.zsh
+ros2 run parametric_optimizer_ros2 open_node_ros2
+```
+
+</TabItem>
+</Tabs>
+
+In a second terminal:
+
+<Tabs>
+<TabItem value="bash" label="bash">
+
+```bash
+source install/setup.bash
+ros2 topic pub --once /parameters parametric_optimizer_ros2/msg/OptimizationParameters \
+    "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}"
+ros2 topic echo /result
+```
+
+</TabItem>
+<TabItem value="zsh" label="zsh">
+
+```bash
+source install/setup.zsh
+ros2 topic pub --once /parameters parametric_optimizer_ros2/msg/OptimizationParameters \
+    "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}"
+ros2 topic echo /result
+```
+
+</TabItem>
+</Tabs>
+
+Instead of starting the node with `ros2 run`, you can also use the generated launch file:
+
+```bash
+ros2 launch parametric_optimizer_ros2 open_optimizer.launch.py
+```
+
+<details>
+  <summary>See the launch file</summary>
+
+  <p>The launch file is as follows</p>
+
+  ```python
+  # file open_optimizer.launch.py
+  from launch import LaunchDescription
+  from launch.substitutions import PathJoinSubstitution
+  from launch_ros.actions import Node
+  from launch_ros.substitutions import FindPackageShare
+
+
+  def generate_launch_description():
+      return LaunchDescription([
+          Node(
+              package="custom_parametric_optimizer_ros2",
+              executable="custom_open_node_ros2",
+              name="custom_open_node_ros2",
+              output="screen",
+              parameters=[PathJoinSubstitution([
+                  FindPackageShare("custom_parametric_optimizer_ros2"),
+                  "config",
+                  "open_params.yaml",
+              ])],
+          )
+      ])
+    ```
+</details>
+
+The launch file starts the auto-generated node and loads its parameters from `config/open_params.yaml`, where you can adjust settings such as the input topic, output topic, and node rate.
+
+
+## Inside the ROS2 package
+
+The auto-generated ROS2 package contains everything needed to build and run the optimizer as a ROS2 node.
+
+- `msg/` contains the auto-generated message definitions, including `OptimizationParameters.msg` and `OptimizationResult.msg`
+- `src/` contains the C++ node implementation that wraps the optimizer
+- `include/` contains the corresponding C++ headers
+- `config/open_params.yaml` stores runtime parameters such as the input topic, output topic, and node rate
+- `launch/open_optimizer.launch.py` provides a ready-to-use ROS2 launch file
+- `CMakeLists.txt` and `package.xml` define the ROS2 package and its build dependencies
+- `README.md` contains package-specific build and usage instructions

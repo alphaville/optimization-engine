@@ -14,6 +14,7 @@ module.exports = {
         'python-c',
         'python-bindings',
         'python-tcp-ip',
+        'python-ros2',
         'python-ros',
         'python-examples',
       ],

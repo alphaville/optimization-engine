@@ -2,7 +2,7 @@
 id: python-ros
 title: Generation of ROS packages
 sidebar_label: ROS packages
-description: Code generation for ROS packages using OpEn in Python
+description: Code generation for ROS packages using opengen
 ---
 
 ## What is ROS
