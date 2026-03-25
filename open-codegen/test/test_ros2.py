@@ -304,6 +304,110 @@ class Ros2BuildTestCase(unittest.TestCase):
             stdout = ""
         return stdout or ""
 
+    def _build_generated_package(self, ros2_dir, env):
+        """Build the generated ROS2 package with the active Python executable."""
+        python_executable = shlex.quote(sys.executable)
+        self._run_shell(
+            f"source {self.ros2_shell()[1]} >/dev/null 2>&1 || true; "
+            f"colcon build --packages-select {self.PACKAGE_NAME} "
+            f"--cmake-args -DPython3_EXECUTABLE={python_executable}",
+            cwd=ros2_dir,
+            env=env,
+            timeout=600)
+
+    def _spawn_ros_process(self, command, ros2_dir, env):
+        """Start a long-running ROS2 command in a fresh process group."""
+        shell_path, setup_script = self.ros2_shell()
+        return subprocess.Popen(
+            [
+                shell_path,
+                "-lc",
+                f"source {setup_script} && {command}"
+            ],
+            cwd=ros2_dir,
+            env=env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            start_new_session=True)
+
+    def _wait_for_node_and_topics(self, ros2_dir, env):
+        """Wait until the generated ROS2 node and its topics become discoverable."""
+        _, setup_script = self.ros2_shell()
+        node_result = None
+        topic_result = None
+        for _ in range(6):
+            node_result = self._run_shell(
+                f"source {setup_script} && "
+                "ros2 node list --no-daemon --spin-time 5",
+                cwd=ros2_dir,
+                env=env,
+                timeout=30,
+                check=False)
+            topic_result = self._run_shell(
+                f"source {setup_script} && "
+                "ros2 topic list --no-daemon --spin-time 5",
+                cwd=ros2_dir,
+                env=env,
+                timeout=30,
+                check=False)
+            node_seen = f"/{self.NODE_NAME}" in node_result.stdout
+            topics_seen = "/parameters" in topic_result.stdout and "/result" in topic_result.stdout
+            if node_seen and topics_seen:
+                return
+            time.sleep(1)
+
+        self.fail(
+            "Generated ROS2 node did not become discoverable.\n"
+            f"ros2 node list output:\n{node_result.stdout if node_result else ''}\n"
+            f"ros2 topic list output:\n{topic_result.stdout if topic_result else ''}")
+
+    def _assert_result_message(self, echo_stdout):
+        """Assert that the echoed result message indicates a successful solve."""
+        self.assertIn("solution", echo_stdout)
+        # A bit of integration testing: check whether the solver was able to
+        # solve the problem successfully.
+        self.assertRegex(
+            echo_stdout,
+            r"solution:\s*\n(?:- .+\n)+",
+            msg=f"Expected a non-empty solution vector in result output:\n{echo_stdout}")
+        self.assertIn("status: 0", echo_stdout)
+        self.assertRegex(
+            echo_stdout,
+            r"inner_iterations:\s*[1-9]\d*",
+            msg=f"Expected a positive inner iteration count in result output:\n{echo_stdout}")
+        self.assertRegex(
+            echo_stdout,
+            r"outer_iterations:\s*[1-9]\d*",
+            msg=f"Expected a positive outer iteration count in result output:\n{echo_stdout}")
+        self.assertRegex(
+            echo_stdout,
+            r"cost:\s*-?\d+(?:\.\d+)?(?:e[+-]?\d+)?",
+            msg=f"Expected a numeric cost in result output:\n{echo_stdout}")
+        self.assertIn("solve_time_ms", echo_stdout)
+
+    def _exercise_running_optimizer(self, ros2_dir, env):
+        """Publish one request and verify that one valid result message is returned."""
+        _, setup_script = self.ros2_shell()
+        echo_process = self._spawn_ros_process("ros2 topic echo /result --once", ros2_dir, env)
+
+        try:
+            time.sleep(1)
+            self._run_shell(
+                f"source {setup_script} && "
+                "ros2 topic pub --once /parameters "
+                f"{self.PACKAGE_NAME}/msg/OptimizationParameters "
+                "'{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}'",
+                cwd=ros2_dir,
+                env=env,
+                timeout=60)
+            echo_stdout, _ = echo_process.communicate(timeout=60)
+        finally:
+            if echo_process.poll() is None:
+                self._terminate_process(echo_process)
+
+        self._assert_result_message(echo_stdout)
+
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
         ros2_dir = self.ros2_package_dir()
@@ -316,116 +420,37 @@ class Ros2BuildTestCase(unittest.TestCase):
         """Build, run, and call the generated ROS2 package."""
         ros2_dir = self.ros2_package_dir()
         env = self.ros2_test_env()
-        shell_path, setup_script = self.ros2_shell()
-        python_executable = shlex.quote(sys.executable)
+        self._build_generated_package(ros2_dir, env)
 
-        self._run_shell(
-            f"source {setup_script} >/dev/null 2>&1 || true; "
-            f"colcon build --packages-select {self.PACKAGE_NAME} "
-            f"--cmake-args -DPython3_EXECUTABLE={python_executable}",
-            cwd=ros2_dir,
-            env=env,
-            timeout=600)
-
-        node_process = subprocess.Popen(
-            [
-                shell_path,
-                "-lc",
-                f"source {setup_script} && "
-                f"ros2 run {self.PACKAGE_NAME} {self.NODE_NAME}"
-            ],
-            cwd=ros2_dir,
-            env=env,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            start_new_session=True)
+        node_process = self._spawn_ros_process(
+            f"ros2 run {self.PACKAGE_NAME} {self.NODE_NAME}",
+            ros2_dir,
+            env)
 
         try:
-            node_seen = False
-            topics_seen = False
-            for _ in range(6):
-                node_result = self._run_shell(
-                    f"source {setup_script} && "
-                    "ros2 node list --no-daemon --spin-time 5",
-                    cwd=ros2_dir,
-                    env=env,
-                    timeout=30,
-                    check=False)
-                topic_result = self._run_shell(
-                    f"source {setup_script} && "
-                    "ros2 topic list --no-daemon --spin-time 5",
-                    cwd=ros2_dir,
-                    env=env,
-                    timeout=30,
-                    check=False)
-                node_seen = f"/{self.NODE_NAME}" in node_result.stdout
-                topics_seen = "/parameters" in topic_result.stdout and "/result" in topic_result.stdout
-                if node_seen and topics_seen:
-                    break
-                time.sleep(1)
-
-            if not (node_seen and topics_seen):
-                process_output = self._terminate_process(node_process)
-                self.fail(
-                    "Generated ROS2 node did not become discoverable.\n"
-                    f"ros2 node list output:\n{node_result.stdout}\n"
-                    f"ros2 topic list output:\n{topic_result.stdout}\n"
-                    f"node process output:\n{process_output}")
-
-            echo_process = subprocess.Popen(
-                [
-                    shell_path,
-                    "-lc",
-                    f"source {setup_script} && "
-                    "ros2 topic echo /result --once"
-                ],
-                cwd=ros2_dir,
-                env=env,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                start_new_session=True)
-
-            try:
-                time.sleep(1)
-                self._run_shell(
-                    f"source {setup_script} && "
-                    "ros2 topic pub --once /parameters "
-                    f"{self.PACKAGE_NAME}/msg/OptimizationParameters "
-                    "'{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}'",
-                    cwd=ros2_dir,
-                    env=env,
-                    timeout=60)
-                echo_stdout, _ = echo_process.communicate(timeout=60)
-            finally:
-                if echo_process.poll() is None:
-                    self._terminate_process(echo_process)
-
-            self.assertIn("solution", echo_stdout)
-            # A bit of integration testing: check whether the solver was able to 
-            # solve the problem successfully
-            self.assertRegex(
-                echo_stdout,
-                r"solution:\s*\n(?:- .+\n)+",
-                msg=f"Expected a non-empty solution vector in result output:\n{echo_stdout}")
-            self.assertIn("status: 0", echo_stdout)
-            self.assertRegex(
-                echo_stdout,
-                r"inner_iterations:\s*[1-9]\d*",
-                msg=f"Expected a positive inner iteration count in result output:\n{echo_stdout}")
-            self.assertRegex(
-                echo_stdout,
-                r"outer_iterations:\s*[1-9]\d*",
-                msg=f"Expected a positive outer iteration count in result output:\n{echo_stdout}")
-            self.assertRegex(
-                echo_stdout,
-                r"cost:\s*-?\d+(?:\.\d+)?(?:e[+-]?\d+)?",
-                msg=f"Expected a numeric cost in result output:\n{echo_stdout}")
-            self.assertIn("solve_time_ms", echo_stdout)
+            self._wait_for_node_and_topics(ros2_dir, env)
+            self._exercise_running_optimizer(ros2_dir, env)
         finally:
             if node_process.poll() is None:
                 self._terminate_process(node_process)
+
+    def test_generated_ros2_launch_file_works(self):
+        """Build the package, launch the node, and verify the launch file works."""
+        ros2_dir = self.ros2_package_dir()
+        env = self.ros2_test_env()
+        self._build_generated_package(ros2_dir, env)
+
+        launch_process = self._spawn_ros_process(
+            f"ros2 launch {self.PACKAGE_NAME} open_optimizer.launch.py",
+            ros2_dir,
+            env)
+
+        try:
+            self._wait_for_node_and_topics(ros2_dir, env)
+            self._exercise_running_optimizer(ros2_dir, env)
+        finally:
+            if launch_process.poll() is None:
+                self._terminate_process(launch_process)
 
 
 if __name__ == '__main__':

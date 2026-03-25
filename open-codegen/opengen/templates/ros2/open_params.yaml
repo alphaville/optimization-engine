@@ -2,4 +2,4 @@
   ros__parameters:
     result_topic: "{{ros.publisher_subtopic}}"
     params_topic: "{{ros.subscriber_subtopic}}"
-    rate: {{ros.rate}}
+    rate: {{ "%.1f"|format(ros.rate) if ros.rate == (ros.rate|int) else ros.rate }}
