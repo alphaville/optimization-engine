@@ -1,32 +1,21 @@
-# ROS2 Package {{ros.package_name}}
+# ROS2 Package: {{ros.package_name}}
 
 
 ## Installation and Setup
 
 Move or link the auto-generated ROS2 package (folder `{{ros.package_name}}`) to your workspace source tree (typically `~/ros2_ws/src/`).
 
-Compile with:
+From within the folder `{{ros.package_name}}`, compile with:
 
-```console
-cd ~/ros2_ws/
+```bash
 colcon build --packages-select {{ros.package_name}}
-source install/setup.bash
+source install/setup.bash 
+# or source install/setup.zsh on MacOS
 ```
 
-If you build the package in-place from its own directory instead of a larger
-workspace, source the generated setup script from `install/`:
+If you want to activate logging (recommended), do
 
-```console
-# bash
-source install/setup.bash
-
-# zsh
-source install/setup.zsh
-```
-
-On macOS, ROS2 logging may need an explicit writable directory:
-
-```console
+```bash
 mkdir -p .ros_log
 export ROS_LOG_DIR="$PWD/.ros_log"
 ```
@@ -37,17 +26,19 @@ export ROS_LOG_DIR="$PWD/.ros_log"
 Start the optimizer in one terminal. The process stays in the foreground while
 the node is running.
 
-```console
-# terminal 1
-source install/setup.bash   # or: source install/setup.zsh
+```bash
+# Terminal 1
+source install/setup.bash 
+# or: source install/setup.zsh
 ros2 run {{ros.package_name}} {{ros.node_name}}
 ```
 
 In a second terminal, source the same environment and verify discovery:
 
-```console
-# terminal 2
-source install/setup.bash   # or: source install/setup.zsh
+```bash
+# Terminal 2
+source install/setup.bash   
+# or: source install/setup.zsh
 ros2 node list --no-daemon --spin-time 5
 ros2 topic list --no-daemon --spin-time 5
 ```
@@ -59,20 +50,20 @@ You should see the node `/{{ros.node_name}}`, the input topic
 Then publish a request to the configured parameters topic
 (default: `/{{ros.subscriber_subtopic}}`):
 
-```console
+```bash
 ros2 topic pub --once /{{ros.subscriber_subtopic}} {{ros.package_name}}/msg/OptimizationParameters "{parameter: [YOUR_PARAMETER_VECTOR], initial_guess: [INITIAL_GUESS_OPTIONAL], initial_y: [], initial_penalty: 15.0}"
 ```
 
 The result will be announced on the configured result topic
 (default: `/{{ros.publisher_subtopic}}`):
 
-```console
+```bash
 ros2 topic echo /{{ros.publisher_subtopic}}
 ```
 
 To get the optimal solution you can do:
 
-```console
+```bash
 ros2 topic echo /{{ros.publisher_subtopic}} --field solution
 ```
 
