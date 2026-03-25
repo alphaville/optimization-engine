@@ -75,9 +75,13 @@ run_python_ros2_tests() {
     fi
     set -u
 
-    if ! python -c "import em" >/dev/null 2>&1; then
-        # rosidl_adapter imports the `em` module from Empy during message generation
-        python -m pip install empy
+    if ! python -c "import em, lark, catkin_pkg" >/dev/null 2>&1; then
+        # ROS2 build helpers run under the active Python interpreter. The test venv
+        # already has NumPy from `pip install .`, but we also need the ROS-side
+        # Python packages used during interface and package metadata generation.
+        # Empy 4 has broken older ROS message generators in the past, so keep it
+        # on the 3.x API here.
+        python -m pip install "empy<4" lark catkin_pkg
     fi
 
     command -v ros2 >/dev/null
