@@ -167,43 +167,57 @@ To read a single optimizer response, you can use:
 ros2 topic echo /result --once
 ```
 
-This subscribes to the result topic, prints one `OptimizationResult` message, and then exits.
+This subscribes to the result topic, prints one `OptimizationResult` message, and then exits. 
+The above command will return a message that looks as follows
+
+```yaml
+solution:
+- 0.5352476095477849
+- 0.8028586510585609
+- 0.6747818561706652
+- 0.7747513439588263
+- 0.5131839675113338
+inner_iterations: 41
+outer_iterations: 6
+status: 0
+cost: 1.1656771801253916
+norm_fpr: 2.1973496274068953e-05
+penalty: 150000.0
+lagrange_multipliers: []
+infeasibility_f1: 0.0
+infeasibility_f2: 3.3074097972366455e-05
+solve_time_ms: 0.2175
+```
+
+<details>
+  <summary>See the specification of `OptimizationResult`</summary>
+  ```msg
+  # Constants match the enumeration of status codes
+  uint8 STATUS_CONVERGED=0
+  uint8 STATUS_NOT_CONVERGED_ITERATIONS=1
+  uint8 STATUS_NOT_CONVERGED_OUT_OF_TIME=2
+  uint8 STATUS_NOT_CONVERGED_COST=3
+  uint8 STATUS_NOT_CONVERGED_FINITE_COMPUTATION=4
+
+  float64[]    solution              # solution
+  uint8        inner_iterations      # number of inner iterations
+  uint16       outer_iterations      # number of outer iterations
+  uint8        status                # status code
+  float64      cost                  # cost value at solution
+  float64      norm_fpr              # norm of FPR of last inner problem
+  float64      penalty               # penalty value
+  float64[]    lagrange_multipliers  # vector of Lagrange multipliers
+  float64      infeasibility_f1      # infeasibility wrt F1
+  float64      infeasibility_f2      # infeasibility wrt F2
+  float64      solve_time_ms         # solution time in ms
+  ```
+</details>
 
 Instead of starting the node with `ros2 run`, you can also use the generated launch file:
 
 ```bash
 ros2 launch parametric_optimizer_ros2 open_optimizer.launch.py
 ```
-
-<details>
-  <summary>See the launch file</summary>
-
-  <p>The launch file is as follows</p>
-
-  ```python
-  # file open_optimizer.launch.py
-  from launch import LaunchDescription
-  from launch.substitutions import PathJoinSubstitution
-  from launch_ros.actions import Node
-  from launch_ros.substitutions import FindPackageShare
-
-
-  def generate_launch_description():
-      return LaunchDescription([
-          Node(
-              package="parametric_optimizer_ros2",
-              executable="open_node_ros2",
-              name="open_node_ros2",
-              output="screen",
-              parameters=[PathJoinSubstitution([
-                  FindPackageShare("parametric_optimizer_ros2"),
-                  "config",
-                  "open_params.yaml",
-              ])],
-          )
-      ])
-  ```
-</details>
 
 The launch file starts the auto-generated node and loads its parameters from `config/open_params.yaml`, where you can adjust settings such as the input topic, output topic, and node rate.
 
