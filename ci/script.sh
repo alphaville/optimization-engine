@@ -62,6 +62,18 @@ run_python_core_tests() {
 
 run_python_ros2_tests() {
     export PYTHONPATH=.
+    if [ -n "${ROS_DISTRO:-}" ] && [ -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]; then
+        # setup-ros installs the ROS underlay but does not source it for our shell
+        source "/opt/ros/${ROS_DISTRO}/setup.bash"
+    elif [ -f "/opt/ros/jazzy/setup.bash" ]; then
+        source "/opt/ros/jazzy/setup.bash"
+    else
+        echo "ROS2 environment setup script not found"
+        exit 1
+    fi
+
+    command -v ros2 >/dev/null
+    command -v colcon >/dev/null
     python -W ignore test/test_ros2.py -v
 }
 
