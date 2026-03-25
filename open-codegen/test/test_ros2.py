@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import shlex
 import signal
 import shutil
@@ -402,6 +403,25 @@ class Ros2BuildTestCase(unittest.TestCase):
                     self._terminate_process(echo_process)
 
             self.assertIn("solution", echo_stdout)
+            # A bit of integration testing: check whether the solver was able to 
+            # solve the problem successfully
+            self.assertRegex(
+                echo_stdout,
+                r"solution:\s*\n(?:- .+\n)+",
+                msg=f"Expected a non-empty solution vector in result output:\n{echo_stdout}")
+            self.assertIn("status: 0", echo_stdout)
+            self.assertRegex(
+                echo_stdout,
+                r"inner_iterations:\s*[1-9]\d*",
+                msg=f"Expected a positive inner iteration count in result output:\n{echo_stdout}")
+            self.assertRegex(
+                echo_stdout,
+                r"outer_iterations:\s*[1-9]\d*",
+                msg=f"Expected a positive outer iteration count in result output:\n{echo_stdout}")
+            self.assertRegex(
+                echo_stdout,
+                r"cost:\s*-?\d+(?:\.\d+)?(?:e[+-]?\d+)?",
+                msg=f"Expected a numeric cost in result output:\n{echo_stdout}")
             self.assertIn("solve_time_ms", echo_stdout)
         finally:
             if node_process.poll() is None:
