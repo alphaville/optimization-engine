@@ -32,7 +32,6 @@ body {
 }
 
 .navbar {
-  backdrop-filter: blur(16px);
   box-shadow: 0 10px 30px rgba(86, 44, 28, 0.12);
 }
 
@@ -726,6 +725,40 @@ body {
   .homeRos2Promo,
   .homeDockerPromo {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 997px) {
+  .navbar {
+    backdrop-filter: blur(16px);
+  }
+}
+
+@media (max-width: 996px) {
+  .navbar-sidebar,
+  .navbar-sidebar__items,
+  .navbar-sidebar__item.menu {
+    background: #f8eee7;
+  }
+
+  .navbar-sidebar__brand,
+  .navbar-sidebar__back,
+  .navbar-sidebar__close,
+  .navbar-sidebar .menu__link,
+  .navbar-sidebar .menu__caret,
+  .navbar-sidebar .menu__link--sublist::after {
+    color: #221714;
+  }
+
+  .navbar-sidebar .menu__link {
+    font-weight: 500;
+  }
+
+  .navbar-sidebar .menu__link:hover,
+  .navbar-sidebar .menu__link--active,
+  .navbar-sidebar .menu__list-item-collapsible:hover {
+    background: rgba(122, 31, 31, 0.08);
+    color: #221714;
   }
 }
 

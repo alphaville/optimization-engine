@@ -137,6 +137,8 @@ Each time the major or minor number of the Rust library is updated, a new crate 
 In order to release a new version make sure that 
 you have done the following:
 
+---
+
 <Tabs>
   <TabItem value="open" label="open (Rust)">
 
@@ -178,12 +180,13 @@ Checklist:
   <li>Update the API documentation</li>
   <li>Update the information on the website</li>
   <li>Merge into master once your pull request has been approved</li>
+  <li>Update the API docs</li>
 </ul>
 
 Then, create a tag and push it...
 
   ```bash
-  git tag -a opengen-v0.10.0 -m "opengen-0.10.0"
+  git tag -a opengen-0.10.0 -m "opengen-0.10.0"
   git push --tags
   ```
 
@@ -213,8 +216,28 @@ This will have to be a new PR.
   docker push alphaville/open:0.7.0
   ```
 
+  Update the [website docs](./docker) and the promo on the [main page](..)
+
   </TabItem>
 </Tabs>
+
+---
+
+To update the website, run 
+```bash
+GIT_USER=alphaville \
+  CURRENT_BRANCH=master \
+  USE_SSH=true \
+  yarn deploy
+```
+from within `website/`. Then, update the opengen API docs too; 
+just push a commit with message starting with `[docit]`.
+You can also issue a commit without git-add. Run
+
+```bash
+git commit -m '[docit] update api docs' --allow-empty
+```
+
 
     
 [CHANGELOG]: https://github.com/alphaville/optimization-engine/blob/master/CHANGELOG.md
