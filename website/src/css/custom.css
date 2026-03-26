@@ -434,6 +434,45 @@ body {
   margin-bottom: 0;
 }
 
+.homeDockerPromo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+  gap: 1.5rem;
+  align-items: center;
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.homeDockerPromo__content,
+.homeDockerPromo__visual {
+  min-width: 0;
+}
+
+.homeDockerPromo__content h2 {
+  margin: 0 0 0.85rem;
+  color: #2f1a14;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+}
+
+.homeDockerPromo__content p {
+  color: var(--open-page-muted);
+}
+
+.homeDockerPromo__image {
+  display: block;
+  width: min(100%, 280px);
+  margin: 0 auto 1rem;
+}
+
+.homeDockerPromo__codeBlock {
+  margin-top: 0;
+}
+
+.homeDockerPromo__codeBlock .theme-code-block {
+  margin-bottom: 0;
+}
+
 .homeSplit__copy,
 .homeSplit__media {
   min-width: 0;
@@ -684,7 +723,8 @@ body {
   }
 
   .homeOcpPromo,
-  .homeRos2Promo {
+  .homeRos2Promo,
+  .homeDockerPromo {
     grid-template-columns: 1fr;
   }
 }
