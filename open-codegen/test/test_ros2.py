@@ -125,11 +125,16 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
         """Custom ROS2 config values should appear in the generated package files."""
         ros2_dir = self.ros2_package_dir()
 
+        # The package metadata should reflect the user-provided ROS2 package name
+        # and description, not the defaults from the templates.
         with open(os.path.join(ros2_dir, "package.xml"), encoding="utf-8") as f:
             package_xml = f.read()
         self.assertIn(f"<name>{self.PACKAGE_NAME}</name>", package_xml)
         self.assertIn(f"<description>{self.DESCRIPTION}</description>", package_xml)
 
+        # `open_optimizer.hpp` is where the generated node constants are wired in.
+        # These assertions make sure the custom topic names, node name, rate, and
+        # queue sizes are propagated into the generated C++ code.
         with open(os.path.join(ros2_dir, "include", "open_optimizer.hpp"), encoding="utf-8") as f:
             optimizer_header = f.read()
         self.assertIn(f'#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_NODE_NAME "{self.NODE_NAME}"',
@@ -147,12 +152,16 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
             f"#define ROS2_NODE_{self.OPTIMIZER_NAME.upper()}_PARAMS_TOPIC_QUEUE_SIZE {self.PARAMS_QUEUE_SIZE}",
             optimizer_header)
 
+        # The runtime YAML configuration should carry the custom topic names and
+        # timer rate so the launched node uses the intended ROS2 parameters.
         with open(os.path.join(ros2_dir, "config", "open_params.yaml"), encoding="utf-8") as f:
             params_yaml = f.read()
         self.assertIn(f'result_topic: "{self.RESULT_TOPIC}"', params_yaml)
         self.assertIn(f'params_topic: "{self.PARAMS_TOPIC}"', params_yaml)
         self.assertIn(f"rate: {self.RATE}", params_yaml)
 
+        # The generated launch file should point to the correct package and
+        # executable so `ros2 launch` can start the generated node.
         with open(os.path.join(ros2_dir, "launch", "open_optimizer.launch.py"), encoding="utf-8") as f:
             launch_file = f.read()
         self.assertIn(f'package="{self.PACKAGE_NAME}"', launch_file)
@@ -244,7 +253,11 @@ class Ros2BuildTestCase(unittest.TestCase):
         env = os.environ.copy()
         ros2_dir = cls.ros2_package_dir()
         os.makedirs(os.path.join(ros2_dir, ".ros_log"), exist_ok=True)
+        # Keep ROS2 logs inside the generated package directory so the tests do
+        # not depend on a global writable log location.
         env["ROS_LOG_DIR"] = os.path.join(ros2_dir, ".ros_log")
+        # Fast DDS is the most reliable middleware choice in our CI/local test
+        # setup when checking node discovery from separate processes.
         env.setdefault("RMW_IMPLEMENTATION", "rmw_fastrtps_cpp")
         env.pop("ROS_LOCALHOST_ONLY", None)
         return env
@@ -337,6 +350,9 @@ class Ros2BuildTestCase(unittest.TestCase):
         node_result = None
         topic_result = None
         for _ in range(6):
+            # `ros2 node list` confirms that the process joined the ROS graph,
+            # while `ros2 topic list` confirms that the expected interfaces are
+            # actually being advertised.
             node_result = self._run_shell(
                 f"source {setup_script} && "
                 "ros2 node list --no-daemon --spin-time 5",
@@ -364,13 +380,15 @@ class Ros2BuildTestCase(unittest.TestCase):
 
     def _assert_result_message(self, echo_stdout):
         """Assert that the echoed result message indicates a successful solve."""
+        # We do not compare the full numeric solution here; instead, we check
+        # that the generated node returned a structurally valid result and that
+        # the solver reported convergence.
         self.assertIn("solution", echo_stdout)
-        # A bit of integration testing: check whether the solver was able to
-        # solve the problem successfully.
         self.assertRegex(
             echo_stdout,
             r"solution:\s*\n(?:- .+\n)+",
             msg=f"Expected a non-empty solution vector in result output:\n{echo_stdout}")
+        # `status: 0` matches `STATUS_CONVERGED` in the generated result message.
         self.assertIn("status: 0", echo_stdout)
         self.assertRegex(
             echo_stdout,
@@ -389,10 +407,12 @@ class Ros2BuildTestCase(unittest.TestCase):
     def _exercise_running_optimizer(self, ros2_dir, env):
         """Publish one request and verify that one valid result message is returned."""
         _, setup_script = self.ros2_shell()
+        # Start listening before publishing so the single response is not missed.
         echo_process = self._spawn_ros_process("ros2 topic echo /result --once", ros2_dir, env)
 
         try:
             time.sleep(1)
+            # Send one concrete request through the generated ROS2 interface.
             self._run_shell(
                 f"source {setup_script} && "
                 "ros2 topic pub --once /parameters "
@@ -411,6 +431,8 @@ class Ros2BuildTestCase(unittest.TestCase):
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
         ros2_dir = self.ros2_package_dir()
+        # This is a lightweight smoke test for the generator itself before we
+        # attempt the slower build/run integration tests below.
         self.assertTrue(os.path.isfile(os.path.join(ros2_dir, "package.xml")))
         self.assertTrue(os.path.isfile(os.path.join(ros2_dir, "CMakeLists.txt")))
         self.assertTrue(os.path.isfile(
@@ -420,6 +442,9 @@ class Ros2BuildTestCase(unittest.TestCase):
         """Build, run, and call the generated ROS2 package."""
         ros2_dir = self.ros2_package_dir()
         env = self.ros2_test_env()
+
+        # First validate the plain `ros2 run` path, which exercises the
+        # generated executable directly without going through the launch file.
         self._build_generated_package(ros2_dir, env)
 
         node_process = self._spawn_ros_process(
@@ -438,6 +463,9 @@ class Ros2BuildTestCase(unittest.TestCase):
         """Build the package, launch the node, and verify the launch file works."""
         ros2_dir = self.ros2_package_dir()
         env = self.ros2_test_env()
+
+        # Then validate the generated launch description, which should bring up
+        # the exact same node and parameters via `ros2 launch`.
         self._build_generated_package(ros2_dir, env)
 
         launch_process = self._spawn_ros_process(

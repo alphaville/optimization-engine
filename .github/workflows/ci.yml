@@ -139,6 +139,12 @@ jobs:
           python-version: "3.12"
 
       - name: Setup ROS 2
+        # `ros-tooling/setup-ros@v0.7` still runs as a Node.js 20 action.
+        # Force it onto Node 24 now so CI keeps working as GitHub deprecates
+        # Node 20, and upgrade `setup-ros` to a Node 24-compatible release
+        # when one becomes available.
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
