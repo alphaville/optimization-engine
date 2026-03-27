@@ -1,7 +1,9 @@
 use crate::{
     constraints,
     core::{panoc::PANOCCache, AlgorithmEngine, Problem},
-    matrix_operations, numeric::cast, FunctionCallResult, SolverError,
+    matrix_operations,
+    numeric::cast,
+    FunctionCallResult, SolverError,
 };
 use lbfgs::LbfgsPrecision;
 use num::Float;
@@ -210,8 +212,7 @@ where
             self.cache.lbfgs.reset(); // invalidate the L-BFGS buffer
 
             // update L, sigma and gamma...
-            self.cache.lipschitz_constant =
-                self.cache.lipschitz_constant * cast::<T>(2.0);
+            self.cache.lipschitz_constant = self.cache.lipschitz_constant * cast::<T>(2.0);
             self.cache.gamma = self.cache.gamma / cast::<T>(2.0);
 
             // recompute the half step...
@@ -226,8 +227,7 @@ where
             self.compute_fpr(u_current);
             it_lipschitz_search += 1;
         }
-        self.cache.sigma = (T::one() - gamma_l_coeff::<T>())
-            / (cast::<T>(4.0) * self.cache.gamma);
+        self.cache.sigma = (T::one() - gamma_l_coeff::<T>()) / (cast::<T>(4.0) * self.cache.gamma);
 
         Ok(())
     }
@@ -390,8 +390,7 @@ where
         self.cache_gradient_norm();
         self.cache.gamma =
             gamma_l_coeff::<T>() / self.cache.lipschitz_constant.max(min_l_estimate());
-        self.cache.sigma = (T::one() - gamma_l_coeff::<T>())
-            / (cast::<T>(4.0) * self.cache.gamma);
+        self.cache.sigma = (T::one() - gamma_l_coeff::<T>()) / (cast::<T>(4.0) * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
 

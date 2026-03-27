@@ -1295,10 +1295,7 @@ fn t_affine_space_try_new_rank_deficient() {
     let a = vec![1.0, 2.0, 2.0, 4.0];
     let b = vec![1.0, 2.0];
     let affine_set = AffineSpace::try_new(a, b);
-    assert!(matches!(
-        affine_set,
-        Err(AffineSpaceError::NotFullRowRank)
-    ));
+    assert!(matches!(affine_set, Err(AffineSpaceError::NotFullRowRank)));
 }
 
 #[test]
@@ -1654,9 +1651,7 @@ where
                 .collect();
 
             for _ in 0..150 {
-                let z_feasible: Vec<f64> = (0..dim)
-                    .map(|_| rng.random_range(-3.0..3.0))
-                    .collect();
+                let z_feasible: Vec<f64> = (0..dim).map(|_| rng.random_range(-3.0..3.0)).collect();
                 let norm_z_sq_feasible = z_feasible.iter().map(|zi| zi * zi).sum::<f64>();
                 let t_feasible = norm_z_sq_feasible + rng.random_range(0.0..3.0);
                 let mut y = z_feasible;

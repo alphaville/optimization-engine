@@ -2,7 +2,9 @@ use crate::{
     alm::*,
     constraints,
     core::{panoc::PANOCOptimizer, ExitStatus, Problem, SolverStatus},
-    matrix_operations, numeric::cast, FunctionCallResult, SolverError,
+    matrix_operations,
+    numeric::cast,
+    FunctionCallResult, SolverError,
 };
 use lbfgs::LbfgsPrecision;
 use num::Float;

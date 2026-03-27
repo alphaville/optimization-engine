@@ -249,11 +249,7 @@ impl<'a, T: Float> BallP<'a, T> {
                 lo = u;
             }
 
-            let df = T::one()
-                + lambda
-                    * p
-                    * (p - T::one())
-                    * u.powf(p - cast::<T>(2.0));
+            let df = T::one() + lambda * p * (p - T::one()) * u.powf(p - cast::<T>(2.0));
             let mut candidate = u - f / df;
 
             if !candidate.is_finite() || candidate <= lo || candidate >= hi {

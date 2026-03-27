@@ -84,14 +84,12 @@ where
         let aat = matrix_operations::mul_a_at(&a, n_rows, n_cols)
             .map_err(|_| AffineSpaceError::IncompatibleDimensions)?;
         let mut factorizer = CholeskyFactorizer::new(n_rows);
-        factorizer
-            .factorize(&aat)
-            .map_err(|err| match err {
-                CholeskyError::NotPositiveDefinite => AffineSpaceError::NotFullRowRank,
-                CholeskyError::DimensionMismatch | CholeskyError::NotFactorized => {
-                    AffineSpaceError::IncompatibleDimensions
-                }
-            })?;
+        factorizer.factorize(&aat).map_err(|err| match err {
+            CholeskyError::NotPositiveDefinite => AffineSpaceError::NotFullRowRank,
+            CholeskyError::DimensionMismatch | CholeskyError::NotFactorized => {
+                AffineSpaceError::IncompatibleDimensions
+            }
+        })?;
         Ok(AffineSpace {
             a_mat: a,
             b_vec: b,
