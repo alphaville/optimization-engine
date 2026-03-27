@@ -35,9 +35,14 @@ pub trait Optimizer<T = f64>
 where
     T: Float,
 {
-    /// solves a given problem and updates the initial estimate `u` with the solution
+    /// Solves a given problem and updates the initial estimate `u` with the solution.
     ///
-    /// Returns the solver status
+    /// Returns the solver status on success.
+    ///
+    /// If the algorithm cannot proceed because a user callback fails, a
+    /// projection fails, non-finite values are encountered, or an internal
+    /// numerical/kernel inconsistency is detected, this method returns
+    /// `Err(SolverError)`.
     ///
     fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError>;
 }
@@ -52,9 +57,16 @@ where
 /// the specified termination criterion is satisfied
 ///
 pub trait AlgorithmEngine<T = f64> {
-    /// Take a step of the algorithm and return `Ok(true)` only if the iterations should continue
+    /// Take a step of the algorithm and return `Ok(true)` only if the iterations should continue.
+    ///
+    /// Returns `Err(SolverError)` if a callback or projection fails, if a
+    /// non-finite value is produced, or if the engine detects an invalid
+    /// numerical state.
     fn step(&mut self, u: &mut [T]) -> Result<bool, SolverError>;
 
-    /// Initializes the algorithm
+    /// Initializes the algorithm.
+    ///
+    /// Returns `Err(SolverError)` if initialization requires evaluating a
+    /// callback/projection and that operation fails.
     fn init(&mut self, u: &mut [T]) -> FunctionCallResult;
 }

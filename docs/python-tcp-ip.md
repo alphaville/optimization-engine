@@ -131,24 +131,56 @@ $  echo '{ "Kill" : 1 }' | nc localhost 4598
 
 ### Error reporting
 
-In case a request cannot be processed, e.g., because the provided JSON is malformed, the provided vectors have incompatible dimensions, the TCP server will return to the client an error report. This is a JSON with three attributes: (i) a key-value pair `"type": "Error"`, to allow the client to tell that an error has occurred, (ii) a `code`, which can be used to uniquely identify the type of error and (iii) a `message`, which offers some human-readable details.
+If a request cannot be processed, for example because the JSON payload is
+malformed, the request body is not valid UTF-8, or one of the provided vectors
+has the wrong dimension, the TCP server returns an error report instead of a
+solution.
 
-For example, if the client provides an incompatible number of parameters, that is, if vector `parameter` is of the wrong length, then the server will return the following error:
+The error report is a JSON document with three fields:
+
+- `"type": "Error"` so the client can distinguish errors from successful solver
+  responses
+- `code`, a machine-readable integer code
+- `message`, a human-readable string with more context
+
+In particular, the `message` field is now intended to be descriptive. For
+dimension-related errors it includes the provided and expected lengths, and for
+solver failures it includes the underlying solver-side reason whenever
+available.
+
+For example, if the client provides an incompatible number of parameters, that
+is, if vector `parameter` has the wrong length, the server returns an error like
+the following:
 
 ```json
 {
-	"type": "Error", 
-	"code": 3003, 
-	"message": "wrong number of parameters"
+  "type": "Error",
+  "code": 3003,
+  "message": "wrong number of parameters: provided 1, expected 2"
 }
 ```
 
-The following errors may be returned to the client
+Likewise, if the solver itself fails, the server returns code `2000` together
+with the propagated solver reason, for example:
+
+```json
+{
+  "type": "Error",
+  "code": 2000,
+  "message": "problem solution failed: non-finite computation: gradient evaluation returned a non-finite value during an FBS step"
+}
+```
+
+The following error codes may be returned to the client:
 
 | Code      | Explanation                                 |
 |-----------|---------------------------------------------|
-| 1000      | Invalid request: Malformed or invalid JSON  |
+| 1000      | Invalid request: malformed JSON or invalid UTF-8 payload |
 | 1600      | Initial guess has incompatible dimensions   |
-| 1700      | Wrong dimension of Langrange multipliers    |
-| 2000      | Problem solution failed (solver error)      |
+| 1700      | Wrong dimension of Lagrange multipliers     |
+| 2000      | Problem solution failed; the message contains the solver-side reason |
 | 3003      | Vector `parameter` has wrong length         |
+
+When using the Python TCP client, these responses are surfaced as
+`opengen.tcp.solver_error.SolverError`, whose `code` and `message` properties
+mirror the JSON payload returned by the TCP server.

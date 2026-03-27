@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 
 #[derive(Copy, Clone)]
@@ -22,7 +23,7 @@ impl<'a, T: Float> BallInf<'a, T> {
     ///
     /// let ball = BallInf::new(None, 1.0);
     /// let mut x = [2.0, -0.2, -3.0];
-    /// ball.project(&mut x);
+    /// ball.project(&mut x).unwrap();
     /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());
@@ -52,7 +53,7 @@ impl<'a, T: Float> Constraint<T> for BallInf<'a, T> {
     ///
     /// for all $i=1,\ldots, n$.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -68,6 +69,7 @@ impl<'a, T: Float> Constraint<T> for BallInf<'a, T> {
                 .filter(|xi| xi.abs() > self.radius)
                 .for_each(|xi| *xi = xi.signum() * self.radius);
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 
 #[derive(Clone, Copy)]
@@ -44,15 +45,18 @@ impl<'a, T: Float> Rectangle<'a, T> {
     /// let xmax = [1.0, 2.0];
     /// let rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
     /// let mut x = [3.0, -4.0];
-    /// rectangle.project(&mut x);
+    /// rectangle.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new(xmin: Option<&'a [T]>, xmax: Option<&'a [T]>) -> Self {
         assert!(xmin.is_some() || xmax.is_some()); // xmin or xmax must be Some
-        assert!(
-            xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
-            "incompatible dimensions of xmin and xmax"
-        );
+        if let (Some(xmin), Some(xmax)) = (xmin, xmax) {
+            assert_eq!(
+                xmin.len(),
+                xmax.len(),
+                "incompatible dimensions of xmin and xmax"
+            );
+        }
         if let (Some(xmin), Some(xmax)) = (xmin, xmax) {
             assert!(
                 xmin.iter()
@@ -67,7 +71,7 @@ impl<'a, T: Float> Rectangle<'a, T> {
 }
 
 impl<'a, T: Float> Constraint<T> for Rectangle<'a, T> {
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         if let Some(xmin) = &self.xmin {
             assert_eq!(
                 x.len(),
@@ -93,6 +97,7 @@ impl<'a, T: Float> Constraint<T> for Rectangle<'a, T> {
                 };
             });
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

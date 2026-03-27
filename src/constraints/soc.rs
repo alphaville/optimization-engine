@@ -1,5 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
 
@@ -48,7 +49,7 @@ impl<T: Float> SecondOrderCone<T> {
     ///
     /// let cone = SecondOrderCone::new(1.0);
     /// let mut x = [2.0, 0.0, 0.5];
-    /// cone.project(&mut x);
+    /// cone.project(&mut x).unwrap();
     /// ```
     pub fn new(alpha: T) -> SecondOrderCone<T> {
         assert!(alpha > T::zero()); // alpha must be positive
@@ -71,7 +72,7 @@ where
     ///
     /// This method panics if the length of `x` is less than 2.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         // x = (z, r)
         let n = x.len();
         assert!(n >= 2, "x must be of dimension at least 2");
@@ -87,6 +88,7 @@ where
                 .for_each(|v| *v = *v * self.alpha * beta / norm_z);
             x[n - 1] = beta;
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
 
@@ -21,7 +22,7 @@ impl<'a, T: Float> Ball2<'a, T> {
     ///
     /// let ball = Ball2::new(None, 1.0);
     /// let mut x = [2.0, 0.0];
-    /// ball.project(&mut x);
+    /// ball.project(&mut x).unwrap();
     /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());
@@ -34,7 +35,7 @@ impl<'a, T> Constraint<T> for Ball2<'a, T>
 where
     T: Float + Sum<T>,
 {
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -61,6 +62,7 @@ where
                 x.iter_mut().for_each(|x_| *x_ = *x_ / norm_over_radius);
             }
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

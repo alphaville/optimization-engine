@@ -40,16 +40,76 @@
 
 extern crate num;
 
-/// Exceptions/Errors that may arise while solving a problem
+use std::fmt;
+
+/// Exceptions/errors that may arise while solving a problem.
+///
+/// In the Rust API, numerical failures are generally reported through
+/// `Result<_, SolverError>`:
+///
+/// - user-provided callbacks may return [`SolverError::Cost`],
+/// - set projections may return [`SolverError::ProjectionFailed`],
+/// - non-finite intermediate values are reported via
+///   [`SolverError::NotFiniteComputation`], and
+/// - internal numerical/kernel issues are reported through
+///   [`SolverError::LinearAlgebraFailure`] or
+///   [`SolverError::InvalidProblemState`].
+///
+/// By contrast, blatant API misuse such as inconsistent slice dimensions may
+/// still panic in some low-level routines.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SolverError {
     /// If the gradient or cost function cannot be evaluated
-    Cost,
+    Cost(&'static str),
     /// Computation failed and NaN/Infinite value was obtained
-    NotFiniteComputation,
+    NotFiniteComputation(&'static str),
+    /// A projection could not be computed numerically
+    ProjectionFailed(&'static str),
+    /// A linear algebra operation failed
+    LinearAlgebraFailure(&'static str),
+    /// The solver reached an unexpected internal state
+    InvalidProblemState(&'static str),
 }
 
-/// Result of a function call (status)
+impl fmt::Display for SolverError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SolverError::Cost(reason) => {
+                write!(f, "cost or gradient evaluation failed: {}", reason)
+            }
+            SolverError::NotFiniteComputation(reason) => {
+                write!(f, "non-finite computation: {}", reason)
+            }
+            SolverError::ProjectionFailed(reason) => write!(f, "projection failed: {}", reason),
+            SolverError::LinearAlgebraFailure(reason) => {
+                write!(f, "linear algebra failure: {}", reason)
+            }
+            SolverError::InvalidProblemState(reason) => {
+                write!(f, "invalid internal problem state: {}", reason)
+            }
+        }
+    }
+}
+
+impl std::error::Error for SolverError {}
+
+impl From<crate::matrix_operations::MatrixError> for SolverError {
+    fn from(_: crate::matrix_operations::MatrixError) -> Self {
+        SolverError::LinearAlgebraFailure("matrix operation failed")
+    }
+}
+
+impl From<crate::cholesky_factorizer::CholeskyError> for SolverError {
+    fn from(_: crate::cholesky_factorizer::CholeskyError) -> Self {
+        SolverError::LinearAlgebraFailure("Cholesky factorization or solve failed")
+    }
+}
+
+/// Standard result type used by user callbacks and internal projection/codegen routines.
+///
+/// A successful call returns `Ok(())`. Failures should be reported with a
+/// descriptive [`SolverError`] so optimizers can propagate the reason to the
+/// caller.
 pub type FunctionCallResult = Result<(), SolverError>;
 
 pub mod alm;

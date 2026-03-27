@@ -13,12 +13,19 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
      --------------------- -->
 ## [v0.12.0] - Unreleased
 
+### Added
+
+- Richer Rust-side solver errors with human-readable reasons for projection failures, non-finite computations, linear algebra failures, and invalid internal solver states
+- Fallible constraint projections via `Constraint::project(...) -> FunctionCallResult`, with error propagation through FBS, PANOC, and ALM
+- Checked affine-space construction through `AffineSpace::try_new(...)` and `AffineSpaceError`
 
 ### Changed
 
 - Rust solver supports generic float types
-- Expanded Rust constraint test coverage with constructor validation, boundary/idempotence checks, and additional `BallP` / epigraph projection cases
-- Swap the cross-platform timer dependency to web-time, remove instant-specific wasm feature wiring, update optimizer timing call sites to use `web_time::Instant`, keep existing native and wasm timing behavior without stdweb risk
+- Expanded Rust constraint and solver test coverage with constructor validation, boundary/idempotence checks, additional `BallP` / epigraph projection cases, and broader `f32`/`f64` coverage
+- Swapped the cross-platform timer dependency to `web-time`, removed the old `instant`-specific wasm feature wiring, and updated optimizer timing call sites to use `web_time::Instant`
+- Improved Rust-side error handling across constraints and core solvers so projection failures and invalid numerical states are reported explicitly instead of being silently flattened
+- Refined `BallP`, `EpigraphSquaredNorm`, and related constraint implementations and docs for stronger numerical robustness and clearer behavior
 
 <!-- ---------------------
       v0.11.1

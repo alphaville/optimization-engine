@@ -167,7 +167,7 @@ fn t_zero_gamma_l() {
     let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(100);
 
     // Invoke the solver.
-    let _status = panoc_engine.solve(u);
+    panoc_engine.solve(u).unwrap();
     println!("norm_gamma_fpr = {}", panoc_cache.norm_gamma_fpr);
     println!("u = {:?}", u);
     println!("iters = {}", panoc_cache.iteration);
@@ -210,7 +210,7 @@ fn t_zero_gamma_huber() {
     let mut panoc_engine = PANOCOptimizer::new(problem, &mut panoc_cache).with_max_iter(100);
 
     // Invoke the solver.
-    let _status = panoc_engine.solve(u);
+    panoc_engine.solve(u).unwrap();
     println!("norm_gamma_fpr = {}", panoc_cache.norm_gamma_fpr);
     println!("u = {:?}", u);
     println!("iters = {}", panoc_cache.iteration);

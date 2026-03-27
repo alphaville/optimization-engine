@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
 
@@ -92,7 +93,7 @@ where
     /// ];
     /// let finite_set = FiniteSet::new(data);
     /// let mut x = [0.7, 0.6];
-    /// finite_set.project(&mut x); // compute projection
+    /// finite_set.project(&mut x).unwrap(); // compute projection
     /// ```
     ///
     /// # Panics
@@ -100,7 +101,7 @@ where
     /// This method panics if the dimension of `x` is not equal to the
     /// dimension of the points in the finite set.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         assert_eq!(x.len(), self.data[0].len(), "x has incompatible dimension");
         let mut idx: usize = 0;
         let mut best_distance = T::infinity();
@@ -112,6 +113,7 @@ where
             }
         }
         x.copy_from_slice(self.data[idx]);
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

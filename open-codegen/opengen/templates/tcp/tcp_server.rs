@@ -9,7 +9,7 @@ extern crate clap;
 
 use std::{
     io::{prelude::Read, Write},
-    net::TcpListener,
+    net::{TcpListener, TcpStream},
 };
 
 use clap::{Arg, App};
@@ -80,27 +80,54 @@ struct OptimizerSolution<'a> {
     cost: f64,
 }
 
-fn pong(stream: &mut std::net::TcpStream, code: i32) {
-    let error_message = format!(
+fn write_bytes_to_stream(stream: &mut TcpStream, payload: &[u8], context: &str) -> bool {
+    if let Err(err) = stream.write_all(payload) {
+        warn!("{}: {}", context, err);
+        return false;
+    }
+    true
+}
+
+fn write_json_to_stream<T: Serialize>(
+    stream: &mut TcpStream,
+    payload: &T,
+    context: &str,
+) -> bool {
+    let payload_json = match serde_json::to_vec_pretty(payload) {
+        Ok(payload_json) => payload_json,
+        Err(err) => {
+            error!("{}: {}", context, err);
+            return false;
+        }
+    };
+    write_bytes_to_stream(stream, &payload_json, context)
+}
+
+fn pong(stream: &mut TcpStream, code: i32) {
+    let pong_message = format!(
         {% raw %}"{{\n\t\"Pong\" : {}\n}}\n"{% endraw %},
         code
     );
-    stream
-        .write_all(error_message.as_bytes())
-        .expect("cannot write to stream");
+    write_bytes_to_stream(stream, pong_message.as_bytes(), "could not write pong to stream");
 }
 
 /// Writes an error to the communication stream
-fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &str) {
-    let error_message = format!(
-        {% raw %}"{{\n\t\"type\" : \"Error\", \n\t\"code\" : {}, \n\t\"message\" : \"{}\"\n}}\n"{% endraw %},
+#[derive(Serialize)]
+struct ErrorResponse<'a> {
+    #[serde(rename = "type")]
+    response_type: &'a str,
+    code: i32,
+    message: &'a str,
+}
+
+fn write_error_message(stream: &mut TcpStream, code: i32, error_msg: &str) {
+    let error_response = ErrorResponse {
+        response_type: "Error",
         code,
-        error_msg
-    );
-    warn!("Invalid request {:?}", code);
-    stream
-        .write_all(error_message.as_bytes())
-        .expect("cannot write to stream");
+        message: error_msg,
+    };
+    warn!("TCP error {}: {}", code, error_msg);
+    write_json_to_stream(stream, &error_response, "could not write error response to stream");
 }
 
 /// Serializes the solution and solution status and returns it
@@ -108,7 +135,7 @@ fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &
 fn return_solution_to_client(
     status: AlmOptimizerStatus,
     solution: &[f64],
-    stream: &mut std::net::TcpStream,
+    stream: &mut TcpStream,
 ) {
     let empty_vec : [f64; 0] = Default::default();
     let solution: OptimizerSolution = OptimizerSolution {
@@ -125,10 +152,7 @@ fn return_solution_to_client(
         cost: status.cost(),
 
     };
-    let solution_json = serde_json::to_string_pretty(&solution).unwrap();
-    stream
-        .write_all(solution_json.as_bytes())
-        .expect("cannot write to stream");
+    write_json_to_stream(stream, &solution, "could not write optimizer solution to stream");
 }
 
 /// Handles an execution request
@@ -137,7 +161,7 @@ fn execution_handler(
     execution_parameter: &ExecutionParameter,
     u: &mut [f64],
     p: &mut [f64],
-    stream: &mut std::net::TcpStream,
+    stream: &mut TcpStream,
 ) {
     // ----------------------------------------------------
     // Set initial value
@@ -150,7 +174,12 @@ fn execution_handler(
         Some(u0) => {
             if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
                 warn!("initial guess has incompatible dimensions");
-                write_error_message(stream, 1600, "Initial guess has incompatible dimensions");
+                let error_message = format!(
+                    "initial guess has incompatible dimensions: provided {}, expected {}",
+                    u0.len(),
+                    {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES
+                );
+                write_error_message(stream, 1600, &error_message);
                 return;
             }
             u.copy_from_slice(u0);
@@ -162,7 +191,12 @@ fn execution_handler(
     // ----------------------------------------------------
     if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
         if y0.len() != {{meta.optimizer_name|upper}}_N1 {
-            write_error_message(stream, 1700, "wrong dimension of Langrange multipliers");
+            let error_message = format!(
+                "wrong dimension of Langrange multipliers: provided {}, expected {}",
+                y0.len(),
+                {{meta.optimizer_name|upper}}_N1
+            );
+            write_error_message(stream, 1700, &error_message);
             return;
         }
     }
@@ -172,7 +206,12 @@ fn execution_handler(
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
     if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
-        write_error_message(stream, 3003, "wrong number of parameters");
+        let error_message = format!(
+            "wrong number of parameters: provided {}, expected {}",
+            parameter.len(),
+            {{meta.optimizer_name|upper}}_NUM_PARAMETERS
+        );
+        write_error_message(stream, 3003, &error_message);
         return;
     }
     p.copy_from_slice(parameter);
@@ -185,8 +224,9 @@ fn execution_handler(
         Ok(ok_status) => {
             return_solution_to_client(ok_status, u, stream);
         }
-        Err(_) => {
-            write_error_message(stream, 2000, "Problem solution failed (solver error)");
+        Err(err) => {
+            let error_message = format!("problem solution failed: {}", err);
+            write_error_message(stream, 2000, &error_message);
         }
     }
 }
@@ -196,22 +236,52 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
     let mut p = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS];
     let mut cache = initialize_solver();
     info!("Done");
-    let listener = TcpListener::bind(format!("{}:{}", tcp_config.ip, tcp_config.port)).unwrap();
+    let listener = match TcpListener::bind(format!("{}:{}", tcp_config.ip, tcp_config.port)) {
+        Ok(listener) => listener,
+        Err(err) => {
+            error!(
+                "failed to bind TCP server at {}:{}: {}",
+                tcp_config.ip,
+                tcp_config.port,
+                err
+            );
+            return;
+        }
+    };
     let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
     info!("listening started, ready to accept connections at {}:{}", tcp_config.ip, tcp_config.port);
-    for stream in listener.incoming() {
-        let mut stream = stream.unwrap();
+    'incoming: for stream in listener.incoming() {
+        let mut stream = match stream {
+            Ok(stream) => stream,
+            Err(err) => {
+                warn!("failed to accept incoming TCP connection: {}", err);
+                continue;
+            }
+        };
 
         //The following is more robust compared to `read_to_string`
         let mut bytes_buffer = vec![0u8; READ_BUFFER_SIZE];
         let mut read_data_length = 1;
         let mut buffer = String::new();
         while read_data_length != 0 {
-            read_data_length = stream
-                .read(&mut bytes_buffer)
-                .expect("could not read stream");
-            let new_string = String::from_utf8(bytes_buffer[0..read_data_length].to_vec())
-                .expect("sent data is not UFT-8");
+            read_data_length = match stream.read(&mut bytes_buffer) {
+                Ok(read_data_length) => read_data_length,
+                Err(err) => {
+                    warn!("could not read stream: {}", err);
+                    continue 'incoming;
+                }
+            };
+            let new_string = match String::from_utf8(bytes_buffer[0..read_data_length].to_vec()) {
+                Ok(new_string) => new_string,
+                Err(err) => {
+                    let error_message = format!(
+                        "invalid request: request body is not valid UTF-8 ({})",
+                        err.utf8_error()
+                    );
+                    write_error_message(&mut stream, 1000, &error_message);
+                    continue 'incoming;
+                }
+            };
             buffer.push_str(&new_string);
         }
 
@@ -236,8 +306,9 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
                     pong(&mut stream, ping_code);
                 }
             },
-            Err(_) => {
-                write_error_message(&mut stream, 1000, "Invalid request");
+            Err(err) => {
+                let error_message = format!("invalid request: {}", err);
+                write_error_message(&mut stream, 1000, &error_message);
             }
         }
     }

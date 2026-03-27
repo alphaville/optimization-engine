@@ -8,6 +8,8 @@
 //!
 //! [`Constraint`]: trait.Constraint.html
 
+use crate::FunctionCallResult;
+
 mod affine_space;
 mod ball1;
 mod ball2;
@@ -57,7 +59,17 @@ pub trait Constraint<T = f64> {
     ///
     /// - `x`: The given vector $x$ is updated with the projection on the set
     ///
-    fn project(&self, x: &mut [T]);
+    /// ## Errors
+    ///
+    /// Implementations should return `Err(...)` when the projection cannot be
+    /// computed reliably because of a numerical or internal failure.
+    ///
+    /// ## Panics
+    ///
+    /// Implementations may still panic on clear API misuse, such as calling the
+    /// projection with a slice of incompatible dimension.
+    ///
+    fn project(&self, x: &mut [T]) -> FunctionCallResult;
 
     /// Returns true if and only if the set is convex
     fn is_convex(&self) -> bool;

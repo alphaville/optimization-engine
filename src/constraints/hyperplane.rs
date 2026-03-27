@@ -1,5 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
 
@@ -46,7 +47,7 @@ where
     /// let offset = 1.0;
     /// let hyperplane = Hyperplane::new(&normal_vector, offset);
     /// let mut x = [-1., 3.];
-    /// hyperplane.project(&mut x);
+    /// hyperplane.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new(normal_vector: &'a [T], offset: T) -> Self {
@@ -87,13 +88,14 @@ where
     /// This method panics if the length of `x` is not equal to the dimension
     /// of the hyperplane.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         assert_eq!(x.len(), self.normal_vector.len(), "x has wrong dimension");
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
         x.iter_mut()
             .zip(self.normal_vector.iter())
             .for_each(|(x, nrm_vct)| *x = *x - factor * *nrm_vct);
+        Ok(())
     }
 
     /// Hyperplanes are convex sets

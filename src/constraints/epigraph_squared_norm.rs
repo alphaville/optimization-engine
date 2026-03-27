@@ -1,4 +1,5 @@
 use crate::{matrix_operations, numeric::cast};
+use crate::{FunctionCallResult, SolverError};
 
 use super::Constraint;
 use num::Float;
@@ -27,7 +28,7 @@ impl EpigraphSquaredNorm {
     ///
     /// let epi = EpigraphSquaredNorm::new();
     /// let mut x = [1.0, 2.0, 1.0];
-    /// epi.project(&mut x);
+    /// epi.project(&mut x).unwrap();
     /// ```
     #[must_use]
     pub fn new() -> Self {
@@ -62,7 +63,10 @@ where
     ///
     /// Panics if:
     ///
-    /// - `x.len() < 2`,
+    /// - `x.len() < 2`.
+    ///
+    /// Returns an error if:
+    ///
     /// - no admissible real root is found,
     /// - the Newton derivative becomes too small,
     /// - the final scaling factor is numerically singular.
@@ -77,9 +81,9 @@ where
     /// // Here, z = [1., 2., 3.] and t = 4.
     /// let mut x = [1., 2., 3., 4.];
     ///
-    /// epi.project(&mut x);
+    /// epi.project(&mut x).unwrap();
     /// ```
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         assert!(
             x.len() >= 2,
             "EpigraphSquaredNorm::project requires x.len() >= 2"
@@ -92,7 +96,7 @@ where
 
         // Already feasible
         if norm_z_sq <= t {
-            return;
+            return Ok(());
         }
 
         // Cubic:
@@ -122,8 +126,9 @@ where
             }
         }
 
-        let mut zsol =
-            right_root.expect("EpigraphSquaredNorm::project: no admissible real root found");
+        let mut zsol = right_root.ok_or(SolverError::ProjectionFailed(
+            "no admissible real root found for the cubic projection equation",
+        ))?;
 
         // Newton refinement
         let newton_max_iters: usize = 5;
@@ -139,10 +144,11 @@ where
             }
 
             let dp_z = cast::<T>(3.0) * a3 * zsol_sq + cast::<T>(2.0) * a2 * zsol + a1;
-            assert!(
-                num::Float::abs(dp_z) > cast::<T>(10.0) * T::epsilon(),
-                "EpigraphSquaredNorm::project: Newton derivative too small"
-            );
+            if num::Float::abs(dp_z) <= cast::<T>(1e-15) {
+                return Err(SolverError::ProjectionFailed(
+                    "Newton refinement derivative is too small",
+                ));
+            }
 
             zsol = zsol - p_z / dp_z;
         }
@@ -150,16 +156,18 @@ where
         let right_root = zsol;
         let scaling = cast::<T>(1.0) + cast::<T>(2.0) * (right_root - t);
 
-        assert!(
-            num::Float::abs(scaling) > cast::<T>(10.0) * T::epsilon(),
-            "EpigraphSquaredNorm::project: scaling factor too small"
-        );
+        if num::Float::abs(scaling) <= cast::<T>(1e-15) {
+            return Err(SolverError::ProjectionFailed(
+                "projection scaling factor is numerically singular",
+            ));
+        }
 
         // Projection
         for xi in x.iter_mut().take(nx) {
             *xi = *xi / scaling;
         }
         x[nx] = right_root;
+        Ok(())
     }
 
     /// This is a convex set, so this function returns `true`.

@@ -165,7 +165,9 @@ where
 
         // check for possible NaN/inf
         if !matrix_operations::is_finite(u) {
-            return Err(SolverError::NotFiniteComputation);
+            return Err(SolverError::NotFiniteComputation(
+                "final PANOC iterate contains a non-finite value",
+            ));
         }
 
         // exit status
@@ -258,7 +260,7 @@ mod tests {
         /* CHECK FEASIBILITY */
         let mut u_project = [0.0; 2];
         u_project.copy_from_slice(&u_solution);
-        bounds.project(&mut u_project);
+        bounds.project(&mut u_project).unwrap();
         unit_test_utils::assert_nearly_equal_array(
             &u_solution,
             &u_project,
@@ -301,7 +303,7 @@ mod tests {
 
         let mut u_project = [0.0_f32; 2];
         u_project.copy_from_slice(&u_solution);
-        bounds.project(&mut u_project);
+        bounds.project(&mut u_project).unwrap();
         assert!((u_solution[0] - u_project[0]).abs() < 1e-5_f32);
         assert!((u_solution[1] - u_project[1]).abs() < 1e-5_f32);
     }
