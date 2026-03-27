@@ -1,11 +1,7 @@
-use crate::{matrix_operations, SolverError};
+use crate::{matrix_operations, numeric::cast, SolverError};
 use num::Float;
 use std::iter::Sum;
 use std::ops::Mul;
-
-fn cast<T: Float>(value: f64) -> T {
-    T::from(value).expect("floating-point constant must be representable")
-}
 
 pub fn solution_a<T: Float>() -> [T; 2] {
     [

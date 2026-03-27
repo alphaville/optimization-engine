@@ -1,39 +1,39 @@
 use crate::{
     constraints,
     core::{panoc::PANOCCache, AlgorithmEngine, Problem},
-    matrix_operations, FunctionCallResult, SolverError,
+    matrix_operations, numeric::cast, FunctionCallResult, SolverError,
 };
 use lbfgs::LbfgsPrecision;
 use num::Float;
 use std::iter::Sum;
 
 fn min_l_estimate<T: Float>() -> T {
-    T::from(1e-10).expect("1e-10 must be representable")
+    cast::<T>(1e-10)
 }
 
 fn gamma_l_coeff<T: Float>() -> T {
-    T::from(0.95).expect("0.95 must be representable")
+    cast::<T>(0.95)
 }
 
 //const SIGMA_COEFF: f64 = 0.49;
 
 fn delta_lipschitz<T: Float>() -> T {
-    T::from(1e-12).expect("1e-12 must be representable")
+    cast::<T>(1e-12)
 }
 
 fn epsilon_lipschitz<T: Float>() -> T {
-    T::from(1e-6).expect("1e-6 must be representable")
+    cast::<T>(1e-6)
 }
 
 fn lipschitz_update_epsilon<T: Float>() -> T {
-    T::from(1e-6).expect("1e-6 must be representable")
+    cast::<T>(1e-6)
 }
 
 /// Maximum iterations of updating the Lipschitz constant
 const MAX_LIPSCHITZ_UPDATE_ITERATIONS: usize = 10;
 
 fn max_lipschitz_constant<T: Float>() -> T {
-    T::from(1e9).expect("1e9 must be representable")
+    cast::<T>(1e9)
 }
 
 fn norm2_squared_diff<T: Float>(a: &[T], b: &[T]) -> T {
@@ -188,7 +188,7 @@ where
 
         // rhs ← cost + LIP_EPS * |f| - <gradfx, gamma_fpr> + (L/2/gamma) ||gamma_fpr||^2
         cost_value + lipschitz_update_epsilon::<T>() * cost_value.abs() - inner_prod_grad_fpr
-            + (gamma_l_coeff::<T>() / (T::from(2.0).expect("2.0 must be representable") * gamma))
+            + (gamma_l_coeff::<T>() / (cast::<T>(2.0) * gamma))
                 * cache.norm_gamma_fpr
                 * cache.norm_gamma_fpr
     }
@@ -211,8 +211,8 @@ where
 
             // update L, sigma and gamma...
             self.cache.lipschitz_constant =
-                self.cache.lipschitz_constant * T::from(2.0).expect("2.0 must be representable");
-            self.cache.gamma = self.cache.gamma / T::from(2.0).expect("2.0 must be representable");
+                self.cache.lipschitz_constant * cast::<T>(2.0);
+            self.cache.gamma = self.cache.gamma / cast::<T>(2.0);
 
             // recompute the half step...
             self.gradient_step(u_current); // updates self.cache.gradient_step
@@ -227,7 +227,7 @@ where
             it_lipschitz_search += 1;
         }
         self.cache.sigma = (T::one() - gamma_l_coeff::<T>())
-            / (T::from(4.0).expect("4.0 must be representable") * self.cache.gamma);
+            / (cast::<T>(4.0) * self.cache.gamma);
 
         Ok(())
     }
@@ -252,7 +252,7 @@ where
     /// Computes the RHS of the linesearch condition
     fn compute_rhs_ls(&mut self) {
         let cache = &mut self.cache;
-        let half = T::from(0.5).expect("0.5 must be representable");
+        let half = cast::<T>(0.5);
 
         // dist squared ← norm(gradient step - u half step)^2
         // rhs_ls ← f - (gamma/2) * norm(gradf)^2
@@ -268,7 +268,7 @@ where
     /// returns `true` if and only if lhs > rhs (when the line search should continue)
     fn line_search_condition(&mut self, u: &[T]) -> Result<bool, SolverError> {
         let gamma = self.cache.gamma;
-        let half = T::from(0.5).expect("0.5 must be representable");
+        let half = cast::<T>(0.5);
 
         // u_plus ← u - (1-tau)*gamma_fpr + tau*direction
         self.compute_u_plus(u);
@@ -309,7 +309,7 @@ where
         self.cache.tau = T::one(); // initialise tau ← 1.0
         let mut num_ls_iters = 0;
         while self.line_search_condition(u_current)? && num_ls_iters < MAX_LINESEARCH_ITERATIONS {
-            self.cache.tau = self.cache.tau / T::from(2.0).expect("2.0 must be representable");
+            self.cache.tau = self.cache.tau / cast::<T>(2.0);
             num_ls_iters += 1;
         }
         if num_ls_iters == MAX_LINESEARCH_ITERATIONS {
@@ -391,7 +391,7 @@ where
         self.cache.gamma =
             gamma_l_coeff::<T>() / self.cache.lipschitz_constant.max(min_l_estimate());
         self.cache.sigma = (T::one() - gamma_l_coeff::<T>())
-            / (T::from(4.0).expect("4.0 must be representable") * self.cache.gamma);
+            / (cast::<T>(4.0) * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
         self.half_step(); // updates self.cache.u_half_step
 

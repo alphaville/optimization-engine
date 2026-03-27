@@ -2,7 +2,7 @@ use crate::{
     alm::*,
     constraints,
     core::{panoc::PANOCOptimizer, ExitStatus, Problem, SolverStatus},
-    matrix_operations, FunctionCallResult, SolverError,
+    matrix_operations, numeric::cast, FunctionCallResult, SolverError,
 };
 use lbfgs::LbfgsPrecision;
 use num::Float;
@@ -10,10 +10,6 @@ use std::{iter::Sum, ops::AddAssign};
 
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 5000;
-
-fn float<T: Float>(value: f64) -> T {
-    T::from(value).expect("floating-point constant must be representable")
-}
 
 /// Internal/private structure used by method AlmOptimizer.step
 /// to return some minimal information about the inner problem
@@ -281,19 +277,19 @@ where
         // set the initial value of the inner tolerance; this step is
         // not necessary, however, because we set the initial tolerance
         // in #solve (see below)
-        alm_cache.panoc_cache.set_akkt_tolerance(float(0.1));
+        alm_cache.panoc_cache.set_akkt_tolerance(cast::<T>(0.1));
         AlmOptimizer {
             alm_cache,
             alm_problem,
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
             max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
             max_duration: None,
-            epsilon_tolerance: float(1e-6),
-            delta_tolerance: float(1e-4),
-            penalty_update_factor: float(5.0),
-            epsilon_update_factor: float(0.1),
-            sufficient_decrease_coeff: float(0.1),
-            epsilon_inner_initial: float(0.1),
+            epsilon_tolerance: cast::<T>(1e-6),
+            delta_tolerance: cast::<T>(1e-4),
+            penalty_update_factor: cast::<T>(5.0),
+            epsilon_update_factor: cast::<T>(0.1),
+            sufficient_decrease_coeff: cast::<T>(0.1),
+            epsilon_inner_initial: cast::<T>(0.1),
         }
     }
 

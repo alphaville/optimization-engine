@@ -1,3 +1,5 @@
+use crate::numeric::cast;
+
 use super::Constraint;
 use num::Float;
 
@@ -39,7 +41,7 @@ impl<T: Float> Constraint<T> for Simplex<T> {
         // ---- step 2
         x.iter().skip(1).for_each(|x_n| {
             if *x_n > rho {
-                rho = rho + (*x_n - rho) / T::from(v.len() + 1).expect("usize must fit in T");
+                rho = rho + (*x_n - rho) / cast(v.len() + 1);
                 if rho > *x_n - *a {
                     v.push(*x_n);
                 } else {
@@ -55,7 +57,7 @@ impl<T: Float> Constraint<T> for Simplex<T> {
             v_tilde.iter().for_each(|v_t_n| {
                 if *v_t_n > rho {
                     v.push(*v_t_n);
-                    rho = rho + (*v_t_n - rho) / T::from(v.len()).expect("usize must fit in T");
+                    rho = rho + (*v_t_n - rho) / cast(v.len());
                 }
             });
         }
@@ -69,7 +71,7 @@ impl<T: Float> Constraint<T> for Simplex<T> {
                 if *v_n <= rho {
                     hit_list.push(n);
                     current_len_v -= 1;
-                    rho = rho + (rho - *v_n) / T::from(current_len_v).expect("i64 must fit in T");
+                    rho = rho + (rho - *v_n) / cast(current_len_v);
                 }
             });
             hit_list.iter().rev().for_each(|target| {

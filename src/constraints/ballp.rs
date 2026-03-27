@@ -1,3 +1,5 @@
+use crate::numeric::cast;
+
 use super::Constraint;
 use num::Float;
 
@@ -181,15 +183,14 @@ impl<'a, T: Float> BallP<'a, T> {
         let mut lambda_hi = T::one();
 
         while radius_error(lambda_hi) > T::zero() {
-            lambda_hi = lambda_hi * T::from(2.0).expect("2.0 must be representable");
-            if lambda_hi > T::from(1e20).expect("1e20 must be representable") {
+            lambda_hi = lambda_hi * cast::<T>(2.0);
+            if lambda_hi > cast::<T>(1e20) {
                 panic!("Failed to bracket the Lagrange multiplier");
             }
         }
 
         for _ in 0..max_iter {
-            let lambda_mid =
-                T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
+            let lambda_mid = cast::<T>(0.5) * (lambda_lo + lambda_hi);
             let err = radius_error(lambda_mid);
 
             if err.abs() <= tol {
@@ -205,8 +206,7 @@ impl<'a, T: Float> BallP<'a, T> {
             }
         }
 
-        let lambda_star =
-            T::from(0.5).expect("0.5 must be representable") * (lambda_lo + lambda_hi);
+        let lambda_star = cast::<T>(0.5) * (lambda_lo + lambda_hi);
 
         x.iter_mut().zip(abs_x.iter()).for_each(|(xi, &a)| {
             let u = Self::solve_coordinate_newton(a, lambda_star, p, tol, max_iter);
@@ -253,11 +253,11 @@ impl<'a, T: Float> BallP<'a, T> {
                 + lambda
                     * p
                     * (p - T::one())
-                    * u.powf(p - T::from(2.0).expect("2.0 must be representable"));
+                    * u.powf(p - cast::<T>(2.0));
             let mut candidate = u - f / df;
 
             if !candidate.is_finite() || candidate <= lo || candidate >= hi {
-                candidate = T::from(0.5).expect("0.5 must be representable") * (lo + hi);
+                candidate = cast::<T>(0.5) * (lo + hi);
             }
 
             if (candidate - u).abs() <= tol * (T::one() + u.abs()) {
@@ -267,7 +267,7 @@ impl<'a, T: Float> BallP<'a, T> {
             u = candidate;
         }
 
-        T::from(0.5).expect("0.5 must be representable") * (lo + hi)
+        cast::<T>(0.5) * (lo + hi)
     }
 }
 

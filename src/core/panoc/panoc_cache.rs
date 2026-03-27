@@ -1,13 +1,14 @@
+use crate::numeric::cast;
 use lbfgs::LbfgsPrecision;
 use num::Float;
 use std::iter::Sum;
 
 fn default_sy_epsilon<T: Float>() -> T {
-    T::from(1e-10).expect("1e-10 must be representable")
+    cast::<T>(1e-10)
 }
 
 fn default_cbfgs_epsilon<T: Float>() -> T {
-    T::from(1e-8).expect("1e-8 must be representable")
+    cast::<T>(1e-8)
 }
 
 fn default_cbfgs_alpha<T: Float>() -> T {

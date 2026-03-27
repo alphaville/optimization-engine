@@ -1,3 +1,5 @@
+use crate::numeric::cast;
+
 use super::Constraint;
 use num::Float;
 use std::iter::Sum;
@@ -51,7 +53,7 @@ where
     /// `center` have incompatible dimensions.
     ///
     fn project(&self, x: &mut [T]) {
-        let epsilon = T::from(1e-12).expect("1e-12 must be representable");
+        let epsilon = cast::<T>(1e-12);
         assert!(!x.is_empty(), "x must be nonempty");
         if let Some(center) = &self.center {
             assert_eq!(

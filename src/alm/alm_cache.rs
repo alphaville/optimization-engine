@@ -1,10 +1,10 @@
-use crate::panoc::PANOCCache;
+use crate::{numeric::cast, panoc::PANOCCache};
 use lbfgs::LbfgsPrecision;
 use num::Float;
 use std::iter::Sum;
 
 fn default_initial_penalty<T: Float>() -> T {
-    T::from(10.0).expect("10.0 must be representable")
+    cast::<T>(10.0)
 }
 
 /// Cache for `AlmOptimizer` (to be allocated once)

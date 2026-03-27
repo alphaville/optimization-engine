@@ -1,13 +1,9 @@
-use crate::matrix_operations;
+use crate::{matrix_operations, numeric::cast};
 
 use super::Constraint;
 use num::Float;
 use roots::FloatType;
 use std::iter::Sum;
-
-fn cast<T: Float>(value: f64) -> T {
-    T::from(value).expect("constant must be representable")
-}
 
 #[derive(Copy, Clone, Default)]
 /// The epigraph of the squared Euclidean norm, that is,

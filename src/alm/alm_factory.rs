@@ -5,14 +5,10 @@
 /*        prepares psi and d_psi, which can be used to define an AlmOptimizer   */
 /* ---------------------------------------------------------------------------- */
 
-use crate::{constraints::Constraint, matrix_operations, FunctionCallResult};
+use crate::{constraints::Constraint, matrix_operations, numeric::cast, FunctionCallResult};
 use num::Float;
 use std::marker::PhantomData;
 use std::{iter::Sum, ops::AddAssign};
-
-fn half<T: Float>() -> T {
-    T::from(0.5).expect("0.5 must be representable")
-}
 
 /// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
 /// and optionally $F_1$, $JF_1$, $C$ and $F_2$
@@ -264,7 +260,7 @@ where
             s.copy_from_slice(&f1_u_plus_y_over_c);
             set_c.project(&mut s);
             let dist_sq: T = matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
-            let scaling: T = half::<T>() * penalty_parameter;
+            let scaling: T = cast::<T>(0.5) * penalty_parameter;
             *cost += scaling * dist_sq;
         }
         if let Some(f2) = &self.mapping_f2 {
@@ -272,7 +268,7 @@ where
             let mut z = vec![T::zero(); self.n2];
             f2(u, &mut z)?;
             let norm_sq: T = matrix_operations::norm2_squared(&z);
-            let scaling: T = half::<T>() * c;
+            let scaling: T = cast::<T>(0.5) * c;
             *cost += scaling * norm_sq;
         }
         Ok(())

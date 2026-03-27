@@ -41,15 +41,15 @@
 //! ```
 //!
 
-use crate::SolverError;
+use crate::{numeric::cast, SolverError};
 use num::Float;
 
 fn default_delta<T: Float>() -> T {
-    T::from(1e-6).expect("1e-6 must be representable")
+    cast::<T>(1e-6)
 }
 
 fn default_epsilon<T: Float>() -> T {
-    T::from(1e-6).expect("1e-6 must be representable")
+    cast::<T>(1e-6)
 }
 
 fn norm2<T: Float>(a: &[T]) -> T {
