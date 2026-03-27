@@ -557,6 +557,46 @@ class OcpTestCase(unittest.TestCase):
 
         self.assertIn("wrong number of parameters", str(context.exception))
 
+    def test_generated_optimizer_missing_required_parameter(self):
+        loaded_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+
+        with self.assertRaises(ValueError) as context:
+            loaded_optimizer.solve(xref=[0.0, 0.0])
+
+        self.assertIn("missing values for parameters: x0", str(context.exception))
+
+    def test_generated_optimizer_parameter_dimension_mismatch_at_solve(self):
+        loaded_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+
+        with self.assertRaises(ValueError) as context:
+            loaded_optimizer.solve(x0=[1.0])
+
+        self.assertIn("parameter 'x0' has incompatible dimension", str(context.exception))
+
+    def test_generated_optimizer_direct_invalid_initial_guess(self):
+        with self.assertRaises(RuntimeError) as context:
+            self.ocp1_optimizer.solve(
+                x0=[1.0, 0.0],
+                initial_guess=[0.0],
+            )
+
+        self.assertIn("initial guess has incompatible dimensions", str(context.exception))
+
+    def test_generated_optimizer_tcp_invalid_initial_guess(self):
+        optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_single_manifest_path)
+
+        try:
+            with self.assertRaises(RuntimeError) as context:
+                optimizer.solve(
+                    x0=[1.0, -1.0],
+                    xref=[0.0, 0.0],
+                    initial_guess=[0.0],
+                )
+
+            self.assertIn("initial guess has incompatible dimensions", str(context.exception))
+        finally:
+            optimizer.kill()
+
     def test_optimizer_manifest_roundtrip(self):
         manifest_path = self.ocp1_manifest_path
         rollout_path = self.ocp1_rollout_path

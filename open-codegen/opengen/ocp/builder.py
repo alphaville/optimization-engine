@@ -229,6 +229,10 @@ class GeneratedOptimizer:
             return casadi_version
         return GeneratedOptimizer.__safe_package_version("casadi")
 
+    @staticmethod
+    def __format_backend_error(error):
+        return getattr(error, "message", str(error))
+
     def save(self, json_path=None):
         """Save a manifest that can later recreate this optimizer.
 
@@ -343,7 +347,7 @@ class GeneratedOptimizer:
                 raise RuntimeError("solver failed")
             if hasattr(raw, "is_ok") and hasattr(raw, "get"):
                 if not raw.is_ok():
-                    raise RuntimeError(str(raw.get()))
+                    raise RuntimeError(self.__format_backend_error(raw.get()))
                 raw = raw.get()
         elif self.__backend_kind == "tcp":
             self.start()
@@ -354,7 +358,7 @@ class GeneratedOptimizer:
                 initial_penalty=initial_penalty,
             )
             if not response.is_ok():
-                raise RuntimeError(str(response.get()))
+                raise RuntimeError(self.__format_backend_error(response.get()))
             raw = response.get()
         else:
             raise RuntimeError("optimizer backend is not available")
