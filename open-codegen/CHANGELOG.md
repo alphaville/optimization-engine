@@ -14,10 +14,12 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 - ROS2 package generation support via `BuildConfiguration.with_ros2(...)`, including auto-generated ROS2 templates, launcher, messages, and package wrapper code
 - Dedicated ROS2 tests covering package generation, build configuration behavior, rendered custom package settings, and end-to-end execution of a generated ROS2 node
+- More informative TCP solver error payloads, including clearer dimension/parameter validation failures and propagated solver-side failure messages
 
 ### Changed
 
 - Extended `RosConfiguration` so it can be used for both ROS and ROS2 package generation
+- Updated generated TCP server and C interface templates to work with the richer Rust solver error model and expose better failure information to clients
 
 
 ## [0.10.1] - 2026-03-25
