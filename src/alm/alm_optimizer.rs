@@ -1,19 +1,17 @@
 use crate::{
     alm::*,
     constraints,
-    core::{panoc::PANOCOptimizer, ExitStatus, Optimizer, Problem, SolverStatus},
-    matrix_operations, FunctionCallResult, SolverError,
+    core::{panoc::PANOCOptimizer, ExitStatus, Problem, SolverStatus},
+    matrix_operations,
+    numeric::cast,
+    FunctionCallResult, SolverError,
 };
+use lbfgs::LbfgsPrecision;
+use num::Float;
+use std::{iter::Sum, ops::AddAssign};
 
 const DEFAULT_MAX_OUTER_ITERATIONS: usize = 50;
 const DEFAULT_MAX_INNER_ITERATIONS: usize = 5000;
-const DEFAULT_EPSILON_TOLERANCE: f64 = 1e-6;
-const DEFAULT_DELTA_TOLERANCE: f64 = 1e-4;
-const DEFAULT_PENALTY_UPDATE_FACTOR: f64 = 5.0;
-const DEFAULT_EPSILON_UPDATE_FACTOR: f64 = 0.1;
-const DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR: f64 = 0.1;
-const DEFAULT_INITIAL_TOLERANCE: f64 = 0.1;
-const SMALL_EPSILON: f64 = f64::EPSILON;
 
 /// Internal/private structure used by method AlmOptimizer.step
 /// to return some minimal information about the inner problem
@@ -115,6 +113,9 @@ impl InnerProblemStatus {
 /// of $C$ and $\delta_{U}$, $\delta_{C^{\ast}}$ are the indicator functions of $U$ and $C^{\ast}$
 /// respectively.
 ///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
+///
 pub struct AlmOptimizer<
     'life,
     MappingAlm,
@@ -124,17 +125,19 @@ pub struct AlmOptimizer<
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
+    T = f64,
 > where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: constraints::Constraint,
-    AlmSetC: constraints::Constraint,
-    LagrangeSetY: constraints::Constraint,
+    T: Float + LbfgsPrecision + Sum<T> + AddAssign,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: constraints::Constraint<T>,
+    AlmSetC: constraints::Constraint<T>,
+    LagrangeSetY: constraints::Constraint<T>,
 {
     /// ALM cache (borrowed)
-    alm_cache: &'life mut AlmCache,
+    alm_cache: &'life mut AlmCache<T>,
     /// ALM problem definition (oracle)
     alm_problem: AlmProblem<
         MappingAlm,
@@ -144,6 +147,7 @@ pub struct AlmOptimizer<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >,
     /// Maximum number of outer iterations
     max_outer_iterations: usize,
@@ -152,19 +156,19 @@ pub struct AlmOptimizer<
     /// Maximum duration
     max_duration: Option<std::time::Duration>,
     /// epsilon for inner AKKT condition
-    epsilon_tolerance: f64,
+    epsilon_tolerance: T,
     /// delta for outer AKKT condition
-    delta_tolerance: f64,
+    delta_tolerance: T,
     /// At every outer iteration, c is multiplied by this scalar
-    penalty_update_factor: f64,
+    penalty_update_factor: T,
     /// The epsilon-tolerance is multiplied by this factor until
     /// it reaches its target value
-    epsilon_update_factor: f64,
+    epsilon_update_factor: T,
     /// If current_infeasibility <= sufficient_decrease_coeff * previous_infeasibility,
     /// then the penalty parameter is kept constant
-    sufficient_decrease_coeff: f64,
+    sufficient_decrease_coeff: T,
     // Initial tolerance (for the inner problem)
-    epsilon_inner_initial: f64,
+    epsilon_inner_initial: T,
 }
 
 impl<
@@ -176,6 +180,7 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
     AlmOptimizer<
         'life,
@@ -186,15 +191,17 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
 where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: constraints::Constraint,
-    AlmSetC: constraints::Constraint,
-    LagrangeSetY: constraints::Constraint,
+    T: Float + LbfgsPrecision + Sum<T> + AddAssign,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: constraints::Constraint<T>,
+    AlmSetC: constraints::Constraint<T>,
+    LagrangeSetY: constraints::Constraint<T>,
 {
     /* ---------------------------------------------------------------------------- */
     /*          CONSTRUCTOR                                                         */
@@ -210,8 +217,14 @@ where
     ///   $\nabla_u \psi(u, \xi)$, $F_1(u)$ (if any), $F_2(u)$ (if any), and sets
     ///   $C$, $U$ and $Y$)
     ///
+    /// The scalar type `T` is inferred from `alm_cache`, `alm_problem`, and the
+    /// supplied closures and sets.
+    ///
     ///
     /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
     ///
     /// ```rust
     /// use optimization_engine::{alm::*, FunctionCallResult, core::{panoc::*, constraints}};
@@ -249,8 +262,9 @@ where
     ///     .with_max_outer_iterations(10);
     ///```     
     ///
+    #[must_use]
     pub fn new(
-        alm_cache: &'life mut AlmCache,
+        alm_cache: &'life mut AlmCache<T>,
         alm_problem: AlmProblem<
             MappingAlm,
             MappingPm,
@@ -259,26 +273,25 @@ where
             ConstraintsType,
             AlmSetC,
             LagrangeSetY,
+            T,
         >,
     ) -> Self {
         // set the initial value of the inner tolerance; this step is
         // not necessary, however, because we set the initial tolerance
         // in #solve (see below)
-        alm_cache
-            .panoc_cache
-            .set_akkt_tolerance(DEFAULT_INITIAL_TOLERANCE);
+        alm_cache.panoc_cache.set_akkt_tolerance(cast::<T>(0.1));
         AlmOptimizer {
             alm_cache,
             alm_problem,
             max_outer_iterations: DEFAULT_MAX_OUTER_ITERATIONS,
             max_inner_iterations: DEFAULT_MAX_INNER_ITERATIONS,
             max_duration: None,
-            epsilon_tolerance: DEFAULT_EPSILON_TOLERANCE,
-            delta_tolerance: DEFAULT_DELTA_TOLERANCE,
-            penalty_update_factor: DEFAULT_PENALTY_UPDATE_FACTOR,
-            epsilon_update_factor: DEFAULT_EPSILON_UPDATE_FACTOR,
-            sufficient_decrease_coeff: DEFAULT_INFEAS_SUFFICIENT_DECREASE_FACTOR,
-            epsilon_inner_initial: DEFAULT_INITIAL_TOLERANCE,
+            epsilon_tolerance: cast::<T>(1e-6),
+            delta_tolerance: cast::<T>(1e-4),
+            penalty_update_factor: cast::<T>(5.0),
+            epsilon_update_factor: cast::<T>(0.1),
+            sufficient_decrease_coeff: cast::<T>(0.1),
+            epsilon_inner_initial: cast::<T>(0.1),
         }
     }
 
@@ -301,6 +314,7 @@ where
     /// The method panics if the specified number of outer iterations is zero
     ///
     ///
+    #[must_use]
     pub fn with_max_outer_iterations(mut self, max_outer_iterations: usize) -> Self {
         assert!(
             max_outer_iterations > 0,
@@ -326,6 +340,7 @@ where
     /// The method panics if the specified number of inner iterations is zero
     ///
     ///
+    #[must_use]
     pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
         assert!(
             max_inner_iterations > 0,
@@ -348,6 +363,7 @@ where
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
+    #[must_use]
     pub fn with_max_duration(mut self, max_duration: std::time::Duration) -> Self {
         self.max_duration = Some(max_duration);
         self
@@ -367,8 +383,12 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     ///
-    pub fn with_delta_tolerance(mut self, delta_tolerance: f64) -> Self {
-        assert!(delta_tolerance > 0.0, "delta_tolerance must be positive");
+    #[must_use]
+    pub fn with_delta_tolerance(mut self, delta_tolerance: T) -> Self {
+        assert!(
+            delta_tolerance > T::zero(),
+            "delta_tolerance must be positive"
+        );
         self.delta_tolerance = delta_tolerance;
         self
     }
@@ -387,9 +407,10 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     ///
-    pub fn with_epsilon_tolerance(mut self, epsilon_tolerance: f64) -> Self {
+    #[must_use]
+    pub fn with_epsilon_tolerance(mut self, epsilon_tolerance: T) -> Self {
         assert!(
-            epsilon_tolerance > 0.0,
+            epsilon_tolerance > T::zero(),
             "epsilon_tolerance must be positive"
         );
         self.epsilon_tolerance = epsilon_tolerance;
@@ -412,13 +433,14 @@ where
     ///
     /// # Panics
     ///
-    /// The method panics if the update factor is not larger than `1.0 + f64::EPSILON`
+    /// The method panics if the update factor is not larger than `1.0 + T::epsilon()`
     ///
     ///
-    pub fn with_penalty_update_factor(mut self, penalty_update_factor: f64) -> Self {
+    #[must_use]
+    pub fn with_penalty_update_factor(mut self, penalty_update_factor: T) -> Self {
         assert!(
-            penalty_update_factor > 1.0 + SMALL_EPSILON,
-            "`penalty_update_factor` must be larger than 1.0 + f64::EPSILON"
+            penalty_update_factor > T::one() + T::epsilon(),
+            "`penalty_update_factor` must be larger than 1.0 + T::epsilon()"
         );
         self.penalty_update_factor = penalty_update_factor;
         self
@@ -442,16 +464,14 @@ where
     /// # Panics
     ///
     /// The method panics if the specified tolerance update factor is not in the
-    /// interval from `f64::EPSILON` to `1.0 - f64::EPSILON`.
+    /// interval from `T::epsilon()` to `1.0 - T::epsilon()`.
     ///
-    pub fn with_inner_tolerance_update_factor(
-        mut self,
-        inner_tolerance_update_factor: f64,
-    ) -> Self {
+    #[must_use]
+    pub fn with_inner_tolerance_update_factor(mut self, inner_tolerance_update_factor: T) -> Self {
         assert!(
-            inner_tolerance_update_factor > SMALL_EPSILON
-                && inner_tolerance_update_factor < 1.0 - SMALL_EPSILON,
-            "the tolerance update factor needs to be in (f64::EPSILON, 1)"
+            inner_tolerance_update_factor > T::epsilon()
+                && inner_tolerance_update_factor < T::one() - T::epsilon(),
+            "the tolerance update factor needs to be in (T::epsilon(), 1)"
         );
         self.epsilon_update_factor = inner_tolerance_update_factor;
         self
@@ -480,7 +500,8 @@ where
     /// `with_inner_tolerance` to do so before invoking `with_initial_inner_tolerance`.
     ///
     ///
-    pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: f64) -> Self {
+    #[must_use]
+    pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: T) -> Self {
         assert!(
             initial_inner_tolerance >= self.epsilon_tolerance,
             "the initial tolerance should be no less than the target tolerance"
@@ -510,16 +531,17 @@ where
     /// # Panics
     ///
     /// The method panics if the specified sufficient decrease coefficient is not
-    /// in the range `(f64::EPSILON, 1.0 - f64::EPSILON)`
+    /// in the range `(T::epsilon(), 1.0 - T::epsilon())`
     ///
+    #[must_use]
     pub fn with_sufficient_decrease_coefficient(
         mut self,
-        sufficient_decrease_coefficient: f64,
+        sufficient_decrease_coefficient: T,
     ) -> Self {
         assert!(
-            sufficient_decrease_coefficient < 1.0 - SMALL_EPSILON
-                && sufficient_decrease_coefficient > SMALL_EPSILON,
-            "sufficient_decrease_coefficient must be in (f64::EPSILON, 1.0 - f64::EPSILON)"
+            sufficient_decrease_coefficient < T::one() - T::epsilon()
+                && sufficient_decrease_coefficient > T::epsilon(),
+            "sufficient_decrease_coefficient must be in (T::epsilon(), 1.0 - T::epsilon())"
         );
         self.sufficient_decrease_coeff = sufficient_decrease_coefficient;
         self
@@ -529,7 +551,7 @@ where
     ///
     /// # Arguments
     ///
-    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[f64]`) of
+    /// - `y_init`: initial vector of Lagrange multipliers (type: `&[T]`) of
     ///   length equal to `n1`
     ///
     /// # Returns
@@ -540,7 +562,8 @@ where
     ///
     /// The method will panic if the length of `y_init` is not equal to `n1`
     ///
-    pub fn with_initial_lagrange_multipliers(mut self, y_init: &[f64]) -> Self {
+    #[must_use]
+    pub fn with_initial_lagrange_multipliers(mut self, y_init: &[T]) -> Self {
         let cache = &mut self.alm_cache;
         assert!(
             y_init.len() == self.alm_problem.n1,
@@ -568,12 +591,13 @@ where
     /// # Panics
     ///
     /// The method panics if the specified initial penalty parameter is not
-    /// larger than `f64::EPSILON`
+    /// larger than `T::epsilon()`
     ///
-    pub fn with_initial_penalty(self, c0: f64) -> Self {
+    #[must_use]
+    pub fn with_initial_penalty(self, c0: T) -> Self {
         assert!(
-            c0 > SMALL_EPSILON,
-            "the initial penalty must be larger than f64::EPSILON"
+            c0 > T::epsilon(),
+            "the initial penalty must be larger than T::epsilon()"
         );
         if let Some(xi_in_cache) = &mut self.alm_cache.xi {
             xi_in_cache[0] = c0;
@@ -596,7 +620,7 @@ where
     }
 
     /// Computes PM infeasibility, that is, ||F2(u)||
-    fn compute_pm_infeasibility(&mut self, u: &[f64]) -> FunctionCallResult {
+    fn compute_pm_infeasibility(&mut self, u: &[T]) -> FunctionCallResult {
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -613,7 +637,7 @@ where
     ///
     /// `y_plus <-- y + c*[F1(u_plus) - Proj_C(F1(u_plus) + y/c)]`
     ///
-    fn update_lagrange_multipliers(&mut self, u: &[f64]) -> FunctionCallResult {
+    fn update_lagrange_multipliers(&mut self, u: &[T]) -> FunctionCallResult {
         let problem = &self.alm_problem; // ALM problem
         let cache = &mut self.alm_cache; // ALM cache
 
@@ -647,7 +671,7 @@ where
                 .iter_mut()
                 .zip(y.iter())
                 .zip(w_alm_aux.iter())
-                .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = w_alm_aux_i + y_i / c);
+                .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = *w_alm_aux_i + *y_i / c);
 
             // Step #3: y_plus := Proj_C(y_plus)
             alm_set_c.project(y_plus);
@@ -659,7 +683,7 @@ where
                 .zip(w_alm_aux.iter())
                 .for_each(|((y_plus_i, y_i), w_alm_aux_i)| {
                     // y_plus := y  + c * (w_alm_aux   - y_plus)
-                    *y_plus_i = y_i + c * (w_alm_aux_i - *y_plus_i)
+                    *y_plus_i = *y_i + c * (*w_alm_aux_i - *y_plus_i)
                 });
         }
 
@@ -671,10 +695,10 @@ where
         let problem = &self.alm_problem;
         if let Some(y_set) = &problem.alm_set_y {
             // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
-            // * cache.y is                Option<Vec<f64>>
-            // * cache.y.as_mut is         Option<&mut Vec<f64>>
-            // *  which can be treated as  Option<&mut [f64]>
-            // * y_vec is                  &mut [f64]
+            // * cache.y is                Option<Vec<T>>
+            // * cache.y.as_mut is         Option<&mut Vec<T>>
+            // *  which can be treated as  Option<&mut [T]>
+            // * y_vec is                  &mut [T]
             if let Some(xi_vec) = self.alm_cache.xi.as_mut() {
                 y_set.project(&mut xi_vec[1..]);
             }
@@ -691,12 +715,12 @@ where
     ///
     /// # Returns
     ///
-    /// Returns an instance of `Result<SolverStatus, SolverError>`, where `SolverStatus`
+    /// Returns an instance of `Result<SolverStatus<T>, SolverError>`, where `SolverStatus`
     /// is the solver status of the inner problem and `SolverError` is a potential
     /// error in solving the inner problem.
     ///
     ///
-    fn solve_inner_problem(&mut self, u: &mut [f64]) -> Result<SolverStatus, SolverError> {
+    fn solve_inner_problem(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
         let alm_problem = &self.alm_problem; // Problem
         let alm_cache = &mut self.alm_cache; // ALM cache
 
@@ -704,7 +728,7 @@ where
         // empty vector, otherwise. We do that becaues the user has the option
         // to not use any ALM/PM constraints; in that case, `alm_cache.xi` is
         // `None`
-        let xi_empty = Vec::new();
+        let xi_empty = Vec::<T>::new();
         let xi = if let Some(xi_cached) = &alm_cache.xi {
             xi_cached
         } else {
@@ -713,11 +737,11 @@ where
         // Construct psi and psi_grad (as functions of `u` alone); it is
         // psi(u) = psi(u; xi) and psi_grad(u) = phi_grad(u; xi)
         // psi: R^nu --> R
-        let psi = |u: &[f64], psi_val: &mut f64| -> FunctionCallResult {
+        let psi = |u: &[T], psi_val: &mut T| -> FunctionCallResult {
             (alm_problem.parametric_cost)(u, xi, psi_val)
         };
         // psi_grad: R^nu --> R^nu
-        let psi_grad = |u: &[f64], psi_grad: &mut [f64]| -> FunctionCallResult {
+        let psi_grad = |u: &[T], psi_grad: &mut [T]| -> FunctionCallResult {
             (alm_problem.parametric_gradient)(u, xi, psi_grad)
         };
         // define the inner problem
@@ -750,7 +774,7 @@ where
             || if let Some(xi) = &cache.xi {
                 let c = xi[0];
                 cache.iteration > 0
-                    && cache.delta_y_norm_plus <= c * self.delta_tolerance + SMALL_EPSILON
+                    && cache.delta_y_norm_plus <= c * self.delta_tolerance + T::epsilon()
             } else {
                 true
             };
@@ -758,13 +782,13 @@ where
         //              If n2 = 0, there are no PM-type constraints, so this
         //              criterion is automatically satisfied
         let criterion_2 =
-            problem.n2 == 0 || cache.f2_norm_plus <= self.delta_tolerance + SMALL_EPSILON;
+            problem.n2 == 0 || cache.f2_norm_plus <= self.delta_tolerance + T::epsilon();
         // Criterion 3: epsilon_nu <= epsilon
         //              This function will panic is there is no akkt_tolerance
         //              This should never happen because we set the AKKT tolerance
         //              in the constructor and can never become `None` again
         let criterion_3 =
-            cache.panoc_cache.akkt_tolerance.unwrap() <= self.epsilon_tolerance + SMALL_EPSILON;
+            cache.panoc_cache.akkt_tolerance.unwrap() <= self.epsilon_tolerance + T::epsilon();
         criterion_1 && criterion_2 && criterion_3
     }
 
@@ -781,9 +805,9 @@ where
         let is_alm = problem.n1 > 0;
         let is_pm = problem.n2 > 0;
         let criterion_alm = cache.delta_y_norm_plus
-            <= self.sufficient_decrease_coeff * cache.delta_y_norm + SMALL_EPSILON;
+            <= self.sufficient_decrease_coeff * cache.delta_y_norm + T::epsilon();
         let criterion_pm =
-            cache.f2_norm_plus <= self.sufficient_decrease_coeff * cache.f2_norm + SMALL_EPSILON;
+            cache.f2_norm_plus <= self.sufficient_decrease_coeff * cache.f2_norm + T::epsilon();
         if is_alm && !is_pm {
             return criterion_alm;
         } else if !is_alm && is_pm {
@@ -798,17 +822,21 @@ where
     fn update_penalty_parameter(&mut self) {
         let cache = &mut self.alm_cache;
         if let Some(xi) = &mut cache.xi {
-            xi[0] *= self.penalty_update_factor;
+            xi[0] = xi[0] * self.penalty_update_factor;
         }
     }
 
     fn update_inner_akkt_tolerance(&mut self) {
         let cache = &mut self.alm_cache;
         // epsilon_{nu+1} := max(epsilon, beta*epsilon_nu)
-        cache.panoc_cache.set_akkt_tolerance(f64::max(
-            cache.panoc_cache.akkt_tolerance.unwrap() * self.epsilon_update_factor,
-            self.epsilon_tolerance,
-        ));
+        let next_tolerance = cache.panoc_cache.akkt_tolerance.unwrap() * self.epsilon_update_factor;
+        cache
+            .panoc_cache
+            .set_akkt_tolerance(if next_tolerance > self.epsilon_tolerance {
+                next_tolerance
+            } else {
+                self.epsilon_tolerance
+            });
     }
 
     fn final_cache_update(&mut self) {
@@ -837,7 +865,7 @@ where
     /// - Shrinks the inner tolerance and
     /// - Updates the ALM cache
     ///
-    fn step(&mut self, u: &mut [f64]) -> Result<InnerProblemStatus, SolverError> {
+    fn step(&mut self, u: &mut [T]) -> Result<InnerProblemStatus, SolverError> {
         // store the exit status of the inner problem in this problem
         // (we'll need to return it within `InnerProblemStatus`)
         let mut inner_exit_status: ExitStatus = ExitStatus::Converged;
@@ -848,7 +876,7 @@ where
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
         // we should keep solving.
-        self.solve_inner_problem(u).map(|status: SolverStatus| {
+        self.solve_inner_problem(u).map(|status: SolverStatus<T>| {
             let inner_iters = status.iterations();
             self.alm_cache.last_inner_problem_norm_fpr = status.norm_fpr();
             self.alm_cache.inner_iteration_count += inner_iters;
@@ -885,18 +913,18 @@ where
         Ok(InnerProblemStatus::new(true, inner_exit_status)) // `true` means do continue the outer iterations
     }
 
-    fn compute_cost_at_solution(&mut self, u: &mut [f64]) -> Result<f64, SolverError> {
+    fn compute_cost_at_solution(&mut self, u: &mut [T]) -> Result<T, SolverError> {
         /* WORK IN PROGRESS */
         let alm_problem = &self.alm_problem; // Problem
         let alm_cache = &mut self.alm_cache; // ALM Cache
         let mut empty_vec = std::vec::Vec::new(); // Empty vector
-        let xi: &mut std::vec::Vec<f64> = alm_cache.xi.as_mut().unwrap_or(&mut empty_vec);
-        let mut __c: f64 = 0.0;
+        let xi: &mut std::vec::Vec<T> = alm_cache.xi.as_mut().unwrap_or(&mut empty_vec);
+        let mut __c = T::zero();
         if !xi.is_empty() {
             __c = xi[0];
-            xi[0] = 0.0;
+            xi[0] = T::zero();
         }
-        let mut cost_value: f64 = 0.0;
+        let mut cost_value = T::zero();
         (alm_problem.parametric_cost)(u, xi, &mut cost_value)?;
         if !xi.is_empty() {
             xi[0] = __c;
@@ -910,8 +938,11 @@ where
 
     /// Solve the specified ALM problem
     ///
+    /// The scalar type of `u` is the same generic floating-point type `T` used by
+    /// the optimizer, typically `f64` or `f32`.
     ///
-    pub fn solve(&mut self, u: &mut [f64]) -> Result<AlmOptimizerStatus, SolverError> {
+    ///
+    pub fn solve(&mut self, u: &mut [T]) -> Result<AlmOptimizerStatus<T>, SolverError> {
         let mut num_outer_iterations = 0;
         // let tic = std::time::Instant::now();
         let tic = instant::Instant::now();
@@ -965,7 +996,7 @@ where
         let c = if let Some(xi) = &self.alm_cache.xi {
             xi[0]
         } else {
-            0.0
+            T::zero()
         };
 
         let cost = self.compute_cost_at_solution(u)?;
@@ -1006,21 +1037,24 @@ mod tests {
         FunctionCallResult,
     };
 
-    fn make_dummy_alm_problem(
-        n1: usize,
-        n2: usize,
-    ) -> AlmProblem<
-        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-        impl Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-        impl Constraint,
-        impl Constraint,
-        impl Constraint,
-    > {
+    type DummyParametricGradient = fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult;
+    type DummyParametricCost = fn(&[f64], &[f64], &mut f64) -> FunctionCallResult;
+    type DummyMapping = MappingType;
+    type DummyConstraint = Ball2<'static>;
+    type DummyAlmProblem = AlmProblem<
+        DummyMapping,
+        DummyMapping,
+        DummyParametricGradient,
+        DummyParametricCost,
+        DummyConstraint,
+        DummyConstraint,
+        DummyConstraint,
+    >;
+
+    fn make_dummy_alm_problem(n1: usize, n2: usize) -> DummyAlmProblem {
         // Main problem data
-        let psi = void_parameteric_cost;
-        let d_psi = void_parameteric_gradient;
+        let psi: DummyParametricCost = void_parameteric_cost;
+        let d_psi: DummyParametricGradient = void_parameteric_gradient;
         let bounds = Ball2::new(None, 10.0);
         // ALM-type data
         let f1: Option<MappingType> = if n1 == 0 {
@@ -1064,7 +1098,7 @@ mod tests {
 
         // Test: with_initial_penalty
         let alm_optimizer = alm_optimizer.with_initial_penalty(7.0);
-        assert!(!alm_optimizer.alm_cache.xi.is_none());
+        assert!(alm_optimizer.alm_cache.xi.is_some());
         if let Some(xi) = &alm_optimizer.alm_cache.xi {
             unit_test_utils::assert_nearly_equal(
                 7.0,
