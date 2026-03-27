@@ -99,7 +99,7 @@ where
 
     /// Solves the optimization problem for decision variables of scalar type `T`.
     pub fn solve(&mut self, u: &mut [T]) -> Result<SolverStatus<T>, SolverError> {
-        let now = instant::Instant::now();
+        let now = web_time::Instant::now();
 
         self.fbs_engine.init(u)?;
 

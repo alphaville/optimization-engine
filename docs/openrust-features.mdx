@@ -42,6 +42,12 @@ You cannot use both `rp` and `jem`.
 
 ### WebAssembly Support
 
+:::warning
+In version 0.12.0 of OpEn, wasm was replaced by [`web-time`](https://crates.io/crates/web-time),
+so this feature is not supported any more. OpEn can still be used in WebAssembly without 
+the need to specify any features.
+:::
+
 If you intend to use OpEn in WebAssembly you need to use the feature `wasm`.
 
 ```.toml
