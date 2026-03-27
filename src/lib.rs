@@ -42,7 +42,21 @@ extern crate num;
 
 use std::fmt;
 
-/// Exceptions/Errors that may arise while solving a problem
+/// Exceptions/errors that may arise while solving a problem.
+///
+/// In the Rust API, numerical failures are generally reported through
+/// `Result<_, SolverError>`:
+///
+/// - user-provided callbacks may return [`SolverError::Cost`],
+/// - set projections may return [`SolverError::ProjectionFailed`],
+/// - non-finite intermediate values are reported via
+///   [`SolverError::NotFiniteComputation`], and
+/// - internal numerical/kernel issues are reported through
+///   [`SolverError::LinearAlgebraFailure`] or
+///   [`SolverError::InvalidProblemState`].
+///
+/// By contrast, blatant API misuse such as inconsistent slice dimensions may
+/// still panic in some low-level routines.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SolverError {
     /// If the gradient or cost function cannot be evaluated
@@ -91,7 +105,11 @@ impl From<crate::cholesky_factorizer::CholeskyError> for SolverError {
     }
 }
 
-/// Result of a function call (status)
+/// Standard result type used by user callbacks and internal projection/codegen routines.
+///
+/// A successful call returns `Ok(())`. Failures should be reported with a
+/// descriptive [`SolverError`] so optimizers can propagate the reason to the
+/// caller.
 pub type FunctionCallResult = Result<(), SolverError>;
 
 pub mod alm;
