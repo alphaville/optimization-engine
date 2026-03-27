@@ -25,6 +25,13 @@ The definition of an optimization problem consists in specifying the following t
 - the set of constraints, $U$, as an implementation of a trait
 
 ### Cost functions
+
+:::note Info
+Throughout this document we will be using `f64`, which is the default 
+scalar type. However, OpEn now supports `f32` as well. 
+:::
+
+
 The **cost function** `f` is a Rust function of type `|u: &[f64], cost: &mut f64| -> Result<(), SolverError>`. The first argument, `u`, is the argument of the function. The second argument, is a mutable reference to the result (cost). The function returns a *status code* of the type `Result<(), SolverError>` and the status code `Ok(())` means that the computation was successful. Other status codes can be used to encode errors/exceptions as defined in the [`SolverError`] enum.
 
 As an example, consider the cost function $f:\mathbb{R}^2\to\mathbb{R}$ that maps a two-dimensional 
@@ -33,8 +40,8 @@ vector $u$ to $f(u) = 5 u_1 - u_2^2$. This will be:
 
 ```rust
 let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
-	*c = 5.0 * u[0] - u[1].powi(2);
-    Ok(())
+  *c = 5.0 * u[0] - u[1].powi(2);
+  Ok(())
 };
 ```
 
@@ -50,9 +57,9 @@ This function can be implemented as follows:
 
 ```rust
 let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-	grad[0] = 5.0;
-	grad[1] = -2.0*u[1];
-	Ok(())
+  grad[0] = 5.0;
+  grad[1] = -2.0*u[1];
+  Ok(())
 };
 ```
 
@@ -290,9 +297,9 @@ fn main() {
 			}
 		};		
 
-	    // define the bounds at every iteration
-	    let bounds = constraints::Ball2::new(None, radius);
-	
+		// define the bounds at every iteration
+		let bounds = constraints::Ball2::new(None, radius);
+
 		// the problem definition is updated at every iteration
 		let problem = Problem::new(&bounds, df, f);
 

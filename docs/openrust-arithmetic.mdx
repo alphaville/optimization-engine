@@ -153,7 +153,7 @@ For example, if you use:
 
 then the whole ALM solve runs in single precision.
 
-If instead you use plain `f64` literals and `&[f64]` closures, the solver runs in double precision.
+If instead you use plain `f64` literals and `&[f64]` closures, the solver runs in double precision. This is the default behaviour.
 
 ## Type inference tips
 
@@ -166,28 +166,11 @@ Good ways to make `f32` intent clear are:
 - annotate caches explicitly, for example `PANOCCache::<f32>::new(...)`
 - annotate closure arguments, for example `|u: &[f32], grad: &mut [f32]|`
 
-## Important rule: do not mix `f32` and `f64`
-
-The following combinations are problematic:
+:::warning Important rule: do not mix `f32` and `f64`
+For example, the following combinations are problematic:
 
 - `u: &[f32]` with a cost function writing to `&mut f64`
 - `Ball2::new(None, 1.0_f64)` together with `PANOCCache::<f32>`
-- `tolerance = 1e-6` in one place and `1e-6_f32` elsewhere if inference becomes ambiguous
 
 Choose one scalar type per optimization problem and use it everywhere.
-
-## Choosing tolerances
-
-When moving from `f64` to `f32`, it is often a good idea to relax tolerances.
-
-Typical starting points are:
-
-- `f64`: `1e-6`, `1e-8`, or smaller if needed
-- `f32`: `1e-4` or `1e-5`
-
-The right choice depends on:
-
-- scaling of the problem
-- conditioning
-- solver settings
-- whether the problem is solved repeatedly in real time
+:::
