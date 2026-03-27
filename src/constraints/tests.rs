@@ -25,7 +25,7 @@ fn t_zero_set() {
 fn t_zero_set_f32() {
     let zero = Zero::new();
     let mut x = [1.0_f32, -2.0, 3.5];
-    zero.project(&mut x);
+    zero.project(&mut x).unwrap();
     assert_eq!([0.0_f32, 0.0, 0.0], x);
 }
 
@@ -163,7 +163,7 @@ fn t_finite_set_f32() {
     let data: &[&[f32]] = &[&[0.0_f32, 0.0], &[1.0, 1.0], &[0.0, 1.0], &[1.0, 0.0]];
     let finite_set = FiniteSet::new(data);
     let mut x = [0.7_f32, 0.2];
-    finite_set.project(&mut x);
+    finite_set.project(&mut x).unwrap();
     assert_eq!([1.0_f32, 0.0], x);
 }
 
@@ -201,7 +201,7 @@ fn t_rectangle_bounded_f32() {
     let rectangle = Rectangle::new(Some(&xmin[..]), Some(&xmax[..]));
     let mut x = [1.0_f32, 3.0, 5.0];
 
-    rectangle.project(&mut x);
+    rectangle.project(&mut x).unwrap();
 
     assert_eq!([2.0_f32, 3.0, 4.5], x);
 }
@@ -318,7 +318,7 @@ fn t_ball2_at_origin_f32() {
     let mut x = [1.0_f32, 1.0];
     let ball = Ball2::new(None, radius);
 
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
 
     let expected = std::f32::consts::FRAC_1_SQRT_2;
     assert!((x[0] - expected).abs() < 1e-6);
@@ -390,7 +390,7 @@ fn t_ball2_boundary_no_change() {
     let mut x = [0.0, 2.0];
     let x_expected = x;
     let ball = Ball2::new(None, radius);
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
     unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
@@ -409,7 +409,7 @@ fn t_no_constraints_f32() {
     let mut x = [1.0_f32, 2.0, 3.0];
     let whole_space = NoConstraints::new();
 
-    whole_space.project(&mut x);
+    whole_space.project(&mut x).unwrap();
 
     assert_eq!([1.0_f32, 2.0, 3.0], x);
 }
@@ -515,7 +515,7 @@ fn t_cartesian_product_ball_and_rectangle_f32() {
         .add_constraint(5, ball);
 
     let mut x = [-4.0_f32, 0.25_f32, 2.0_f32, -1.0_f32, 2.0_f32];
-    cart_prod.project(&mut x);
+    cart_prod.project(&mut x).unwrap();
 
     assert_eq!([-1.0_f32, 0.25_f32], x[..2]);
     let ball_norm = crate::matrix_operations::norm2(&x[2..5]);
@@ -565,7 +565,7 @@ fn t_second_order_cone_case_iii_f32() {
     let alpha = 1.5_f32;
     let soc = SecondOrderCone::new(alpha);
     let mut x = vec![1.0_f32, 1.0_f32, 0.1_f32];
-    soc.project(&mut x);
+    soc.project(&mut x).unwrap();
     let norm_z = crate::matrix_operations::norm2(&x[..=1]);
     assert!(norm_z <= alpha * x[2] + 1e-5_f32);
     assert!((norm_z - alpha * x[2]).abs() <= 1e-4_f32);
@@ -720,7 +720,7 @@ fn t_ball_inf_boundary_no_change() {
     let ball_inf = BallInf::new(None, 1.0);
     let mut x = [-1.0, 0.2, 1.0];
     let x_expected = x;
-    ball_inf.project(&mut x);
+    ball_inf.project(&mut x).unwrap();
     unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
@@ -809,7 +809,7 @@ fn t_simplex_projection_f32() {
     let mut x = [1.0_f32, 2.0, 3.0];
     let alpha = 3.0_f32;
     let simplex = Simplex::new(alpha);
-    simplex.project(&mut x);
+    simplex.project(&mut x).unwrap();
 
     let sum = x[0] + x[1] + x[2];
     assert!((sum - alpha).abs() < 1e-5);
@@ -823,7 +823,7 @@ fn t_halfspace_boundary_no_change() {
     let halfspace = Halfspace::new(&normal_vector, offset);
     let mut x = [1.0, 2.0];
     let x_expected = x;
-    halfspace.project(&mut x);
+    halfspace.project(&mut x).unwrap();
     unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
@@ -840,7 +840,6 @@ fn t_simplex_projection_random_spam() {
         let alpha = alpha_scale * rand::random::<f64>();
         let simplex = Simplex::new(alpha);
         simplex.project(&mut x).unwrap();
-        println!("x = {:?}", x);
         assert!(x.iter().all(|&xi| xi >= -1e-12));
         unit_test_utils::assert_nearly_equal(
             crate::matrix_operations::sum(&x),
@@ -951,7 +950,7 @@ fn t_ball1_random_optimality_conditions() {
 fn t_ball1_projection_f32() {
     let ball1 = Ball1::new(None, 1.0_f32);
     let mut x = [2.0_f32, -1.0_f32, 0.0_f32];
-    ball1.project(&mut x);
+    ball1.project(&mut x).unwrap();
     assert!((x[0] - 1.0_f32).abs() < 1e-6_f32);
     assert!(x[1].abs() < 1e-6_f32);
     assert!(x[2].abs() < 1e-6_f32);
@@ -1105,7 +1104,7 @@ fn t_epigraph_squared_norm_boundary_no_change() {
     let epi = EpigraphSquaredNorm::new();
     let mut x = [1.0, 2.0, 5.0];
     let x_expected = x;
-    epi.project(&mut x);
+    epi.project(&mut x).unwrap();
     unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
@@ -1145,7 +1144,7 @@ fn t_epigraph_squared_norm_correctness() {
 fn t_epigraph_squared_norm_f32() {
     let epi = EpigraphSquaredNorm::new();
     let mut x = [1.0_f32, 0.0, 0.0];
-    epi.project(&mut x);
+    epi.project(&mut x).unwrap();
     let err = (matrix_operations::norm2_squared(&x[..2]) - x[2]).abs();
     assert!(err < 1e-4);
 }
@@ -1182,7 +1181,7 @@ fn t_affine_space_f32() {
     let b = vec![1.0_f32, 2.0, -0.5];
     let affine_set = AffineSpace::new(a.clone(), b.clone());
     let mut x = [1.0_f32, -2.0, -0.3, 0.5];
-    affine_set.project(&mut x);
+    affine_set.project(&mut x).unwrap();
 
     let x_correct = [
         1.888_564_3_f32,
@@ -1212,7 +1211,7 @@ fn t_affine_space_projection_feasibility() {
     let b = vec![1., 2., -0.5];
     let affine_set = AffineSpace::new(a.clone(), b.clone());
     let mut x = [1., -2., -0.3, 0.5];
-    affine_set.project(&mut x);
+    affine_set.project(&mut x).unwrap();
     let residual = [
         a[0] * x[0] + a[1] * x[1] + a[2] * x[2] + a[3] * x[3] - b[0],
         a[4] * x[0] + a[5] * x[1] + a[6] * x[2] + a[7] * x[3] - b[1],
@@ -1532,7 +1531,7 @@ where
             let p = cast::<T>(p_f64);
             let radius = cast::<T>(radius_f64);
             let ball = BallP::new(center.as_deref(), radius, p, solver_tol, 300);
-            ball.project(&mut x);
+            ball.project(&mut x).unwrap();
 
             let shifted_projection: Vec<T> = if let Some(center) = center.as_ref() {
                 x.iter()
@@ -1549,7 +1548,7 @@ where
             );
 
             let mut reproj = x.clone();
-            ball.project(&mut reproj);
+            ball.project(&mut reproj).unwrap();
             let max_reproj_diff = reproj
                 .iter()
                 .zip(x.iter())
@@ -1619,7 +1618,7 @@ where
             x.push(cast::<T>(rng.random_range(-2.0..4.0)));
             let x_before = as_f64_vec(&x);
 
-            epi.project(&mut x);
+            epi.project(&mut x).unwrap();
 
             let z = &x[..dim];
             let t = x[dim];
@@ -1630,7 +1629,7 @@ where
             );
 
             let mut reproj = x.clone();
-            epi.project(&mut reproj);
+            epi.project(&mut reproj).unwrap();
             let max_reproj_diff = reproj
                 .iter()
                 .zip(x.iter())
@@ -1673,9 +1672,9 @@ where
 fn assert_projection_idempotent<C: Constraint>(constraint: &C, x0: &[f64], message: &'static str) {
     let mut once = x0.to_vec();
     let mut twice = x0.to_vec();
-    constraint.project(&mut once);
-    constraint.project(&mut twice);
-    constraint.project(&mut twice);
+    constraint.project(&mut once).unwrap();
+    constraint.project(&mut twice).unwrap();
+    constraint.project(&mut twice).unwrap();
     unit_test_utils::assert_nearly_equal_array(&once, &twice, 1e-10, 1e-12, message);
 }
 
@@ -1698,7 +1697,7 @@ fn t_ballp_at_origin_projection_preserves_signs() {
     let mut x = [1.0, -3.0, 2.5, -0.7];
     let x0 = x;
     let ball = BallP::new(None, radius, 3.0, 1e-14, 200);
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
     for (proj, original) in x.iter().zip(x0.iter()) {
         assert!(proj.abs() <= original.abs() + 1e-12);
         if *original != 0.0 {
@@ -1714,7 +1713,7 @@ fn t_ballp_zero_coordinates_branch() {
     let mut x = [0.0, -2.0, 0.0, 1.5];
     let x0 = x;
     let ball = BallP::new(None, radius, p, 1e-14, 300);
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
     assert_eq!(x[0], 0.0);
     assert_eq!(x[2], 0.0);
     assert!(is_norm_p_projection(&x0, &x, p, radius, 10_000));
@@ -1733,7 +1732,7 @@ fn t_ballp_outside_projection_lands_on_boundary_for_multiple_p() {
     for (p, x_init) in test_cases {
         let mut x = x_init;
         let ball = BallP::new(None, radius, p, 1e-14, 400);
-        ball.project(&mut x);
+        ball.project(&mut x).unwrap();
         let norm_p = x
             .iter()
             .map(|xi| xi.abs().powf(p))
@@ -1756,7 +1755,7 @@ fn t_ballp_boundary_no_change() {
     let mut x = [1.0, 0.0];
     let x_expected = x;
     let ball = BallP::new(None, radius, p, 1e-14, 200);
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
     unit_test_utils::assert_nearly_equal_array(&x_expected, &x, 1e-12, 1e-12, "wrong result");
 }
 
@@ -1774,7 +1773,7 @@ fn t_ballp_translated_projection_multiple_p_values() {
     for (p, x_init) in cases {
         let mut x = x_init;
         let ball = BallP::new(Some(&center), radius, p, 1e-14, 400);
-        ball.project(&mut x);
+        ball.project(&mut x).unwrap();
         let norm_p = x
             .iter()
             .zip(center.iter())
@@ -1914,7 +1913,7 @@ fn t_ballp_at_xc_projection_f32() {
     let tol = 1e-6_f32;
     let max_iters: usize = 200;
     let ball = BallP::new(Some(&x_center), radius, p, tol, max_iters);
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
 
     let nrm = x
         .iter()
@@ -1960,7 +1959,7 @@ fn t_rectangle_only_xmin_wrong_dimension() {
     let xmin = [1.0, 2.0, 3.0];
     let rectangle = Rectangle::new(Some(&xmin), None);
     let mut x = [0.0, 1.0];
-    rectangle.project(&mut x);
+    rectangle.project(&mut x).unwrap();
 }
 
 #[test]
@@ -1969,7 +1968,7 @@ fn t_rectangle_only_xmax_wrong_dimension() {
     let xmax = [1.0, 2.0, 3.0];
     let rectangle = Rectangle::new(None, Some(&xmax));
     let mut x = [0.0, 1.0];
-    rectangle.project(&mut x);
+    rectangle.project(&mut x).unwrap();
 }
 
 #[test]
@@ -1978,7 +1977,7 @@ fn t_halfspace_wrong_dimension() {
     let normal_vector = [1.0, 2.0, 3.0];
     let halfspace = Halfspace::new(&normal_vector, 1.0);
     let mut x = [1.0, 2.0];
-    halfspace.project(&mut x);
+    halfspace.project(&mut x).unwrap();
 }
 
 #[test]
@@ -1987,7 +1986,7 @@ fn t_ball2_wrong_dimensions() {
     let center = [1.0, 2.0];
     let ball = Ball2::new(Some(&center), 1.0);
     let mut x = [1.0, 2.0, 3.0];
-    ball.project(&mut x);
+    ball.project(&mut x).unwrap();
 }
 
 #[test]
@@ -2002,7 +2001,7 @@ fn t_ball_inf_wrong_dimensions() {
     let center = [1.0, 2.0];
     let ball_inf = BallInf::new(Some(&center), 1.0);
     let mut x = [1.0, 2.0, 3.0];
-    ball_inf.project(&mut x);
+    ball_inf.project(&mut x).unwrap();
 }
 
 #[test]
@@ -2016,7 +2015,7 @@ fn t_ball_inf_nonpositive_radius() {
 fn t_epigraph_squared_norm_short_vector() {
     let epi = EpigraphSquaredNorm::new();
     let mut x = [1.0];
-    epi.project(&mut x);
+    epi.project(&mut x).unwrap();
 }
 
 #[test]
@@ -2032,7 +2031,7 @@ fn t_affine_space_project_wrong_dimension() {
     let b = vec![0.0, 0.0];
     let affine_set = AffineSpace::new(a, b);
     let mut x = [1.0];
-    affine_set.project(&mut x);
+    affine_set.project(&mut x).unwrap();
 }
 
 #[test]
@@ -2131,5 +2130,5 @@ fn t_ballp_wrong_dimensions() {
     let center = [1.0, 2.0];
     let ballp = BallP::new(Some(&center), 1.0, 3.0, 1e-12, 100);
     let mut x = [1.0, 2.0, 3.0];
-    ballp.project(&mut x);
+    ballp.project(&mut x).unwrap();
 }

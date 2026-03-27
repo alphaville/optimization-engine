@@ -31,7 +31,7 @@ impl<'a, T: Float> Sphere2<'a, T> {
     ///
     /// let sphere = Sphere2::new(None, 1.0);
     /// let mut x = [3.0, 4.0];
-    /// sphere.project(&mut x);
+    /// sphere.project(&mut x).unwrap();
     /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());

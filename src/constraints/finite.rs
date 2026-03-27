@@ -93,7 +93,7 @@ where
     /// ];
     /// let finite_set = FiniteSet::new(data);
     /// let mut x = [0.7, 0.6];
-    /// finite_set.project(&mut x); // compute projection
+    /// finite_set.project(&mut x).unwrap(); // compute projection
     /// ```
     ///
     /// # Panics

@@ -16,7 +16,7 @@ impl Zero {
     ///
     /// let zero = Zero::new();
     /// let mut x = [1.0, -2.0, 3.0];
-    /// zero.project(&mut x);
+    /// zero.project(&mut x).unwrap();
     /// ```
     #[must_use]
     pub fn new() -> Self {

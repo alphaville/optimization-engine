@@ -68,7 +68,7 @@ use num::Float;
 ///
 /// let ball = BallP::new(None, 1.0, 1.5, 1e-10, 100);
 /// let mut x = vec![3.0, -1.0, 2.0];
-/// ball.project(&mut x);
+/// ball.project(&mut x).unwrap();
 /// ```
 ///
 /// Project onto a translated \(\ell_p\)-ball:
@@ -79,7 +79,7 @@ use num::Float;
 /// let center = vec![1.0, 1.0, 1.0];
 /// let ball = BallP::new(Some(&center), 2.0, 3.0, 1e-10, 100);
 /// let mut x = vec![4.0, -1.0, 2.0];
-/// ball.project(&mut x);
+/// ball.project(&mut x).unwrap();
 /// ```
 ///
 /// # Notes

@@ -303,7 +303,7 @@ mod tests {
 
         let mut u_project = [0.0_f32; 2];
         u_project.copy_from_slice(&u_solution);
-        bounds.project(&mut u_project);
+        bounds.project(&mut u_project).unwrap();
         assert!((u_solution[0] - u_project[0]).abs() < 1e-5_f32);
         assert!((u_solution[1] - u_project[1]).abs() < 1e-5_f32);
     }

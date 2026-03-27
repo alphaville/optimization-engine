@@ -208,7 +208,8 @@ fn main() {
 			.with_max_iter(max_iters);
 
 	// Invoke the solver
-	let status = panoc.solve(&mut u);
+	let status = panoc.solve(&mut u).unwrap();
+	assert!(status.has_converged());
 }
 ```
 

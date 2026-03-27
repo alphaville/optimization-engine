@@ -24,7 +24,7 @@ impl<'a, T: Float> Ball1<'a, T> {
     ///
     /// let ball = Ball1::new(None, 1.0);
     /// let mut x = [2.0, -0.5];
-    /// ball.project(&mut x);
+    /// ball.project(&mut x).unwrap();
     /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());

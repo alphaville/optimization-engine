@@ -49,7 +49,7 @@ impl<T: Float> SecondOrderCone<T> {
     ///
     /// let cone = SecondOrderCone::new(1.0);
     /// let mut x = [2.0, 0.0, 0.5];
-    /// cone.project(&mut x);
+    /// cone.project(&mut x).unwrap();
     /// ```
     pub fn new(alpha: T) -> SecondOrderCone<T> {
         assert!(alpha > T::zero()); // alpha must be positive

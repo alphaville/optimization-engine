@@ -24,7 +24,7 @@ impl<T: Float> Simplex<T> {
     ///
     /// let simplex = Simplex::new(1.0);
     /// let mut x = [0.5, -0.5, 2.0];
-    /// simplex.project(&mut x);
+    /// simplex.project(&mut x).unwrap();
     /// ```
     pub fn new(alpha: T) -> Self {
         assert!(alpha > T::zero(), "alpha is nonpositive");

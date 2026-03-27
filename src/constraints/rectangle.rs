@@ -45,7 +45,7 @@ impl<'a, T: Float> Rectangle<'a, T> {
     /// let xmax = [1.0, 2.0];
     /// let rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
     /// let mut x = [3.0, -4.0];
-    /// rectangle.project(&mut x);
+    /// rectangle.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new(xmin: Option<&'a [T]>, xmax: Option<&'a [T]>) -> Self {

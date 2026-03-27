@@ -47,7 +47,7 @@ where
     /// let offset = 1.0;
     /// let hyperplane = Hyperplane::new(&normal_vector, offset);
     /// let mut x = [-1., 3.];
-    /// hyperplane.project(&mut x);
+    /// hyperplane.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new(normal_vector: &'a [T], offset: T) -> Self {

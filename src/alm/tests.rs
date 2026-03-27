@@ -153,7 +153,9 @@ fn t_create_alm_optimizer() {
         .with_initial_lagrange_multipliers(&vec![5.0; n1]);
 
     let mut u = vec![0.0; nx];
-    println!("result = {:?}", alm_optimizer.solve(&mut u));
+    let result = alm_optimizer.solve(&mut u);
+    println!("result = {:?}", result);
+    assert!(result.is_ok());
 }
 
 #[test]
@@ -454,7 +456,7 @@ fn t_alm_numeric_test_1_f32() {
     assert!(mocks::mapping_f1_affine(&u, &mut f1u).is_ok());
     let mut projection = f1u.clone();
     let set_c_check = Ball2::new(None, 1.0_f32);
-    set_c_check.project(&mut projection);
+    set_c_check.project(&mut projection).unwrap();
     assert!((f1u[0] - projection[0]).abs() < 2e-3_f32);
     assert!((f1u[1] - projection[1]).abs() < 2e-3_f32);
 
@@ -618,7 +620,7 @@ fn t_alm_numeric_test_2_f32() {
     let mut f1u = vec![0.0_f32; n1];
     assert!(mocks::mapping_f1_affine(&u, &mut f1u).is_ok());
     let mut f1_proj = f1u.clone();
-    Ball2::new(None, 1.0_f32).project(&mut f1_proj);
+    Ball2::new(None, 1.0_f32).project(&mut f1_proj).unwrap();
     assert!((f1u[0] - f1_proj[0]).abs() < 2e-3_f32);
     assert!((f1u[1] - f1_proj[1]).abs() < 2e-3_f32);
 

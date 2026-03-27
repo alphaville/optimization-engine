@@ -15,7 +15,7 @@ impl NoConstraints {
     ///
     /// let no_constraints = NoConstraints::new();
     /// let mut x = [1.0, -2.0, 3.0];
-    /// no_constraints.project(&mut x);
+    /// no_constraints.project(&mut x).unwrap();
     /// ```
     ///
     #[must_use]

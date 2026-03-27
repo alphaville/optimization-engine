@@ -49,7 +49,7 @@ impl<'a, T> CartesianProduct<'a, T> {
     ///     .add_constraint(4, Ball2::new(None, 1.0));
     ///
     /// let mut x = [3.0, -2.0, 2.0, 0.0];
-    /// cartesian.project(&mut x);
+    /// cartesian.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new() -> Self {

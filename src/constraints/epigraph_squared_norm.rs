@@ -28,7 +28,7 @@ impl EpigraphSquaredNorm {
     ///
     /// let epi = EpigraphSquaredNorm::new();
     /// let mut x = [1.0, 2.0, 1.0];
-    /// epi.project(&mut x);
+    /// epi.project(&mut x).unwrap();
     /// ```
     #[must_use]
     pub fn new() -> Self {
@@ -81,7 +81,7 @@ where
     /// // Here, z = [1., 2., 3.] and t = 4.
     /// let mut x = [1., 2., 3., 4.];
     ///
-    /// epi.project(&mut x);
+    /// epi.project(&mut x).unwrap();
     /// ```
     fn project(&self, x: &mut [T]) -> FunctionCallResult {
         assert!(

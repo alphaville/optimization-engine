@@ -48,7 +48,7 @@ where
     /// let offset = 1.0;
     /// let halfspace = Halfspace::new(&normal_vector, offset);
     /// let mut x = [-1., 3.];
-    /// halfspace.project(&mut x);
+    /// halfspace.project(&mut x).unwrap();
     /// ```
     ///
     pub fn new(normal_vector: &'a [T], offset: T) -> Self {

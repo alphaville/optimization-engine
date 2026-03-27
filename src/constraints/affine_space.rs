@@ -83,7 +83,7 @@ where
     /// let affine_space = AffineSpace::try_new(a, b).unwrap();
     ///
     /// let mut x = [2.0, 2.0];
-    /// affine_space.project(&mut x);
+    /// affine_space.project(&mut x).unwrap();
     /// ```
     pub fn try_new(a: Vec<T>, b: Vec<T>) -> Result<Self, AffineSpaceError> {
         let n_rows = b.len();
@@ -145,7 +145,7 @@ where
     /// let b = vec![1., 2., -0.5];
     /// let affine_set = AffineSpace::new(a, b);
     /// let mut x = [1., -2., -0.3, 0.5];
-    /// affine_set.project(&mut x);
+    /// affine_set.project(&mut x).unwrap();
     /// ```
     ///
     /// The result is stored in `x` and it can be verified that $Ax = b$.
