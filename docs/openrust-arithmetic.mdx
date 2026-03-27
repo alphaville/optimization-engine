@@ -4,94 +4,35 @@ title: Single and double precision
 description: OpEn with f32 and f64 number types
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 :::note Info
-The functionality presented here was introduced in OpEn version [`0.12.0`](https://pypi.org/project/opengen/#history). 
-The new API is fully backward-compatible with previous versions of OpEn.
+The functionality presented here was introduced in OpEn version [`0.12.0`](https://crates.io/crates/optimization_engine/0.12.0-alpha.1). 
+The new API is fully backward-compatible with previous versions of OpEn
+with `f64` being the default scalar type.
 :::
 
 ## Overview
 
-OpEn's Rust API supports both `f64` and `f32`.
+OpEn's Rust API now supports both `f64` and `f32`. Note that with `f32` 
+you may encounter issues with convergence, especially if you are solving 
+particularly ill-conditioned problems. On the other hand, `f32` is sometimes 
+the preferred type for embedded applications and can lead to lower 
+solve times. 
 
-Most public Rust types are generic over a scalar type `T` with `T: num::Float`, and in most places the default type is `f64`. This means:
+When using `f32`: (i) make sure the problem is properly scaled, 
+and (ii) you may want to opt for less demanding tolerances.
 
-- if you do nothing special, you will usually get `f64`
-- if you want single precision, you can explicitly use `f32`
-- all quantities involved in one solver instance should use the same scalar type
+## PANOC example
 
-In particular, this applies to:
+Below you can see two examples of using the solver with single and double 
+precision arithmetic.
 
-- cost and gradient functions
-- constraints
-- `Problem`
-- caches such as `PANOCCache`, `FBSCache`, and `AlmCache`
-- optimizers such as `PANOCOptimizer`, `FBSOptimizer`, and `AlmOptimizer`
-- solver status types such as `SolverStatus<T>` and `AlmOptimizerStatus<T>`
+<Tabs>
 
-## When to use `f64` and when to use `f32`
 
-### `f64`
-
-Use `f64` when you want maximum numerical robustness and accuracy. This is the safest default for:
-
-- desktop applications
-- difficult nonlinear problems
-- problems with tight tolerances
-- problems that are sensitive to conditioning
-
-### `f32`
-
-Use `f32` when memory footprint and throughput matter more than ultimate accuracy. This is often useful for:
-
-- embedded applications
-- high-rate MPC loops
-- applications where moderate tolerances are acceptable
-
-In general, `f32` may require:
-
-- slightly looser tolerances
-- more careful scaling of the problem
-- fewer expectations about extremely small residuals
-
-## The default: `f64`
-
-If your functions, constants, and vectors use `f64`, you can often omit the scalar type completely.
-
-```rust
-use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
-use optimization_engine::panoc::PANOCOptimizer;
-
-let tolerance = 1e-6;
-let lbfgs_memory = 10;
-let radius = 1.0;
-
-let bounds = constraints::Ball2::new(None, radius);
-
-let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
-    grad[0] = u[0] + u[1] + 1.0;
-    grad[1] = u[0] + 2.0 * u[1] - 1.0;
-    Ok(())
-};
-
-let f = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> {
-    *cost = 0.5 * (u[0] * u[0] + u[1] * u[1]);
-    Ok(())
-};
-
-let problem = Problem::new(&bounds, df, f);
-let mut cache = PANOCCache::new(2, tolerance, lbfgs_memory);
-let mut optimizer = PANOCOptimizer::new(problem, &mut cache);
-
-let mut u = [0.0, 0.0];
-let status = optimizer.solve(&mut u).unwrap();
-assert!(status.has_converged());
-```
-
-Because all literals and function signatures above are `f64`, the compiler infers `T = f64`.
-
-## Using `f32`
-
-To use single precision, make the scalar type explicit throughout the problem definition.
+  <TabItem value="using-f32" label="Single precision">
 
 ```rust
 use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
@@ -122,14 +63,51 @@ let mut u = [0.0_f32, 0.0_f32];
 let status = optimizer.solve(&mut u).unwrap();
 assert!(status.has_converged());
 ```
+  </TabItem>
 
-The key idea is that the same scalar type must be used consistently in:
+  <TabItem value="default-f64" label="Double precision" default>
+
+```rust
+use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
+use optimization_engine::panoc::PANOCOptimizer;
+
+let tolerance = 1e-6;
+let lbfgs_memory = 10;
+let radius = 1.0;
+
+let bounds = constraints::Ball2::new(None, radius);
+
+let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    grad[0] = u[0] + u[1] + 1.0;
+    grad[1] = u[0] + 2.0 * u[1] - 1.0;
+    Ok(())
+};
+
+let f = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+    *cost = 0.5 * (u[0] * u[0] + u[1] * u[1]);
+    Ok(())
+};
+
+let problem = Problem::new(&bounds, df, f);
+let mut cache = PANOCCache::new(2, tolerance, lbfgs_memory);
+let mut optimizer = PANOCOptimizer::new(problem, &mut cache);
+
+let mut u = [0.0, 0.0];
+let status = optimizer.solve(&mut u).unwrap();
+assert!(status.has_converged());
+```
+  </TabItem>
+
+</Tabs>
+
+To use single precision, make sure that the following are all using `f32`:
 
 - the initial guess `u`
 - the closures for the cost and gradient
 - the constraints
 - the cache
 - any tolerances and numerical constants
+- You are explicitly using `PANOCCache::<f32>` as in the above example
 
 ## Example with FBS
 
