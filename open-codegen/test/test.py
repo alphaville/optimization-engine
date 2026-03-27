@@ -409,6 +409,34 @@ class RustBuildTestCase(unittest.TestCase):
             error.message
         )
 
+    def test_python_bindings_initial_guess_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2.], initial_guess=[0.0])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(1600, error.code)
+        self.assertEqual(
+            "initial guess has incompatible dimensions: provided 1, expected 5",
+            error.message
+        )
+
+    def test_python_bindings_initial_lagrange_multipliers_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2.], initial_lagrange_multipliers=[0.1])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(1700, error.code)
+        self.assertEqual(
+            "wrong dimension of Langrange multipliers: provided 1, expected 0",
+            error.message
+        )
+
     def test_python_bindings_solver_error_details(self):
         python_bindings = RustBuildTestCase.import_generated_module(
             "python_bindings", "python_bindings")
@@ -422,6 +450,24 @@ class RustBuildTestCase(unittest.TestCase):
             "problem solution failed: cost or gradient evaluation failed: forced solver error for Python bindings test",
             error.message
         )
+
+    def test_python_bindings_repr(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+
+        ok_response = solver.run([1., 2.])
+        self.assertIn("SolverResponse(ok=True", repr(ok_response))
+        ok_status = ok_response.get()
+        self.assertIn("SolverStatus(", repr(ok_status))
+        self.assertIn('exit_status="Converged"', repr(ok_status))
+
+        error_response = solver.run([1., 2., 3.])
+        self.assertIn("SolverResponse(ok=False", repr(error_response))
+        error = error_response.get()
+        self.assertIn("SolverError(", repr(error))
+        self.assertIn("code=3003", repr(error))
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]

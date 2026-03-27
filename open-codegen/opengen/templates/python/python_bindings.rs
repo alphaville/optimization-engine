@@ -3,6 +3,7 @@
 ///
 use optimization_engine::alm::*;
 
+use pyo3::class::basic::PyObjectProtocol;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
@@ -114,6 +115,24 @@ impl From<SolverStatusData> for SolverStatus {
     }
 }
 
+#[pyproto]
+impl PyObjectProtocol for SolverStatus {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "SolverStatus(exit_status={:?}, num_outer_iterations={}, num_inner_iterations={}, last_problem_norm_fpr={}, f1_infeasibility={}, f2_norm={}, solve_time_ms={}, penalty={}, cost={})",
+            self.exit_status,
+            self.num_outer_iterations,
+            self.num_inner_iterations,
+            self.last_problem_norm_fpr,
+            self.f1_infeasibility,
+            self.f2_norm,
+            self.solve_time_ms,
+            self.penalty,
+            self.cost
+        ))
+    }
+}
+
 #[pyclass]
 struct SolverError {
     #[pyo3(get)]
@@ -131,9 +150,39 @@ impl From<SolverErrorData> for SolverError {
     }
 }
 
+#[pyproto]
+impl PyObjectProtocol for SolverError {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "SolverError(code={}, message={:?})",
+            self.code,
+            self.message
+        ))
+    }
+}
+
 #[pyclass]
 struct SolverResponse {
     payload: SolverResponsePayload,
+}
+
+#[pyproto]
+impl PyObjectProtocol for SolverResponse {
+    fn __repr__(&self) -> PyResult<String> {
+        match &self.payload {
+            SolverResponsePayload::Ok(status) => Ok(format!(
+                "SolverResponse(ok=True, exit_status={:?}, num_outer_iterations={}, num_inner_iterations={})",
+                status.exit_status,
+                status.num_outer_iterations,
+                status.num_inner_iterations
+            )),
+            SolverResponsePayload::Err(error) => Ok(format!(
+                "SolverResponse(ok=False, code={}, message={:?})",
+                error.code,
+                error.message
+            )),
+        }
+    }
 }
 
 #[pymethods]
