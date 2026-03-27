@@ -86,12 +86,9 @@ impl Constraint for AffineSpace {
         assert!(x.len() == n, "x has wrong dimension");
 
         // Step 1: Compute e = Ax - b
-        let a = ArrayView2::from_shape((self.n_rows, self.n_cols), &self.a_mat)
-            .map_err(|_| {
-                SolverError::InvalidProblemState(
-                    "failed to construct the affine-space matrix view",
-                )
-            })?;
+        let a = ArrayView2::from_shape((self.n_rows, self.n_cols), &self.a_mat).map_err(|_| {
+            SolverError::InvalidProblemState("failed to construct the affine-space matrix view")
+        })?;
         let x_view = ArrayView1::from(&x[..]);
         let b = ArrayView1::from(&self.b_vec[..]);
         let e = a.dot(&x_view) - b;

@@ -264,7 +264,8 @@ where
         // point `u_plus`
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value)?;
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u)?;
-        if !self.cache.cost_value.is_finite() || !matrix_operations::is_finite(&self.cache.gradient_u)
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
         {
             return Err(SolverError::NotFiniteComputation(
                 "line-search candidate produced a non-finite cost or gradient",
@@ -287,7 +288,8 @@ where
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
-        if !self.cache.cost_value.is_finite() || !matrix_operations::is_finite(&self.cache.gradient_u)
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
         {
             return Err(SolverError::NotFiniteComputation(
                 "first PANOC iterate produced a non-finite cost or gradient",
@@ -389,7 +391,8 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
-        if !self.cache.cost_value.is_finite() || !matrix_operations::is_finite(&self.cache.gradient_u)
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
         {
             return Err(SolverError::NotFiniteComputation(
                 "initial PANOC cost or gradient is non-finite",

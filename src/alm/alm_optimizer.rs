@@ -764,13 +764,14 @@ where
         //              This function will panic is there is no akkt_tolerance
         //              This should never happen because we set the AKKT tolerance
         //              in the constructor and can never become `None` again
-        let criterion_3 = cache
-            .panoc_cache
-            .akkt_tolerance
-            .ok_or(SolverError::InvalidProblemState(
-                "missing inner AKKT tolerance while checking the exit criterion",
-            ))?
-            <= self.epsilon_tolerance + SMALL_EPSILON;
+        let criterion_3 =
+            cache
+                .panoc_cache
+                .akkt_tolerance
+                .ok_or(SolverError::InvalidProblemState(
+                    "missing inner AKKT tolerance while checking the exit criterion",
+                ))?
+                <= self.epsilon_tolerance + SMALL_EPSILON;
         Ok(criterion_1 && criterion_2 && criterion_3)
     }
 
@@ -811,12 +812,13 @@ where
     fn update_inner_akkt_tolerance(&mut self) -> FunctionCallResult {
         let cache = &mut self.alm_cache;
         // epsilon_{nu+1} := max(epsilon, beta*epsilon_nu)
-        let akkt_tolerance = cache
-            .panoc_cache
-            .akkt_tolerance
-            .ok_or(SolverError::InvalidProblemState(
-                "missing inner AKKT tolerance while updating it",
-            ))?;
+        let akkt_tolerance =
+            cache
+                .panoc_cache
+                .akkt_tolerance
+                .ok_or(SolverError::InvalidProblemState(
+                    "missing inner AKKT tolerance while updating it",
+                ))?;
         cache.panoc_cache.set_akkt_tolerance(f64::max(
             akkt_tolerance * self.epsilon_update_factor,
             self.epsilon_tolerance,
@@ -992,14 +994,11 @@ where
             .with_penalty(c)
             .with_cost(cost);
         if self.alm_problem.n1 > 0 {
-            let status = status.with_lagrange_multipliers(
-                self.alm_cache
-                    .y_plus
-                    .as_ref()
-                    .ok_or(SolverError::InvalidProblemState(
-                        "missing Lagrange multipliers at the ALM solution",
-                    ))?,
-            );
+            let status = status.with_lagrange_multipliers(self.alm_cache.y_plus.as_ref().ok_or(
+                SolverError::InvalidProblemState(
+                    "missing Lagrange multipliers at the ALM solution",
+                ),
+            )?);
             Ok(status)
         } else {
             Ok(status)
