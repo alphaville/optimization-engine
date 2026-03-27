@@ -179,8 +179,11 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
         },
         Err(e) => {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
-                SolverError::Cost => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
-                SolverError::NotFiniteComputation => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
+                SolverError::Cost(_)
+                | SolverError::ProjectionFailed(_)
+                | SolverError::LinearAlgebraFailure(_)
+                | SolverError::InvalidProblemState(_) => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
+                SolverError::NotFiniteComputation(_) => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
             },
             num_outer_iterations: u64::MAX as c_ulong,
             num_inner_iterations: u64::MAX as c_ulong,

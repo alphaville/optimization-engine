@@ -42,22 +42,24 @@ where
         FBSEngine { problem, cache }
     }
 
-    fn gradient_step(&mut self, u_current: &mut [f64]) {
-        assert_eq!(
-            Ok(()),
-            (self.problem.gradf)(u_current, &mut self.cache.work_gradient_u),
-            "The computation of the gradient of the cost failed miserably"
-        );
+    fn gradient_step(&mut self, u_current: &mut [f64]) -> FunctionCallResult {
+        (self.problem.gradf)(u_current, &mut self.cache.work_gradient_u)?;
+        if !crate::matrix_operations::is_finite(&self.cache.work_gradient_u) {
+            return Err(SolverError::NotFiniteComputation(
+                "gradient evaluation returned a non-finite value during an FBS step",
+            ));
+        }
 
         // take a gradient step: u_currect -= gamma * gradient
         u_current
             .iter_mut()
             .zip(self.cache.work_gradient_u.iter())
             .for_each(|(u, w)| *u -= self.cache.gamma * *w);
+        Ok(())
     }
 
-    fn projection_step(&mut self, u_current: &mut [f64]) {
-        self.problem.constraints.project(u_current);
+    fn projection_step(&mut self, u_current: &mut [f64]) -> FunctionCallResult {
+        self.problem.constraints.project(u_current)
     }
 }
 
@@ -85,8 +87,13 @@ where
     /// or the cost function panics.
     fn step(&mut self, u_current: &mut [f64]) -> Result<bool, SolverError> {
         self.cache.work_u_previous.copy_from_slice(u_current); // cache the previous step
-        self.gradient_step(u_current); // compute the gradient
-        self.projection_step(u_current); // project
+        self.gradient_step(u_current)?; // compute the gradient
+        self.projection_step(u_current)?; // project
+        if !crate::matrix_operations::is_finite(u_current) {
+            return Err(SolverError::NotFiniteComputation(
+                "projected iterate contains a non-finite value during an FBS step",
+            ));
+        }
         self.cache.norm_fpr =
             matrix_operations::norm_inf_diff(u_current, &self.cache.work_u_previous);
 

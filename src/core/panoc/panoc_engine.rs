@@ -135,13 +135,14 @@ where
     }
 
     /// Computes a projection on `gradient_step`
-    fn half_step(&mut self) {
+    fn half_step(&mut self) -> FunctionCallResult {
         let cache = &mut self.cache;
         // u_half_step ← projection(gradient_step)
         cache.u_half_step.copy_from_slice(&cache.gradient_step);
-        self.problem.constraints.project(&mut cache.u_half_step);
+        self.problem.constraints.project(&mut cache.u_half_step)?;
         cache.gradient_step_u_half_step_diff_norm_sq =
             matrix_operations::norm2_squared_diff(&cache.gradient_step, &cache.u_half_step);
+        Ok(())
     }
 
     /// Computes an LBFGS direction; updates `cache.direction_lbfgs`
@@ -179,7 +180,11 @@ where
 
         // Compute the cost at the half step
         (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
-        debug_assert!(matrix_operations::is_finite(&[self.cache.cost_value]));
+        if !matrix_operations::is_finite(&[self.cache.cost_value, cost_u_half_step]) {
+            return Err(SolverError::NotFiniteComputation(
+                "cost evaluation returned a non-finite value during Lipschitz estimation",
+            ));
+        }
 
         let mut it_lipschitz_search = 0;
 
@@ -195,11 +200,16 @@ where
 
             // recompute the half step...
             self.gradient_step(u_current); // updates self.cache.gradient_step
-            self.half_step(); // updates self.cache.u_half_step
+            self.half_step()?; // updates self.cache.u_half_step
 
             // recompute the cost at the half step
             // update `cost_u_half_step`
             (self.problem.cost)(&self.cache.u_half_step, &mut cost_u_half_step)?;
+            if !cost_u_half_step.is_finite() {
+                return Err(SolverError::NotFiniteComputation(
+                    "half-step cost became non-finite during Lipschitz backtracking",
+                ));
+            }
 
             // recompute the FPR and the square of its norm
             self.compute_fpr(u_current);
@@ -254,10 +264,17 @@ where
         // point `u_plus`
         (self.problem.cost)(&self.cache.u_plus, &mut self.cache.cost_value)?;
         (self.problem.gradf)(&self.cache.u_plus, &mut self.cache.gradient_u)?;
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
+        {
+            return Err(SolverError::NotFiniteComputation(
+                "line-search candidate produced a non-finite cost or gradient",
+            ));
+        }
         self.cache_gradient_norm();
 
         self.gradient_step_uplus(); // gradient_step ← u_plus - gamma * gradient_u
-        self.half_step(); // u_half_step ← project(gradient_step)
+        self.half_step()?; // u_half_step ← project(gradient_step)
 
         // Update the LHS of the line search condition
         self.cache.lhs_ls = self.cache.cost_value - 0.5 * gamma * self.cache.gradient_u_norm_sq
@@ -271,9 +288,16 @@ where
         u_current.copy_from_slice(&self.cache.u_half_step); // set u_current ← u_half_step
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         (self.problem.gradf)(u_current, &mut self.cache.gradient_u)?; // compute gradient
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
+        {
+            return Err(SolverError::NotFiniteComputation(
+                "first PANOC iterate produced a non-finite cost or gradient",
+            ));
+        }
         self.cache_gradient_norm();
         self.gradient_step(u_current); // updated self.cache.gradient_step
-        self.half_step(); // updates self.cache.u_half_step
+        self.half_step()?; // updates self.cache.u_half_step
 
         Ok(())
     }
@@ -302,6 +326,11 @@ where
     pub(crate) fn cost_value_at_best_half_step(&mut self) -> Result<f64, SolverError> {
         let mut cost = 0.0;
         (self.problem.cost)(&self.cache.best_u_half_step, &mut cost)?;
+        if !cost.is_finite() {
+            return Err(SolverError::NotFiniteComputation(
+                "best cached half-step cost is non-finite",
+            ));
+        }
         Ok(cost)
     }
 }
@@ -362,11 +391,18 @@ where
         self.cache.reset();
         (self.problem.cost)(u_current, &mut self.cache.cost_value)?; // cost value
         self.estimate_loc_lip(u_current)?; // computes the gradient as well! (self.cache.gradient_u)
+        if !self.cache.cost_value.is_finite()
+            || !matrix_operations::is_finite(&self.cache.gradient_u)
+        {
+            return Err(SolverError::NotFiniteComputation(
+                "initial PANOC cost or gradient is non-finite",
+            ));
+        }
         self.cache_gradient_norm();
         self.cache.gamma = GAMMA_L_COEFF / f64::max(self.cache.lipschitz_constant, MIN_L_ESTIMATE);
         self.cache.sigma = (1.0 - GAMMA_L_COEFF) / (4.0 * self.cache.gamma);
         self.gradient_step(u_current); // updated self.cache.gradient_step
-        self.half_step(); // updates self.cache.u_half_step
+        self.half_step()?; // updates self.cache.u_half_step
 
         Ok(())
     }
@@ -478,7 +514,7 @@ mod tests {
             .gradient_step
             .copy_from_slice(&[40., 50.]);
 
-        panoc_engine.half_step(); // u_half_step ← projection(gradient_step)
+        panoc_engine.half_step().unwrap(); // u_half_step ← projection(gradient_step)
 
         unit_test_utils::assert_nearly_equal_array(
             &[0.312_347_523_777_212, 0.390_434_404_721_515],

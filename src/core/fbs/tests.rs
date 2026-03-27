@@ -48,7 +48,7 @@ fn t_solve_fbs_hard_failure_nan() {
     let mut u = [-12., -160., 55.];
     let mut optimizer = FBSOptimizer::new(problem, &mut fbs_cache).with_max_iter(10000);
     let status = optimizer.solve(&mut u);
-    assert_eq!(Err(SolverError::NotFiniteComputation), status);
+    assert!(matches!(status, Err(SolverError::NotFiniteComputation(_))));
 }
 
 #[test]

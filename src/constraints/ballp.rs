@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::{FunctionCallResult, SolverError};
 
 #[derive(Copy, Clone)]
 /// An $\\ell_p$ ball, that is,
@@ -157,7 +158,7 @@ impl<'a> BallP<'a> {
             .powf(1.0 / self.p)
     }
 
-    fn project_lp_ball(&self, x: &mut [f64]) {
+    fn project_lp_ball(&self, x: &mut [f64]) -> FunctionCallResult {
         let p = self.p;
         let r = self.radius;
         let tol = self.tolerance;
@@ -165,7 +166,7 @@ impl<'a> BallP<'a> {
 
         let current_norm = self.lp_norm(x);
         if current_norm <= r {
-            return;
+            return Ok(());
         }
 
         let abs_x: Vec<f64> = x.iter().map(|xi| xi.abs()).collect();
@@ -188,7 +189,9 @@ impl<'a> BallP<'a> {
         while radius_error(lambda_hi) > 0.0 {
             lambda_hi *= 2.0;
             if lambda_hi > 1e20 {
-                panic!("Failed to bracket the Lagrange multiplier");
+                return Err(SolverError::ProjectionFailed(
+                    "failed to bracket the Lagrange multiplier",
+                ));
             }
         }
 
@@ -215,6 +218,7 @@ impl<'a> BallP<'a> {
             let u = Self::solve_coordinate_newton(a, lambda_star, p, tol, max_iter);
             *xi = xi.signum() * u;
         });
+        Ok(())
     }
 
     /// Solve for u >= 0 the equation u + lambda * p * u^(p-1) = a
@@ -271,7 +275,7 @@ impl<'a> BallP<'a> {
 }
 
 impl<'a> Constraint for BallP<'a> {
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -285,14 +289,15 @@ impl<'a> Constraint for BallP<'a> {
                 .zip(x.iter().zip(center.iter()))
                 .for_each(|(s, (xi, ci))| *s = *xi - *ci);
 
-            self.project_lp_ball(&mut shifted);
+            self.project_lp_ball(&mut shifted)?;
 
             x.iter_mut()
                 .zip(shifted.iter().zip(center.iter()))
                 .for_each(|(xi, (si, ci))| *xi = *ci + *si);
         } else {
-            self.project_lp_ball(x);
+            self.project_lp_ball(x)?;
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

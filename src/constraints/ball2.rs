@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// A Euclidean ball, that is, a set given by $B_2^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert \leq r\\}$
@@ -19,7 +20,7 @@ impl<'a> Ball2<'a> {
 }
 
 impl<'a> Constraint for Ball2<'a> {
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -46,6 +47,7 @@ impl<'a> Constraint for Ball2<'a> {
                 x.iter_mut().for_each(|x_| *x_ /= norm_over_radius);
             }
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

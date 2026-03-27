@@ -1,5 +1,6 @@
 use super::Constraint;
 use super::Simplex;
+use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// A norm-1 ball, that is, a set given by $B_1^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert_1 \leq r\\}$
@@ -23,7 +24,7 @@ impl<'a> Ball1<'a> {
         }
     }
 
-    fn project_on_ball1_centered_at_origin(&self, x: &mut [f64]) {
+    fn project_on_ball1_centered_at_origin(&self, x: &mut [f64]) -> FunctionCallResult {
         if crate::matrix_operations::norm1(x) > self.radius {
             // u = |x| (copied)
             let mut u = vec![0.0; x.len()];
@@ -31,16 +32,17 @@ impl<'a> Ball1<'a> {
                 .zip(x.iter())
                 .for_each(|(ui, &xi)| *ui = f64::abs(xi));
             // u = P_simplex(u)
-            self.simplex.project(&mut u);
+            self.simplex.project(&mut u)?;
             x.iter_mut()
                 .zip(u.iter())
                 .for_each(|(xi, &ui)| *xi = f64::signum(*xi) * ui);
         }
+        Ok(())
     }
 }
 
 impl<'a> Constraint for Ball1<'a> {
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -50,13 +52,14 @@ impl<'a> Constraint for Ball1<'a> {
             x.iter_mut()
                 .zip(center.iter())
                 .for_each(|(xi, &ci)| *xi -= ci);
-            self.project_on_ball1_centered_at_origin(x);
+            self.project_on_ball1_centered_at_origin(x)?;
             x.iter_mut()
                 .zip(center.iter())
                 .for_each(|(xi, &ci)| *xi += ci);
         } else {
-            self.project_on_ball1_centered_at_origin(x);
+            self.project_on_ball1_centered_at_origin(x)?;
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

@@ -267,7 +267,7 @@ class RustBuildTestCase(unittest.TestCase):
             anchor +
             '\n'
             '    if p[0] < 0.0 {\n'
-            '        return Err(SolverError::Cost);\n'
+            '        return Err(SolverError::Cost("forced solver error for TCP test"));\n'
             '    }\n'
         )
         if anchor not in solver_lib:
@@ -544,7 +544,9 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertFalse(response.is_ok())
         status = response.get()
         self.assertEqual(2000, status.code)
-        self.assertEqual("problem solution failed: Cost", status.message)
+        self.assertEqual(
+            "problem solution failed: cost or gradient evaluation failed: forced solver error for TCP test",
+            status.message)
 
     def test_rust_build_parametric_f2(self):
         # introduced to tackle issue #123

@@ -650,7 +650,7 @@ where
                 .for_each(|((y_plus_i, y_i), w_alm_aux_i)| *y_plus_i = w_alm_aux_i + y_i / c);
 
             // Step #3: y_plus := Proj_C(y_plus)
-            alm_set_c.project(y_plus);
+            alm_set_c.project(y_plus)?;
 
             // Step #4
             y_plus
@@ -667,7 +667,7 @@ where
     }
 
     /// Project y on set Y
-    fn project_on_set_y(&mut self) {
+    fn project_on_set_y(&mut self) -> FunctionCallResult {
         let problem = &self.alm_problem;
         if let Some(y_set) = &problem.alm_set_y {
             // NOTE: as_mut() converts from &mut Option<T> to Option<&mut T>
@@ -676,9 +676,10 @@ where
             // *  which can be treated as  Option<&mut [f64]>
             // * y_vec is                  &mut [f64]
             if let Some(xi_vec) = self.alm_cache.xi.as_mut() {
-                y_set.project(&mut xi_vec[1..]);
+                y_set.project(&mut xi_vec[1..])?;
             }
         }
+        Ok(())
     }
 
     /// Solve inner problem
@@ -740,7 +741,7 @@ where
         inner_solver.solve(u)
     }
 
-    fn is_exit_criterion_satisfied(&self) -> bool {
+    fn is_exit_criterion_satisfied(&self) -> Result<bool, SolverError> {
         let cache = &self.alm_cache;
         let problem = &self.alm_problem;
         // Criterion 1: ||Delta y|| <= c * delta
@@ -764,8 +765,14 @@ where
         //              This should never happen because we set the AKKT tolerance
         //              in the constructor and can never become `None` again
         let criterion_3 =
-            cache.panoc_cache.akkt_tolerance.unwrap() <= self.epsilon_tolerance + SMALL_EPSILON;
-        criterion_1 && criterion_2 && criterion_3
+            cache
+                .panoc_cache
+                .akkt_tolerance
+                .ok_or(SolverError::InvalidProblemState(
+                    "missing inner AKKT tolerance while checking the exit criterion",
+                ))?
+                <= self.epsilon_tolerance + SMALL_EPSILON;
+        Ok(criterion_1 && criterion_2 && criterion_3)
     }
 
     /// Whether the penalty parameter should not be updated
@@ -802,13 +809,21 @@ where
         }
     }
 
-    fn update_inner_akkt_tolerance(&mut self) {
+    fn update_inner_akkt_tolerance(&mut self) -> FunctionCallResult {
         let cache = &mut self.alm_cache;
         // epsilon_{nu+1} := max(epsilon, beta*epsilon_nu)
+        let akkt_tolerance =
+            cache
+                .panoc_cache
+                .akkt_tolerance
+                .ok_or(SolverError::InvalidProblemState(
+                    "missing inner AKKT tolerance while updating it",
+                ))?;
         cache.panoc_cache.set_akkt_tolerance(f64::max(
-            cache.panoc_cache.akkt_tolerance.unwrap() * self.epsilon_update_factor,
+            akkt_tolerance * self.epsilon_update_factor,
             self.epsilon_tolerance,
         ));
+        Ok(())
     }
 
     fn final_cache_update(&mut self) {
@@ -843,7 +858,7 @@ where
         let mut inner_exit_status: ExitStatus = ExitStatus::Converged;
 
         // Project y on Y
-        self.project_on_set_y();
+        self.project_on_set_y()?;
 
         // If the inner problem fails miserably, the failure should be propagated
         // upstream (using `?`). If the inner problem has not converged, that is fine,
@@ -867,7 +882,7 @@ where
         self.compute_alm_infeasibility()?; // ALM: ||y_plus - y||
 
         // Check exit criterion
-        if self.is_exit_criterion_satisfied() {
+        if self.is_exit_criterion_satisfied()? {
             // Do not continue the outer iteration
             // An (epsilon, delta)-AKKT point has been found
             return Ok(InnerProblemStatus::new(false, inner_exit_status));
@@ -876,7 +891,7 @@ where
         }
 
         // Update inner problem tolerance
-        self.update_inner_akkt_tolerance();
+        self.update_inner_akkt_tolerance()?;
 
         // conclusive step: updated iteration count, resets PANOC cache,
         // sets f2_norm = f2_norm_plus etc
@@ -979,12 +994,11 @@ where
             .with_penalty(c)
             .with_cost(cost);
         if self.alm_problem.n1 > 0 {
-            let status = status.with_lagrange_multipliers(
-                self.alm_cache
-                    .y_plus
-                    .as_ref()
-                    .expect("Although n1 > 0, there is no vector y (Lagrange multipliers)"),
-            );
+            let status = status.with_lagrange_multipliers(self.alm_cache.y_plus.as_ref().ok_or(
+                SolverError::InvalidProblemState(
+                    "missing Lagrange multipliers at the ALM solution",
+                ),
+            )?);
             Ok(status)
         } else {
             Ok(status)
@@ -1129,7 +1143,7 @@ mod tests {
             .with_initial_penalty(25.0)
             .with_initial_lagrange_multipliers(&[2., 3., 4., 10.]);
 
-        alm_optimizer.project_on_set_y();
+        alm_optimizer.project_on_set_y().unwrap();
         if let Some(xi_after_proj) = &alm_optimizer.alm_cache.xi {
             println!("xi = {:#?}", xi_after_proj);
             let y_projected_correct = [
@@ -1282,7 +1296,7 @@ mod tests {
             .with_initial_inner_tolerance(1e-1)
             .with_inner_tolerance_update_factor(0.2);
 
-        alm_optimizer.update_inner_akkt_tolerance();
+        alm_optimizer.update_inner_akkt_tolerance().unwrap();
 
         unit_test_utils::assert_nearly_equal(
             0.1,
@@ -1305,7 +1319,7 @@ mod tests {
         );
 
         for _i in 1..=5 {
-            alm_optimizer.update_inner_akkt_tolerance();
+            alm_optimizer.update_inner_akkt_tolerance().unwrap();
         }
         unit_test_utils::assert_nearly_equal(
             2e-5,
@@ -1411,20 +1425,20 @@ mod tests {
 
         // should not exit yet...
         assert!(
-            !alm_optimizer.is_exit_criterion_satisfied(),
+            !alm_optimizer.is_exit_criterion_satisfied().unwrap(),
             "exists right away"
         );
 
         let alm_optimizer = alm_optimizer
             .with_initial_inner_tolerance(1e-3)
             .with_epsilon_tolerance(1e-3);
-        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+        assert!(!alm_optimizer.is_exit_criterion_satisfied().unwrap());
 
         alm_optimizer.alm_cache.delta_y_norm_plus = 1e-3;
-        assert!(!alm_optimizer.is_exit_criterion_satisfied());
+        assert!(!alm_optimizer.is_exit_criterion_satisfied().unwrap());
 
         alm_optimizer.alm_cache.f2_norm_plus = 1e-3;
-        assert!(alm_optimizer.is_exit_criterion_satisfied());
+        assert!(alm_optimizer.is_exit_criterion_satisfied().unwrap());
     }
 
     #[test]

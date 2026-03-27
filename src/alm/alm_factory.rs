@@ -233,7 +233,7 @@ where
                 .zip(y_lagrange_mult.iter())
                 .for_each(|(ti, yi)| *ti += yi / f64::max(penalty_parameter, 1.0));
             s.copy_from_slice(&f1_u_plus_y_over_c);
-            set_c.project(&mut s);
+            set_c.project(&mut s)?;
             *cost += 0.5
                 * penalty_parameter
                 * matrix_operations::norm2_squared_diff(&f1_u_plus_y_over_c, &s);
@@ -296,7 +296,7 @@ where
                 .zip(y_lagrange_mult.iter())
                 .for_each(|(ti, yi)| *ti += yi / c_penalty_parameter);
             s_aux_var.copy_from_slice(&f1_u_plus_y_over_c); // s = t
-            set_c.project(&mut s_aux_var); // s = Proj_C(F1(u) + y/c)
+            set_c.project(&mut s_aux_var)?; // s = Proj_C(F1(u) + y/c)
 
             // t = F1(u) + y/c - Proj_C(F1(u) + y/c)
             f1_u_plus_y_over_c
@@ -412,7 +412,9 @@ mod tests {
         let f2 = mapping_f2;
         let jac_f2_tr =
             |_u: &[f64], _d: &[f64], _res: &mut [f64]| -> Result<(), crate::SolverError> {
-                Err(SolverError::NotFiniteComputation)
+                Err(SolverError::NotFiniteComputation(
+                    "mock Jacobian-transpose product returned a non-finite result",
+                ))
             };
         let factory = AlmFactory::new(
             mocks::f0,

@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// A simplex with level $\alpha$ is a set of the form
@@ -24,7 +25,7 @@ impl Constraint for Simplex {
     /// See: Laurent Condat. Fast Projection onto the Simplex and the $\ell_1$ Ball.
     /// <em>Mathematical Programming, Series A,</em> Springer, 2016, 158 (1), pp.575-585.
     /// ⟨<a href="https://dx.doi.org/10.1007/s10107-015-0946-6">10.1007/s10107-015-0946-6</a>⟩.
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         assert!(!x.is_empty(), "x must be nonempty");
         let a = &self.alpha;
 
@@ -82,6 +83,7 @@ impl Constraint for Simplex {
         // ---- step 6
         let zero: f64 = 0.0;
         x.iter_mut().for_each(|x_n| *x_n = zero.max(*x_n - rho));
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {
