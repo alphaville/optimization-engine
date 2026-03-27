@@ -21,10 +21,31 @@ class DummySolverStatus:
         self.lagrange_multipliers = []
 
 
+class DummySolverError:
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class DummySolverResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def is_ok(self):
+        return isinstance(self._payload, DummySolverStatus)
+
+    def get(self):
+        return self._payload
+
+
 class DummyDirectSolver:
     def __init__(self, solution):
         self.solution = solution
         self.last_call = None
+        self.error = None
 
     def run(self, p, initial_guess=None, initial_lagrange_multipliers=None, initial_penalty=None):
         self.last_call = {
@@ -33,7 +54,9 @@ class DummyDirectSolver:
             "initial_lagrange_multipliers": initial_lagrange_multipliers,
             "initial_penalty": initial_penalty,
         }
-        return DummySolverStatus(self.solution)
+        if self.error is not None:
+            return DummySolverResponse(self.error)
+        return DummySolverResponse(DummySolverStatus(self.solution))
 
 
 class OcpTestCase(unittest.TestCase):
@@ -516,6 +539,23 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(result.last_problem_norm_fpr, 1e-6)
         self.assertEqual(result.f1_infeasibility, 2e-5)
         self.assertEqual(result.f2_norm, 3e-5)
+
+    def test_generated_optimizer_direct_error_response(self):
+        ocp = self.make_ocp()
+        backend = DummyDirectSolver(solution=[0.1, 0.2, 0.3])
+        backend.error = DummySolverError(3003, "wrong number of parameters")
+        optimizer = og.ocp.GeneratedOptimizer(
+            ocp=ocp,
+            optimizer_name="dummy_error",
+            target_dir=".",
+            backend=backend,
+            backend_kind="direct",
+        )
+
+        with self.assertRaises(RuntimeError) as context:
+            optimizer.solve(x0=[0.0, 0.0])
+
+        self.assertIn("wrong number of parameters", str(context.exception))
 
     def test_optimizer_manifest_roundtrip(self):
         manifest_path = self.ocp1_manifest_path

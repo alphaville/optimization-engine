@@ -341,6 +341,10 @@ class GeneratedOptimizer:
             )
             if raw is None:
                 raise RuntimeError("solver failed")
+            if hasattr(raw, "is_ok") and hasattr(raw, "get"):
+                if not raw.is_ok():
+                    raise RuntimeError(str(raw.get()))
+                raw = raw.get()
         elif self.__backend_kind == "tcp":
             self.start()
             response = self.__backend.call(
