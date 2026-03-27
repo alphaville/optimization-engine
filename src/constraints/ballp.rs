@@ -1,8 +1,8 @@
 use crate::numeric::cast;
 
 use super::Constraint;
-use num::Float;
 use crate::{FunctionCallResult, SolverError};
+use num::Float;
 
 #[derive(Copy, Clone)]
 /// An $\\ell_p$ ball, that is,

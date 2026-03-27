@@ -1,6 +1,6 @@
 use super::Constraint;
-use num::Float;
 use crate::FunctionCallResult;
+use num::Float;
 
 #[derive(Clone, Copy, Default)]
 /// Set Zero, $\\{0\\}$

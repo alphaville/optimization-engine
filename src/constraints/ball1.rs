@@ -1,8 +1,8 @@
 use super::Constraint;
 use super::Simplex;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
-use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// A norm-1 ball, that is, a set given by $B_1^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert_1 \leq r\\}$

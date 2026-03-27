@@ -1,8 +1,8 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
-use crate::FunctionCallResult;
 
 #[derive(Clone, Copy)]
 ///

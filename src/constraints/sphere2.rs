@@ -1,9 +1,9 @@
 use crate::numeric::cast;
 
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
-use crate::FunctionCallResult;
 
 fn norm2_squared_diff<T: Float>(a: &[T], b: &[T]) -> T {
     assert_eq!(a.len(), b.len());

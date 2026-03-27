@@ -1,7 +1,7 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 use num::Float;
 use std::iter::Sum;
-use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// A Euclidean ball, that is, a set given by $B_2^r = \\{x \in \mathbb{R}^n {}:{} \Vert{}x{}\Vert \leq r\\}$

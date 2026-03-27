@@ -1,6 +1,6 @@
 use super::Constraint;
-use num::Float;
 use crate::FunctionCallResult;
+use num::Float;
 
 #[derive(Copy, Clone)]
 /// An infinity ball defined as $B_\infty^r = \\{x\in\mathbb{R}^n {}:{} \Vert{}x{}\Vert_{\infty} \leq r\\}$,

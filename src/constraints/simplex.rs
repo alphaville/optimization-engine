@@ -1,8 +1,8 @@
 use crate::numeric::cast;
 
 use super::Constraint;
-use num::Float;
 use crate::FunctionCallResult;
+use num::Float;
 
 #[derive(Copy, Clone)]
 /// A simplex with level $\alpha$ is a set of the form

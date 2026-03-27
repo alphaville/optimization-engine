@@ -788,13 +788,14 @@ where
         //              This function will panic is there is no akkt_tolerance
         //              This should never happen because we set the AKKT tolerance
         //              in the constructor and can never become `None` again
-        let criterion_3 = cache
-            .panoc_cache
-            .akkt_tolerance
-            .ok_or(SolverError::InvalidProblemState(
-                "missing inner AKKT tolerance while checking the exit criterion",
-            ))?
-            <= self.epsilon_tolerance + T::epsilon();
+        let criterion_3 =
+            cache
+                .panoc_cache
+                .akkt_tolerance
+                .ok_or(SolverError::InvalidProblemState(
+                    "missing inner AKKT tolerance while checking the exit criterion",
+                ))?
+                <= self.epsilon_tolerance + T::epsilon();
         Ok(criterion_1 && criterion_2 && criterion_3)
     }
 
@@ -843,11 +844,13 @@ where
                     "missing inner AKKT tolerance while updating it",
                 ))?;
         let next_tolerance = akkt_tolerance * self.epsilon_update_factor;
-        cache.panoc_cache.set_akkt_tolerance(if next_tolerance > self.epsilon_tolerance {
-            next_tolerance
-        } else {
-            self.epsilon_tolerance
-        });
+        cache
+            .panoc_cache
+            .set_akkt_tolerance(if next_tolerance > self.epsilon_tolerance {
+                next_tolerance
+            } else {
+                self.epsilon_tolerance
+            });
         Ok(())
     }
 
