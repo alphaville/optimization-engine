@@ -1,18 +1,23 @@
 use super::Constraint;
 use crate::matrix_operations;
+use num::Float;
+use std::iter::Sum;
 
 #[derive(Clone)]
 /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$.
-pub struct Halfspace<'a> {
+pub struct Halfspace<'a, T = f64> {
     /// normal vector
-    normal_vector: &'a [f64],
+    normal_vector: &'a [T],
     /// offset
-    offset: f64,
+    offset: T,
     /// squared Euclidean norm of the normal vector (computed once upon construction)
-    normal_vector_squared_norm: f64,
+    normal_vector_squared_norm: T,
 }
 
-impl<'a> Halfspace<'a> {
+impl<'a, T> Halfspace<'a, T>
+where
+    T: Float + Sum<T>,
+{
     /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$,
     /// where $c$ is the normal vector of the halfspace and $b$ is an offset.
     ///
@@ -45,7 +50,7 @@ impl<'a> Halfspace<'a> {
     /// halfspace.project(&mut x);
     /// ```
     ///
-    pub fn new(normal_vector: &'a [f64], offset: f64) -> Self {
+    pub fn new(normal_vector: &'a [T], offset: T) -> Self {
         let normal_vector_squared_norm = matrix_operations::norm2_squared(normal_vector);
         Halfspace {
             normal_vector,
@@ -55,7 +60,10 @@ impl<'a> Halfspace<'a> {
     }
 }
 
-impl<'a> Constraint for Halfspace<'a> {
+impl<'a, T> Constraint<T> for Halfspace<'a, T>
+where
+    T: Float + Sum<T>,
+{
     /// Projects on halfspace using the following formula:
     ///
     /// $$\begin{aligned}
@@ -79,13 +87,13 @@ impl<'a> Constraint for Halfspace<'a> {
     /// This method panics if the length of `x` is not equal to the dimension
     /// of the halfspace.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [T]) {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         if inner_product > self.offset {
             let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
             x.iter_mut()
                 .zip(self.normal_vector.iter())
-                .for_each(|(x, normal_vector_i)| *x -= factor * normal_vector_i);
+                .for_each(|(x, normal_vector_i)| *x = *x - factor * *normal_vector_i);
         }
     }
 

@@ -9,6 +9,18 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 
 
 <!-- ---------------------
+      v0.12.0
+     --------------------- -->
+## [v0.12.0] - Unreleased
+
+
+### Changed
+
+- Rust solver supports generic float types
+- Expanded Rust constraint test coverage with constructor validation, boundary/idempotence checks, and additional `BallP` / epigraph projection cases
+- Swap the cross-platform timer dependency to web-time, remove instant-specific wasm feature wiring, update optimizer timing call sites to use `web_time::Instant`, keep existing native and wasm timing behavior without stdweb risk
+
+<!-- ---------------------
       v0.11.1
      --------------------- -->
 ## [v0.11.1] - 2026-03-23 

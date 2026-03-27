@@ -1,4 +1,6 @@
 use crate::{constraints::Constraint, FunctionCallResult};
+use num::Float;
+use std::marker::PhantomData;
 
 /// Definition of optimization problem to be solved with `AlmOptimizer`. The optimization
 /// problem has the general form
@@ -24,6 +26,9 @@ use crate::{constraints::Constraint, FunctionCallResult};
 ///   are mappings with smooth partial derivatives, and
 /// - $C\subseteq\mathbb{R}^{n_1}$ is a convex closed set on which we can easily compute projections.
 ///
+/// The scalar type `T` is generic and is typically `f64` or `f32`. The default
+/// is `f64`.
+///
 pub struct AlmProblem<
     MappingAlm,
     MappingPm,
@@ -32,16 +37,18 @@ pub struct AlmProblem<
     ConstraintsType,
     AlmSetC,
     LagrangeSetY,
+    T = f64,
 > where
+    T: Float,
     // This is function F1: R^xn --> R^n1 (ALM)
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
     // This is function F2: R^xn --> R^n2 (PM)
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: Constraint,
-    AlmSetC: Constraint,
-    LagrangeSetY: Constraint,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: Constraint<T>,
+    AlmSetC: Constraint<T>,
+    LagrangeSetY: Constraint<T>,
 {
     //
     // NOTE: the reason why we need to define different set types (ConstraintsType,
@@ -67,6 +74,13 @@ pub struct AlmProblem<
     pub(crate) n1: usize,
     /// number of PM-type parameters (range dim of F2)
     pub(crate) n2: usize,
+    /// This phantom data object is used because all other attributes
+    /// are not tied to the type T directly. T appears in some
+    /// trait bounds (e.g., MappingAlm, ParametricCostType, etc), but this
+    /// is not enough for the struct layout/type system.
+    /// Without this, Rust gives a bunch of errors. Movoer, this is a zero-size
+    /// object.
+    marker: PhantomData<T>,
 }
 
 impl<
@@ -77,6 +91,7 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
     AlmProblem<
         MappingAlm,
@@ -86,15 +101,17 @@ impl<
         ConstraintsType,
         AlmSetC,
         LagrangeSetY,
+        T,
     >
 where
-    MappingAlm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    MappingPm: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricGradientType: Fn(&[f64], &[f64], &mut [f64]) -> FunctionCallResult,
-    ParametricCostType: Fn(&[f64], &[f64], &mut f64) -> FunctionCallResult,
-    ConstraintsType: Constraint,
-    AlmSetC: Constraint,
-    LagrangeSetY: Constraint,
+    T: Float,
+    MappingAlm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    MappingPm: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    ParametricGradientType: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult,
+    ParametricCostType: Fn(&[T], &[T], &mut T) -> FunctionCallResult,
+    ConstraintsType: Constraint<T>,
+    AlmSetC: Constraint<T>,
+    LagrangeSetY: Constraint<T>,
 {
     ///Constructs new instance of `AlmProblem`
     ///
@@ -116,7 +133,12 @@ where
     ///
     /// Instance of `AlmProblem`
     ///
+    /// The scalar type `T` is inferred from the closures and constraint types.
+    ///
     /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
     ///
     ///
     /// ```rust
@@ -132,6 +154,8 @@ where
     /// );
     /// ```
     ///
+    #[allow(clippy::too_many_arguments)]
+    #[must_use]
     pub fn new(
         constraints: ConstraintsType,
         alm_set_c: Option<AlmSetC>,
@@ -163,6 +187,7 @@ where
             mapping_f2,
             n1,
             n2,
+            marker: PhantomData,
         }
     }
 }

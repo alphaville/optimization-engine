@@ -235,6 +235,84 @@ fn t_alm_only_penalty_method() {
 }
 
 #[test]
+fn t_alm_only_penalty_method_f32() {
+    let tolerance = 1e-4_f32;
+    let nx = 3;
+    let n1 = 0;
+    let n2 = 1;
+    let lbfgs_mem = 5;
+    let panoc_cache = PANOCCache::<f32>::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::<f32>::new(panoc_cache, n1, n2);
+
+    let bounds = NoConstraints::new();
+
+    let f = |u: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+        *cost = 0.5_f32 * matrix_operations::norm2_squared(u) + matrix_operations::sum(u);
+        Ok(())
+    };
+
+    let df = |u: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+        grad.iter_mut()
+            .zip(u.iter())
+            .for_each(|(grad_i, u_i)| *grad_i = *u_i + 1.0_f32);
+        Ok(())
+    };
+
+    let f2 = |u: &[f32], res: &mut [f32]| -> Result<(), SolverError> {
+        res[0] = matrix_operations::norm2_squared(u) - 1.0_f32;
+        Ok(())
+    };
+    let jf2t = |u: &[f32], d: &[f32], res: &mut [f32]| -> Result<(), crate::SolverError> {
+        res.iter_mut()
+            .zip(u.iter())
+            .for_each(|(res_i, u_i)| *res_i = *u_i * d[0]);
+        Ok(())
+    };
+
+    let factory = AlmFactory::new(
+        f,
+        df,
+        no_mapping::<f32>(),
+        no_jacobian_mapping::<f32>(),
+        Some(f2),
+        Some(jf2t),
+        no_set::<f32>(),
+        n2,
+    );
+
+    let alm_problem = AlmProblem::new(
+        bounds,
+        no_set::<f32>(),
+        no_set::<f32>(),
+        |u: &[f32], xi: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+            factory.psi(u, xi, cost)
+        },
+        |u: &[f32], xi: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+            factory.d_psi(u, xi, grad)
+        },
+        no_mapping::<f32>(),
+        Some(f2),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-5_f32)
+        .with_epsilon_tolerance(1e-4_f32)
+        .with_max_outer_iterations(20)
+        .with_max_inner_iterations(1000)
+        .with_initial_penalty(5000.0_f32)
+        .with_penalty_update_factor(2.2_f32);
+
+    let mut u = vec![0.1_f32; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.f2_norm() < 1e-4_f32);
+}
+
+#[test]
 fn t_alm_numeric_test_1() {
     let tolerance = 1e-8;
     let nx = 3;
@@ -312,6 +390,80 @@ fn t_alm_numeric_test_1() {
     );
 }
 
+#[test]
+fn t_alm_numeric_test_1_f32() {
+    let tolerance = 1e-4_f32;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 0;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::<f32>::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::<f32>::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0_f32);
+    let bounds = Ball2::new(None, 10.0_f32);
+    let set_y = Ball2::new(None, 10_000.0_f32);
+
+    let factory = AlmFactory::new(
+        mocks::f0::<f32>,
+        mocks::d_f0::<f32>,
+        Some(mocks::mapping_f1_affine::<f32>),
+        Some(mocks::mapping_f1_affine_jacobian_product::<f32>),
+        no_mapping::<f32>(),
+        no_jacobian_mapping::<f32>(),
+        Some(set_c),
+        n2,
+    );
+
+    let set_c_b = Ball2::new(None, 1.0_f32);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c_b),
+        Some(set_y),
+        |u: &[f32], xi: &[f32], cost: &mut f32| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f32], xi: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            factory.d_psi(u, xi, grad)
+        },
+        Some(mocks::mapping_f1_affine::<f32>),
+        no_mapping::<f32>(),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-3_f32)
+        .with_max_outer_iterations(30)
+        .with_epsilon_tolerance(1e-4_f32)
+        .with_initial_inner_tolerance(1e-2_f32)
+        .with_inner_tolerance_update_factor(0.5_f32)
+        .with_initial_penalty(1.0_f32)
+        .with_penalty_update_factor(1.2_f32)
+        .with_sufficient_decrease_coefficient(0.1_f32)
+        .with_initial_lagrange_multipliers(&vec![5.0_f32; n1]);
+
+    let mut u = vec![0.0_f32; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 30);
+    assert!(r.last_problem_norm_fpr() < tolerance);
+    assert!(r.delta_y_norm_over_c() < 1e-3_f32);
+
+    let mut f1u = vec![0.0_f32; n1];
+    assert!(mocks::mapping_f1_affine(&u, &mut f1u).is_ok());
+    let mut projection = f1u.clone();
+    let set_c_check = Ball2::new(None, 1.0_f32);
+    set_c_check.project(&mut projection);
+    assert!((f1u[0] - projection[0]).abs() < 2e-3_f32);
+    assert!((f1u[1] - projection[1]).abs() < 2e-3_f32);
+
+    let cost_actual = r.cost();
+    let mut cost_expected = 0.0_f32;
+    assert!(mocks::f0(&u, &mut cost_expected).is_ok());
+    assert!((cost_actual - cost_expected).abs() < 2e-3_f32);
+}
+
 fn mapping_f2(u: &[f64], res: &mut [f64]) -> FunctionCallResult {
     res[0] = u[0];
     res[1] = u[1];
@@ -321,6 +473,25 @@ fn mapping_f2(u: &[f64], res: &mut [f64]) -> FunctionCallResult {
 }
 
 fn jac_mapping_f2_tr(_u: &[f64], d: &[f64], res: &mut [f64]) -> FunctionCallResult {
+    res[0] = d[0] - d[2] - d[3];
+    res[1] = d[1] - d[3];
+    res[2] = d[2] + d[3];
+    Ok(())
+}
+
+fn mapping_f2_generic<T: num::Float>(u: &[T], res: &mut [T]) -> FunctionCallResult {
+    res[0] = u[0];
+    res[1] = u[1];
+    res[2] = u[2] - u[0];
+    res[3] = u[2] - u[0] - u[1];
+    Ok(())
+}
+
+fn jac_mapping_f2_tr_generic<T: num::Float>(
+    _u: &[T],
+    d: &[T],
+    res: &mut [T],
+) -> FunctionCallResult {
     res[0] = d[0] - d[2] - d[3];
     res[1] = d[1] - d[3];
     res[2] = d[2] + d[3];
@@ -389,6 +560,71 @@ fn t_alm_numeric_test_2() {
     println!("F2(u*) = {:#?}", &f2u);
 
     println!("y = {:#?}", r.lagrange_multipliers());
+}
+
+#[test]
+fn t_alm_numeric_test_2_f32() {
+    let tolerance = 1e-4_f32;
+    let nx = 3;
+    let n1 = 2;
+    let n2 = 4;
+    let lbfgs_mem = 3;
+    let panoc_cache = PANOCCache::<f32>::new(nx, tolerance, lbfgs_mem);
+    let mut alm_cache = AlmCache::<f32>::new(panoc_cache, n1, n2);
+
+    let set_c = Ball2::new(None, 1.0_f32);
+    let bounds = Ball2::new(None, 10.0_f32);
+    let set_y = Ball2::new(None, 10_000.0_f32);
+
+    let factory = AlmFactory::new(
+        mocks::f0::<f32>,
+        mocks::d_f0::<f32>,
+        Some(mocks::mapping_f1_affine::<f32>),
+        Some(mocks::mapping_f1_affine_jacobian_product::<f32>),
+        Some(mapping_f2_generic::<f32>),
+        Some(jac_mapping_f2_tr_generic::<f32>),
+        Some(set_c),
+        n2,
+    );
+
+    let set_c_b = Ball2::new(None, 1.0_f32);
+    let alm_problem = AlmProblem::new(
+        bounds,
+        Some(set_c_b),
+        Some(set_y),
+        |u: &[f32], xi: &[f32], cost: &mut f32| -> FunctionCallResult { factory.psi(u, xi, cost) },
+        |u: &[f32], xi: &[f32], grad: &mut [f32]| -> FunctionCallResult {
+            factory.d_psi(u, xi, grad)
+        },
+        Some(mocks::mapping_f1_affine::<f32>),
+        Some(mapping_f2_generic::<f32>),
+        n1,
+        n2,
+    );
+
+    let mut alm_optimizer = AlmOptimizer::new(&mut alm_cache, alm_problem)
+        .with_delta_tolerance(1e-3_f32)
+        .with_epsilon_tolerance(1e-4_f32)
+        .with_initial_inner_tolerance(1e-3_f32);
+
+    let mut u = vec![0.0_f32; nx];
+    let solver_result = alm_optimizer.solve(&mut u);
+    assert!(solver_result.is_ok());
+    let r = solver_result.unwrap();
+    assert_eq!(ExitStatus::Converged, r.exit_status());
+    assert!(r.num_outer_iterations() > 0 && r.num_outer_iterations() <= 10);
+    assert!(r.last_problem_norm_fpr() < tolerance);
+
+    let mut f1u = vec![0.0_f32; n1];
+    assert!(mocks::mapping_f1_affine(&u, &mut f1u).is_ok());
+    let mut f1_proj = f1u.clone();
+    Ball2::new(None, 1.0_f32).project(&mut f1_proj);
+    assert!((f1u[0] - f1_proj[0]).abs() < 2e-3_f32);
+    assert!((f1u[1] - f1_proj[1]).abs() < 2e-3_f32);
+
+    let mut f2u = vec![0.0_f32; n2];
+    assert!(mapping_f2_generic(&u, &mut f2u).is_ok());
+    assert!(crate::matrix_operations::norm2(&f2u) < 1e-3_f32);
 }
 
 // Trait alias (type aliases are not stable yet, so the alternative is to use

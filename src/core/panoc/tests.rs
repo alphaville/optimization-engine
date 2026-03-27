@@ -76,7 +76,7 @@ fn t_test_panoc_basic() {
     }
     println!("final |fpr| = {}", panoc_engine.cache.norm_gamma_fpr);
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance);
-    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION_A, 1e-6, 1e-8, "");
+    unit_test_utils::assert_nearly_equal_array(&u, &mocks::solution_a(), 1e-6, 1e-8, "");
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn t_test_panoc_hard() {
 
     println!("\nsol = {:?}", u);
     assert!(panoc_engine.cache.norm_gamma_fpr <= tolerance_fpr);
-    unit_test_utils::assert_nearly_equal_array(&u, &mocks::SOLUTION_HARD, 1e-6, 1e-8, "");
+    unit_test_utils::assert_nearly_equal_array(&u, &mocks::solution_hard(), 1e-6, 1e-8, "");
 }
 
 #[test]

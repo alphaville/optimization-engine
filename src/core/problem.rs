@@ -7,6 +7,7 @@
 //! C (and then invoked from Rust via an interface such as icasadi).
 //!
 use crate::{constraints, FunctionCallResult};
+use std::marker::PhantomData;
 
 /// Definition of an optimisation problem
 ///
@@ -15,11 +16,11 @@ use crate::{constraints, FunctionCallResult};
 /// - the cost function
 /// - the set of constraints, which is described by implementations of
 ///   [Constraint](../../panoc_rs/constraints/trait.Constraint.html)
-pub struct Problem<'a, GradientType, ConstraintType, CostType>
+pub struct Problem<'a, GradientType, ConstraintType, CostType, T = f64>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<T>,
 {
     /// constraints
     pub(crate) constraints: &'a ConstraintType,
@@ -27,13 +28,15 @@ where
     pub(crate) gradf: GradientType,
     /// cost function
     pub(crate) cost: CostType,
+    marker: PhantomData<T>,
 }
 
-impl<'a, GradientType, ConstraintType, CostType> Problem<'a, GradientType, ConstraintType, CostType>
+impl<'a, GradientType, ConstraintType, CostType, T>
+    Problem<'a, GradientType, ConstraintType, CostType, T>
 where
-    GradientType: Fn(&[f64], &mut [f64]) -> FunctionCallResult,
-    CostType: Fn(&[f64], &mut f64) -> FunctionCallResult,
-    ConstraintType: constraints::Constraint,
+    GradientType: Fn(&[T], &mut [T]) -> FunctionCallResult,
+    CostType: Fn(&[T], &mut T) -> FunctionCallResult,
+    ConstraintType: constraints::Constraint<T>,
 {
     /// Construct a new instance of an optimisation problem
     ///
@@ -50,11 +53,12 @@ where
         constraints: &'a ConstraintType,
         cost_gradient: GradientType,
         cost: CostType,
-    ) -> Problem<'a, GradientType, ConstraintType, CostType> {
+    ) -> Problem<'a, GradientType, ConstraintType, CostType, T> {
         Problem {
             constraints,
             gradf: cost_gradient,
             cost,
+            marker: PhantomData,
         }
     }
 }

@@ -1,17 +1,29 @@
 use super::Constraint;
+use num::Float;
+use std::iter::Sum;
+
+fn norm2_squared_diff<T: Float>(a: &[T], b: &[T]) -> T {
+    assert_eq!(a.len(), b.len());
+    a.iter()
+        .zip(b.iter())
+        .fold(T::zero(), |sum, (&x, &y)| sum + (x - y) * (x - y))
+}
 
 ///
 /// A finite set, $X = \\{x_1, x_2, \ldots, x_n\\}\subseteq\mathbb{R}^n$, given vectors
 /// $x_i\in\mathbb{R}^n$
 ///
 #[derive(Clone, Copy)]
-pub struct FiniteSet<'a> {
+pub struct FiniteSet<'a, T = f64> {
     /// The data is stored in a Vec-of-Vec datatype, that is, a vector
     /// of vectors
-    data: &'a [&'a [f64]],
+    data: &'a [&'a [T]],
 }
 
-impl<'a> FiniteSet<'a> {
+impl<'a, T> FiniteSet<'a, T>
+where
+    T: Float + Sum<T>,
+{
     /// Construct a finite set, $X = \\{x_1, x_2, \ldots, x_n\\}$, given vectors
     /// $x_i\in\mathbb{R}^n$
     ///
@@ -41,7 +53,7 @@ impl<'a> FiniteSet<'a> {
     /// This method will panic if the given vector of data is empty,
     /// or if the given vectors have unequal dimensions.
     ///
-    pub fn new(data: &'a [&'a [f64]]) -> Self {
+    pub fn new(data: &'a [&'a [T]]) -> Self {
         // Do a sanity check...
         assert!(!data.is_empty(), "empty data not allowed");
         let n = data[0].len();
@@ -52,7 +64,10 @@ impl<'a> FiniteSet<'a> {
     }
 }
 
-impl<'a> Constraint for FiniteSet<'a> {
+impl<'a, T> Constraint<T> for FiniteSet<'a, T>
+where
+    T: Float + Sum<T>,
+{
     ///
     /// Projection on the current finite set
     ///
@@ -85,12 +100,12 @@ impl<'a> Constraint for FiniteSet<'a> {
     /// This method panics if the dimension of `x` is not equal to the
     /// dimension of the points in the finite set.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [T]) {
         assert_eq!(x.len(), self.data[0].len(), "x has incompatible dimension");
         let mut idx: usize = 0;
-        let mut best_distance: f64 = num::Float::infinity();
+        let mut best_distance = T::infinity();
         for (i, v) in self.data.iter().enumerate() {
-            let dist = crate::matrix_operations::norm2_squared_diff(v, x);
+            let dist = norm2_squared_diff(v, x);
             if dist < best_distance {
                 idx = i;
                 best_distance = dist;
