@@ -10,8 +10,11 @@ use num::Float;
 use std::marker::PhantomData;
 use std::{iter::Sum, ops::AddAssign};
 
-/// Prepares function $\psi$ and its gradient given the problem data: $f$, $\nabla{}f$,
-/// and optionally $F_1$, $JF_1$, $C$ and $F_2$
+/// Prepares the ALM/PM merit function $\psi$ and its gradient from the problem data.
+///
+/// This is a low-level helper used by the ALM implementation to assemble the
+/// augmented cost seen by the inner solver from the user-provided cost,
+/// gradient, mappings, Jacobian-vector products, and set data.
 ///
 /// # Types
 ///
@@ -132,7 +135,7 @@ where
     JacobianMappingF2Trans: Fn(&[T], &[T], &mut [T]) -> FunctionCallResult, // jf2(u, d, result)
     SetC: Constraint<T>,
 {
-    /// Construct a new instance of `MockFactory`
+    /// Construct a new instance of [`AlmFactory`].
     ///
     /// # Arguments
     /// - `f` cost function $f$
@@ -145,6 +148,16 @@ where
     /// - `n2` image dimension of $F_2$ (can be 0)
     ///
     /// The scalar type `T` is inferred from the supplied functions and set.
+    ///
+    /// # Panics
+    ///
+    /// This constructor panics if:
+    ///
+    /// - `mapping_f2` is provided but `n2 == 0`,
+    /// - `n2 > 0` but `mapping_f2` is not provided,
+    /// - `mapping_f2` and `jacobian_mapping_f2_trans` are not provided together,
+    /// - `mapping_f1` and `jacobian_mapping_f1_trans` are not provided together,
+    /// - `mapping_f1` and `set_c` are not provided together.
     ///
     /// # Example
     ///
@@ -214,7 +227,7 @@ where
         }
     }
 
-    /// Computes function $\psi$ given by
+    /// Computes the function $\psi$ given by
     ///
     /// $$\psi(u) = f(u) + \tfrac{c}{2}\left[\mathrm{dist}_C^2\left(F_1(u) + \bar{c}^{-1}y\right)
     ///           + \Vert F_2(u) \Vert^2\right],$$
@@ -231,10 +244,23 @@ where
     /// - `xi` is the vector $\xi = (c, y) \in \mathbb{R}^{n_1 + 1}$
     /// - `cost`: stores the value of $\psi(u; \xi)$ on exit
     ///
+    /// If `F1` is present, `xi` must contain the penalty parameter `c` in
+    /// `xi[0]` followed by the Lagrange multiplier vector `y`.
+    ///
+    /// If only `F2` is present, `xi` must still contain at least the penalty
+    /// parameter `c` as its first entry.
+    ///
+    /// If neither `F1` nor `F2` is present, `xi` may be empty.
+    ///
     /// # Returns
     ///
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
+    ///
+    /// # Panics
+    ///
+    /// This method may panic if the supplied slices are inconsistent with the
+    /// dimensions expected by the provided mappings or set projection.
     ///
     pub fn psi(&self, u: &[T], xi: &[T], cost: &mut T) -> FunctionCallResult {
         (self.f)(u, cost)?;
@@ -275,7 +301,7 @@ where
         Ok(())
     }
 
-    /// Computes the gradient of $\psi$
+    /// Computes the gradient of $\psi$.
     ///
     /// The gradient of `psi` is given by
     ///
@@ -290,10 +316,63 @@ where
     /// - `xi` is the vector $\xi = (c, y) \in \mathbb{R}^{n_1 + 1}$
     /// - `grad`: stores the value of $\nabla \psi(u; \xi)$ on exit
     ///
+    /// As with [`AlmFactory::psi`], `xi` must contain the penalty parameter
+    /// `c` as its first entry whenever `F1` or `F2` is active.
+    ///
     /// # Returns
     ///
     /// This method returns `Ok(())` if the computation is successful or an appropriate
     /// `SolverError` otherwise.
+    ///
+    /// # Panics
+    ///
+    /// This method may panic if the supplied slices are inconsistent with the
+    /// dimensions expected by the provided mappings, Jacobian-vector products,
+    /// or set projection.
+    ///
+    /// # Example
+    ///
+    /// This example uses `f64` for simplicity, but the same API also works with
+    /// `f32`.
+    ///
+    /// ```rust
+    /// use optimization_engine::{constraints::Ball2, alm::*, FunctionCallResult};
+    ///
+    /// let set_c = Ball2::new(None, 1.0);
+    ///
+    /// let f = |_u: &[f64], cost: &mut f64| -> FunctionCallResult {
+    ///     *cost = 0.0;
+    ///     Ok(())
+    /// };
+    /// let df = |_u: &[f64], grad: &mut [f64]| -> FunctionCallResult {
+    ///     grad.fill(0.0);
+    ///     Ok(())
+    /// };
+    /// let f1 = |u: &[f64], f1u: &mut [f64]| -> FunctionCallResult {
+    ///     f1u[0] = u[0];
+    ///     Ok(())
+    /// };
+    /// let jf1_tr = |_u: &[f64], d: &[f64], res: &mut [f64]| -> FunctionCallResult {
+    ///     res[0] = d[0];
+    ///     Ok(())
+    /// };
+    ///
+    /// let factory = AlmFactory::new(
+    ///     f,
+    ///     df,
+    ///     Some(f1),
+    ///     Some(jf1_tr),
+    ///     NO_MAPPING,
+    ///     NO_JACOBIAN_MAPPING,
+    ///     Some(set_c),
+    ///     0,
+    /// );
+    ///
+    /// let u = [0.5_f64];
+    /// let xi = [2.0_f64, 0.1_f64];
+    /// let mut grad = [0.0_f64];
+    /// factory.d_psi(&u, &xi, &mut grad).unwrap();
+    /// ```
     ///
     pub fn d_psi(&self, u: &[T], xi: &[T], grad: &mut [T]) -> FunctionCallResult {
         let nu = u.len();
