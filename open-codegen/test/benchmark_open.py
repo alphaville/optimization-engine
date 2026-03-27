@@ -39,14 +39,16 @@ def t_benchmark1(solver):
     a = np.random.uniform(0.5, 2)
     b = np.random.uniform(0.5, 15)
     c = np.random.uniform(0.9, 3)
-    _sol = solver.run([a, b, c])
+    response = solver.run([a, b, c])
+    _sol = response.get()
 
 
 def t_benchmark2(solver):
     x0 = np.random.uniform(-3.5, -2)
     y0 = np.random.uniform(-2.5, 2.5)
     # th0 = np.random.uniform(-0.3, 0.3)
-    _sol = solver.run([x0, y0, 0])
+    response = solver.run([x0, y0, 0])
+    _sol = response.get()
 
 
 def test_benchmark1(benchmark):

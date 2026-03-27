@@ -78,13 +78,14 @@ Then you will be able to use it as follows:
 
 ```python
 solver = rosenbrock.solver()
-result = solver.run(p=[20., 1.])
+response = solver.run(p=[20., 1.])
+result = response.get()
 u_star = result.solution
 ```
 
 In the first line, `solver = rosenbrock.solver()`, we obtain an instance of 
 `Solver`, which can be used to solve parametric optimization problems.
-In the second line, `result = solver.run(p=[20., 1.])`, we call the solver
+In the second line, `response = solver.run(p=[20., 1.])`, we call the solver
 with parameter $p=(20, 1)$. Method `run` accepts another three optional
 arguments, namely:
 
@@ -92,8 +93,22 @@ arguments, namely:
 - `initial_lagrange_multipliers`, and 
 - `initial_penalty`
 
-The solver returns an object of type `OptimizerSolution` with the following 
-properties:
+The solver returns an object of type `SolverResponse`, similar to the TCP
+interface. First call `response.is_ok()` to determine whether the call
+succeeded, then call `response.get()` to obtain either a `SolverStatus`
+object or a `SolverError`.
+
+```python
+response = solver.run(p=[20., 1.])
+if response.is_ok():
+    status = response.get()
+    u_star = status.solution
+else:
+    error = response.get()
+    print(error.code, error.message)
+```
+
+The `SolverStatus` object exposes the following properties:
 
 
 | Property                 | Explanation                                 |
@@ -111,6 +126,13 @@ properties:
 | `lagrange_multipliers`    | Vector of Lagrange multipliers (if $n_1 > 0$) or an empty vector, otherwise |
 
 These are the same properties as those of `opengen.tcp.SolverStatus`.
+
+If the call fails, `response.get()` returns a `SolverError` with:
+
+| Property  | Explanation |
+|-----------|-------------|
+| `code`    | Error code, aligned with the TCP interface |
+| `message` | Detailed error message |
 
 
 ## Importing optimizer with variable name

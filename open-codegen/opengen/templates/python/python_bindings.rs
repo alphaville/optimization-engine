@@ -11,8 +11,11 @@ use {{ meta.optimizer_name }}::*;
 #[pymodule]
 fn {{ meta.optimizer_name }}(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solver, m)?)?;
-    m.add_class::<OptimizerSolution>()?;
+    m.add_class::<SolverStatus>()?;
+    m.add_class::<SolverError>()?;
+    m.add_class::<SolverResponse>()?;
     m.add_class::<Solver>()?;
+    m.add("OptimizerSolution", m.getattr("SolverStatus")?)?;
     Ok(())
 }
 
@@ -22,9 +25,53 @@ fn solver() -> PyResult<Solver> {
     Ok(Solver { cache })
 }
 
+#[derive(Clone)]
+struct SolverStatusData {
+    exit_status: String,
+    num_outer_iterations: usize,
+    num_inner_iterations: usize,
+    last_problem_norm_fpr: f64,
+    f1_infeasibility: f64,
+    f2_norm: f64,
+    solve_time_ms: f64,
+    penalty: f64,
+    solution: Vec<f64>,
+    lagrange_multipliers: Vec<f64>,
+    cost: f64,
+}
+
+impl SolverStatusData {
+    fn from_status(status: AlmOptimizerStatus, solution: &[f64]) -> Self {
+        SolverStatusData {
+            exit_status: format!("{:?}", status.exit_status()),
+            num_outer_iterations: status.num_outer_iterations(),
+            num_inner_iterations: status.num_inner_iterations(),
+            last_problem_norm_fpr: status.last_problem_norm_fpr(),
+            f1_infeasibility: status.delta_y_norm_over_c(),
+            f2_norm: status.f2_norm(),
+            penalty: status.penalty(),
+            lagrange_multipliers: status.lagrange_multipliers().clone().unwrap_or_default(),
+            solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
+            solution: solution.to_vec(),
+            cost: status.cost(),
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SolverErrorData {
+    code: i32,
+    message: String,
+}
+
+enum SolverResponsePayload {
+    Ok(SolverStatusData),
+    Err(SolverErrorData),
+}
+
 /// Solution and solution status of optimizer
 #[pyclass]
-struct OptimizerSolution {
+struct SolverStatus {
     #[pyo3(get)]
     exit_status: String,
     #[pyo3(get)]
@@ -49,6 +96,64 @@ struct OptimizerSolution {
     cost: f64,
 }
 
+impl From<SolverStatusData> for SolverStatus {
+    fn from(status: SolverStatusData) -> Self {
+        SolverStatus {
+            exit_status: status.exit_status,
+            num_outer_iterations: status.num_outer_iterations,
+            num_inner_iterations: status.num_inner_iterations,
+            last_problem_norm_fpr: status.last_problem_norm_fpr,
+            f1_infeasibility: status.f1_infeasibility,
+            f2_norm: status.f2_norm,
+            solve_time_ms: status.solve_time_ms,
+            penalty: status.penalty,
+            solution: status.solution,
+            lagrange_multipliers: status.lagrange_multipliers,
+            cost: status.cost,
+        }
+    }
+}
+
+#[pyclass]
+struct SolverError {
+    #[pyo3(get)]
+    code: i32,
+    #[pyo3(get)]
+    message: String,
+}
+
+impl From<SolverErrorData> for SolverError {
+    fn from(error: SolverErrorData) -> Self {
+        SolverError {
+            code: error.code,
+            message: error.message,
+        }
+    }
+}
+
+#[pyclass]
+struct SolverResponse {
+    payload: SolverResponsePayload,
+}
+
+#[pymethods]
+impl SolverResponse {
+    fn is_ok(&self) -> bool {
+        matches!(self.payload, SolverResponsePayload::Ok(_))
+    }
+
+    fn get(&self, py: Python<'_>) -> PyResult<PyObject> {
+        match &self.payload {
+            SolverResponsePayload::Ok(status) => {
+                Ok(Py::new(py, SolverStatus::from(status.clone()))?.into_py(py))
+            }
+            SolverResponsePayload::Err(error) => {
+                Ok(Py::new(py, SolverError::from(error.clone()))?.into_py(py))
+            }
+        }
+    }
+}
+
 #[pyclass]
 struct Solver {
     cache: AlmCache,
@@ -65,7 +170,7 @@ impl Solver {
         initial_guess: Option<Vec<f64>>,
         initial_lagrange_multipliers: Option<Vec<f64>>,
         initial_penalty: Option<f64>,
-    ) -> PyResult<Option<OptimizerSolution>> {
+    ) -> PyResult<SolverResponse> {
         let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
 
         // ----------------------------------------------------
@@ -73,12 +178,16 @@ impl Solver {
         // ----------------------------------------------------
         if let Some(u0) = initial_guess {
             if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
-                println!(
-                    "1600 -> Initial guess has incompatible dimensions: {} != {}",
-                    u0.len(),
-                    {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES
-                );
-                return Ok(None);
+                return Ok(SolverResponse {
+                    payload: SolverResponsePayload::Err(SolverErrorData {
+                        code: 1600,
+                        message: format!(
+                            "initial guess has incompatible dimensions: provided {}, expected {}",
+                            u0.len(),
+                            {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES
+                        ),
+                    }),
+                });
             }
             u.copy_from_slice(&u0);
         }
@@ -88,12 +197,16 @@ impl Solver {
         // ----------------------------------------------------
         if let Some(y0) = &initial_lagrange_multipliers {
             if y0.len() != {{meta.optimizer_name|upper}}_N1 {
-                println!(
-                    "1700 -> wrong dimension of Langrange multipliers: {} != {}",
-                    y0.len(),
-                    {{meta.optimizer_name|upper}}_N1
-                );
-                return Ok(None);
+                return Ok(SolverResponse {
+                    payload: SolverResponsePayload::Err(SolverErrorData {
+                        code: 1700,
+                        message: format!(
+                            "wrong dimension of Langrange multipliers: provided {}, expected {}",
+                            y0.len(),
+                            {{meta.optimizer_name|upper}}_N1
+                        ),
+                    }),
+                });
             }
         }
 
@@ -101,12 +214,16 @@ impl Solver {
         // Check parameter
         // ----------------------------------------------------
         if p.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
-            println!(
-                "3003 -> wrong number of parameters: {} != {}",
-                p.len(),
-                {{meta.optimizer_name|upper}}_NUM_PARAMETERS
-            );
-            return Ok(None);
+            return Ok(SolverResponse {
+                payload: SolverResponsePayload::Err(SolverErrorData {
+                    code: 3003,
+                    message: format!(
+                        "wrong number of parameters: provided {}, expected {}",
+                        p.len(),
+                        {{meta.optimizer_name|upper}}_NUM_PARAMETERS
+                    ),
+                }),
+            });
         }
 
         // ----------------------------------------------------
@@ -121,23 +238,15 @@ impl Solver {
         );
 
         match solver_status {
-            Ok(status) => Ok(Some(OptimizerSolution {
-                exit_status: format!("{:?}", status.exit_status()),
-                num_outer_iterations: status.num_outer_iterations(),
-                num_inner_iterations: status.num_inner_iterations(),
-                last_problem_norm_fpr: status.last_problem_norm_fpr(),
-                f1_infeasibility: status.delta_y_norm_over_c(),
-                f2_norm: status.f2_norm(),
-                penalty: status.penalty(),
-                lagrange_multipliers: status.lagrange_multipliers().clone().unwrap_or_default(),
-                solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
-                solution: u.to_vec(),
-                cost: status.cost(),
-            })),
-            Err(_) => {
-                println!("2000 -> Problem solution failed (solver error)");
-                Ok(None)
-            }
+            Ok(status) => Ok(SolverResponse {
+                payload: SolverResponsePayload::Ok(SolverStatusData::from_status(status, &u)),
+            }),
+            Err(err) => Ok(SolverResponse {
+                payload: SolverResponsePayload::Err(SolverErrorData {
+                    code: 2000,
+                    message: format!("problem solution failed: {}", err),
+                }),
+            }),
         }
     }
 }
