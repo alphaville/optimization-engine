@@ -48,6 +48,7 @@ where
     /// ## Panic
     ///
     /// Does not panic
+    #[must_use]
     pub fn new(
         problem: Problem<'a, GradientType, ConstraintType, CostType, T>,
         cache: &'a mut PANOCCache<T>,
@@ -67,6 +68,7 @@ where
     /// ## Panics
     ///
     /// The method panics if the specified tolerance is not positive
+    #[must_use]
     pub fn with_tolerance(self, tolerance: T) -> Self {
         assert!(tolerance > T::zero(), "tolerance must be larger than 0");
 
@@ -95,6 +97,7 @@ where
     /// The method panics if the provided value of the AKKT-specific tolerance is
     /// not positive.
     ///
+    #[must_use]
     pub fn with_akkt_tolerance(self, akkt_tolerance: T) -> Self {
         assert!(
             akkt_tolerance > T::zero(),
@@ -109,6 +112,7 @@ where
     /// ## Panics
     ///
     /// Panics if the provided number of iterations is equal to zero
+    #[must_use]
     pub fn with_max_iter(mut self, max_iter: usize) -> Self {
         assert!(max_iter > 0, "max_iter must be larger than 0");
 
@@ -117,6 +121,7 @@ where
     }
 
     /// Sets the maximum solution time, useful in real-time applications
+    #[must_use]
     pub fn with_max_duration(mut self, max_duation: time::Duration) -> Self {
         self.max_duration = Some(max_duation);
         self

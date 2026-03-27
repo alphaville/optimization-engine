@@ -7,6 +7,7 @@ pub struct NoConstraints {}
 impl NoConstraints {
     /// Constructs new instance of `NoConstraints`
     ///
+    #[must_use]
     pub fn new() -> NoConstraints {
         NoConstraints {}
     }

@@ -138,6 +138,7 @@ where
     /// # Panics
     /// The method will panic if `delta` is non positive
     ///
+    #[must_use]
     pub fn with_delta(mut self, delta: T) -> Self {
         assert!(delta > T::zero());
         self.delta_lip = delta;
@@ -155,6 +156,7 @@ where
     /// # Panics
     /// The method will panic if `epsilon` is non positive
     ///
+    #[must_use]
     pub fn with_epsilon(mut self, epsilon: T) -> Self {
         assert!(epsilon > T::zero());
         self.epsilon_lip = epsilon;

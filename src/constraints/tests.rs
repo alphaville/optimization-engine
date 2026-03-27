@@ -1202,6 +1202,46 @@ fn t_affine_space_single_row() {
 }
 
 #[test]
+fn t_affine_space_try_new() {
+    let a = vec![
+        0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0, -0.4,
+    ];
+    let b = vec![1., 2., -0.5];
+    let affine_set = AffineSpace::try_new(a, b);
+    assert!(affine_set.is_ok(), "try_new should succeed on valid data");
+}
+
+#[test]
+fn t_affine_space_try_new_empty_b() {
+    let a = vec![1.0, 2.0];
+    let b = vec![];
+    let affine_set = AffineSpace::<f64>::try_new(a, b);
+    assert!(matches!(affine_set, Err(AffineSpaceError::EmptyB)));
+}
+
+#[test]
+fn t_affine_space_try_new_wrong_dimensions() {
+    let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];
+    let b = vec![1., 2., -0.5];
+    let affine_set = AffineSpace::try_new(a, b);
+    assert!(matches!(
+        affine_set,
+        Err(AffineSpaceError::IncompatibleDimensions)
+    ));
+}
+
+#[test]
+fn t_affine_space_try_new_rank_deficient() {
+    let a = vec![1.0, 2.0, 2.0, 4.0];
+    let b = vec![1.0, 2.0];
+    let affine_set = AffineSpace::try_new(a, b);
+    assert!(matches!(
+        affine_set,
+        Err(AffineSpaceError::NotFullRowRank)
+    ));
+}
+
+#[test]
 #[should_panic]
 fn t_affine_space_wrong_dimensions() {
     let a = vec![0.5, 0.1, 0.2, -0.3, -0.6, 0.3, 0., 0.5, 1.0, 0.1, -1.0];

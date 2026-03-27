@@ -264,6 +264,7 @@ where
     ///     .with_max_outer_iterations(10);
     ///```     
     ///
+    #[must_use]
     pub fn new(
         alm_cache: &'life mut AlmCache<T>,
         alm_problem: AlmProblem<
@@ -315,6 +316,7 @@ where
     /// The method panics if the specified number of outer iterations is zero
     ///
     ///
+    #[must_use]
     pub fn with_max_outer_iterations(mut self, max_outer_iterations: usize) -> Self {
         assert!(
             max_outer_iterations > 0,
@@ -340,6 +342,7 @@ where
     /// The method panics if the specified number of inner iterations is zero
     ///
     ///
+    #[must_use]
     pub fn with_max_inner_iterations(mut self, max_inner_iterations: usize) -> Self {
         assert!(
             max_inner_iterations > 0,
@@ -362,6 +365,7 @@ where
     ///
     /// Returns the current mutable and updated instance of the provided object
     ///
+    #[must_use]
     pub fn with_max_duration(mut self, max_duration: std::time::Duration) -> Self {
         self.max_duration = Some(max_duration);
         self
@@ -381,6 +385,7 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     ///
+    #[must_use]
     pub fn with_delta_tolerance(mut self, delta_tolerance: T) -> Self {
         assert!(
             delta_tolerance > T::zero(),
@@ -404,6 +409,7 @@ where
     ///
     /// The method panics if the specified tolerance is not positive
     ///
+    #[must_use]
     pub fn with_epsilon_tolerance(mut self, epsilon_tolerance: T) -> Self {
         assert!(
             epsilon_tolerance > T::zero(),
@@ -432,6 +438,7 @@ where
     /// The method panics if the update factor is not larger than `1.0 + T::epsilon()`
     ///
     ///
+    #[must_use]
     pub fn with_penalty_update_factor(mut self, penalty_update_factor: T) -> Self {
         assert!(
             penalty_update_factor > T::one() + T::epsilon(),
@@ -461,6 +468,7 @@ where
     /// The method panics if the specified tolerance update factor is not in the
     /// interval from `T::epsilon()` to `1.0 - T::epsilon()`.
     ///
+    #[must_use]
     pub fn with_inner_tolerance_update_factor(mut self, inner_tolerance_update_factor: T) -> Self {
         assert!(
             inner_tolerance_update_factor > T::epsilon()
@@ -494,6 +502,7 @@ where
     /// `with_inner_tolerance` to do so before invoking `with_initial_inner_tolerance`.
     ///
     ///
+    #[must_use]
     pub fn with_initial_inner_tolerance(mut self, initial_inner_tolerance: T) -> Self {
         assert!(
             initial_inner_tolerance >= self.epsilon_tolerance,
@@ -526,6 +535,7 @@ where
     /// The method panics if the specified sufficient decrease coefficient is not
     /// in the range `(T::epsilon(), 1.0 - T::epsilon())`
     ///
+    #[must_use]
     pub fn with_sufficient_decrease_coefficient(
         mut self,
         sufficient_decrease_coefficient: T,
@@ -554,6 +564,7 @@ where
     ///
     /// The method will panic if the length of `y_init` is not equal to `n1`
     ///
+    #[must_use]
     pub fn with_initial_lagrange_multipliers(mut self, y_init: &[T]) -> Self {
         let cache = &mut self.alm_cache;
         assert!(
@@ -584,6 +595,7 @@ where
     /// The method panics if the specified initial penalty parameter is not
     /// larger than `T::epsilon()`
     ///
+    #[must_use]
     pub fn with_initial_penalty(self, c0: T) -> Self {
         assert!(
             c0 > T::epsilon(),

@@ -7,6 +7,7 @@ pub struct Zero {}
 
 impl Zero {
     /// Constructs new instance of `Zero`
+    #[must_use]
     pub fn new() -> Self {
         Zero {}
     }

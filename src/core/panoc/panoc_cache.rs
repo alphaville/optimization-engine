@@ -245,6 +245,7 @@ where
     /// The method panics if alpha or epsilon are nonpositive and if sy_epsilon
     /// is negative.
     ///
+    #[must_use]
     pub fn with_cbfgs_parameters(mut self, alpha: T, epsilon: T, sy_epsilon: T) -> Self {
         self.lbfgs = self
             .lbfgs

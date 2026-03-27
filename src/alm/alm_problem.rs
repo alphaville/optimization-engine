@@ -74,6 +74,12 @@ pub struct AlmProblem<
     pub(crate) n1: usize,
     /// number of PM-type parameters (range dim of F2)
     pub(crate) n2: usize,
+    /// This phantom data object is used because all other attributes
+    /// are not tied to the type T directly. T appears in some
+    /// trait bounds (e.g., MappingAlm, ParametricCostType, etc), but this
+    /// is not enough for the struct layout/type system.
+    /// Without this, Rust gives a bunch of errors. Movoer, this is a zero-size
+    /// object.
     marker: PhantomData<T>,
 }
 
@@ -148,6 +154,8 @@ where
     /// );
     /// ```
     ///
+    #[allow(clippy::too_many_arguments)]
+    #[must_use]
     pub fn new(
         constraints: ConstraintsType,
         alm_set_c: Option<AlmSetC>,

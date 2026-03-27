@@ -123,6 +123,7 @@ impl<'a, T> CartesianProduct<'a, T> {
     /// ```
     /// The method will panic if any of the associated projections panics.
     ///
+    #[must_use]
     pub fn add_constraint(mut self, ni: usize, constraint: impl Constraint<T> + 'a) -> Self {
         assert!(
             self.dimension() < ni,

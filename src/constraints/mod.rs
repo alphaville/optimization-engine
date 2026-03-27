@@ -25,7 +25,7 @@ mod soc;
 mod sphere2;
 mod zero;
 
-pub use affine_space::AffineSpace;
+pub use affine_space::{AffineSpace, AffineSpaceError};
 pub use ball1::Ball1;
 pub use ball2::Ball2;
 pub use ballinf::BallInf;

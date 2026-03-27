@@ -49,6 +49,7 @@ where
     ///
     /// - `problem`: problem definition
     /// - `cache`: instance of `FBSCache`
+    #[must_use]
     pub fn new(
         problem: Problem<'a, GradientType, ConstraintType, CostType, T>,
         cache: &'a mut FBSCache<T>,
@@ -65,6 +66,7 @@ where
     /// ## Panics
     ///
     /// The method panics if the specified tolerance is not positive
+    #[must_use]
     pub fn with_tolerance(
         self,
         tolerance: T,
@@ -76,6 +78,7 @@ where
     }
 
     /// Sets the maximum number of iterations
+    #[must_use]
     pub fn with_max_iter(
         mut self,
         max_iter: usize,
@@ -85,6 +88,7 @@ where
     }
 
     /// Sets the maximum number of iterations
+    #[must_use]
     pub fn with_max_duration(
         mut self,
         max_duration: time::Duration,
