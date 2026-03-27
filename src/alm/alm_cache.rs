@@ -7,14 +7,13 @@ fn default_initial_penalty<T: Float>() -> T {
     cast::<T>(10.0)
 }
 
-/// Cache for `AlmOptimizer` (to be allocated once)
+/// Cache and mutable state for `AlmOptimizer`
 ///
-/// This is a cache structure that contains all the data that make
-/// up the "state" of the ALM/PM algorithm, i.e., all those data that
-/// the algorithm *updates*.
+/// `AlmCache` stores the data that the outer ALM/PM loop updates from one
+/// iteration to the next, together with the [`PANOCCache`] used to solve the
+/// inner problems.
 ///
-/// On the other hand, the problem data are provided in an instance
-/// of `AlmProblem`.
+/// The problem definition itself is stored separately in `AlmProblem`.
 ///
 /// The scalar type `T` is generic and is typically `f64` or `f32`. The default
 /// is `f64`.
@@ -60,19 +59,43 @@ impl<T> AlmCache<T>
 where
     T: Float + LbfgsPrecision + Sum<T>,
 {
-    /// Construct a new instance of `AlmCache`
+    /// Constructs a new `AlmCache`
     ///
     /// # Arguments
     ///
-    /// - `panoc_cache`: an instance of `PANOCCache` that will be used by
-    ///   the inner problem
-    /// - `n1`, `n2`: range dimensions of mappings `F1` and `F2` respectively
+    /// - `panoc_cache`: cache used by the inner PANOC solver
+    /// - `n1`: dimension of the ALM mapping `F1`
+    /// - `n2`: dimension of the PM mapping `F2`
     ///
-    /// The scalar type `T` is inferred from `panoc_cache`.
+    /// The scalar type `T` is inferred from `panoc_cache`. Depending on the
+    /// values of `n1` and `n2`, this constructor allocates the auxiliary
+    /// vectors needed by the ALM and PM updates:
     ///
-    /// # Panics
+    /// - `y_plus` and `w_alm_aux` are allocated only when `n1 > 0`
+    /// - `w_pm` is allocated only when `n2 > 0`
+    /// - `xi` is allocated when `n1 + n2 > 0` and is initialized as
+    ///   `xi = (c^0, y^0)`, where `c^0` is the default initial penalty and
+    ///   `y^0` is the zero vector in `R^{n1}`
     ///
-    /// Does not panic
+    /// # Examples
+    ///
+    /// Using the default scalar type (`f64`):
+    ///
+    /// ```
+    /// use optimization_engine::{alm::AlmCache, panoc::PANOCCache};
+    ///
+    /// let panoc_cache = PANOCCache::new(4, 1e-6, 8);
+    /// let _alm_cache = AlmCache::new(panoc_cache, 2, 1);
+    /// ```
+    ///
+    /// Using `f32` explicitly:
+    ///
+    /// ```
+    /// use optimization_engine::{alm::AlmCache, panoc::PANOCCache};
+    ///
+    /// let panoc_cache = PANOCCache::new(4, 1e-5_f32, 8);
+    /// let _alm_cache = AlmCache::<f32>::new(panoc_cache, 2, 1);
+    /// ```
     ///
     pub fn new(panoc_cache: PANOCCache<T>, n1: usize, n2: usize) -> Self {
         AlmCache {
@@ -114,9 +137,27 @@ where
         }
     }
 
-    /// Resets the cache to its virgin state, and resets the stored instance
-    /// of `PANOCCache`
+    /// Resets the cache to its initial iteration state
     ///
+    /// This method:
+    ///
+    /// - resets the stored [`PANOCCache`]
+    /// - clears the outer iteration counters
+    /// - resets the stored infeasibility and fixed-point-residual related norms
+    ///
+    /// The allocated work vectors remain allocated so the cache can be reused
+    /// without additional memory allocations.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use optimization_engine::{alm::AlmCache, panoc::PANOCCache};
+    ///
+    /// let panoc_cache = PANOCCache::new(3, 1e-6, 5);
+    /// let mut alm_cache = AlmCache::new(panoc_cache, 1, 1);
+    ///
+    /// alm_cache.reset();
+    /// ```
     pub fn reset(&mut self) {
         self.panoc_cache.reset();
         self.iteration = 0;
