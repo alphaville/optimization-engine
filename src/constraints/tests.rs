@@ -1,6 +1,7 @@
-use crate::matrix_operations;
+use crate::{matrix_operations, numeric::cast};
 
 use super::*;
+use num::{Float, ToPrimitive};
 use rand;
 use rand::RngExt;
 use rand_distr::{Distribution, Gamma};
@@ -1375,6 +1376,247 @@ fn is_norm_p_projection(
     true
 }
 
+fn is_norm_p_projection_with_tol(
+    x: &[f64],
+    x_candidate_proj: &[f64],
+    p: f64,
+    radius: f64,
+    sample_points: usize,
+    feasibility_tol: f64,
+    inner_prod_tol: f64,
+) -> bool {
+    let n = x.len();
+    assert_eq!(n, x_candidate_proj.len());
+
+    let norm_proj = x_candidate_proj
+        .iter()
+        .map(|xi| xi.abs().powf(p))
+        .sum::<f64>()
+        .powf(1.0 / p);
+    if norm_proj > radius + feasibility_tol {
+        return false;
+    }
+
+    let e: Vec<f64> = x
+        .iter()
+        .zip(x_candidate_proj.iter())
+        .map(|(xi, yi)| xi - yi)
+        .collect();
+    let samples = sample_lp_sphere(sample_points, n, p, radius);
+    for xi in samples.iter() {
+        let w: Vec<f64> = x_candidate_proj
+            .iter()
+            .zip(xi.iter())
+            .map(|(xproj_i, xi_i)| xproj_i - xi_i)
+            .collect();
+        let inner = matrix_operations::inner_product(&w, &e);
+        if inner < -inner_prod_tol {
+            return false;
+        }
+    }
+    true
+}
+
+fn as_f64_vec<T: ToPrimitive>(x: &[T]) -> Vec<f64> {
+    x.iter()
+        .map(|xi| {
+            xi.to_f64()
+                .expect("test float values must be convertible to f64")
+        })
+        .collect()
+}
+
+fn lp_norm_generic<T: Float>(x: &[T], p: T) -> T {
+    x.iter()
+        .map(|xi| xi.abs().powf(p))
+        .fold(T::zero(), |sum, xi| sum + xi)
+        .powf(T::one() / p)
+}
+
+fn random_vec<T: Float>(rng: &mut impl rand::Rng, len: usize, lower: f64, upper: f64) -> Vec<T> {
+    (0..len)
+        .map(|_| cast::<T>(rng.random_range(lower..upper)))
+        .collect()
+}
+
+fn run_ballp_random_properties<T>()
+where
+    T: Float + ToPrimitive,
+{
+    let mut rng = rand::rng();
+    let solver_tol = if T::epsilon() > cast::<T>(1e-10) {
+        cast::<T>(1e-5)
+    } else {
+        cast::<T>(1e-12)
+    };
+    let feasibility_tol = if T::epsilon() > cast::<T>(1e-10) {
+        cast::<T>(5e-3)
+    } else {
+        cast::<T>(1e-8)
+    };
+    let idempotence_tol = if T::epsilon() > cast::<T>(1e-10) {
+        cast::<T>(2e-4)
+    } else {
+        cast::<T>(1e-10)
+    };
+    let inner_prod_tol = if T::epsilon() > cast::<T>(1e-10) {
+        5e-3
+    } else {
+        1e-8
+    };
+
+    for &(dim, p_f64, radius_f64, with_center) in &[
+        (3_usize, 1.7_f64, 1.1_f64, false),
+        (4_usize, 2.5_f64, 0.9_f64, true),
+        (5_usize, 3.4_f64, 1.4_f64, true),
+    ] {
+        for _ in 0..40 {
+            let center = with_center.then(|| random_vec::<T>(&mut rng, dim, -1.5, 1.5));
+            let mut x = random_vec::<T>(&mut rng, dim, -4.0, 4.0);
+            let x_before = x.clone();
+            let p = cast::<T>(p_f64);
+            let radius = cast::<T>(radius_f64);
+            let ball = BallP::new(center.as_deref(), radius, p, solver_tol, 300);
+            ball.project(&mut x);
+
+            let shifted_projection: Vec<T> = if let Some(center) = center.as_ref() {
+                x.iter()
+                    .zip(center.iter())
+                    .map(|(xi, ci)| *xi - *ci)
+                    .collect()
+            } else {
+                x.clone()
+            };
+            let proj_norm = lp_norm_generic(&shifted_projection, p);
+            assert!(
+                proj_norm <= radius + feasibility_tol,
+                "projected point is not feasible for BallP"
+            );
+
+            let mut reproj = x.clone();
+            ball.project(&mut reproj);
+            let max_reproj_diff = reproj
+                .iter()
+                .zip(x.iter())
+                .fold(T::zero(), |acc, (a, b)| acc.max((*a - *b).abs()));
+            assert!(
+                max_reproj_diff <= idempotence_tol,
+                "BallP projection is not idempotent within tolerance"
+            );
+
+            let shifted_x_before: Vec<f64> = if let Some(center) = center.as_ref() {
+                x_before
+                    .iter()
+                    .zip(center.iter())
+                    .map(|(xi, ci)| {
+                        (*xi - *ci)
+                            .to_f64()
+                            .expect("test float values must be convertible to f64")
+                    })
+                    .collect()
+            } else {
+                as_f64_vec(&x_before)
+            };
+            let shifted_projection_f64 = as_f64_vec(&shifted_projection);
+            assert!(
+                is_norm_p_projection_with_tol(
+                    &shifted_x_before,
+                    &shifted_projection_f64,
+                    p_f64,
+                    radius_f64,
+                    500,
+                    feasibility_tol
+                        .to_f64()
+                        .expect("test float values must be convertible to f64"),
+                    inner_prod_tol,
+                ),
+                "BallP projection failed sampled optimality check"
+            );
+        }
+    }
+}
+
+fn run_epigraph_squared_norm_random_properties<T>()
+where
+    T: Float + roots::FloatType + std::iter::Sum<T> + ToPrimitive,
+{
+    let mut rng = rand::rng();
+    let feasibility_tol = if T::epsilon() > cast::<T>(1e-10) {
+        cast::<T>(2e-4)
+    } else {
+        cast::<T>(1e-10)
+    };
+    let idempotence_tol = if T::epsilon() > cast::<T>(1e-10) {
+        cast::<T>(2e-4)
+    } else {
+        cast::<T>(1e-10)
+    };
+    let vi_tol = if T::epsilon() > cast::<T>(1e-10) {
+        2e-3
+    } else {
+        1e-8
+    };
+    let epi = EpigraphSquaredNorm::new();
+
+    for dim in 2..=5 {
+        for _ in 0..50 {
+            let mut x = random_vec::<T>(&mut rng, dim, -3.0, 3.0);
+            x.push(cast::<T>(rng.random_range(-2.0..4.0)));
+            let x_before = as_f64_vec(&x);
+
+            epi.project(&mut x);
+
+            let z = &x[..dim];
+            let t = x[dim];
+            let norm_z_sq = matrix_operations::norm2_squared(z);
+            assert!(
+                norm_z_sq <= t + feasibility_tol,
+                "Epigraph projection is not feasible"
+            );
+
+            let mut reproj = x.clone();
+            epi.project(&mut reproj);
+            let max_reproj_diff = reproj
+                .iter()
+                .zip(x.iter())
+                .fold(T::neg_infinity(), |acc, (a, b)| {
+                    acc.max(num::Float::abs(*a - *b))
+                });
+            assert!(
+                max_reproj_diff <= idempotence_tol,
+                "Epigraph projection is not idempotent within tolerance"
+            );
+
+            let proj_f64 = as_f64_vec(&x);
+            let residual: Vec<f64> = x_before
+                .iter()
+                .zip(proj_f64.iter())
+                .map(|(xb, xp)| xb - xp)
+                .collect();
+
+            for _ in 0..150 {
+                let z_feasible: Vec<f64> = (0..dim)
+                    .map(|_| rng.random_range(-3.0..3.0))
+                    .collect();
+                let norm_z_sq_feasible = z_feasible.iter().map(|zi| zi * zi).sum::<f64>();
+                let t_feasible = norm_z_sq_feasible + rng.random_range(0.0..3.0);
+                let mut y = z_feasible;
+                y.push(t_feasible);
+                let diff: Vec<f64> = proj_f64
+                    .iter()
+                    .zip(y.iter())
+                    .map(|(xp, yi)| xp - yi)
+                    .collect();
+                let inner = matrix_operations::inner_product(&diff, &residual);
+                assert!(
+                    inner >= -vi_tol,
+                    "Epigraph projection failed sampled variational inequality"
+                );
+            }
+        }
+    }
+}
+
 #[test]
 fn t_ballp_at_origin_projection() {
     let radius = 0.8;
@@ -1456,4 +1698,24 @@ fn t_ballp_at_xc_projection_f32() {
     let proj_expected = [0.517_872_75_f32, 2.227_798_2_f32];
     assert!((x[0] - proj_expected[0]).abs() < 1e-4_f32);
     assert!((x[1] - proj_expected[1]).abs() < 1e-4_f32);
+}
+
+#[test]
+fn t_ballp_random_properties_f64() {
+    run_ballp_random_properties::<f64>();
+}
+
+#[test]
+fn t_ballp_random_properties_f32() {
+    run_ballp_random_properties::<f32>();
+}
+
+#[test]
+fn t_epigraph_squared_norm_random_properties_f64() {
+    run_epigraph_squared_norm_random_properties::<f64>();
+}
+
+#[test]
+fn t_epigraph_squared_norm_random_properties_f32() {
+    run_epigraph_squared_norm_random_properties::<f32>();
 }

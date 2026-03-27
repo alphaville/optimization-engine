@@ -95,7 +95,7 @@ where
 
         let cubic_poly_roots = roots::find_roots_cubic(a3, a2, a1, a0);
 
-        let root_tol = cast::<T>(1e-6);
+        let root_tol = cast::<T>(10.0) * num::Float::sqrt(T::epsilon());
         let mut right_root: Option<T> = None;
 
         // Pick the first admissible real root
@@ -117,7 +117,7 @@ where
 
         // Newton refinement
         let newton_max_iters: usize = 5;
-        let newton_eps = cast::<T>(1e-14);
+        let newton_eps = cast::<T>(10.0) * T::epsilon();
 
         for _ in 0..newton_max_iters {
             let zsol_sq = zsol * zsol;
@@ -130,7 +130,7 @@ where
 
             let dp_z = cast::<T>(3.0) * a3 * zsol_sq + cast::<T>(2.0) * a2 * zsol + a1;
             assert!(
-                num::Float::abs(dp_z) > cast::<T>(1e-15),
+                num::Float::abs(dp_z) > cast::<T>(10.0) * T::epsilon(),
                 "EpigraphSquaredNorm::project: Newton derivative too small"
             );
 
@@ -141,7 +141,7 @@ where
         let scaling = cast::<T>(1.0) + cast::<T>(2.0) * (right_root - t);
 
         assert!(
-            num::Float::abs(scaling) > cast::<T>(1e-15),
+            num::Float::abs(scaling) > cast::<T>(10.0) * T::epsilon(),
             "EpigraphSquaredNorm::project: scaling factor too small"
         );
 
