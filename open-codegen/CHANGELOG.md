@@ -19,6 +19,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 ### Changed
 
 - Extended `RosConfiguration` so it can be used for both ROS and ROS2 package generation
+- Breaking change: the direct interface (Python bindings) now has an API which mirrors that of the TCP interface: the method `solve` returns either a solution or an error object. Website documentation is updated. New unit tests are implemented.
 - Updated generated TCP server and C interface templates to work with the richer Rust solver error model and expose better failure information to clients
 
 

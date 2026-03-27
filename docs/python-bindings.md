@@ -79,8 +79,11 @@ Then you will be able to use it as follows:
 ```python
 solver = rosenbrock.solver()
 response = solver.run(p=[20., 1.])
-result = response.get()
-u_star = result.solution
+if not response.is_ok():
+    raise RuntimeError(response.get().message)
+
+status = response.get()
+u_star = status.solution
 ```
 
 In the first line, `solver = rosenbrock.solver()`, we obtain an instance of 
@@ -96,7 +99,8 @@ arguments, namely:
 The solver returns an object of type `SolverResponse`, similar to the TCP
 interface. First call `response.is_ok()` to determine whether the call
 succeeded, then call `response.get()` to obtain either a `SolverStatus`
-object or a `SolverError`.
+object or a `SolverError`. This mirrors the Python TCP interface, but without
+the socket transport layer.
 
 ```python
 response = solver.run(p=[20., 1.])
@@ -106,6 +110,15 @@ if response.is_ok():
 else:
     error = response.get()
     print(error.code, error.message)
+```
+
+The returned objects also implement `__repr__`, which makes them convenient to
+inspect in a Python REPL or notebook:
+
+```python
+response = solver.run(p=[20., 1.])
+print(response)
+print(response.get())
 ```
 
 The `SolverStatus` object exposes the following properties:
@@ -127,12 +140,24 @@ The `SolverStatus` object exposes the following properties:
 
 These are the same properties as those of `opengen.tcp.SolverStatus`.
 
+For backward compatibility, the generated module also exposes
+`OptimizerSolution` as an alias of `SolverStatus`.
+
 If the call fails, `response.get()` returns a `SolverError` with:
 
 | Property  | Explanation |
 |-----------|-------------|
 | `code`    | Error code, aligned with the TCP interface |
 | `message` | Detailed error message |
+
+The most common error codes are:
+
+| Code | Meaning |
+|------|---------|
+| `1600` | Initial guess has incompatible dimensions |
+| `1700` | Wrong dimension of initial Lagrange multipliers |
+| `2000` | Problem solution failed; the message includes the solver-side reason |
+| `3003` | Wrong number of parameters |
 
 
 ## Importing optimizer with variable name
