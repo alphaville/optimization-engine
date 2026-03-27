@@ -351,18 +351,27 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertFalse(response.is_ok())
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
         self.assertEqual(3003, status.code)
+        self.assertEqual(
+            "wrong number of parameters: provided 3, expected 2",
+            status.message)
 
         response = mng.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
         self.assertFalse(response.is_ok())
         status = response.get()
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
         self.assertEqual(1600, status.code)
+        self.assertEqual(
+            "initial guess has incompatible dimensions: provided 2, expected 5",
+            status.message)
 
         response = mng.call(p=[2.0, 10.0], initial_y=[0.1])
         status = response.get()
         self.assertFalse(response.is_ok())
         self.assertEqual(True, isinstance(status, og.tcp.SolverError))
         self.assertEqual(1700, status.code)
+        self.assertEqual(
+            "wrong dimension of Langrange multipliers: provided 1, expected 2",
+            status.message)
 
         mng.kill()
 
@@ -405,18 +414,27 @@ class RustBuildTestCase(unittest.TestCase):
             status = response.get()
             self.assertEqual(True, isinstance(status, og.tcp.SolverError))
             self.assertEqual(3003, status.code)
+            self.assertEqual(
+                "wrong number of parameters: provided 3, expected 2",
+                status.message)
 
             response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
             self.assertFalse(response.is_ok())
             status = response.get()
             self.assertEqual(True, isinstance(status, og.tcp.SolverError))
             self.assertEqual(1600, status.code)
+            self.assertEqual(
+                "initial guess has incompatible dimensions: provided 2, expected 5",
+                status.message)
 
             response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
             self.assertFalse(response.is_ok())
             status = response.get()
             self.assertEqual(True, isinstance(status, og.tcp.SolverError))
             self.assertEqual(1700, status.code)
+            self.assertEqual(
+                "wrong dimension of Langrange multipliers: provided 1, expected 0",
+                status.message)
         finally:
             mng1.kill()
             mng2.kill()

@@ -150,7 +150,12 @@ fn execution_handler(
         Some(u0) => {
             if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
                 warn!("initial guess has incompatible dimensions");
-                write_error_message(stream, 1600, "Initial guess has incompatible dimensions");
+                let error_message = format!(
+                    "initial guess has incompatible dimensions: provided {}, expected {}",
+                    u0.len(),
+                    {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES
+                );
+                write_error_message(stream, 1600, &error_message);
                 return;
             }
             u.copy_from_slice(u0);
@@ -162,7 +167,12 @@ fn execution_handler(
     // ----------------------------------------------------
     if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
         if y0.len() != {{meta.optimizer_name|upper}}_N1 {
-            write_error_message(stream, 1700, "wrong dimension of Langrange multipliers");
+            let error_message = format!(
+                "wrong dimension of Langrange multipliers: provided {}, expected {}",
+                y0.len(),
+                {{meta.optimizer_name|upper}}_N1
+            );
+            write_error_message(stream, 1700, &error_message);
             return;
         }
     }
@@ -172,7 +182,12 @@ fn execution_handler(
     // ----------------------------------------------------
     let parameter = &execution_parameter.parameter;
     if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
-        write_error_message(stream, 3003, "wrong number of parameters");
+        let error_message = format!(
+            "wrong number of parameters: provided {}, expected {}",
+            parameter.len(),
+            {{meta.optimizer_name|upper}}_NUM_PARAMETERS
+        );
+        write_error_message(stream, 3003, &error_message);
         return;
     }
     p.copy_from_slice(parameter);
