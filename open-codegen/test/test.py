@@ -306,6 +306,14 @@ class RustBuildTestCase(unittest.TestCase):
 
         return json.loads(data.decode())
 
+    @staticmethod
+    def send_partial_tcp_payload_and_close(ip, port, payload):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as conn_socket:
+            conn_socket.connect((ip, port))
+            if isinstance(payload, str):
+                payload = payload.encode()
+            conn_socket.sendall(payload)
+
     def start_tcp_manager(self, manager):
         manager.start()
         self.addCleanup(manager.kill) # at the end, kill the TCP mngr
@@ -536,6 +544,44 @@ class RustBuildTestCase(unittest.TestCase):
             utf8_status.message.startswith(
                 "invalid request: request body is not valid UTF-8"))
 
+    def test_rust_build_plain_survives_invalid_request(self):
+        mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/plain',
+            ip='127.0.0.1',
+            port=13759))
+
+        malformed_response = og.tcp.SolverResponse(
+            RustBuildTestCase.raw_tcp_request('127.0.0.1', 13759, '{"Run":'))
+        self.assertFalse(malformed_response.is_ok())
+        malformed_status = malformed_response.get()
+        self.assertEqual(1000, malformed_status.code)
+
+        pong = mng.ping()
+        self.assertEqual(1, pong["Pong"])
+
+        response = mng.call(p=[2.0, 10.0])
+        self.assertTrue(response.is_ok())
+        self.assertEqual("Converged", response.get().exit_status)
+
+    def test_rust_build_plain_survives_disconnect_mid_request(self):
+        mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/plain',
+            ip='127.0.0.1',
+            port=13760))
+
+        RustBuildTestCase.send_partial_tcp_payload_and_close(
+            '127.0.0.1',
+            13760,
+            '{"Run":{"parameter":[2.0'
+        )
+
+        pong = mng.ping()
+        self.assertEqual(1, pong["Pong"])
+
+        response = mng.call(p=[2.0, 10.0])
+        self.assertTrue(response.is_ok())
+        self.assertEqual("Converged", response.get().exit_status)
+
     def test_rust_build_solver_error_details(self):
         mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
             RustBuildTestCase.TEST_DIR + '/solver_error'))
@@ -622,6 +668,41 @@ class RustBuildTestCase(unittest.TestCase):
         rc1, rc2 = RustBuildTestCase.c_bindings_helper(optimizer_name="plain")
         self.assertEqual(0, rc1)
         self.assertEqual(0, rc2)
+
+    def test_tcp_generated_server_builds(self):
+        tcp_iface_dir = os.path.join(
+            RustBuildTestCase.TEST_DIR, "plain", "tcp_iface_plain")
+        process = subprocess.Popen(
+            ["cargo", "build", "--quiet"],
+            cwd=tcp_iface_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        _stdout, stderr = process.communicate()
+
+        self.assertEqual(
+            0,
+            process.returncode,
+            msg=stderr.decode()
+        )
+
+    def test_tcp_manager_start_fails_cleanly_when_port_is_in_use(self):
+        mng1 = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/plain',
+            ip='127.0.0.1',
+            port=13761))
+
+        mng2 = og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f1',
+            ip='127.0.0.1',
+            port=13761)
+        with self.assertRaises(Exception) as context:
+            mng2.start()
+
+        self.assertIn("Port 13761 not available", str(context.exception))
+
+        pong = mng1.ping()
+        self.assertEqual(1, pong["Pong"])
 
     def test_tcp_manager_remote_cannot_start(self):
         remote_tcp_manager = og.tcp.OptimizerTcpManager(
