@@ -17,6 +17,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 ### Changed
 
 - Rust solver supports generic float types
+- Expanded Rust constraint test coverage with constructor validation, boundary/idempotence checks, and additional `BallP` / epigraph projection cases
 
 
 <!-- ---------------------
