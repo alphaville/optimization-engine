@@ -1,6 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
-use crate::CholeskyFactorizer;
+use crate::{CholeskyError, CholeskyFactorizer};
 
 use ndarray::{ArrayView1, ArrayView2, LinalgScalar};
 use num::Float;
@@ -15,6 +15,18 @@ pub struct AffineSpace<T = f64> {
     factorizer: CholeskyFactorizer<T>,
     n_rows: usize,
     n_cols: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Errors that can arise when constructing an [`AffineSpace`].
+pub enum AffineSpaceError {
+    /// The vector `b` is empty.
+    EmptyB,
+    /// The dimensions of `A` and `b` are incompatible.
+    IncompatibleDimensions,
+    /// The matrix `AA^T` is not positive definite, which typically means
+    /// that `A` does not have full row rank.
+    NotFullRowRank,
 }
 
 impl<T> AffineSpace<T>
@@ -32,25 +44,61 @@ where
     /// ## Returns
     /// New Affine Space structure
     ///
+    /// ## Panics
+    ///
+    /// Panics if:
+    ///
+    /// - `b` is empty,
+    /// - `A` and `b` have incompatible dimensions,
+    /// - `A` does not have full row rank.
+    ///
+    /// Use [`AffineSpace::try_new`] if you want to handle these conditions
+    /// without panicking.
+    ///
     pub fn new(a: Vec<T>, b: Vec<T>) -> Self {
+        Self::try_new(a, b).expect("invalid affine space data")
+    }
+
+    /// Construct a new affine space given the matrix $A\in\mathbb{R}^{m\times n}$
+    /// and the vector $b\in\mathbb{R}^m$.
+    ///
+    /// ## Arguments
+    ///
+    /// - `a`: matrix $A$, row-wise data
+    /// - `b`: vector $b$
+    ///
+    /// ## Returns
+    ///
+    /// Returns a new [`AffineSpace`] on success, or an [`AffineSpaceError`] if
+    /// the provided data are invalid.
+    pub fn try_new(a: Vec<T>, b: Vec<T>) -> Result<Self, AffineSpaceError> {
         let n_rows = b.len();
         let n_elements_a = a.len();
-        assert!(n_rows > 0, "b must not be empty");
-        assert!(
-            n_elements_a.is_multiple_of(n_rows),
-            "A and b have incompatible dimensions"
-        );
+        if n_rows == 0 {
+            return Err(AffineSpaceError::EmptyB);
+        }
+        if !n_elements_a.is_multiple_of(n_rows) {
+            return Err(AffineSpaceError::IncompatibleDimensions);
+        }
         let n_cols = n_elements_a / n_rows;
-        let aat = matrix_operations::mul_a_at(&a, n_rows, n_cols).unwrap();
+        let aat = matrix_operations::mul_a_at(&a, n_rows, n_cols)
+            .map_err(|_| AffineSpaceError::IncompatibleDimensions)?;
         let mut factorizer = CholeskyFactorizer::new(n_rows);
-        factorizer.factorize(&aat).unwrap();
-        AffineSpace {
+        factorizer
+            .factorize(&aat)
+            .map_err(|err| match err {
+                CholeskyError::NotPositiveDefinite => AffineSpaceError::NotFullRowRank,
+                CholeskyError::DimensionMismatch | CholeskyError::NotFactorized => {
+                    AffineSpaceError::IncompatibleDimensions
+                }
+            })?;
+        Ok(AffineSpace {
             a_mat: a,
             b_vec: b,
             factorizer,
             n_rows,
             n_cols,
-        }
+        })
     }
 }
 
