@@ -40,6 +40,16 @@ impl<T: Float> SecondOrderCone<T> {
     /// # Panics
     ///
     /// The method panics if the given parameter `alpha` is nonpositive.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, SecondOrderCone};
+    ///
+    /// let cone = SecondOrderCone::new(1.0);
+    /// let mut x = [2.0, 0.0, 0.5];
+    /// cone.project(&mut x);
+    /// ```
     pub fn new(alpha: T) -> SecondOrderCone<T> {
         assert!(alpha > T::zero()); // alpha must be positive
         SecondOrderCone { alpha }

@@ -15,6 +15,16 @@ pub struct Ball1<'a, T = f64> {
 impl<'a, T: Float> Ball1<'a, T> {
     /// Construct a new ball-1 with given center and radius.
     /// If no `center` is given, then it is assumed to be in the origin
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Ball1, Constraint};
+    ///
+    /// let ball = Ball1::new(None, 1.0);
+    /// let mut x = [2.0, -0.5];
+    /// ball.project(&mut x);
+    /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());
         let simplex = Simplex::new(radius);

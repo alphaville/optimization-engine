@@ -22,6 +22,16 @@ pub struct Sphere2<'a, T = f64> {
 impl<'a, T: Float> Sphere2<'a, T> {
     /// Construct a new Euclidean sphere with given center and radius
     /// If no `center` is given, then it is assumed to be in the origin
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, Sphere2};
+    ///
+    /// let sphere = Sphere2::new(None, 1.0);
+    /// let mut x = [3.0, 4.0];
+    /// sphere.project(&mut x);
+    /// ```
     pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
         assert!(radius > T::zero());
         Sphere2 { center, radius }

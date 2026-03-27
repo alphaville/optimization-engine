@@ -36,6 +36,21 @@ impl<'a, T> CartesianProduct<'a, T> {
     /// when possible (provided you have an estimate of the number of sets
     /// your Cartesian product will consist of).
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Ball2, CartesianProduct, Constraint, Rectangle};
+    ///
+    /// let xmin = [-1.0, -1.0];
+    /// let xmax = [1.0, 1.0];
+    /// let cartesian = CartesianProduct::new()
+    ///     .add_constraint(2, Rectangle::new(Some(&xmin), Some(&xmax)))
+    ///     .add_constraint(4, Ball2::new(None, 1.0));
+    ///
+    /// let mut x = [3.0, -2.0, 2.0, 0.0];
+    /// cartesian.project(&mut x);
+    /// ```
+    ///
     pub fn new() -> Self {
         CartesianProduct {
             idx: Vec::new(),

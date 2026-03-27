@@ -15,6 +15,16 @@ pub struct Simplex<T = f64> {
 impl<T: Float> Simplex<T> {
     /// Construct a new simplex with given (positive) $\alpha$. The user does not need
     /// to specify the dimension of the simplex.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, Simplex};
+    ///
+    /// let simplex = Simplex::new(1.0);
+    /// let mut x = [0.5, -0.5, 2.0];
+    /// simplex.project(&mut x);
+    /// ```
     pub fn new(alpha: T) -> Self {
         assert!(alpha > T::zero(), "alpha is nonpositive");
         Simplex { alpha }

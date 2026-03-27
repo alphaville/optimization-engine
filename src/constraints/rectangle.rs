@@ -35,6 +35,18 @@ impl<'a, T: Float> Rectangle<'a, T> {
     /// - Both `xmin` and `xmax` have been provided, but they have incompatible
     ///   dimensions
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, Rectangle};
+    ///
+    /// let xmin = [-1.0, 0.0];
+    /// let xmax = [1.0, 2.0];
+    /// let rectangle = Rectangle::new(Some(&xmin), Some(&xmax));
+    /// let mut x = [3.0, -4.0];
+    /// rectangle.project(&mut x);
+    /// ```
+    ///
     pub fn new(xmin: Option<&'a [T]>, xmax: Option<&'a [T]>) -> Self {
         assert!(xmin.is_some() || xmax.is_some()); // xmin or xmax must be Some
         assert!(

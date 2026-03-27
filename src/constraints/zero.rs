@@ -7,6 +7,16 @@ pub struct Zero {}
 
 impl Zero {
     /// Constructs new instance of `Zero`
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, Zero};
+    ///
+    /// let zero = Zero::new();
+    /// let mut x = [1.0, -2.0, 3.0];
+    /// zero.project(&mut x);
+    /// ```
     #[must_use]
     pub fn new() -> Self {
         Zero {}

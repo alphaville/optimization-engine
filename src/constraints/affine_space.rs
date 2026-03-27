@@ -71,6 +71,19 @@ where
     ///
     /// Returns a new [`AffineSpace`] on success, or an [`AffineSpaceError`] if
     /// the provided data are invalid.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use optimization_engine::constraints::{AffineSpace, Constraint};
+    ///
+    /// let a = vec![1.0, 1.0, 1.0, -1.0];
+    /// let b = vec![1.0, 0.0];
+    /// let affine_space = AffineSpace::try_new(a, b).unwrap();
+    ///
+    /// let mut x = [2.0, 2.0];
+    /// affine_space.project(&mut x);
+    /// ```
     pub fn try_new(a: Vec<T>, b: Vec<T>) -> Result<Self, AffineSpaceError> {
         let n_rows = b.len();
         let n_elements_a = a.len();

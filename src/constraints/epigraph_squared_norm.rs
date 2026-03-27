@@ -19,6 +19,16 @@ impl EpigraphSquaredNorm {
     /// Create a new instance of the epigraph of the squared norm.
     ///
     /// Note that you do not need to specify the dimension.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{Constraint, EpigraphSquaredNorm};
+    ///
+    /// let epi = EpigraphSquaredNorm::new();
+    /// let mut x = [1.0, 2.0, 1.0];
+    /// epi.project(&mut x);
+    /// ```
     #[must_use]
     pub fn new() -> Self {
         EpigraphSquaredNorm {}
