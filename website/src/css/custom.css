@@ -32,7 +32,6 @@ body {
 }
 
 .navbar {
-  backdrop-filter: blur(16px);
   box-shadow: 0 10px 30px rgba(86, 44, 28, 0.12);
 }
 
@@ -197,7 +196,7 @@ body {
 .homeCodeBlock {
   background: var(--open-page-surface);
   border: 1px solid var(--open-page-border);
-  border-radius: 24px;
+  border-radius: 15px;
   box-shadow: var(--open-page-shadow);
 }
 
@@ -366,6 +365,111 @@ body {
 
 .homeOcpPromo__image {
   width: 100%;
+}
+
+.homeRos2Promo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 1.5rem;
+  align-items: center;
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem;
+  background:
+    linear-gradient(145deg, rgba(164, 62, 53, 0.88), rgba(141, 33, 183, 0.92)),
+    #843129;
+  border: 1px solid rgba(255, 224, 204, 0.2);
+  border-radius: 28px;
+  box-shadow: var(--open-page-shadow);
+}
+
+.homeRos2Promo__content,
+.homeRos2Promo__code {
+  min-width: 0;
+}
+
+.homeRos2Promo__content h2 {
+  margin: 0 0 0.85rem;
+  color: #fff8f3;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+}
+
+.homeRos2Promo__content p {
+  color: rgba(255, 248, 243, 0.88);
+}
+
+.homeRos2Promo__robot {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 1rem;
+}
+
+.homeRos2Promo__attribution {
+  margin: -0.4rem 0 0.9rem;
+  text-align: center;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.homeRos2Promo__attribution a {
+  color: rgba(255, 248, 243, 0.82);
+  text-decoration: none;
+}
+
+.homeRos2Promo__attribution a:hover {
+  color: #fff8f3;
+  text-decoration: underline;
+}
+
+.homeRos2Promo__codeBlock {
+  margin-top: 0;
+  background: rgba(255, 248, 243, 0.96);
+  border-color: rgba(255, 224, 204, 0.3);
+}
+
+.homeRos2Promo__codeBlock .theme-code-block {
+  margin-bottom: 0;
+}
+
+.homeDockerPromo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+  gap: 1.5rem;
+  align-items: center;
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.homeDockerPromo__content,
+.homeDockerPromo__visual {
+  min-width: 0;
+}
+
+.homeDockerPromo__content h2 {
+  margin: 0 0 0.85rem;
+  color: #2f1a14;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+}
+
+.homeDockerPromo__content p {
+  color: var(--open-page-muted);
+}
+
+.homeDockerPromo__image {
+  display: block;
+  width: min(100%, 280px);
+  margin: 0 auto 1rem;
+}
+
+.homeDockerPromo__codeBlock {
+  margin-top: 0;
+}
+
+.homeDockerPromo__codeBlock .theme-code-block {
+  margin-bottom: 0;
 }
 
 .homeSplit__copy,
@@ -617,8 +721,44 @@ body {
     max-width: none;
   }
 
-  .homeOcpPromo {
+  .homeOcpPromo,
+  .homeRos2Promo,
+  .homeDockerPromo {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 997px) {
+  .navbar {
+    backdrop-filter: blur(16px);
+  }
+}
+
+@media (max-width: 996px) {
+  .navbar-sidebar,
+  .navbar-sidebar__items,
+  .navbar-sidebar__item.menu {
+    background: #f8eee7;
+  }
+
+  .navbar-sidebar__brand,
+  .navbar-sidebar__back,
+  .navbar-sidebar__close,
+  .navbar-sidebar .menu__link,
+  .navbar-sidebar .menu__caret,
+  .navbar-sidebar .menu__link--sublist::after {
+    color: #221714;
+  }
+
+  .navbar-sidebar .menu__link {
+    font-weight: 500;
+  }
+
+  .navbar-sidebar .menu__link:hover,
+  .navbar-sidebar .menu__link--active,
+  .navbar-sidebar .menu__list-item-collapsible:hover {
+    background: rgba(122, 31, 31, 0.08);
+    color: #221714;
   }
 }
 
@@ -639,5 +779,9 @@ body {
   .homeHero__logo {
     width: 64px;
     height: 64px;
+  }
+
+  .homeRos2Promo {
+    padding: 1.5rem;
   }
 }

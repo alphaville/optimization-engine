@@ -60,6 +60,35 @@ run_python_core_tests() {
     generated_clippy_tests
 }
 
+run_python_ros2_tests() {
+    export PYTHONPATH=.
+    set +u
+    if [ -n "${ROS_DISTRO:-}" ] && [ -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]; then
+        # setup-ros installs the ROS underlay but does not source it for our shell
+        source "/opt/ros/${ROS_DISTRO}/setup.bash"
+    elif [ -f "/opt/ros/jazzy/setup.bash" ]; then
+        source "/opt/ros/jazzy/setup.bash"
+    else
+        set -u
+        echo "ROS2 environment setup script not found"
+        exit 1
+    fi
+    set -u
+
+    if ! python -c "import em, lark, catkin_pkg" >/dev/null 2>&1; then
+        # ROS2 build helpers run under the active Python interpreter. The test venv
+        # already has NumPy from `pip install .`, but we also need the ROS-side
+        # Python packages used during interface and package metadata generation.
+        # Empy 4 has broken older ROS message generators in the past, so keep it
+        # on the 3.x API here.
+        python -m pip install "empy<4" lark catkin_pkg
+    fi
+
+    command -v ros2 >/dev/null
+    command -v colcon >/dev/null
+    python -W ignore test/test_ros2.py -v
+}
+
 run_python_ocp_tests() {
     export PYTHONPATH=.
     python -W ignore test/test_ocp.py -v
@@ -83,6 +112,11 @@ main() {
                 echo "Running Python tests and generated Clippy tests"
                 setup_python_test_env
                 run_python_core_tests
+                ;;
+            ros2-tests)
+                echo "Running ROS2 Python tests"
+                setup_python_test_env
+                run_python_ros2_tests
                 ;;
             ocp-tests)
                 echo "Running OCP Python tests"

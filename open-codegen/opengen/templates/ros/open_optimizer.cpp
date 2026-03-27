@@ -1,6 +1,7 @@
 /**
  * This is an auto-generated file by Optimization Engine (OpEn)
- * OpEn is a free open-source software - see doc.optimization-engine.xyz
+ * OpEn is a free open-source software - 
+ * see https://alphaville.github.io/optimization-engine
  * dually licensed under the MIT and Apache v2 licences.
  *
  */
