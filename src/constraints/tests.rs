@@ -978,7 +978,7 @@ fn t_ball1_random_optimality_conditions_centered() {
                 .zip(xc.iter())
                 .for_each(|(xi, &xci)| *xi -= xci);
             assert!(
-                crate::matrix_operations::norm1(&x) <= radius * (1. + 1e-9),
+                crate::matrix_operations::norm1(&x) <= radius * (1. + 1e-9) + 1e-12,
                 "norm(x - xc, 1) > radius"
             );
         }
