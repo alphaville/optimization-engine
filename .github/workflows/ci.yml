@@ -43,7 +43,8 @@ jobs:
 
   python_tests:
     name: Python tests (${{ matrix.name }})
-    needs: rust_tests
+    needs:
+      - rust_tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -101,6 +102,55 @@ jobs:
       - name: Run Python tests and generated Clippy checks
         if: runner.os == 'macOS'
         run: bash ./ci/script.sh python-tests
+
+  ros2_tests:
+    name: ROS2 tests
+    needs: python_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ubuntu:noble
+      options: --user 0
+    env:
+      DO_DOCKER: 0
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install container bootstrap dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            build-essential \
+            cmake \
+            curl \
+            ca-certificates \
+            git \
+            gnupg2 \
+            locales \
+            lsb-release
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Setup ROS 2
+        # `ros-tooling/setup-ros@v0.7` still runs as a Node.js 20 action.
+        # Force it onto Node 24 now so CI keeps working as GitHub deprecates
+        # Node 20, and upgrade `setup-ros` to a Node 24-compatible release
+        # when one becomes available.
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Run ROS2 Python tests
+        run: bash ./ci/script.sh ros2-tests
 
   ocp_tests:
     name: OCP tests (${{ matrix.name }})

@@ -1,4 +1,7 @@
+use crate::numeric::cast;
+
 use super::Constraint;
+use num::Float;
 
 #[derive(Copy, Clone)]
 /// An $\\ell_p$ ball, that is,
@@ -89,33 +92,33 @@ use super::Constraint;
 ///   in [`Ball2`](crate::constraints::Ball2) is more efficient
 /// - The quality and speed of the computation depend on the chosen numerical
 ///   tolerance and iteration limit.
-pub struct BallP<'a> {
+pub struct BallP<'a, T = f64> {
     /// Optional center of the ball.
     ///
     /// If `None`, the ball is centered at the origin.
     /// If `Some(center)`, the ball is centered at `center`.
-    center: Option<&'a [f64]>,
+    center: Option<&'a [T]>,
 
     /// Radius of the ball.
     ///
     /// Must be strictly positive.
-    radius: f64,
+    radius: T,
 
     /// Exponent of the norm.
     ///
     /// Must satisfy `p > 1.0` and be finite.
-    p: f64,
+    p: T,
 
     /// Numerical tolerance used by the outer bisection on the Lagrange
     /// multiplier and by the inner Newton solver.
-    tolerance: f64,
+    tolerance: T,
 
     /// Maximum number of iterations used by the outer bisection and
     /// the inner Newton solver.
     max_iter: usize,
 }
 
-impl<'a> BallP<'a> {
+impl<'a, T: Float> BallP<'a, T> {
     /// Construct a new l_p ball with given center, radius, and exponent.
     ///
     /// - `center`: if `None`, the ball is centered at the origin
@@ -123,16 +126,10 @@ impl<'a> BallP<'a> {
     /// - `p`: norm exponent, must satisfy `p > 1.0` and be finite
     /// - `tolerance`: tolerance for the numerical solvers
     /// - `max_iter`: maximum number of iterations for the numerical solvers
-    pub fn new(
-        center: Option<&'a [f64]>,
-        radius: f64,
-        p: f64,
-        tolerance: f64,
-        max_iter: usize,
-    ) -> Self {
-        assert!(radius > 0.0);
-        assert!(p > 1.0 && p.is_finite());
-        assert!(tolerance > 0.0);
+    pub fn new(center: Option<&'a [T]>, radius: T, p: T, tolerance: T, max_iter: usize) -> Self {
+        assert!(radius > T::zero());
+        assert!(p > T::one() && p.is_finite());
+        assert!(tolerance > T::zero());
         assert!(max_iter > 0);
 
         BallP {
@@ -150,14 +147,14 @@ impl<'a> BallP<'a> {
     /// The $p$-norm of a vector $x\in \mathbb{R}^n$ is given by
     /// $$\Vert x \Vert_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p},$$
     /// for $p > 1$.
-    fn lp_norm(&self, x: &[f64]) -> f64 {
+    fn lp_norm(&self, x: &[T]) -> T {
         x.iter()
             .map(|xi| xi.abs().powf(self.p))
-            .sum::<f64>()
-            .powf(1.0 / self.p)
+            .fold(T::zero(), |sum, xi| sum + xi)
+            .powf(T::one() / self.p)
     }
 
-    fn project_lp_ball(&self, x: &mut [f64]) {
+    fn project_lp_ball(&self, x: &mut [T]) {
         let p = self.p;
         let r = self.radius;
         let tol = self.tolerance;
@@ -168,32 +165,32 @@ impl<'a> BallP<'a> {
             return;
         }
 
-        let abs_x: Vec<f64> = x.iter().map(|xi| xi.abs()).collect();
+        let abs_x: Vec<T> = x.iter().map(|xi| xi.abs()).collect();
         let target = r.powf(p);
 
-        let radius_error = |lambda: f64| -> f64 {
+        let radius_error = |lambda: T| -> T {
             abs_x
                 .iter()
                 .map(|&a| {
                     let u = Self::solve_coordinate_newton(a, lambda, p, tol, max_iter);
                     u.powf(p)
                 })
-                .sum::<f64>()
+                .fold(T::zero(), |sum, ui| sum + ui)
                 - target
         };
 
-        let mut lambda_lo = 0.0_f64;
-        let mut lambda_hi = 1.0_f64;
+        let mut lambda_lo = T::zero();
+        let mut lambda_hi = T::one();
 
-        while radius_error(lambda_hi) > 0.0 {
-            lambda_hi *= 2.0;
-            if lambda_hi > 1e20 {
+        while radius_error(lambda_hi) > T::zero() {
+            lambda_hi = lambda_hi * cast::<T>(2.0);
+            if lambda_hi > cast::<T>(1e20) {
                 panic!("Failed to bracket the Lagrange multiplier");
             }
         }
 
         for _ in 0..max_iter {
-            let lambda_mid = 0.5 * (lambda_lo + lambda_hi);
+            let lambda_mid = cast::<T>(0.5) * (lambda_lo + lambda_hi);
             let err = radius_error(lambda_mid);
 
             if err.abs() <= tol {
@@ -202,14 +199,14 @@ impl<'a> BallP<'a> {
                 break;
             }
 
-            if err > 0.0 {
+            if err > T::zero() {
                 lambda_lo = lambda_mid;
             } else {
                 lambda_hi = lambda_mid;
             }
         }
 
-        let lambda_star = 0.5 * (lambda_lo + lambda_hi);
+        let lambda_star = cast::<T>(0.5) * (lambda_lo + lambda_hi);
 
         x.iter_mut().zip(abs_x.iter()).for_each(|(xi, &a)| {
             let u = Self::solve_coordinate_newton(a, lambda_star, p, tol, max_iter);
@@ -222,56 +219,56 @@ impl<'a> BallP<'a> {
     ///
     /// The solution always belongs to [0, a], so Newton is combined with
     /// bracketing and a bisection fallback.
-    fn solve_coordinate_newton(a: f64, lambda: f64, p: f64, tol: f64, max_iter: usize) -> f64 {
-        if a == 0.0 {
-            return 0.0;
+    fn solve_coordinate_newton(a: T, lambda: T, p: T, tol: T, max_iter: usize) -> T {
+        if a == T::zero() {
+            return T::zero();
         }
 
-        if lambda == 0.0 {
+        if lambda == T::zero() {
             return a;
         }
 
-        let mut lo = 0.0_f64;
+        let mut lo = T::zero();
         let mut hi = a;
 
         // Heuristic initial guess:
         // exact when p = 2, and usually in the right scale for general p.
-        let mut u = (a / (1.0 + lambda * p)).clamp(lo, hi);
+        let mut u = (a / (T::one() + lambda * p)).clamp(lo, hi);
 
         for _ in 0..max_iter {
-            let upm1 = u.powf(p - 1.0);
+            let upm1 = u.powf(p - T::one());
             let f = u + lambda * p * upm1 - a;
 
             if f.abs() <= tol {
                 return u;
             }
 
-            if f > 0.0 {
+            if f > T::zero() {
                 hi = u;
             } else {
                 lo = u;
             }
 
-            let df = 1.0 + lambda * p * (p - 1.0) * u.powf(p - 2.0);
+            let df = T::one() + lambda * p * (p - T::one()) * u.powf(p - cast::<T>(2.0));
             let mut candidate = u - f / df;
 
             if !candidate.is_finite() || candidate <= lo || candidate >= hi {
-                candidate = 0.5 * (lo + hi);
+                candidate = cast::<T>(0.5) * (lo + hi);
             }
 
-            if (candidate - u).abs() <= tol * (1.0 + u.abs()) {
+            if (candidate - u).abs() <= tol * (T::one() + u.abs()) {
                 return candidate;
             }
 
             u = candidate;
         }
 
-        0.5 * (lo + hi)
+        cast::<T>(0.5) * (lo + hi)
     }
 }
 
-impl<'a> Constraint for BallP<'a> {
-    fn project(&self, x: &mut [f64]) {
+impl<'a, T: Float> Constraint<T> for BallP<'a, T> {
+    fn project(&self, x: &mut [T]) {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -279,7 +276,7 @@ impl<'a> Constraint for BallP<'a> {
                 "x and xc have incompatible dimensions"
             );
 
-            let mut shifted = vec![0.0; x.len()];
+            let mut shifted = vec![T::zero(); x.len()];
             shifted
                 .iter_mut()
                 .zip(x.iter().zip(center.iter()))

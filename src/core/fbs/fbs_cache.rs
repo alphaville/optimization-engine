@@ -1,19 +1,23 @@
 //! FBS Cache
 //!
+use num::Float;
 use std::num::NonZeroUsize;
 
 /// Cache for the forward-backward splitting (FBS), or projected gradient, algorithm
 ///
 /// This struct allocates memory needed for the FBS algorithm
-pub struct FBSCache {
-    pub(crate) work_gradient_u: Vec<f64>,
-    pub(crate) work_u_previous: Vec<f64>,
-    pub(crate) gamma: f64,
-    pub(crate) tolerance: f64,
-    pub(crate) norm_fpr: f64,
+pub struct FBSCache<T = f64>
+where
+    T: Float,
+{
+    pub(crate) work_gradient_u: Vec<T>,
+    pub(crate) work_u_previous: Vec<T>,
+    pub(crate) gamma: T,
+    pub(crate) tolerance: T,
+    pub(crate) norm_fpr: T,
 }
 
-impl FBSCache {
+impl<T: Float> FBSCache<T> {
     /// Construct a new instance of `FBSCache`
     ///
     /// ## Arguments
@@ -37,13 +41,13 @@ impl FBSCache {
     /// This method will panic if there is no available memory for the required allocation
     /// (capacity overflow)
     ///
-    pub fn new(n: NonZeroUsize, gamma: f64, tolerance: f64) -> FBSCache {
+    pub fn new(n: NonZeroUsize, gamma: T, tolerance: T) -> FBSCache<T> {
         FBSCache {
-            work_gradient_u: vec![0.0; n.get()],
-            work_u_previous: vec![0.0; n.get()],
+            work_gradient_u: vec![T::zero(); n.get()],
+            work_u_previous: vec![T::zero(); n.get()],
             gamma,
             tolerance,
-            norm_fpr: f64::INFINITY,
+            norm_fpr: T::infinity(),
         }
     }
 }

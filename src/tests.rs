@@ -21,6 +21,6 @@ fn t_access() {
 
     assert!(status.has_converged());
     assert!(status.norm_fpr() < tolerance);
-    assert!((-0.14896 - u[0]).abs() < 1e-4);
-    assert!((0.13346 - u[1]).abs() < 1e-4);
+    assert!((-0.14896_f64 - u[0]).abs() < 1e-4);
+    assert!((0.13346_f64 - u[1]).abs() < 1e-4);
 }

@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
+## [0.11.0] - Unreleased
+
+### Added
+
+- ROS2 package generation support via `BuildConfiguration.with_ros2(...)`, including auto-generated ROS2 templates, launcher, messages, and package wrapper code
+- Dedicated ROS2 tests covering package generation, build configuration behavior, rendered custom package settings, and end-to-end execution of a generated ROS2 node
+
+### Changed
+
+- Extended `RosConfiguration` so it can be used for both ROS and ROS2 package generation
+
+
 ## [0.10.1] - 2026-03-25
 
 

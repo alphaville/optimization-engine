@@ -58,6 +58,7 @@ pub mod constraints;
 pub mod core;
 pub mod lipschitz_estimator;
 pub mod matrix_operations;
+mod numeric;
 
 pub use crate::cholesky_factorizer::{CholeskyError, CholeskyFactorizer};
 pub use crate::core::fbs;

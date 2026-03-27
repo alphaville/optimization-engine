@@ -35,6 +35,17 @@ builder = og.builder.OpEnOptimizerBuilder(
 )
 builder.build()`;
 
+const ros2PromoCode = String.raw`ros2_config = og.config.RosConfiguration() \
+    .with_package_name("my_ros_pkg") \
+    .with_node_name("open_node_ros2") \
+    .with_rate(10.0)
+
+build_config = og.config.BuildConfiguration() \
+    .with_build_directory("my_optimizers") \
+    .with_ros2(ros2_config)`;
+
+const dockerPromoCode = String.raw`docker pull alphaville/open:0.7.0`
+
 const heroStats = [
   {label: 'Core language', value: 'Rust'},
   {label: 'Primary uses', value: 'MPC, MHE, Robotics'},
@@ -111,7 +122,9 @@ export default function Home() {
   const assetUrl = (path) => `${baseUrl}${path.replace(/^\//, '')}`;
   const promoGif = assetUrl('img/open-promo.gif');
   const boxLogo = assetUrl('img/box.png');
+  const dockerGif = assetUrl('img/docker.gif');
   const ocpStatesImage = assetUrl('img/ocp-states.png');
+  const ros2RobotImage = assetUrl('img/ros2-robot.png');
   const [zoomedImage, setZoomedImage] = useState(null);
 
   useEffect(() => {
@@ -349,6 +362,94 @@ export default function Home() {
                 src={ocpStatesImage}
                 alt="State trajectories from an optimal control problem built with the Python OCP package"
               />
+            </div>
+          </div>
+        </section>
+
+        <section className="homeSection">
+          <div className="homeRos2Promo">
+            <div className="homeRos2Promo__content">
+              <p className="homeSection__eyebrow">New in opegen 0.11</p>
+              <h2>ROS2 packages</h2>
+              <p>
+                OpEn can now <b>generate ROS2 packages</b> directly from a parametric
+                optimizer. The generated package includes ROS2 messages,
+                configuration files, a launch file, and a node that exposes the
+                solver through topics.
+              </p>
+              <p>
+                This makes it easy to connect optimization-based controllers,
+                estimators, and planning modules into a modern robotics stack
+                without writing the ROS2 wrapper code by hand.
+              </p>
+              <div className="homeHero__actions">
+                <Link className="button button--primary" to="/docs/python-ros2">
+                  Learn more
+                </Link>
+                <Link className="button button--secondary" to="/docs/python-ros">
+                  Legacy ROS1
+                </Link>
+              </div>
+            </div>
+            <div className="homeRos2Promo__code">
+              <img
+                className="homeRos2Promo__robot"
+                src={ros2RobotImage}
+                alt="Cartoon robot icon"
+              />
+              <p className="homeRos2Promo__attribution">
+                <a
+                  href="https://www.flaticon.com/free-icons/bot"
+                  title="bot icons"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Bot icons created by pbig - Flaticon
+                </a>
+              </p>
+              <div className="homeCodeBlock homeRos2Promo__codeBlock">
+                <CodeBlock language="python">{ros2PromoCode}</CodeBlock>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="homeSection homeSection--alt">
+          <div className="homeDockerPromo">
+            <div className="homeDockerPromo__content">
+              <p className="homeSection__eyebrow">Docker image</p>
+              <h2>Run OpEn in a ready-made container</h2>
+              <p>
+                OpEn ships with a Docker image that gets you straight into a
+                working environment with Jupyter, Python, and the tooling needed
+                to explore examples without local setup friction.
+              </p>
+              <p>
+                It is a convenient way to try the Python interface, browse the
+                notebooks, and experiment with the OCP workflows in a clean,
+                reproducible environment.
+              </p>
+              <div className="homeHero__actions">
+                <Link className="button button--primary" to="/docs/docker">
+                  Learn more
+                </Link>
+                <Link
+                  className="button button--secondary"
+                  href="https://hub.docker.com/r/alphaville/open"
+                >
+                  Docker Hub
+                </Link>
+              </div>
+            </div>
+            <div className="homeDockerPromo__visual">
+              <img
+                className="homeDockerPromo__image"
+                src={dockerGif}
+                alt="OpEn running inside the Docker image with Jupyter"
+              />
+              <div className="homeCodeBlock homeDockerPromo__codeBlock">
+                <CodeBlock language="bash">{dockerPromoCode}</CodeBlock>
+              </div>
             </div>
           </div>
         </section>

@@ -12,7 +12,7 @@ import logging
 import sys
 
 from importlib.metadata import version
-from .ros_builder import RosBuilder
+from .ros_builder import ROS2Builder, RosBuilder
 
 _AUTOGEN_COST_FNAME = 'auto_casadi_cost.c'
 _AUTOGEN_GRAD_FNAME = 'auto_casadi_grad.c'
@@ -919,5 +919,12 @@ class OpEnOptimizerBuilder:
                 self.__build_config,
                 self.__solver_config)
             ros_builder.build()
+
+        if self.__build_config.ros2_config is not None:
+            ros2_builder = ROS2Builder(
+                self.__meta,
+                self.__build_config,
+                self.__solver_config)
+            ros2_builder.build()
 
         return self.__info()

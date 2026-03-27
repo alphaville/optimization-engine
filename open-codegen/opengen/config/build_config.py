@@ -57,6 +57,7 @@ class BuildConfiguration:
         self.__build_c_bindings = False
         self.__build_python_bindings = False
         self.__ros_config = None
+        self.__ros2_config = None
         self.__tcp_interface_config = None
         self.__local_path = None
         self.__allocator = RustAllocator.DefaultAllocator
@@ -134,6 +135,14 @@ class BuildConfiguration:
         :return: instance of RosConfiguration
         """
         return self.__ros_config
+
+    @property
+    def ros2_config(self) -> RosConfiguration:
+        """ROS2 package configuration
+
+        :return: instance of RosConfiguration
+        """
+        return self.__ros2_config
 
     @property
     def allocator(self) -> RustAllocator:
@@ -257,6 +266,21 @@ class BuildConfiguration:
         """
         self.__build_c_bindings = True  # no C++ bindings, no ROS package mate
         self.__ros_config = ros_config
+        self.__ros2_config = None
+        return self
+
+    def with_ros2(self, ros_config: RosConfiguration):
+        """
+        Activates the generation of a ROS2 package. The caller must provide an
+        instance of RosConfiguration
+
+        :param ros_config: Configuration of ROS2 package
+
+        :return: current instance of BuildConfiguration
+        """
+        self.__build_c_bindings = True  # no C++ bindings, no ROS package
+        self.__ros2_config = ros_config
+        self.__ros_config = None
         return self
 
     def with_tcp_interface_config(self, tcp_interface_config=TcpServerConfiguration()):
@@ -300,4 +324,6 @@ class BuildConfiguration:
             build_dict["tcp_interface_config"] = self.__tcp_interface_config.to_dict()
         if self.__ros_config is not None:
             build_dict["ros_config"] = self.__ros_config.to_dict()
+        if self.__ros2_config is not None:
+            build_dict["ros2_config"] = self.__ros2_config.to_dict()
         return build_dict

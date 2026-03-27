@@ -5,6 +5,9 @@ title: Contributing to OpEn
 description: How do I contribute to OpEn
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## How can I contribute to OpEn?
 Thank you for considering contributing to Optimization Engine (OpEn)!
 
@@ -134,23 +137,111 @@ Each time the major or minor number of the Rust library is updated, a new crate 
 In order to release a new version make sure that 
 you have done the following:
 
-- Updated [CHANGELOG]
-- Updated the version in (SemVer):
-    - [CHANGELOG]
-    - [Cargo.toml]
-    - [setup.py]
-- Resolved all associated issues on github (and you have created tests for these)
-- Updated the documentation (Rust/Python API docs + website)
-- Merged into master (your pull request has been approved)
-- All tests pass on Travis CI and Appveyor
-- Set `publish=true` in `Cargo.toml` (set it back to `false` for safety)
-- Publish `opengen` on PyPI (if necessary)
-    - before doing so, make sure that the cargo.toml template 
-      points to the correct version of OpEn
-- Changed "Unreleased" into the right version in [CHANGELOG] and created
-  a release on github (example [release v0.4.0]) 
+---
+
+<Tabs>
+  <TabItem value="open" label="open (Rust)">
+
+Checklist: 
+
+<ul>
+  <li>Updated [CHANGELOG]: bump version, write summary of changes</li>
+  <li>Updated [Cargo.toml]: bump version</li>
+  <li>Resolve all associated issues on GitHub</li>
+  <li>Write new unit tests if necessary</li>
+  <li>Update the API documentation</li>
+  <li>Update the information on the website</li>
+  <li>Merge into master once your pull request has been approved</li>
+</ul>
+
+Then, create a tag and push it...
+
+  ```bash
+  git tag -a v0.10.0 -m "v0.10.0"
+  git push --tags
+  ```
+
+Lastly, update the [docker image](https://github.com/alphaville/optimization-engine/tree/master/docker).
+This will have to be a new PR.
+
+  </TabItem>
+
+
+  <TabItem value="opengen" label="opengen">
+
+Checklist: 
+
+<ul>
+  <li>Updated [CHANGELOG](https://github.com/alphaville/optimization-engine/blob/master/open-codegen/CHANGELOG.md): bump version, write summary of changes</li>
+  <li>Updated [VERSION]: bump version</li>
+  <li>Review [`pyproject.toml`](https://github.com/alphaville/optimization-engine/blob/master/open-codegen/pyproject.toml)</li>
+  <li>Resolve all associated issues on GitHub</li>
+  <li>Write new unit tests if necessary</li>
+  <li>Update the API documentation</li>
+  <li>Update the information on the website</li>
+  <li>Merge into master once your pull request has been approved</li>
+  <li>Update the API docs</li>
+</ul>
+
+Then, create a tag and push it...
+
+  ```bash
+  git tag -a opengen-0.10.0 -m "opengen-0.10.0"
+  git push --tags
+  ```
+
+
+
+Lastly, update the [docker image](https://github.com/alphaville/optimization-engine/tree/master/docker).
+This will have to be a new PR.
+
+  </TabItem>
+
+
+  <TabItem value="docker" label="docker">
+
+  Update the [Dockerfile](https://github.com/alphaville/optimization-engine/blob/master/docker/Dockerfile).
+  You may need to bump the versions of open and opengen:
+
+  ```Dockerfile
+  ARG OPENGEN_VERSION=0.10.0
+  ARG OPTIMIZATION_ENGINE_CRATE_VERSION=0.11.0
+  ```
+
+  Update the [CHANGELOG](https://github.com/alphaville/optimization-engine/blob/master/docker/CHANGELOG.md).
+  Update the [README](https://github.com/alphaville/optimization-engine/blob/master/docker/README.md) file.
+  Build, test, and push with 
+
+  ```bash
+  docker push alphaville/open:0.7.0
+  ```
+
+  Update the [website docs](./docker) and the promo on the [main page](..)
+
+  </TabItem>
+</Tabs>
+
+---
+
+To update the website, run 
+```bash
+GIT_USER=alphaville \
+  CURRENT_BRANCH=master \
+  USE_SSH=true \
+  yarn deploy
+```
+from within `website/`. Then, update the opengen API docs too; 
+just push a commit with message starting with `[docit]`.
+You can also issue a commit without git-add. Run
+
+```bash
+git commit -m '[docit] update api docs' --allow-empty
+```
+
+
     
 [CHANGELOG]: https://github.com/alphaville/optimization-engine/blob/master/CHANGELOG.md
+[VERSION]: https://github.com/alphaville/optimization-engine/blob/master/open-codegen/VERSION
 [Cargo.toml]: https://github.com/alphaville/optimization-engine/blob/master/Cargo.toml    
 [setup.py]: https://github.com/alphaville/optimization-engine/blob/master/open-codegen/setup.py
 [release v0.4.0]: https://github.com/alphaville/optimization-engine/releases/tag/v0.4.0

@@ -1,0 +1,215 @@
+---
+id: openrust-arithmetic
+title: Single and double precision
+description: OpEn with f32 and f64 number types
+---
+
+:::note Info
+The functionality presented here was introduced in OpEn version [`0.12.0`](https://pypi.org/project/opengen/#history). 
+The new API is fully backward-compatible with previous versions of OpEn.
+:::
+
+## Overview
+
+OpEn's Rust API supports both `f64` and `f32`.
+
+Most public Rust types are generic over a scalar type `T` with `T: num::Float`, and in most places the default type is `f64`. This means:
+
+- if you do nothing special, you will usually get `f64`
+- if you want single precision, you can explicitly use `f32`
+- all quantities involved in one solver instance should use the same scalar type
+
+In particular, this applies to:
+
+- cost and gradient functions
+- constraints
+- `Problem`
+- caches such as `PANOCCache`, `FBSCache`, and `AlmCache`
+- optimizers such as `PANOCOptimizer`, `FBSOptimizer`, and `AlmOptimizer`
+- solver status types such as `SolverStatus<T>` and `AlmOptimizerStatus<T>`
+
+## When to use `f64` and when to use `f32`
+
+### `f64`
+
+Use `f64` when you want maximum numerical robustness and accuracy. This is the safest default for:
+
+- desktop applications
+- difficult nonlinear problems
+- problems with tight tolerances
+- problems that are sensitive to conditioning
+
+### `f32`
+
+Use `f32` when memory footprint and throughput matter more than ultimate accuracy. This is often useful for:
+
+- embedded applications
+- high-rate MPC loops
+- applications where moderate tolerances are acceptable
+
+In general, `f32` may require:
+
+- slightly looser tolerances
+- more careful scaling of the problem
+- fewer expectations about extremely small residuals
+
+## The default: `f64`
+
+If your functions, constants, and vectors use `f64`, you can often omit the scalar type completely.
+
+```rust
+use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
+use optimization_engine::panoc::PANOCOptimizer;
+
+let tolerance = 1e-6;
+let lbfgs_memory = 10;
+let radius = 1.0;
+
+let bounds = constraints::Ball2::new(None, radius);
+
+let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
+    grad[0] = u[0] + u[1] + 1.0;
+    grad[1] = u[0] + 2.0 * u[1] - 1.0;
+    Ok(())
+};
+
+let f = |u: &[f64], cost: &mut f64| -> Result<(), SolverError> {
+    *cost = 0.5 * (u[0] * u[0] + u[1] * u[1]);
+    Ok(())
+};
+
+let problem = Problem::new(&bounds, df, f);
+let mut cache = PANOCCache::new(2, tolerance, lbfgs_memory);
+let mut optimizer = PANOCOptimizer::new(problem, &mut cache);
+
+let mut u = [0.0, 0.0];
+let status = optimizer.solve(&mut u).unwrap();
+assert!(status.has_converged());
+```
+
+Because all literals and function signatures above are `f64`, the compiler infers `T = f64`.
+
+## Using `f32`
+
+To use single precision, make the scalar type explicit throughout the problem definition.
+
+```rust
+use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
+use optimization_engine::panoc::PANOCOptimizer;
+
+let tolerance = 1e-4_f32;
+let lbfgs_memory = 10;
+let radius = 1.0_f32;
+
+let bounds = constraints::Ball2::new(None, radius);
+
+let df = |u: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+    grad[0] = u[0] + u[1] + 1.0_f32;
+    grad[1] = u[0] + 2.0_f32 * u[1] - 1.0_f32;
+    Ok(())
+};
+
+let f = |u: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+    *cost = 0.5_f32 * (u[0] * u[0] + u[1] * u[1]);
+    Ok(())
+};
+
+let problem = Problem::new(&bounds, df, f);
+let mut cache = PANOCCache::<f32>::new(2, tolerance, lbfgs_memory);
+let mut optimizer = PANOCOptimizer::new(problem, &mut cache);
+
+let mut u = [0.0_f32, 0.0_f32];
+let status = optimizer.solve(&mut u).unwrap();
+assert!(status.has_converged());
+```
+
+The key idea is that the same scalar type must be used consistently in:
+
+- the initial guess `u`
+- the closures for the cost and gradient
+- the constraints
+- the cache
+- any tolerances and numerical constants
+
+## Example with FBS
+
+The same pattern applies to other solvers.
+
+```rust
+use optimization_engine::{constraints, Problem, SolverError};
+use optimization_engine::fbs::{FBSCache, FBSOptimizer};
+use std::num::NonZeroUsize;
+
+let bounds = constraints::Ball2::new(None, 0.2_f32);
+
+let df = |u: &[f32], grad: &mut [f32]| -> Result<(), SolverError> {
+    grad[0] = u[0] + u[1] + 1.0_f32;
+    grad[1] = u[0] + 2.0_f32 * u[1] - 1.0_f32;
+    Ok(())
+};
+
+let f = |u: &[f32], cost: &mut f32| -> Result<(), SolverError> {
+    *cost = u[0] * u[0] + 2.0_f32 * u[1] * u[1] + u[0] - u[1] + 3.0_f32;
+    Ok(())
+};
+
+let problem = Problem::new(&bounds, df, f);
+let mut cache = FBSCache::<f32>::new(NonZeroUsize::new(2).unwrap(), 0.1_f32, 1e-6_f32);
+let mut optimizer = FBSOptimizer::new(problem, &mut cache);
+
+let mut u = [0.0_f32, 0.0_f32];
+let status = optimizer.solve(&mut u).unwrap();
+assert!(status.has_converged());
+```
+
+## Example with ALM
+
+ALM also supports both precisions. As with PANOC and FBS, the scalar type should be chosen once and then used consistently throughout the ALM problem, cache, mappings, and tolerances.
+
+For example, if you use:
+
+- `AlmCache::<f32>`
+- `PANOCCache::<f32>`
+- `Ball2::<f32>`
+- closures of type `|u: &[f32], ...|`
+
+then the whole ALM solve runs in single precision.
+
+If instead you use plain `f64` literals and `&[f64]` closures, the solver runs in double precision.
+
+## Type inference tips
+
+Rust usually infers the scalar type correctly, but explicit annotations are often helpful for `f32`.
+
+Good ways to make `f32` intent clear are:
+
+- suffix literals, for example `1.0_f32` and `1e-4_f32`
+- annotate vectors and arrays, for example `let mut u = [0.0_f32; 2];`
+- annotate caches explicitly, for example `PANOCCache::<f32>::new(...)`
+- annotate closure arguments, for example `|u: &[f32], grad: &mut [f32]|`
+
+## Important rule: do not mix `f32` and `f64`
+
+The following combinations are problematic:
+
+- `u: &[f32]` with a cost function writing to `&mut f64`
+- `Ball2::new(None, 1.0_f64)` together with `PANOCCache::<f32>`
+- `tolerance = 1e-6` in one place and `1e-6_f32` elsewhere if inference becomes ambiguous
+
+Choose one scalar type per optimization problem and use it everywhere.
+
+## Choosing tolerances
+
+When moving from `f64` to `f32`, it is often a good idea to relax tolerances.
+
+Typical starting points are:
+
+- `f64`: `1e-6`, `1e-8`, or smaller if needed
+- `f32`: `1e-4` or `1e-5`
+
+The right choice depends on:
+
+- scaling of the problem
+- conditioning
+- solver settings
+- whether the problem is solved repeatedly in real time

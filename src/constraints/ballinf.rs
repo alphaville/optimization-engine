@@ -1,26 +1,36 @@
 use super::Constraint;
+use num::Float;
 
 #[derive(Copy, Clone)]
 /// An infinity ball defined as $B_\infty^r = \\{x\in\mathbb{R}^n {}:{} \Vert{}x{}\Vert_{\infty} \leq r\\}$,
 /// where $\Vert{}\cdot{}\Vert_{\infty}$ is the infinity norm. The infinity ball centered at a point
 /// $x_c$ is defined as $B_\infty^{x_c,r} = \\{x\in\mathbb{R}^n {}:{} \Vert{}x-x_c{}\Vert_{\infty} \leq r\\}$.
 ///
-pub struct BallInf<'a> {
-    center: Option<&'a [f64]>,
-    radius: f64,
+pub struct BallInf<'a, T = f64> {
+    center: Option<&'a [T]>,
+    radius: T,
 }
 
-impl<'a> BallInf<'a> {
+impl<'a, T: Float> BallInf<'a, T> {
     /// Construct a new infinity-norm ball with given center and radius
     /// If no `center` is given, then it is assumed to be in the origin
-    ///   
-    pub fn new(center: Option<&'a [f64]>, radius: f64) -> Self {
-        assert!(radius > 0.0);
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use optimization_engine::constraints::{BallInf, Constraint};
+    ///
+    /// let ball = BallInf::new(None, 1.0);
+    /// let mut x = [2.0, -0.2, -3.0];
+    /// ball.project(&mut x);
+    /// ```
+    pub fn new(center: Option<&'a [T]>, radius: T) -> Self {
+        assert!(radius > T::zero());
         BallInf { center, radius }
     }
 }
 
-impl<'a> Constraint for BallInf<'a> {
+impl<'a, T: Float> Constraint<T> for BallInf<'a, T> {
     /// Computes the projection of a given vector `x` on the current infinity ball.
     ///
     ///
@@ -42,7 +52,7 @@ impl<'a> Constraint for BallInf<'a> {
     ///
     /// for all $i=1,\ldots, n$.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [T]) {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -52,7 +62,7 @@ impl<'a> Constraint for BallInf<'a> {
             x.iter_mut()
                 .zip(center.iter())
                 .filter(|(&mut xi, &ci)| (xi - ci).abs() > self.radius)
-                .for_each(|(xi, ci)| *xi = ci + (*xi - ci).signum() * self.radius);
+                .for_each(|(xi, ci)| *xi = *ci + (*xi - *ci).signum() * self.radius);
         } else {
             x.iter_mut()
                 .filter(|xi| xi.abs() > self.radius)

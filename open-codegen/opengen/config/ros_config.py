@@ -3,7 +3,7 @@ import re
 
 class RosConfiguration:
     """
-    Configuration of auto-generated ROS package
+    Configuration of an auto-generated ROS or ROS2 package
     """
 
     def __init__(self):
@@ -61,7 +61,7 @@ class RosConfiguration:
 
     @property
     def rate(self):
-        """ROS node rate in Hz
+        """ROS/ROS2 node rate in Hz
 
         :return: rate, defaults to `10.0`
         """
@@ -87,7 +87,7 @@ class RosConfiguration:
     def with_package_name(self, pkg_name):
         """
         Set the package name, which is the same as the name
-        of the folder that will store the auto-generated ROS node.
+        of the folder that will store the auto-generated ROS/ROS2 node.
         The node name can contain lowercase and uppercase
         characters and underscores, but not spaces or other symbols
 
@@ -124,6 +124,7 @@ class RosConfiguration:
     def with_rate(self, rate):
         """
         Set the rate of the ROS node
+        or ROS2 node
 
         :param rate: rate in Hz
         :type rate: float
@@ -135,7 +136,7 @@ class RosConfiguration:
 
     def with_description(self, description):
         """
-        Set the description of the ROS package
+        Set the description of the ROS or ROS2 package
 
         :param description: description, defaults to "parametric optimization with OpEn"
         :type description: string
@@ -149,7 +150,7 @@ class RosConfiguration:
                          result_topic_queue_size=100,
                          parameter_topic_queue_size=100):
         """
-        Set queue sizes for ROS node
+        Set queue sizes for ROS or ROS2 node
 
         :param result_topic_queue_size: queue size of results, defaults to 100
         :type result_topic_queue_size: int, optional
