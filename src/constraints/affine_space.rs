@@ -1,6 +1,7 @@
 use super::Constraint;
-use crate::matrix_operations;
-use crate::{CholeskyError, CholeskyFactorizer};
+use crate::{
+    matrix_operations, CholeskyError, CholeskyFactorizer, FunctionCallResult, SolverError,
+};
 
 use ndarray::{ArrayView1, ArrayView2, LinalgScalar};
 use num::Float;
@@ -148,26 +149,30 @@ where
     /// ```
     ///
     /// The result is stored in `x` and it can be verified that $Ax = b$.
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         let n = self.n_cols;
         assert!(x.len() == n, "x has wrong dimension");
 
         // Step 1: Compute e = Ax - b
-        let a = ArrayView2::from_shape((self.n_rows, self.n_cols), &self.a_mat)
-            .expect("invalid A shape");
+        let a = ArrayView2::from_shape((self.n_rows, self.n_cols), &self.a_mat).map_err(|_| {
+            SolverError::InvalidProblemState("failed to construct the affine-space matrix view")
+        })?;
         let x_view = ArrayView1::from(&x[..]);
         let b = ArrayView1::from(&self.b_vec[..]);
         let e = a.dot(&x_view) - b;
-        let e_slice: &[T] = e.as_slice().unwrap();
+        let e_slice: &[T] = e.as_slice().ok_or(SolverError::InvalidProblemState(
+            "affine-space residual vector is not stored contiguously",
+        ))?;
 
         // Step 2: Solve AA' z = e and compute z
-        let z = self.factorizer.solve(e_slice).unwrap();
+        let z = self.factorizer.solve(e_slice)?;
 
         // Step 3: Compute x = x - A'z
         let at_z = a.t().dot(&ArrayView1::from(&z[..]));
         for (xi, corr) in x.iter_mut().zip(at_z.iter()) {
             *xi = *xi - *corr;
         }
+        Ok(())
     }
 
     /// Affine sets are convex.

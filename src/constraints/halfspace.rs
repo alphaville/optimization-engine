@@ -2,6 +2,7 @@ use super::Constraint;
 use crate::matrix_operations;
 use num::Float;
 use std::iter::Sum;
+use crate::FunctionCallResult;
 
 #[derive(Clone)]
 /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$.
@@ -87,7 +88,7 @@ where
     /// This method panics if the length of `x` is not equal to the dimension
     /// of the halfspace.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         if inner_product > self.offset {
             let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
@@ -95,6 +96,7 @@ where
                 .zip(self.normal_vector.iter())
                 .for_each(|(x, normal_vector_i)| *x = *x - factor * *normal_vector_i);
         }
+        Ok(())
     }
 
     /// Halfspaces are convex sets

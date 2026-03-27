@@ -1,5 +1,6 @@
 use super::Constraint;
 use num::Float;
+use crate::FunctionCallResult;
 
 #[derive(Clone, Copy, Default)]
 /// Set Zero, $\\{0\\}$
@@ -26,8 +27,9 @@ impl Zero {
 impl<T: Float> Constraint<T> for Zero {
     /// Computes the projection on $\\{0\\}$, that is, $\Pi_{\\{0\\}}(x) = 0$
     /// for all $x$
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         x.iter_mut().for_each(|xi| *xi = T::zero());
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

@@ -3,6 +3,7 @@ use crate::numeric::cast;
 use super::Constraint;
 use num::Float;
 use std::iter::Sum;
+use crate::FunctionCallResult;
 
 fn norm2_squared_diff<T: Float>(a: &[T], b: &[T]) -> T {
     assert_eq!(a.len(), b.len());
@@ -62,7 +63,7 @@ where
     /// Panics if `x` is empty or, when a center is provided, if `x` and
     /// `center` have incompatible dimensions.
     ///
-    fn project(&self, x: &mut [T]) {
+    fn project(&self, x: &mut [T]) -> FunctionCallResult {
         let epsilon = cast::<T>(1e-12);
         assert!(!x.is_empty(), "x must be nonempty");
         if let Some(center) = &self.center {
@@ -75,7 +76,7 @@ where
             if norm_difference <= epsilon {
                 x.copy_from_slice(center);
                 x[0] = x[0] + self.radius;
-                return;
+                return Ok(());
             }
             x.iter_mut().zip(center.iter()).for_each(|(x, c)| {
                 *x = *c + self.radius * (*x - *c) / norm_difference;
@@ -84,11 +85,12 @@ where
             let norm_x = crate::matrix_operations::norm2(x);
             if norm_x <= epsilon {
                 x[0] = x[0] + self.radius;
-                return;
+                return Ok(());
             }
             let norm_over_radius = self.radius / norm_x;
             x.iter_mut().for_each(|x_| *x_ = *x_ * norm_over_radius);
         }
+        Ok(())
     }
 
     /// Returns false (the sphere is not a convex set)

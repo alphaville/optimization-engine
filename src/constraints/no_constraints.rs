@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 /// The whole space, no constraints
 #[derive(Default, Clone, Copy)]
@@ -24,7 +25,9 @@ impl NoConstraints {
 }
 
 impl<T> Constraint<T> for NoConstraints {
-    fn project(&self, _x: &mut [T]) {}
+    fn project(&self, _x: &mut [T]) -> FunctionCallResult {
+        Ok(())
+    }
 
     fn is_convex(&self) -> bool {
         true
