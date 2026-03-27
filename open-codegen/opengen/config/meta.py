@@ -1,6 +1,18 @@
 import re  # regular expressions
 
 
+SEMVER_PATTERN = re.compile(
+    r"^(0|[1-9]\d*)\."
+    r"(0|[1-9]\d*)\."
+    r"(0|[1-9]\d*)"
+    r"(?:-"
+    r"(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)"
+    r"(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*"
+    r")?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+)
+
+
 class OptimizerMeta:
     """Metadata of auto-generated parametric optimizer
 
@@ -107,8 +119,20 @@ class OptimizerMeta:
 
         :param optimizer_version: version of auto-generated optimizer
 
+        :raises ValueError: if ``optimizer_version`` is not a valid Cargo
+            package version following Semantic Versioning, for example
+            ``0.1.0`` or ``1.2.3-alpha.1``
+
         :returns: The current instance of OptimizerMeta
         """
+        if not isinstance(optimizer_version, str) or not SEMVER_PATTERN.match(optimizer_version):
+            raise ValueError(
+                "invalid optimizer version {!r}; expected a valid Cargo package "
+                "version following Semantic Versioning, for example "
+                "'0.1.0', '1.2.3-alpha.1', or '1.0.0+build.5'".format(
+                    optimizer_version
+                )
+            )
         self.__optimizer_version = optimizer_version
         return self
 

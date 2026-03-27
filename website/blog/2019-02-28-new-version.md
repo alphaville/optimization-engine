@@ -1,8 +1,8 @@
 ---
 title: First Release of OpEn
 author: Pantelis Sopasakis
-authorURL: http://twitter.com/isToxic
-authorImageURL: https://pbs.twimg.com/profile_images/1062281000171003904/KkolV9Eg_400x400.jpg
+authorURL: https://github.com/alphaville
+authorImageURL: https://avatars.githubusercontent.com/u/125415?v=4
 ---
 
 This is the first release of **Optimization Engine** (OpEn) and we're very excited about it!

@@ -19,7 +19,7 @@ class SolverConfiguration:
         # For the initial penalty, None means that the actual value will be computed
         # in Rust (see templates/optimizer.rs)
         self.__initial_penalty = None
-        self.__penalty_weight_update_factor = 5.0
+        self.__penalty_weight_update_factor = 1.75
         self.__max_duration_micros = 5000000
         self.__inner_tolerance_update_factor = 0.1
         self.__sufficient_decrease_coefficient = 0.1

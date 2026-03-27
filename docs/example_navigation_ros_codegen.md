@@ -247,7 +247,9 @@ catkin build
 ```
 Now we can run the Husky simulation as follows
 
-``roslaunch husky_gazebo husky_empty_world.launch``
+```bash
+roslaunch husky_gazebo husky_empty_world.launch
+```
 
 ## Edit the auto-generated node
 
@@ -263,7 +265,7 @@ Finally, we will add a subscriber that listens on the `/open_nmpc_controller/com
 
 In order to accomplish that, we must modify the auto generated `open_optimizer.cpp` file. We need to add a subscriber that listens to the `odometry/filtered` topic and a publisher that publishes data to the `/husky_velocity_controller/cmd_vel` topic. The following code is a modification of the auto generated code that adds the needed functionality.
 
-```c++
+```cpp
 /**
  * This is an auto-generated file by Optimization Engine (OpEn)
  * OpEn is a free open-source software - see doc.optimization-engine.xyz

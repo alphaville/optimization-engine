@@ -1,8 +1,8 @@
 ---
 title: Rust for robots
 author: Pantelis Sopasakis
-authorURL: http://twitter.com/isToxic
-authorImageURL: https://pbs.twimg.com/profile_images/1062281000171003904/KkolV9Eg_400x400.jpg
+authorURL: https://github.com/alphaville
+authorImageURL: https://avatars.githubusercontent.com/u/125415?v=4
 ---
 
 

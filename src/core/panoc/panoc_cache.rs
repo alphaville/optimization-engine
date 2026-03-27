@@ -1,6 +1,19 @@
-const DEFAULT_SY_EPSILON: f64 = 1e-10;
-const DEFAULT_CBFGS_EPSILON: f64 = 1e-8;
-const DEFAULT_CBFGS_ALPHA: f64 = 1.0;
+use crate::numeric::cast;
+use lbfgs::LbfgsPrecision;
+use num::Float;
+use std::iter::Sum;
+
+fn default_sy_epsilon<T: Float>() -> T {
+    cast::<T>(1e-10)
+}
+
+fn default_cbfgs_epsilon<T: Float>() -> T {
+    cast::<T>(1e-8)
+}
+
+fn default_cbfgs_alpha<T: Float>() -> T {
+    T::one()
+}
 
 /// Cache for PANOC
 ///
@@ -12,32 +25,44 @@ const DEFAULT_CBFGS_ALPHA: f64 = 1.0;
 /// Subsequently, a `PANOCEngine` is used to construct an instance of `PANOCAlgorithm`
 ///
 #[derive(Debug)]
-pub struct PANOCCache {
-    pub(crate) lbfgs: lbfgs::Lbfgs,
-    pub(crate) gradient_u: Vec<f64>,
+pub struct PANOCCache<T = f64>
+where
+    T: Float + LbfgsPrecision + Sum<T>,
+{
+    pub(crate) lbfgs: lbfgs::Lbfgs<T>,
+    pub(crate) gradient_u: Vec<T>,
     /// Stores the gradient of the cost at the previous iteration. This is
     /// an optional field because it is used (and needs to be allocated)
     /// only if we need to check the AKKT-specific termination conditions
-    pub(crate) gradient_u_previous: Option<Vec<f64>>,
-    pub(crate) u_half_step: Vec<f64>,
-    pub(crate) gradient_step: Vec<f64>,
-    pub(crate) direction_lbfgs: Vec<f64>,
-    pub(crate) u_plus: Vec<f64>,
-    pub(crate) rhs_ls: f64,
-    pub(crate) lhs_ls: f64,
-    pub(crate) gamma_fpr: Vec<f64>,
-    pub(crate) gamma: f64,
-    pub(crate) tolerance: f64,
-    pub(crate) norm_gamma_fpr: f64,
-    pub(crate) tau: f64,
-    pub(crate) lipschitz_constant: f64,
-    pub(crate) sigma: f64,
-    pub(crate) cost_value: f64,
+    pub(crate) gradient_u_previous: Option<Vec<T>>,
+    pub(crate) u_half_step: Vec<T>,
+    /// Keeps track of best point so far
+    pub(crate) best_u_half_step: Vec<T>,
+    pub(crate) gradient_step: Vec<T>,
+    pub(crate) direction_lbfgs: Vec<T>,
+    pub(crate) u_plus: Vec<T>,
+    pub(crate) rhs_ls: T,
+    pub(crate) lhs_ls: T,
+    pub(crate) gamma_fpr: Vec<T>,
+    pub(crate) gamma: T,
+    pub(crate) tolerance: T,
+    pub(crate) norm_gamma_fpr: T,
+    /// Keeps track of best FPR so far
+    pub(crate) best_norm_gamma_fpr: T,
+    pub(crate) gradient_u_norm_sq: T,
+    pub(crate) gradient_step_u_half_step_diff_norm_sq: T,
+    pub(crate) tau: T,
+    pub(crate) lipschitz_constant: T,
+    pub(crate) sigma: T,
+    pub(crate) cost_value: T,
     pub(crate) iteration: usize,
-    pub(crate) akkt_tolerance: Option<f64>,
+    pub(crate) akkt_tolerance: Option<T>,
 }
 
-impl PANOCCache {
+impl<T> PANOCCache<T>
+where
+    T: Float + LbfgsPrecision + Sum<T>,
+{
     /// Construct a new instance of `PANOCCache`
     ///
     /// ## Arguments
@@ -57,32 +82,36 @@ impl PANOCCache {
     ///
     /// This constructor allocated memory using `vec!`.
     ///
-    /// It allocates a total of `8*problem_size + 2*lbfgs_memory_size*problem_size + 2*lbfgs_memory_size + 11` floats (`f64`)
+    /// It allocates a total of `8*problem_size + 2*lbfgs_memory_size*problem_size + 2*lbfgs_memory_size + 11` floats of type `T`
     ///
-    pub fn new(problem_size: usize, tolerance: f64, lbfgs_memory_size: usize) -> PANOCCache {
-        assert!(tolerance > 0., "tolerance must be positive");
+    pub fn new(problem_size: usize, tolerance: T, lbfgs_memory_size: usize) -> PANOCCache<T> {
+        assert!(tolerance > T::zero(), "tolerance must be positive");
 
         PANOCCache {
-            gradient_u: vec![0.0; problem_size],
+            gradient_u: vec![T::zero(); problem_size],
             gradient_u_previous: None,
-            u_half_step: vec![0.0; problem_size],
-            gamma_fpr: vec![0.0; problem_size],
-            direction_lbfgs: vec![0.0; problem_size],
-            gradient_step: vec![0.0; problem_size],
-            u_plus: vec![0.0; problem_size],
-            gamma: 0.0,
+            u_half_step: vec![T::zero(); problem_size],
+            best_u_half_step: vec![T::zero(); problem_size],
+            gamma_fpr: vec![T::zero(); problem_size],
+            direction_lbfgs: vec![T::zero(); problem_size],
+            gradient_step: vec![T::zero(); problem_size],
+            u_plus: vec![T::zero(); problem_size],
+            gamma: T::zero(),
             tolerance,
-            norm_gamma_fpr: f64::INFINITY,
+            norm_gamma_fpr: T::infinity(),
+            best_norm_gamma_fpr: T::infinity(),
+            gradient_u_norm_sq: T::zero(),
+            gradient_step_u_half_step_diff_norm_sq: T::zero(),
             lbfgs: lbfgs::Lbfgs::new(problem_size, lbfgs_memory_size)
-                .with_cbfgs_alpha(DEFAULT_CBFGS_ALPHA)
-                .with_cbfgs_epsilon(DEFAULT_CBFGS_EPSILON)
-                .with_sy_epsilon(DEFAULT_SY_EPSILON),
-            lhs_ls: 0.0,
-            rhs_ls: 0.0,
-            tau: 1.0,
-            lipschitz_constant: 0.0,
-            sigma: 0.0,
-            cost_value: 0.0,
+                .with_cbfgs_alpha(default_cbfgs_alpha())
+                .with_cbfgs_epsilon(default_cbfgs_epsilon())
+                .with_sy_epsilon(default_sy_epsilon()),
+            lhs_ls: T::zero(),
+            rhs_ls: T::zero(),
+            tau: T::one(),
+            lipschitz_constant: T::zero(),
+            sigma: T::zero(),
+            cost_value: T::zero(),
             iteration: 0,
             akkt_tolerance: None,
         }
@@ -99,10 +128,13 @@ impl PANOCCache {
     ///
     /// The method panics if `akkt_tolerance` is nonpositive
     ///
-    pub fn set_akkt_tolerance(&mut self, akkt_tolerance: f64) {
-        assert!(akkt_tolerance > 0.0, "akkt_tolerance must be positive");
+    pub fn set_akkt_tolerance(&mut self, akkt_tolerance: T) {
+        assert!(
+            akkt_tolerance > T::zero(),
+            "akkt_tolerance must be positive"
+        );
         self.akkt_tolerance = Some(akkt_tolerance);
-        self.gradient_u_previous = Some(vec![0.0; self.gradient_step.len()]);
+        self.gradient_u_previous = Some(vec![T::zero(); self.gradient_step.len()]);
     }
 
     /// Copies the value of the current cost gradient to `gradient_u_previous`,
@@ -117,8 +149,8 @@ impl PANOCCache {
     }
 
     /// Computes the AKKT residual which is defined as `||gamma*(fpr + df - df_previous)||`
-    fn akkt_residual(&self) -> f64 {
-        let mut r = 0.0;
+    fn akkt_residual(&self) -> T {
+        let mut r = T::zero();
         if let Some(df_previous) = &self.gradient_u_previous {
             // Notation: gamma_fpr_i is the i-th element of gamma_fpr = gamma * fpr,
             // df_i is the i-th element of the gradient of the cost function at the
@@ -129,9 +161,8 @@ impl PANOCCache {
                 .iter()
                 .zip(self.gradient_u.iter())
                 .zip(df_previous.iter())
-                .fold(0.0, |mut sum, ((&gamma_fpr_i, &df_i), &dfp_i)| {
-                    sum += (gamma_fpr_i + self.gamma * (df_i - dfp_i)).powi(2);
-                    sum
+                .fold(T::zero(), |sum, ((&gamma_fpr_i, &df_i), &dfp_i)| {
+                    sum + (gamma_fpr_i + self.gamma * (df_i - dfp_i)).powi(2)
                 })
                 .sqrt();
         }
@@ -175,14 +206,27 @@ impl PANOCCache {
     ///   and `gamma` to 0.0
     pub fn reset(&mut self) {
         self.lbfgs.reset();
-        self.lhs_ls = 0.0;
-        self.rhs_ls = 0.0;
-        self.tau = 1.0;
-        self.lipschitz_constant = 0.0;
-        self.sigma = 0.0;
-        self.cost_value = 0.0;
+        self.best_u_half_step.fill(T::zero());
+        self.best_norm_gamma_fpr = T::infinity();
+        self.norm_gamma_fpr = T::infinity();
+        self.gradient_u_norm_sq = T::zero();
+        self.gradient_step_u_half_step_diff_norm_sq = T::zero();
+        self.lhs_ls = T::zero();
+        self.rhs_ls = T::zero();
+        self.tau = T::one();
+        self.lipschitz_constant = T::zero();
+        self.sigma = T::zero();
+        self.cost_value = T::zero();
         self.iteration = 0;
-        self.gamma = 0.0;
+        self.gamma = T::zero();
+    }
+
+    /// Store the current half step if it improves the best fixed-point residual so far.
+    pub(crate) fn cache_best_half_step(&mut self) {
+        if self.norm_gamma_fpr < self.best_norm_gamma_fpr {
+            self.best_norm_gamma_fpr = self.norm_gamma_fpr;
+            self.best_u_half_step.copy_from_slice(&self.u_half_step);
+        }
     }
 
     /// Sets the CBFGS parameters `alpha` and `epsilon`
@@ -202,12 +246,62 @@ impl PANOCCache {
     /// The method panics if alpha or epsilon are nonpositive and if sy_epsilon
     /// is negative.
     ///
-    pub fn with_cbfgs_parameters(mut self, alpha: f64, epsilon: f64, sy_epsilon: f64) -> Self {
+    #[must_use]
+    pub fn with_cbfgs_parameters(mut self, alpha: T, epsilon: T, sy_epsilon: T) -> Self {
         self.lbfgs = self
             .lbfgs
             .with_cbfgs_alpha(alpha)
             .with_cbfgs_epsilon(epsilon)
             .with_sy_epsilon(sy_epsilon);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PANOCCache;
+
+    #[test]
+    fn t_cache_best_half_step() {
+        let mut cache = PANOCCache::new(2, 1e-6, 3);
+
+        cache.u_half_step.copy_from_slice(&[1.0, 2.0]);
+        cache.norm_gamma_fpr = 3.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(3.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[1.0, 2.0], &cache.best_u_half_step[..]);
+
+        cache.u_half_step.copy_from_slice(&[10.0, 20.0]);
+        cache.norm_gamma_fpr = 5.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(3.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[1.0, 2.0], &cache.best_u_half_step[..]);
+
+        cache.u_half_step.copy_from_slice(&[-1.0, -2.0]);
+        cache.norm_gamma_fpr = 2.0;
+        cache.cache_best_half_step();
+
+        assert_eq!(2.0, cache.best_norm_gamma_fpr);
+        assert_eq!(&[-1.0, -2.0], &cache.best_u_half_step[..]);
+    }
+
+    #[test]
+    fn t_cache_best_half_step_f32() {
+        let mut cache = PANOCCache::<f32>::new(2, 1e-6_f32, 3);
+
+        cache.u_half_step.copy_from_slice(&[1.0_f32, 2.0]);
+        cache.norm_gamma_fpr = 3.0_f32;
+        cache.cache_best_half_step();
+
+        assert_eq!(3.0_f32, cache.best_norm_gamma_fpr);
+        assert_eq!(&[1.0_f32, 2.0], &cache.best_u_half_step[..]);
+
+        cache.reset();
+        assert!(cache.best_norm_gamma_fpr.is_infinite());
+        assert!(cache.norm_gamma_fpr.is_infinite());
+        assert_eq!(0.0_f32, cache.gamma);
+        assert_eq!(1.0_f32, cache.tau);
     }
 }

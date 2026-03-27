@@ -1,7 +1,7 @@
 ---
 id: python-interface
 title: Opengen basics
-description: Introduction to opengen: OpEn's Python interface
+description: "Introduction to opengen: OpEn's Python interface"
 ---
 
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
@@ -193,7 +193,7 @@ plan to use the optimizer on an embedded device.
 to <code>.with_tcp_interface_config()</code> a <code>TcpServerConfiguration</code> object.
 By default, the server will bind on <code>127.0.0.1</code> and will listen for
 requests at port <code>8333</code>.
-See the <a href="/optimization-engine/docs/python-advanced#tcp-ip-options">advanced options</a> for details.</div>
+See the <a href="/optimization-engine/docs/python-advanced#tcpip-interface">advanced options</a> for details.</div>
 
 
 This will instruct opegen to store the generated optimizer in

@@ -86,6 +86,9 @@ class OpEnOptimizerBuilder:
         self.__logger.setLevel(verbosity_level)
         self.__logger.handlers.clear()
         self.__logger.addHandler(stream_handler)
+        # Keep logs on this named logger only; otherwise callers that configure
+        # the root logger can end up seeing every builder message twice.
+        self.__logger.propagate = False
 
         return self
 
@@ -656,7 +659,6 @@ class OpEnOptimizerBuilder:
                                               "For now we only support orthans (e.g., F1(u, p) <= 0).")
 
     def __generate_code_python_bindings(self):
-        self.__logger.info("Generating code for Python bindings")
         target_dir = self.__target_dir()
         python_bindings_dir_name = _PYTHON_BINDINGS_PREFIX + self.__meta.optimizer_name
         python_bindings_dir = os.path.join(
