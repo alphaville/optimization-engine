@@ -19,10 +19,10 @@ class SolverError:
 
         Possible error codes are:
 
-        - **1000**: Invalid request: Malformed or invalid JSON
+        - **1000**: Invalid request: malformed JSON or invalid UTF-8 payload
         - **1600**: Initial guess has incomplete dimensions
         - **1700**: Wrong dimension of Lagrange multipliers
-        - **2000**: Problem solution failed (solver error)
+        - **2000**: Problem solution failed (message may include the solver reason)
         - **3003**: Parameter vector has wrong length
 
         :return: Error code

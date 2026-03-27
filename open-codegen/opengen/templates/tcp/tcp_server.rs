@@ -91,13 +91,22 @@ fn pong(stream: &mut std::net::TcpStream, code: i32) {
 }
 
 /// Writes an error to the communication stream
+#[derive(Serialize)]
+struct ErrorResponse<'a> {
+    #[serde(rename = "type")]
+    response_type: &'a str,
+    code: i32,
+    message: &'a str,
+}
+
 fn write_error_message(stream: &mut std::net::TcpStream, code: i32, error_msg: &str) {
-    let error_message = format!(
-        {% raw %}"{{\n\t\"type\" : \"Error\", \n\t\"code\" : {}, \n\t\"message\" : \"{}\"\n}}\n"{% endraw %},
+    let error_response = ErrorResponse {
+        response_type: "Error",
         code,
-        error_msg
-    );
-    warn!("Invalid request {:?}", code);
+        message: error_msg,
+    };
+    let error_message = serde_json::to_string_pretty(&error_response).unwrap();
+    warn!("TCP error {}: {}", code, error_msg);
     stream
         .write_all(error_message.as_bytes())
         .expect("cannot write to stream");
@@ -200,8 +209,9 @@ fn execution_handler(
         Ok(ok_status) => {
             return_solution_to_client(ok_status, u, stream);
         }
-        Err(_) => {
-            write_error_message(stream, 2000, "Problem solution failed (solver error)");
+        Err(err) => {
+            let error_message = format!("problem solution failed: {:?}", err);
+            write_error_message(stream, 2000, &error_message);
         }
     }
 }
@@ -214,7 +224,7 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
     let listener = TcpListener::bind(format!("{}:{}", tcp_config.ip, tcp_config.port)).unwrap();
     let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
     info!("listening started, ready to accept connections at {}:{}", tcp_config.ip, tcp_config.port);
-    for stream in listener.incoming() {
+    'incoming: for stream in listener.incoming() {
         let mut stream = stream.unwrap();
 
         //The following is more robust compared to `read_to_string`
@@ -225,8 +235,17 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
             read_data_length = stream
                 .read(&mut bytes_buffer)
                 .expect("could not read stream");
-            let new_string = String::from_utf8(bytes_buffer[0..read_data_length].to_vec())
-                .expect("sent data is not UFT-8");
+            let new_string = match String::from_utf8(bytes_buffer[0..read_data_length].to_vec()) {
+                Ok(new_string) => new_string,
+                Err(err) => {
+                    let error_message = format!(
+                        "invalid request: request body is not valid UTF-8 ({})",
+                        err.utf8_error()
+                    );
+                    write_error_message(&mut stream, 1000, &error_message);
+                    continue 'incoming;
+                }
+            };
             buffer.push_str(&new_string);
         }
 
@@ -251,8 +270,9 @@ fn run_server(tcp_config: &TcpServerConfiguration) {
                     pong(&mut stream, ping_code);
                 }
             },
-            Err(_) => {
-                write_error_message(&mut stream, 1000, "Invalid request");
+            Err(err) => {
+                let error_message = format!("invalid request: {}", err);
+                write_error_message(&mut stream, 1000, &error_message);
             }
         }
     }

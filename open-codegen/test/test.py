@@ -1,5 +1,7 @@
 import os
 import unittest
+import json
+import socket
 import casadi.casadi as cs
 import opengen as og
 import subprocess
@@ -228,6 +230,53 @@ class RustBuildTestCase(unittest.TestCase):
         builder.build()
 
     @classmethod
+    def setUpSolverError(cls):
+        u = cs.MX.sym("u", 1)
+        p = cs.MX.sym("p", 1)
+        phi = cs.dot(u, u)
+        bounds = og.constraints.Rectangle(xmin=[-1.0], xmax=[1.0])
+        tcp_config = og.config.TcpServerConfiguration(bind_port=3310)
+        meta = og.config.OptimizerMeta() \
+            .with_optimizer_name("solver_error")
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds)
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
+            .with_build_directory(RustBuildTestCase.TEST_DIR) \
+            .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
+            .with_tcp_interface_config(tcp_interface_config=tcp_config)
+        og.builder.OpEnOptimizerBuilder(problem,
+                                        metadata=meta,
+                                        build_configuration=build_config,
+                                        solver_configuration=cls.solverConfig()) \
+            .build()
+
+        target_lib = os.path.join(
+            RustBuildTestCase.TEST_DIR, "solver_error", "src", "lib.rs")
+        with open(target_lib, "r", encoding="utf-8") as fh:
+            solver_lib = fh.read()
+
+        # Look for this excerpt inside lib.rs (in the auto-generated solver)...
+        anchor = (
+            '    assert_eq!(u.len(), SOLVER_ERROR_NUM_DECISION_VARIABLES, '
+            '"Wrong number of decision variables (u)");\n'
+        )
+        # Replace the anchor with this so that if p[0] < 0, the function `solve`
+        # will reutrn an error of type SolverError::Cost
+        injected_guard = (
+            anchor +
+            '\n'
+            '    if p[0] < 0.0 {\n'
+            '        return Err(SolverError::Cost);\n'
+            '    }\n'
+        )
+        if anchor not in solver_lib:
+            raise RuntimeError("Could not inject deterministic solver error")
+
+        with open(target_lib, "w", encoding="utf-8") as fh:
+            fh.write(solver_lib.replace(anchor, injected_guard, 1))
+
+    @classmethod
     def setUpClass(cls):
         cls.setUpPythonBindings()
         cls.setUpRosPackageGeneration()
@@ -237,6 +286,30 @@ class RustBuildTestCase(unittest.TestCase):
         cls.setUpPlain()
         cls.setUpOnlyParametricF2()
         cls.setUpHalfspace()
+        cls.setUpSolverError()
+
+    @staticmethod
+    def raw_tcp_request(ip, port, payload, buffer_size=4096):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as conn_socket:
+            conn_socket.connect((ip, port))
+            if isinstance(payload, str):
+                payload = payload.encode()
+            conn_socket.sendall(payload)
+            conn_socket.shutdown(socket.SHUT_WR)
+
+            data = b''
+            while True:
+                data_chunk = conn_socket.recv(buffer_size)
+                if not data_chunk:
+                    break
+                data += data_chunk
+
+        return json.loads(data.decode())
+
+    def start_tcp_manager(self, manager):
+        manager.start()
+        self.addCleanup(manager.kill) # at the end, kill the TCP mngr
+        return manager
 
     def test_python_bindings(self):
         import sys
@@ -314,22 +387,18 @@ class RustBuildTestCase(unittest.TestCase):
 
         # Start all servers
         for m in all_managers:
-            m.start()
+            self.start_tcp_manager(m)
 
         # Ping all
         for m in all_managers:
             m.ping()
 
-        # Kill all
-        for m in all_managers:
-            m.kill()
-
     def test_rust_build_only_f1(self):
         # Start the server using a custom bind IP and port
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f1',
-                                         ip='0.0.0.0',
-                                         port=13757)
-        mng.start()
+        mng = self.start_tcp_manager(
+            og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/only_f1',
+                                       ip='0.0.0.0',
+                                       port=13757))
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
 
@@ -373,75 +442,67 @@ class RustBuildTestCase(unittest.TestCase):
             "wrong dimension of Langrange multipliers: provided 1, expected 2",
             status.message)
 
-        mng.kill()
-
     def test_rust_build_only_f2_preconditioned(self):
-        mng1 = og.tcp.OptimizerTcpManager(
-            RustBuildTestCase.TEST_DIR + '/only_f2')
-        mng2 = og.tcp.OptimizerTcpManager(
-            RustBuildTestCase.TEST_DIR + '/only_f2_precond')
-        mng1.start()
-        mng2.start()
+        mng1 = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f2'))
+        mng2 = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/only_f2_precond'))
 
-        try:
-            response1 = mng1.call(p=[0.5, 8.5], initial_guess=[
-                                  1, 2, 3, 4, 0]).get()
-            response2 = mng2.call(p=[0.5, 8.5], initial_guess=[
-                                  1, 2, 3, 4, 0]).get()
+        response1 = mng1.call(p=[0.5, 8.5], initial_guess=[
+                              1, 2, 3, 4, 0]).get()
+        response2 = mng2.call(p=[0.5, 8.5], initial_guess=[
+                              1, 2, 3, 4, 0]).get()
 
-            self.assertEqual("Converged", response1.exit_status)
-            self.assertEqual("Converged", response2.exit_status)
+        self.assertEqual("Converged", response1.exit_status)
+        self.assertEqual("Converged", response2.exit_status)
 
-            # Further testing
-            slv_cfg = RustBuildTestCase.solverConfig()
-            # check that the solution is (near-) feasible
-            self.assertTrue(response1.f2_norm < slv_cfg.constraints_tolerance)
-            self.assertTrue(response2.f2_norm < slv_cfg.constraints_tolerance)
-            # check the nrom of the FPR
-            self.assertTrue(response1.last_problem_norm_fpr <
-                            slv_cfg.tolerance)
-            self.assertTrue(response2.last_problem_norm_fpr <
-                            slv_cfg.tolerance)
-            # compare the costs
-            self.assertAlmostEqual(response1.cost, response2.cost, 4)
+        # Further testing
+        slv_cfg = RustBuildTestCase.solverConfig()
+        # check that the solution is (near-) feasible
+        self.assertTrue(response1.f2_norm < slv_cfg.constraints_tolerance)
+        self.assertTrue(response2.f2_norm < slv_cfg.constraints_tolerance)
+        # check the nrom of the FPR
+        self.assertTrue(response1.last_problem_norm_fpr <
+                        slv_cfg.tolerance)
+        self.assertTrue(response2.last_problem_norm_fpr <
+                        slv_cfg.tolerance)
+        # compare the costs
+        self.assertAlmostEqual(response1.cost, response2.cost, 4)
 
-            x1, x2 = response1.solution, response2.solution
-            for i in range(len(x1)):
-                self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
+        x1, x2 = response1.solution, response2.solution
+        for i in range(len(x1)):
+            self.assertAlmostEqual(x1[i], x2[i], delta=5e-4)
 
-            response = mng1.call(p=[2.0, 10.0, 50.0])
-            self.assertFalse(response.is_ok())
-            status = response.get()
-            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-            self.assertEqual(3003, status.code)
-            self.assertEqual(
-                "wrong number of parameters: provided 3, expected 2",
-                status.message)
+        response = mng1.call(p=[2.0, 10.0, 50.0])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(3003, status.code)
+        self.assertEqual(
+            "wrong number of parameters: provided 3, expected 2",
+            status.message)
 
-            response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
-            self.assertFalse(response.is_ok())
-            status = response.get()
-            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-            self.assertEqual(1600, status.code)
-            self.assertEqual(
-                "initial guess has incompatible dimensions: provided 2, expected 5",
-                status.message)
+        response = mng1.call(p=[2.0, 10.0], initial_guess=[0.1, 0.2])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(1600, status.code)
+        self.assertEqual(
+            "initial guess has incompatible dimensions: provided 2, expected 5",
+            status.message)
 
-            response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
-            self.assertFalse(response.is_ok())
-            status = response.get()
-            self.assertEqual(True, isinstance(status, og.tcp.SolverError))
-            self.assertEqual(1700, status.code)
-            self.assertEqual(
-                "wrong dimension of Langrange multipliers: provided 1, expected 0",
-                status.message)
-        finally:
-            mng1.kill()
-            mng2.kill()
+        response = mng1.call(p=[2.0, 10.0], initial_y=[0.1])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(True, isinstance(status, og.tcp.SolverError))
+        self.assertEqual(1700, status.code)
+        self.assertEqual(
+            "wrong dimension of Langrange multipliers: provided 1, expected 0",
+            status.message)
 
     def test_rust_build_plain(self):
-        mng = og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain')
-        mng.start()
+        mng = self.start_tcp_manager(
+            og.tcp.OptimizerTcpManager(RustBuildTestCase.TEST_DIR + '/plain'))
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
 
@@ -451,13 +512,44 @@ class RustBuildTestCase(unittest.TestCase):
         status = response.get()
         self.assertEqual("Converged", status.exit_status)
 
-        mng.kill()
+    def test_rust_build_plain_invalid_request_details(self):
+        self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/plain',
+            ip='127.0.0.1',
+            port=13758))
+
+        malformed_response = og.tcp.SolverResponse(
+            RustBuildTestCase.raw_tcp_request('127.0.0.1', 13758, '{"Run":'))
+        self.assertFalse(malformed_response.is_ok())
+        malformed_status = malformed_response.get()
+        self.assertEqual(1000, malformed_status.code)
+        self.assertTrue(
+            malformed_status.message.startswith("invalid request:"))
+        self.assertIn("line 1 column", malformed_status.message)
+
+        utf8_response = og.tcp.SolverResponse(
+            RustBuildTestCase.raw_tcp_request('127.0.0.1', 13758, b'\xff\xfe'))
+        self.assertFalse(utf8_response.is_ok())
+        utf8_status = utf8_response.get()
+        self.assertEqual(1000, utf8_status.code)
+        self.assertTrue(
+            utf8_status.message.startswith(
+                "invalid request: request body is not valid UTF-8"))
+
+    def test_rust_build_solver_error_details(self):
+        mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/solver_error'))
+
+        response = mng.call(p=[-1.0])
+        self.assertFalse(response.is_ok())
+        status = response.get()
+        self.assertEqual(2000, status.code)
+        self.assertEqual("problem solution failed: Cost", status.message)
 
     def test_rust_build_parametric_f2(self):
         # introduced to tackle issue #123
-        mng = og.tcp.OptimizerTcpManager(
-            RustBuildTestCase.TEST_DIR + '/parametric_f2')
-        mng.start()
+        mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/parametric_f2'))
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
 
@@ -467,12 +559,10 @@ class RustBuildTestCase(unittest.TestCase):
         status = response.get()
         self.assertEqual("Converged", status.exit_status)
         self.assertTrue(status.f2_norm < 1e-4)
-        mng.kill()
 
     def test_rust_build_parametric_halfspace(self):
-        mng = og.tcp.OptimizerTcpManager(
-            RustBuildTestCase.TEST_DIR + '/halfspace_optimizer')
-        mng.start()
+        mng = self.start_tcp_manager(og.tcp.OptimizerTcpManager(
+            RustBuildTestCase.TEST_DIR + '/halfspace_optimizer'))
         pong = mng.ping()  # check if the server is alive
         self.assertEqual(1, pong["Pong"])
 
@@ -487,8 +577,6 @@ class RustBuildTestCase(unittest.TestCase):
         eps = 1e-14
         self.assertTrue(sum([u[i] * c[i] for i in range(5)]) - b <= eps)
         self.assertTrue(-sum([u[i] * c[i] for i in range(5)]) + b <= eps)
-
-        mng.kill()
 
     @staticmethod
     def c_bindings_helper(optimizer_name):
