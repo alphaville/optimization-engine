@@ -1,4 +1,4 @@
-use crate::matrix_operations;
+use crate::{matrix_operations, FunctionCallResult, SolverError};
 
 use super::Constraint;
 
@@ -46,7 +46,10 @@ impl Constraint for EpigraphSquaredNorm {
     ///
     /// Panics if:
     ///
-    /// - `x.len() < 2`,
+    /// - `x.len() < 2`.
+    ///
+    /// Returns an error if:
+    ///
     /// - no admissible real root is found,
     /// - the Newton derivative becomes too small,
     /// - the final scaling factor is numerically singular.
@@ -63,7 +66,7 @@ impl Constraint for EpigraphSquaredNorm {
     ///
     /// epi.project(&mut x);
     /// ```
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         assert!(
             x.len() >= 2,
             "EpigraphSquaredNorm::project requires x.len() >= 2"
@@ -76,7 +79,7 @@ impl Constraint for EpigraphSquaredNorm {
 
         // Already feasible
         if norm_z_sq <= t {
-            return;
+            return Ok(());
         }
 
         // Cubic:
@@ -106,8 +109,9 @@ impl Constraint for EpigraphSquaredNorm {
             }
         }
 
-        let mut zsol =
-            right_root.expect("EpigraphSquaredNorm::project: no admissible real root found");
+        let mut zsol = right_root.ok_or(SolverError::ProjectionFailed(
+            "no admissible real root found for the cubic projection equation",
+        ))?;
 
         // Newton refinement
         let newton_max_iters: usize = 5;
@@ -123,10 +127,11 @@ impl Constraint for EpigraphSquaredNorm {
             }
 
             let dp_z = 3.0 * a3 * zsol_sq + 2.0 * a2 * zsol + a1;
-            assert!(
-                dp_z.abs() > 1e-15,
-                "EpigraphSquaredNorm::project: Newton derivative too small"
-            );
+            if dp_z.abs() <= 1e-15 {
+                return Err(SolverError::ProjectionFailed(
+                    "Newton refinement derivative is too small",
+                ));
+            }
 
             zsol -= p_z / dp_z;
         }
@@ -134,16 +139,18 @@ impl Constraint for EpigraphSquaredNorm {
         let right_root = zsol;
         let scaling = 1.0 + 2.0 * (right_root - t);
 
-        assert!(
-            scaling.abs() > 1e-15,
-            "EpigraphSquaredNorm::project: scaling factor too small"
-        );
+        if scaling.abs() <= 1e-15 {
+            return Err(SolverError::ProjectionFailed(
+                "projection scaling factor is numerically singular",
+            ));
+        }
 
         // Projection
         for xi in x.iter_mut().take(nx) {
             *xi /= scaling;
         }
         x[nx] = right_root;
+        Ok(())
     }
 
     /// This is a convex set, so this function returns `true`.

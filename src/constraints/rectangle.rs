@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 #[derive(Clone, Copy)]
 ///
@@ -36,10 +37,13 @@ impl<'a> Rectangle<'a> {
     ///
     pub fn new(xmin: Option<&'a [f64]>, xmax: Option<&'a [f64]>) -> Self {
         assert!(xmin.is_some() || xmax.is_some()); // xmin or xmax must be Some
-        assert!(
-            xmin.is_none() || xmax.is_none() || xmin.unwrap().len() == xmax.unwrap().len(),
-            "incompatible dimensions of xmin and xmax"
-        );
+        if let (Some(xmin), Some(xmax)) = (xmin, xmax) {
+            assert_eq!(
+                xmin.len(),
+                xmax.len(),
+                "incompatible dimensions of xmin and xmax"
+            );
+        }
         if let (Some(xmin), Some(xmax)) = (xmin, xmax) {
             assert!(
                 xmin.iter()
@@ -54,7 +58,7 @@ impl<'a> Rectangle<'a> {
 }
 
 impl<'a> Constraint for Rectangle<'a> {
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         if let Some(xmin) = &self.xmin {
             assert_eq!(
                 x.len(),
@@ -80,6 +84,7 @@ impl<'a> Constraint for Rectangle<'a> {
                 };
             });
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

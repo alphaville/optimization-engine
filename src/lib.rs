@@ -40,13 +40,55 @@
 
 extern crate num;
 
+use std::fmt;
+
 /// Exceptions/Errors that may arise while solving a problem
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SolverError {
     /// If the gradient or cost function cannot be evaluated
-    Cost,
+    Cost(&'static str),
     /// Computation failed and NaN/Infinite value was obtained
-    NotFiniteComputation,
+    NotFiniteComputation(&'static str),
+    /// A projection could not be computed numerically
+    ProjectionFailed(&'static str),
+    /// A linear algebra operation failed
+    LinearAlgebraFailure(&'static str),
+    /// The solver reached an unexpected internal state
+    InvalidProblemState(&'static str),
+}
+
+impl fmt::Display for SolverError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SolverError::Cost(reason) => {
+                write!(f, "cost or gradient evaluation failed: {}", reason)
+            }
+            SolverError::NotFiniteComputation(reason) => {
+                write!(f, "non-finite computation: {}", reason)
+            }
+            SolverError::ProjectionFailed(reason) => write!(f, "projection failed: {}", reason),
+            SolverError::LinearAlgebraFailure(reason) => {
+                write!(f, "linear algebra failure: {}", reason)
+            }
+            SolverError::InvalidProblemState(reason) => {
+                write!(f, "invalid internal problem state: {}", reason)
+            }
+        }
+    }
+}
+
+impl std::error::Error for SolverError {}
+
+impl From<crate::matrix_operations::MatrixError> for SolverError {
+    fn from(_: crate::matrix_operations::MatrixError) -> Self {
+        SolverError::LinearAlgebraFailure("matrix operation failed")
+    }
+}
+
+impl From<crate::cholesky_factorizer::CholeskyError> for SolverError {
+    fn from(_: crate::cholesky_factorizer::CholeskyError) -> Self {
+        SolverError::LinearAlgebraFailure("Cholesky factorization or solve failed")
+    }
 }
 
 /// Result of a function call (status)

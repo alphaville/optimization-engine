@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 #[derive(Copy, Clone)]
 /// An infinity ball defined as $B_\infty^r = \\{x\in\mathbb{R}^n {}:{} \Vert{}x{}\Vert_{\infty} \leq r\\}$,
@@ -42,7 +43,7 @@ impl<'a> Constraint for BallInf<'a> {
     ///
     /// for all $i=1,\ldots, n$.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         if let Some(center) = &self.center {
             assert_eq!(
                 x.len(),
@@ -58,6 +59,7 @@ impl<'a> Constraint for BallInf<'a> {
                 .filter(|xi| xi.abs() > self.radius)
                 .for_each(|xi| *xi = xi.signum() * self.radius);
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

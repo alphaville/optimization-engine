@@ -1,5 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 
 #[derive(Clone, Copy)]
 ///
@@ -56,7 +57,7 @@ impl Constraint for SecondOrderCone {
     ///
     /// This method panics if the length of `x` is less than 2.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         // x = (z, r)
         let n = x.len();
         assert!(n >= 2, "x must be of dimension at least 2");
@@ -72,6 +73,7 @@ impl Constraint for SecondOrderCone {
                 .for_each(|v| *v *= self.alpha * beta / norm_z);
             x[n - 1] = beta;
         }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

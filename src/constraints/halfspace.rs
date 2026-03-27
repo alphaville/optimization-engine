@@ -1,5 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 
 #[derive(Clone)]
 /// A halfspace is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle \leq b\\}$.
@@ -79,7 +80,7 @@ impl<'a> Constraint for Halfspace<'a> {
     /// This method panics if the length of `x` is not equal to the dimension
     /// of the halfspace.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         if inner_product > self.offset {
             let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
@@ -87,6 +88,7 @@ impl<'a> Constraint for Halfspace<'a> {
                 .zip(self.normal_vector.iter())
                 .for_each(|(x, normal_vector_i)| *x -= factor * normal_vector_i);
         }
+        Ok(())
     }
 
     /// Halfspaces are convex sets

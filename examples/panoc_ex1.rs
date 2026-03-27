@@ -29,7 +29,9 @@ fn main() {
     // define the cost function and its gradient
     let df = |u: &[f64], grad: &mut [f64]| -> Result<(), SolverError> {
         if a < 0.0 || b < 0.0 {
-            Err(SolverError::Cost)
+            Err(SolverError::Cost(
+                "Rosenbrock parameters must be nonnegative",
+            ))
         } else {
             rosenbrock_grad(a, b, u, grad);
             Ok(())
@@ -38,7 +40,9 @@ fn main() {
 
     let f = |u: &[f64], c: &mut f64| -> Result<(), SolverError> {
         if a < 0.0 || b < 0.0 {
-            Err(SolverError::Cost)
+            Err(SolverError::Cost(
+                "Rosenbrock parameters must be nonnegative",
+            ))
         } else {
             *c = rosenbrock_cost(a, b, u);
             Ok(())

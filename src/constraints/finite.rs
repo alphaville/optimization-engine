@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 ///
 /// A finite set, $X = \\{x_1, x_2, \ldots, x_n\\}\subseteq\mathbb{R}^n$, given vectors
@@ -85,7 +86,7 @@ impl<'a> Constraint for FiniteSet<'a> {
     /// This method panics if the dimension of `x` is not equal to the
     /// dimension of the points in the finite set.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         assert_eq!(x.len(), self.data[0].len(), "x has incompatible dimension");
         let mut idx: usize = 0;
         let mut best_distance: f64 = num::Float::infinity();
@@ -97,6 +98,7 @@ impl<'a> Constraint for FiniteSet<'a> {
             }
         }
         x.copy_from_slice(self.data[idx]);
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

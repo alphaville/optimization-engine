@@ -1,5 +1,6 @@
 use super::Constraint;
 use crate::matrix_operations;
+use crate::FunctionCallResult;
 
 #[derive(Clone)]
 /// A hyperplane is a set given by $H = \\{x \in \mathbb{R}^n {}:{} \langle c, x\rangle = b\\}$.
@@ -79,13 +80,14 @@ impl<'a> Constraint for Hyperplane<'a> {
     /// This method panics if the length of `x` is not equal to the dimension
     /// of the hyperplane.
     ///
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         assert_eq!(x.len(), self.normal_vector.len(), "x has wrong dimension");
         let inner_product = matrix_operations::inner_product(x, self.normal_vector);
         let factor = (inner_product - self.offset) / self.normal_vector_squared_norm;
         x.iter_mut()
             .zip(self.normal_vector.iter())
             .for_each(|(x, nrm_vct)| *x -= factor * nrm_vct);
+        Ok(())
     }
 
     /// Hyperplanes are convex sets

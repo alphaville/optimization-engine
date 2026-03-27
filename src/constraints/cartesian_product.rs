@@ -1,4 +1,5 @@
 use super::Constraint;
+use crate::FunctionCallResult;
 
 /// Cartesian product of constraints.
 ///
@@ -143,16 +144,14 @@ impl<'a> Constraint for CartesianProduct<'a> {
     ///
     /// The method will panic if the dimension of `x` is not equal to the
     /// dimension of the Cartesian product (see `dimension()`)
-    fn project(&self, x: &mut [f64]) {
+    fn project(&self, x: &mut [f64]) -> FunctionCallResult {
         assert!(x.len() == self.dimension(), "x has wrong size");
         let mut j = 0;
-        self.idx
-            .iter()
-            .zip(self.constraints.iter())
-            .for_each(|(&i, c)| {
-                c.project(&mut x[j..i]);
-                j = i;
-            });
+        for (&i, c) in self.idx.iter().zip(self.constraints.iter()) {
+            c.project(&mut x[j..i])?;
+            j = i;
+        }
+        Ok(())
     }
 
     fn is_convex(&self) -> bool {

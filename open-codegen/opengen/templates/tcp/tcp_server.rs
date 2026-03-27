@@ -210,7 +210,7 @@ fn execution_handler(
             return_solution_to_client(ok_status, u, stream);
         }
         Err(err) => {
-            let error_message = format!("problem solution failed: {:?}", err);
+            let error_message = format!("problem solution failed: {}", err);
             write_error_message(stream, 2000, &error_message);
         }
     }

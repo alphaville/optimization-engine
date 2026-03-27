@@ -124,7 +124,9 @@ where
         (self.fbs_engine.problem.cost)(u, &mut cost_value)?;
 
         if !matrix_operations::is_finite(u) || !cost_value.is_finite() {
-            return Err(SolverError::NotFiniteComputation);
+            return Err(SolverError::NotFiniteComputation(
+                "final FBS iterate or cost is non-finite",
+            ));
         }
 
         // export solution status
