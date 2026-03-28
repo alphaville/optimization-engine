@@ -635,6 +635,21 @@ fn t_cartesian_product_dimension() {
 }
 
 #[test]
+fn t_cartesian_product_indices_are_cumulative_lengths() {
+    let cartesian = CartesianProduct::new()
+        .add_constraint(1, NoConstraints::new())
+        .add_constraint(3, NoConstraints::new())
+        .add_constraint(6, NoConstraints::new());
+
+    assert_eq!(6, cartesian.dimension());
+
+    let mut x = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0];
+    let original = x;
+    cartesian.project(&mut x).unwrap();
+    assert_eq!(original, x);
+}
+
+#[test]
 fn t_cartesian_ball_no_constraint() {
     let xc = [1., 0., 0.];
     let radius = 1.0;

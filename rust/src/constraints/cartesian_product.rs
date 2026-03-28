@@ -22,6 +22,17 @@ use crate::FunctionCallResult;
 /// The constraint $x \in C$ is interpreted as $x_i \in C_i$
 /// for all $i=0,\ldots, n-1$.
 ///
+/// # Indexing convention
+///
+/// In Rust, Cartesian products are defined using cumulative lengths
+/// (equivalently, exclusive end indices).
+///
+/// For example, `.add_constraint(2, c0).add_constraint(5, c1)` means that
+/// `c0` acts on `x[0..2]` and `c1` acts on `x[2..5]`.
+///
+/// This differs from the Python API, which uses inclusive last indices such
+/// as `[1, 4]` for the same two segments.
+///
 #[derive(Default)]
 pub struct CartesianProduct<'a, T = f64> {
     idx: Vec<usize>,
@@ -91,7 +102,8 @@ impl<'a, T> CartesianProduct<'a, T> {
     ///
     /// # Arguments
     ///
-    /// - `ni`: total length of the vector `(x_0, \ldots, x_i)` (see example below)
+    /// - `ni`: total length of the vector `(x_0, \ldots, x_i)` (that is, the
+    ///   exclusive end index of the `i`-th segment; see example below)
     /// - `constraint`: constraint to add; it must implement the trait `Constraint`
     ///
     ///

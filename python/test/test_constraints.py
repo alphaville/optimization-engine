@@ -345,6 +345,20 @@ class ConstraintsTestCase(unittest.TestCase):
         with self.assertRaises(ValueError) as __context:
             og.constraints.CartesianProduct([], sets)
 
+    def test_cartesian_segment_ids_are_inclusive_last_indices(self):
+        cartesian = og.constraints.CartesianProduct(
+            [0, 2, 5],
+            [
+                og.constraints.NoConstraints(),
+                og.constraints.NoConstraints(),
+                og.constraints.NoConstraints(),
+            ],
+        )
+
+        self.assertEqual(1, cartesian.segment_dimension(0))
+        self.assertEqual(2, cartesian.segment_dimension(1))
+        self.assertEqual(3, cartesian.segment_dimension(2))
+
     def test_cartesian_convex(self):
         ball_inf = og.constraints.BallInf(None, 1)
         ball_eucl = og.constraints.Ball2(None, 1)

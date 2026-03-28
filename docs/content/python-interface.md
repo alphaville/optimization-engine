@@ -99,6 +99,14 @@ following types of constraints:
 
 A Cartesian product is a set $C = C_0 \times C_1 \times \ldots \times C_{s}$. In $\mathbb{R}^n$, a vector $x$ can be segmented as $$x=(x_{(0)}, x_{(1)}, \ldots, x_{(s)}),$$ into $s$ segments, $x_{(i)}\in\mathbb{R}^{m_i}$. The constraint $x \in C$ means $$x_{(i)} \in C_i,$$ for all $i=0,\ldots, s$. For example, consider the vector $x = ({\color{blue}{x_0}}, {\color{blue}{x_1}}, {\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$; define the segments $$x_{(0)} = ({\color{blue}{x_0}}, {\color{blue}{x_1}}),\ x_{(1)} = ({\color{red}{x_2}}, {\color{red}{x_3}}, {\color{red}{x_4}})$$ These can be identified by the indices `1` and `4` (last indices of segments). 
 
+:::note
+In Python, `CartesianProduct` uses inclusive last indices for each segment.
+For example, `segment_ids = [1, 4]` means the segments `x[0:2]` and `x[2:5]`.
+
+This is different from the Rust API, where Cartesian products are specified
+using cumulative lengths / exclusive end indices.
+:::
+
 
 Let us give an example: we will define the Cartesian product of a ball with a rectangle. 
 Suppose that $U$ is a Euclidean ball with radius $r=1.5$ centered at

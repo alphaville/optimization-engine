@@ -88,6 +88,22 @@ Constraints implement the namesake trait, [`Constraint`]. Implementations of [`C
 
 These are the most common constraints in practice.
 
+:::note Cartesian products in Rust
+The Rust API for [`CartesianProduct`] uses cumulative lengths, equivalently
+exclusive end indices.
+
+For example, if `x0 = x[0..3]` and `x1 = x[3..5]`, then you would write:
+
+```rust
+let cart_prod = constraints::CartesianProduct::new()
+    .add_constraint(3, c0)
+    .add_constraint(5, c1);
+```
+
+This differs from the Python API, which uses inclusive last indices such as
+`[2, 4]` for the same two segments.
+:::
+
 The construction of a constraint is very easy. Here is an example of a Euclidean ball centered at the origin with given radius:
 
 ```rust

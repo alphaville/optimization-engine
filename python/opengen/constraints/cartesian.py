@@ -19,6 +19,15 @@ class CartesianProduct(constraint.Constraint):
         We can associate with :math:`x_{[1]}` the indices [0, 1] and with :math:`x_{[2]}` the indices [2, 3, 4].
         The *segment ids* are the indices 1 and 4.
 
+        Important:
+            In Python, `segments` uses inclusive last indices. For example,
+            `segments=[1, 4]` means that the first segment is `x[0:2]` and the
+            second segment is `x[2:5]`.
+
+            This convention is different from the Rust API, where Cartesian
+            products are specified using cumulative lengths / exclusive end
+            indices.
+
         Example:
             In this example we shall define the set :math:`X = \mathcal{B}_{1.5} \\times R \\times {\\rm I\!R}^{5}`, 
             where :math:`\mathcal{B}_{1.5}` is a Euclidean ball of dimension 2 with radius 1.5, :math:`R` is a  
@@ -31,7 +40,7 @@ class CartesianProduct(constraint.Constraint):
             >>> segment_ids = [1, 4, 9]
             >>> my_set = og.constraints.CartesianProduct(segment_ids, [ball, rect, free])
 
-        :param segments: ids of segments
+        :param segments: inclusive last indices of segments
         :param constraints: list of sets
         """
 
@@ -44,7 +53,7 @@ class CartesianProduct(constraint.Constraint):
 
         if segments[0] < 0:
             raise ValueError(
-                "the first element of segment must be a positive integer")
+                "the first element of segment must be a non-negative integer")
 
         if len(segments) != len(constraints):
             raise ValueError(
