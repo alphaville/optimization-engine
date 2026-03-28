@@ -1,0 +1,14 @@
+__pycache__
+venv
+.idea
+*.pyc
+build
+dist
+x4356
+TOKEN
+.python_test_build
+.python_test_build_ocp
+.pytest_cache
+htmlcov
+my_optimizers
+*.egg-info
