@@ -72,7 +72,9 @@ ros2 topic pub --once /{{ros.subscriber_subtopic}} {{ros.package_name}}/msg/Opti
 
 If `initial_guess` is omitted or left empty, the node reuses the previous
 solution as a warm start. Likewise, an empty `initial_y` means "reuse the
-previous Lagrange multipliers".
+previous Lagrange multipliers". `initial_penalty` is applied whenever it is
+strictly greater than a small positive epsilon; otherwise the generated default
+penalty is used.
 
 The result will be announced on the configured result topic
 (default: `/{{ros.publisher_subtopic}}`):

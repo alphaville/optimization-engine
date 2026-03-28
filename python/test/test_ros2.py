@@ -170,7 +170,9 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
         with open(os.path.join(ros2_dir, "msg", "OptimizationResult.msg"), encoding="utf-8") as f:
             result_msg = f.read()
         self.assertIn("uint8 STATUS_INVALID_REQUEST=5", result_msg)
-        self.assertIn("int32        error_code", result_msg)
+        self.assertIn("uint64       inner_iterations", result_msg)
+        self.assertIn("uint64       outer_iterations", result_msg)
+        self.assertIn("uint16       error_code", result_msg)
         self.assertIn("string       error_message", result_msg)
 
         with open(os.path.join(ros2_dir, "include", f"{self.OPTIMIZER_NAME}_bindings.hpp"),
@@ -178,6 +180,11 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
             bindings_header = f.read()
         self.assertIn("error_code", bindings_header)
         self.assertIn("error_message", bindings_header)
+
+        with open(os.path.join(ros2_dir, "src", "open_optimizer.cpp"), encoding="utf-8") as f:
+            optimizer_cpp = f.read()
+        self.assertIn("kInitialPenaltyEpsilon", optimizer_cpp)
+        self.assertIn("params_.initial_penalty > kInitialPenaltyEpsilon", optimizer_cpp)
 
 
 class Ros2BuildTestCase(unittest.TestCase):
@@ -348,8 +355,18 @@ class Ros2BuildTestCase(unittest.TestCase):
     def _run_shell(cls, command, cwd, env=None, timeout=180, check=True):
         """Run a command in the preferred shell and return the completed process."""
         shell_path, _ = cls.ros2_shell()
+        shell_command = command
+        if env is not None:
+            exported_vars = []
+            for var_name in ("PATH", "CONDA_PREFIX", "RMW_IMPLEMENTATION", "ROS_LOG_DIR",
+                             "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"):
+                if var_name in env:
+                    exported_vars.append(
+                        f"export {var_name}={shlex.quote(env[var_name])};"
+                    )
+            shell_command = f"{' '.join(exported_vars)} {command}"
         result = subprocess.run(
-            [shell_path, "-lc", command],
+            [shell_path, "-c", shell_command],
             cwd=cwd,
             env=env,
             text=True,
@@ -389,6 +406,11 @@ class Ros2BuildTestCase(unittest.TestCase):
 
     def _build_generated_package(self, ros2_dir, env):
         """Build the generated ROS2 package with the active Python executable."""
+        for stale_dir in ("build", "install", "log"):
+            stale_path = os.path.join(ros2_dir, stale_dir)
+            if os.path.exists(stale_path):
+                shutil.rmtree(stale_path)
+
         python_executable = shlex.quote(sys.executable)
         self._run_shell(
             f"source {self.ros2_shell()[1]} >/dev/null 2>&1 || true; "
@@ -401,11 +423,18 @@ class Ros2BuildTestCase(unittest.TestCase):
     def _spawn_ros_process(self, command, ros2_dir, env):
         """Start a long-running ROS2 command in a fresh process group."""
         shell_path, setup_script = self.ros2_shell()
+        exported_vars = []
+        for var_name in ("PATH", "CONDA_PREFIX", "RMW_IMPLEMENTATION", "ROS_LOG_DIR",
+                         "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"):
+            if var_name in env:
+                exported_vars.append(
+                    f"export {var_name}={shlex.quote(env[var_name])};"
+                )
         return subprocess.Popen(
             [
                 shell_path,
-                "-lc",
-                f"source {setup_script} && {command}"
+                "-c",
+                f"{' '.join(exported_vars)} source {setup_script} && {command}"
             ],
             cwd=ros2_dir,
             env=env,

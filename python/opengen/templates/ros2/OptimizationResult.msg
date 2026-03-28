@@ -7,10 +7,10 @@ uint8 STATUS_NOT_CONVERGED_FINITE_COMPUTATION=4
 uint8 STATUS_INVALID_REQUEST=5
 
 float64[]    solution              # optimizer (solution)
-uint8        inner_iterations      # number of inner iterations
-uint16       outer_iterations      # number of outer iterations
+uint64       inner_iterations      # number of inner iterations
+uint64       outer_iterations      # number of outer iterations
 uint8        status                # coarse status code
-int32        error_code            # detailed error code (0 on success)
+uint16       error_code            # detailed error code (0 on success)
 string       error_message         # detailed error message (empty on success)
 float64      cost                  # cost at solution
 float64      norm_fpr              # norm of FPR of last inner problem

@@ -5,6 +5,8 @@
  * dually licensed under the MIT and Apache v2 licences.
  *
  */
+#include <limits>
+
 #include "ros/ros.h"
 #include "{{ros.package_name}}/OptimizationResult.h"
 #include "{{ros.package_name}}/OptimizationParameters.h"
@@ -70,7 +72,7 @@ private:
      */
     void updateInputData()
     {
-        init_penalty = (params.initial_penalty > 1.0)
+        init_penalty = (params.initial_penalty > std::numeric_limits<double>::epsilon())
             ? params.initial_penalty
             : ROS_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
 

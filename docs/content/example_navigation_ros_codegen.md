@@ -326,7 +326,7 @@ private:
      */
     void updateInputData()
     {
-        init_penalty = (params.initial_penalty > 1.0)
+        init_penalty = (params.initial_penalty > std::numeric_limits<double>::epsilon())
             ? params.initial_penalty
             : ROS_NODE_MPC_CONTROLLER_DEFAULT_INITIAL_PENALTY;
 

@@ -413,6 +413,33 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertEqual("Converged", status.exit_status)
         self.assertIsNotNone(status.solution)
 
+    def test_generated_ros_templates_allow_small_positive_initial_penalty(self):
+        ros_dir = os.path.join(
+            RustBuildTestCase.TEST_DIR,
+            "rosenbrock_ros",
+            "parametric_optimizer"
+        )
+        with open(os.path.join(ros_dir, "src", "open_optimizer.cpp"), "r", encoding="utf-8") as fh:
+            optimizer_cpp = fh.read()
+
+        self.assertIn("std::numeric_limits<double>::epsilon()", optimizer_cpp)
+        self.assertIn(
+            "params.initial_penalty > std::numeric_limits<double>::epsilon()",
+            optimizer_cpp
+        )
+
+    def test_generated_ros_result_message_uses_wide_iteration_counters(self):
+        ros_dir = os.path.join(
+            RustBuildTestCase.TEST_DIR,
+            "rosenbrock_ros",
+            "parametric_optimizer"
+        )
+        with open(os.path.join(ros_dir, "msg", "OptimizationResult.msg"), "r", encoding="utf-8") as fh:
+            result_msg = fh.read()
+
+        self.assertIn("uint64       inner_iterations", result_msg)
+        self.assertIn("uint64       outer_iterations", result_msg)
+
     def test_python_bindings_error_details(self):
         python_bindings = RustBuildTestCase.import_generated_module(
             "python_bindings", "python_bindings")

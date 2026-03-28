@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -44,9 +45,10 @@ private:
     rclcpp::Subscription<OptimizationParametersMsg>::SharedPtr subscriber_;
     rclcpp::TimerBase::SharedPtr timer_;
 
-    static constexpr int32_t kInvalidInitialGuessErrorCode = 1600;
-    static constexpr int32_t kInvalidInitialYErrorCode = 1700;
-    static constexpr int32_t kInvalidParameterErrorCode = 3003;
+    static constexpr uint16_t kInvalidInitialGuessErrorCode = 1600;
+    static constexpr uint16_t kInvalidInitialYErrorCode = 1700;
+    static constexpr uint16_t kInvalidParameterErrorCode = 3003;
+    static constexpr double kInitialPenaltyEpsilon = std::numeric_limits<double>::epsilon();
 
     /**
      * Convert the configured solver loop rate in Hz to a ROS2 timer period.
@@ -86,7 +88,7 @@ private:
      */
     void setErrorResult(
         uint8_t status,
-        int32_t error_code,
+        uint16_t error_code,
         const std::string& error_message)
     {
         results_.solution.clear();
@@ -113,8 +115,8 @@ private:
      */
     bool validateAndUpdateInputData()
     {
-        // A non-positive or missing penalty falls back to the generated default.
-        init_penalty_ = (params_.initial_penalty > 1.0)
+        // A missing or too-small penalty falls back to the generated default.
+        init_penalty_ = (params_.initial_penalty > kInitialPenaltyEpsilon)
             ? params_.initial_penalty
             : ROS2_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
 
@@ -212,7 +214,7 @@ private:
         results_.cost = status.cost;
         results_.penalty = status.penalty;
         results_.status = static_cast<uint8_t>(status.exit_status);
-        results_.error_code = status.error_code;
+        results_.error_code = static_cast<uint16_t>(status.error_code);
         // The bindings expose a null-terminated C buffer; convert it once here.
         results_.error_message = std::string(status.error_message);
         results_.solve_time_ms = static_cast<double>(status.solve_time_ns) / 1000000.0;

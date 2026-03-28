@@ -29,7 +29,7 @@ The input parameters message follows the following specification:
 float64[]      parameter         # parameter p (mandatory)
 float64[]      initial_guess     # u0 (optional/recommended)
 float64[]      initial_y         # y0 (optional)
-float64        initial_penalty   # initial penalty (optional)
+float64        initial_penalty   # positive initial penalty (optional)
 ```
 
 An example of such a message is
@@ -40,6 +40,10 @@ initial_guess: [0.5, 0.5, 0.5, 0.5, 0.5]
 initial_penalty: 1000,
 initial_y: []
 ```
+
+`initial_penalty` is applied whenever it is strictly greater than a small
+positive epsilon. If it is omitted, zero, or too close to zero, the generated
+default initial penalty is used instead.
 
 
 #### Result
@@ -74,8 +78,8 @@ uint8 STATUS_NOT_CONVERGED_COST=3
 uint8 STATUS_NOT_CONVERGED_FINITE_COMPUTATION=4
 
 float64[]    solution              # optimizer (solution)
-uint8        inner_iterations      # number of inner iterations
-uint16       outer_iterations      # number of outer iterations
+uint64       inner_iterations      # number of inner iterations
+uint64       outer_iterations      # number of outer iterations
 uint8        status                # status code
 float64      cost                  # cost value at solution
 float64      norm_fpr              # norm of FPR of last inner problem

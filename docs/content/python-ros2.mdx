@@ -24,6 +24,10 @@ OpEn can generate ready-to-use ROS2 packages directly from a parametric optimize
 
 The input message matches the [ROS1 package documentation](./python-ros#messages). The ROS2 output message additionally includes `error_code` and `error_message` fields so that invalid requests and solver failures can be reported with more detail.
 
+For scalar warm-starting, `initial_penalty` is used whenever it is strictly
+greater than a small positive epsilon. If it is omitted, zero, or too close to
+zero, the generated default initial penalty is used instead.
+
 ## Configuration Parameters
 
 The configuration parameters are the same as in the [ROS1 package documentation](./python-ros#configuration-parameters): you can configure the node rate, the input topic name, and the output topic name.
@@ -203,10 +207,10 @@ solve_time_ms: 0.2175
   uint8 STATUS_INVALID_REQUEST=5
 
   float64[]    solution              # solution
-  uint8        inner_iterations      # number of inner iterations
-  uint16       outer_iterations      # number of outer iterations
+  uint64       inner_iterations      # number of inner iterations
+  uint64       outer_iterations      # number of outer iterations
   uint8        status                # coarse status code
-  int32        error_code            # detailed error code (0 on success)
+  uint16       error_code            # detailed error code (0 on success)
   string       error_message         # detailed error message (empty on success)
   float64      cost                  # cost value at solution
   float64      norm_fpr              # norm of FPR of last inner problem
