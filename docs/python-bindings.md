@@ -70,6 +70,8 @@ so you will have to add it before you can import the optimizer.
 This can be done very easily:
 
 ```python
+import sys
+
 sys.path.insert(1, './my_optimizers/rosenbrock')
 import rosenbrock
 ```
@@ -169,6 +171,9 @@ The limitation of this syntax is that it makes it difficult to change the name o
 A better syntax would be:
 
 ```python
+import os
+import sys
+
 optimizers_dir = "my_optimizers"
 optimizer_name = "rosenbrock"
 sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
