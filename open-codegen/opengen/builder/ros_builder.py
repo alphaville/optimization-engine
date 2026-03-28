@@ -142,7 +142,7 @@ class _BaseRosBuilder:
         template = self._template('package.xml')
         output_template = template.render(meta=self._meta, ros=self._ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "package.xml")
-        with open(target_rospkg_path, "w") as fh:
+        with open(target_rospkg_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _generate_ros_cmakelists(self):
@@ -152,7 +152,7 @@ class _BaseRosBuilder:
         template = self._template('CMakeLists.txt')
         output_template = template.render(meta=self._meta, ros=self._ros_config)
         target_rospkg_path = os.path.join(target_ros_dir, "CMakeLists.txt")
-        with open(target_rospkg_path, "w") as fh:
+        with open(target_rospkg_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _copy_ros_files(self):
@@ -198,7 +198,7 @@ class _BaseRosBuilder:
         template = self._template('open_params.yaml')
         output_template = template.render(meta=self._meta, ros=self._ros_config)
         target_yaml_fname = os.path.join(target_ros_dir, "config", "open_params.yaml")
-        with open(target_yaml_fname, "w") as fh:
+        with open(target_yaml_fname, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _generate_ros_node_header(self):
@@ -212,7 +212,7 @@ class _BaseRosBuilder:
             solver_config=self._solver_config)
         target_rosnode_header_path = os.path.join(
             target_ros_dir, "include", "open_optimizer.hpp")
-        with open(target_rosnode_header_path, "w") as fh:
+        with open(target_rosnode_header_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _generate_ros_node_cpp(self):
@@ -225,7 +225,7 @@ class _BaseRosBuilder:
             ros=self._ros_config,
             timestamp_created=datetime.datetime.now())
         target_rosnode_cpp_path = os.path.join(target_ros_dir, "src", "open_optimizer.cpp")
-        with open(target_rosnode_cpp_path, "w") as fh:
+        with open(target_rosnode_cpp_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _generate_ros_launch_file(self):
@@ -236,7 +236,7 @@ class _BaseRosBuilder:
         output_template = template.render(meta=self._meta, ros=self._ros_config)
         target_rosnode_launch_path = os.path.join(
             target_ros_dir, "launch", self._launch_file_name)
-        with open(target_rosnode_launch_path, "w") as fh:
+        with open(target_rosnode_launch_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _generate_ros_readme_file(self):
@@ -246,7 +246,7 @@ class _BaseRosBuilder:
         template = self._template('README.md')
         output_template = template.render(ros=self._ros_config)
         target_readme_path = os.path.join(target_ros_dir, "README.md")
-        with open(target_readme_path, "w") as fh:
+        with open(target_readme_path, "w", encoding="utf-8") as fh:
             fh.write(output_template)
 
     def _symbolic_link_info_message(self):
