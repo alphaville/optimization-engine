@@ -32,7 +32,7 @@ module.exports = {
     {
       type: 'category',
       label: 'MATLAB',
-      items: ['matlab-interface', 'matlab-examples'],
+      items: ['matlab-api', 'matlab-interface', 'matlab-examples'],
     },
     {
       type: 'category',
