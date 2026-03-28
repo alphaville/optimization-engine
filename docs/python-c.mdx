@@ -77,7 +77,7 @@ The generated C/C++ bindings are in the auto-generated solver library.
 In particular
 
 * The header files are at `the_optimizer/the_optimizer_bindings.{h,hpp}` 
-* The static and dynamical library files are located in `the_optimizer/target/{debug,release}` (depending on whether it was a [*debug*] or [*release*] build) 
+* The static and dynamic library files are located in `the_optimizer/target/{debug,release}` (depending on whether it was a [*debug*] or [*release*] build) 
 
 Note that `the_optimizer` is the name given to the optimizer in the Python codegen above.
 
@@ -112,13 +112,16 @@ typedef struct exampleCache exampleCache;
 
 typedef struct {
   exampleExitStatus exit_status;
+  int error_code;
+  char error_message[256];
   unsigned long num_outer_iterations;
   unsigned long num_inner_iterations;
-  double last_problem_norm_fpr;  
+  double last_problem_norm_fpr;
   unsigned long long solve_time_ns;
   double penalty;
   double delta_y_norm_over_c;
   double f2_norm;
+  double cost;
   const double *lagrange;
 } exampleSolverStatus;
 
@@ -137,9 +140,60 @@ This is designed to follow a new-use-free pattern.
 
 Function `{optimizer-name}_new` will allocate memory and setup a new solver instance and can be used to create as many solvers as necessary. Each solver instance can be used with `{optimizer-name}_solve` to solve the corresponding problem as many times as needed. 
 
-Parameter `u` is the starting guess and also the return of the decision variables and `params` is the array of static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. 
+Parameter `u` is the starting guess and also the return of the decision variables and `params` is the array of static parameters. The size of `u` and `params` are `{optimizer-name}_NUM_DECISION_VARIABLES` and `{optimizer-name}_NUM_PARAMETERS` respectively. Arguments `y0` and `c0` are optional: pass `0` (or `NULL`) to use the default initial Lagrange multipliers and penalty parameter.
+
+The returned `exampleSolverStatus` always contains a coarse solver outcome in
+`exit_status`. On success it also contains `error_code = 0` and an empty
+`error_message`. If the solver fails internally, the bindings return a
+structured error report with a nonzero `error_code` and a descriptive
+`error_message`.
 
 Finally, when done with the solver, use `{optimizer-name}_free` to release the memory allocated by `{optimizer-name}_new`.
+
+## Handling errors
+
+The C bindings always return a value of type `exampleSolverStatus`. This means
+that solver calls do not report failure by returning `NULL` or by using a
+separate exception-like mechanism. Instead, callers should inspect both
+`exit_status` and `error_code`.
+
+- `error_code = 0` means the solver call completed without an internal error
+- `error_code != 0` means the solver failed and `error_message` contains a
+  descriptive explanation
+- `exit_status` gives the coarse outcome of the solve attempt, such as
+  converged, reached the iteration limit, or failed because of a numerical
+  issue
+
+The recommended pattern is:
+
+1. Call `{optimizer-name}_solve(...)`
+2. Check whether `status.error_code != 0`
+3. If so, report `status.error_message` and treat the call as failed
+4. Otherwise, inspect `status.exit_status` to determine whether the solver
+   converged or returned the best available non-converged iterate
+
+For example:
+
+```c
+exampleSolverStatus status = example_solve(cache, u, p, 0, &initial_penalty);
+
+if (status.error_code != 0) {
+    fprintf(stderr, "Solver failed: [%d] %s\n",
+            status.error_code, status.error_message);
+    example_free(cache);
+    return EXIT_FAILURE;
+}
+
+if (status.exit_status != exampleConverged) {
+    fprintf(stderr, "Warning: solver did not converge fully\n");
+}
+```
+
+The generated C example follows exactly this pattern.
+
+At the ABI level, callers are still responsible for passing valid pointers and
+correctly sized arrays for `u`, `params`, and optional arguments such as `y0`.
+Those are contract violations, not recoverable solver errors.
 
 
 ## Using the bindings in an app
@@ -155,26 +209,41 @@ The auto-generated example has the following form:
 /* File: the_optimizer/example_optimizer.c  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "example_bindings.h"
 
-int main() {
-	double p[EXAMPLE_NUM_PARAMETERS] = {1.0, 10.0};  // parameter
+int main(void) {
+	double p[EXAMPLE_NUM_PARAMETERS] = {0};          // parameter
 	double u[EXAMPLE_NUM_DECISION_VARIABLES] = {0};  // initial guess
+	double initial_penalty = 15.0;
 
 	exampleCache *cache = example_new();
-	exampleSolverStatus status = example_solve(cache, u, p);
-	example_free(cache);
+	if (cache == NULL) {
+		fprintf(stderr, "Could not allocate solver cache\n");
+		return EXIT_FAILURE;
+	}
+
+	exampleSolverStatus status = example_solve(cache, u, p, 0, &initial_penalty);
+
+	printf("exit status = %d\n", status.exit_status);
+	printf("error code = %d\n", status.error_code);
+	printf("error message = %s\n", status.error_message);
+	printf("iterations = %lu\n", status.num_inner_iterations);
+	printf("outer iterations = %lu\n", status.num_outer_iterations);
+	printf("solve time = %f ms\n", (double)status.solve_time_ns / 1e6);
+
+	if (status.error_code != 0) {
+		example_free(cache);
+		return EXIT_FAILURE;
+	}
 
 	for (int i = 0; i < EXAMPLE_NUM_DECISION_VARIABLES; ++i) {
 		printf("u[%d] = %g\n", i, u[i]);
 	}
 
-	printf("exit status = %d\n", status.exit_status);
-	printf("iterations = %lu\n", status.num_inner_iterations);
-	printf("outer iterations = %lu\n", status.num_outer_iterations);
-	printf("solve time = %f ms\n", (double)status.solve_time_ns / 1e6);
+	example_free(cache);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 ```
 
@@ -185,19 +254,18 @@ int main() {
 To compile your C program you need to link to the auto-generated
 C bindings (see [next section](#compile-your-own-code)). 
 However, OpEn generates automatically a `CMakeLists.txt` file
-to facilitate the compilation/linking procedure. To build the
-auto-generated example run
+to facilitate the compilation/linking procedure. A typical build is:
 
 ```bash
-cmake .
-make
+cmake -S . -B build
+cmake --build build
 ```
 
-once you build your optimizer you can run the executable (`optimizer`)
-with 
+Once you build your optimizer you can run the executable (`optimizer`)
+with:
 
 ```bash
-make run
+cmake --build build --target run
 ```
 
 #### Compile your own code 
@@ -260,14 +328,18 @@ LD_LIBRARY_PATH=./target/release ./optimizer
 The output looks like this:
 
 ```text
+exit status = 0
+error code = 0
+error message =
+iterations = 69
+outer iterations = 5
+solve time = 0.140401 ms
 u[0] = 0.654738
 u[1] = 0.982045
 u[2] = 0.98416
 u[3] = 0.984188
 u[4] = 0.969986
-exit status = 0
-iterations = 69
-outer iterations = 5
-solve time = 0.140401 ms
 ```
 
+If `error_code` is nonzero, the solver failed to produce a valid result and
+`error_message` contains the propagated reason from the generated Rust solver.
