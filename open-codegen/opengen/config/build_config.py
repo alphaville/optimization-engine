@@ -105,7 +105,11 @@ class BuildConfiguration:
     @property
     def local_path(self):
         """Local path of OpEn (if any)"""
-        return self.__local_path
+        if self.__local_path is None:
+            return None
+        # Cargo.toml accepts forward slashes on Windows, while raw backslashes
+        # inside TOML strings are treated as escape sequences.
+        return self.__local_path.replace("\\", "/")
 
     @property
     def build_c_bindings(self):
@@ -231,7 +235,7 @@ class BuildConfiguration:
         :return: current instance of BuildConfiguration
         """
         self.__open_version = open_version
-        self.__local_path = local_path
+        self.__local_path = None if local_path is None else str(local_path)
         return self
 
     def with_build_c_bindings(self, build_c_bindings=True):

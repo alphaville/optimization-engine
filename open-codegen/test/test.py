@@ -10,9 +10,24 @@ import opengen as og
 import subprocess
 import logging
 import numpy as np
+from pathlib import PureWindowsPath
 
 
 
+
+
+class BuildConfigurationTestCase(unittest.TestCase):
+
+    def test_local_path_is_toml_safe_on_windows(self):
+        # some windows-type path...
+        windows_style_path = PureWindowsPath("C:/temp/optimization-engine")
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=windows_style_path)
+
+        self.assertEqual(
+            "C:/temp/optimization-engine",
+            build_config.local_path
+        )
 
 
 class RustBuildTestCase(unittest.TestCase):
