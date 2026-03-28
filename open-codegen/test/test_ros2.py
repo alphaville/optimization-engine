@@ -48,7 +48,6 @@ class BuildConfigurationRos2TestCase(unittest.TestCase):
         self.assertIs(build_config.ros2_config, ros2_config)
         self.assertIsNone(build_config.ros_config)
 
-
 class Ros2TemplateCustomizationTestCase(unittest.TestCase):
     """Generation tests for custom ROS2 configuration values."""
 

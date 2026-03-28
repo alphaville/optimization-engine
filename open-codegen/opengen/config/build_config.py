@@ -192,6 +192,15 @@ class BuildConfiguration:
         :return: current instance of BuildConfiguration
 
         """
+        if build_mode not in (
+            BuildConfiguration.DEBUG_MODE,
+            BuildConfiguration.RELEASE_MODE,
+        ):
+            raise ValueError(
+                "build mode must be either "
+                f"'{BuildConfiguration.DEBUG_MODE}' or "
+                f"'{BuildConfiguration.RELEASE_MODE}'"
+            )
         self.__build_mode = build_mode
         return self
 
