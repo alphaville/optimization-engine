@@ -597,6 +597,15 @@ class OcpTestCase(unittest.TestCase):
         finally:
             optimizer.kill()
 
+    def test_generated_optimizer_repr(self):
+        optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+        optimizer_repr = repr(optimizer)
+
+        self.assertIn("GeneratedOptimizer(", optimizer_repr)
+        self.assertIn("optimizer_name='ocp_manifest_bindings'", optimizer_repr)
+        self.assertIn("backend_kind='direct'", optimizer_repr)
+        self.assertIn("shooting='single'", optimizer_repr)
+
     def test_optimizer_manifest_roundtrip(self):
         manifest_path = self.ocp1_manifest_path
         rollout_path = self.ocp1_rollout_path

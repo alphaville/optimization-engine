@@ -39,3 +39,19 @@ class SolverResponse:
 
     def __getitem__(self, key):
         return getattr(self.__response, key)
+
+    def __repr__(self):
+        if self.is_ok():
+            status = self.get()
+            return (
+                "SolverResponse(ok=True, "
+                f"exit_status={status.exit_status!r}, "
+                f"num_outer_iterations={status.num_outer_iterations}, "
+                f"num_inner_iterations={status.num_inner_iterations})"
+            )
+        error = self.get()
+        return (
+            "SolverResponse(ok=False, "
+            f"code={error.code}, "
+            f"message={error.message!r})"
+        )

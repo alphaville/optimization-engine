@@ -113,6 +113,18 @@ class GeneratedOptimizer:
         """Backend kind used by this optimizer wrapper."""
         return self.__backend_kind
 
+    def __repr__(self):
+        return (
+            "GeneratedOptimizer("
+            f"optimizer_name={self.__optimizer_name!r}, "
+            f"backend_kind={self.__backend_kind!r}, "
+            f"shooting={self.__shooting.value!r}, "
+            f"nx={self.__nx}, "
+            f"nu={self.__nu}, "
+            f"horizon={self.__horizon}, "
+            f"target_dir={self.__target_dir!r})"
+        )
+
     def start(self):
         """Start the backend if it is a local TCP server.
 

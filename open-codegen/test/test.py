@@ -469,6 +469,32 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertIn("SolverError(", repr(error))
         self.assertIn("code=3003", repr(error))
 
+    def test_tcp_response_repr(self):
+        ok_response = og.tcp.SolverResponse({
+            "exit_status": "Converged",
+            "num_outer_iterations": 2,
+            "num_inner_iterations": 7,
+            "last_problem_norm_fpr": 1e-6,
+            "delta_y_norm_over_c": 0.0,
+            "f2_norm": 0.0,
+            "solve_time_ms": 1.2,
+            "penalty": 10.0,
+            "solution": [0.1, 0.2],
+            "lagrange_multipliers": [],
+            "cost": 0.5,
+        })
+        self.assertIn("SolverResponse(ok=True", repr(ok_response))
+        self.assertIn("exit_status='Converged'", repr(ok_response))
+
+        error_response = og.tcp.SolverResponse({
+            "type": "Error",
+            "code": 3003,
+            "message": "wrong number of parameters",
+        })
+        self.assertIn("SolverResponse(ok=False", repr(error_response))
+        self.assertIn("code=3003", repr(error_response))
+        self.assertIn("SolverError(", repr(error_response.get()))
+
     def test_rectangle_empty(self):
         xmin = [-1, 2]
         xmax = [-2, 4]

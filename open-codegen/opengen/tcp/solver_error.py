@@ -38,3 +38,6 @@ class SolverError:
         :rtype: str
         """
         return self.__dict__["__message"]
+
+    def __repr__(self):
+        return f"SolverError(code={self.code}, message={self.message!r})"
