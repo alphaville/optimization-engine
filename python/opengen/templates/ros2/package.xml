@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>{{ros.package_name}}</name>
+  <version>{{meta.version}}</version>
+  <description>{{ros.description}}</description>
+  <maintainer email="maintainer-email@todo.todo">chung</maintainer>
+  <license>{{meta.licence}}</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>rosidl_default_generators</build_depend>
+
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  <depend>rclcpp</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

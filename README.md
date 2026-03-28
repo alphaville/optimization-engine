@@ -66,7 +66,7 @@ OpEn allows application developers and researchers to focus on the challenges of
 ### Embedded applications
 OpEn can run on embedded devices; here we see it running on an intel Atom for the autonomous navigation of a lab-scale micro aerial vehicle - the controller runs at **20Hz** using only **15%** CPU!
 
-<img src="https://raw.githubusercontent.com/alphaville/optimization-engine/master/website/static/img/e8f236af8d38.gif" alt="Fast NMPC of MAV" width="55%"/>
+<img src="https://raw.githubusercontent.com/alphaville/optimization-engine/master/docs/website/static/img/e8f236af8d38.gif" alt="Fast NMPC of MAV" width="55%"/>
 
 
 ## Optimal Control
@@ -196,7 +196,7 @@ let status = optimizer.solve(&mut u)?;
 ```
 
 See the dedicated [Rust documentation](https://alphaville.github.io/optimization-engine/docs/openrust-basic) for a full introduction and more complete examples.
-See more Rust examples [here](examples).
+See more Rust examples [here](rust/examples).
 
 ## Check out next...
 

@@ -1,0 +1,238 @@
+---
+id: matlab-api
+title: MATLAB API
+description: TCP-based MATLAB API for parametric and OCP-generated OpEn optimizers
+---
+
+# MATLAB API
+
+This page documents the current MATLAB API of OpEn.
+
+The current MATLAB interface lives in `matlab/api` and communicates with
+optimizers that were generated in Python and expose a TCP server.
+
+If you are looking for the older MATLAB code-generation workflow, see the
+[legacy MATLAB interface](./matlab-interface) and the
+[MATLAB examples](./matlab-examples).
+
+## Overview
+
+The current MATLAB API supports:
+
+- TCP-based calls to standard parametric optimizers
+- TCP-based calls to OCP-generated optimizers created with `opengen.ocp`
+- Loading `optimizer_manifest.json` for OCP optimizers
+- Automatic endpoint discovery from the sibling `optimizer.yml`
+- Warm-start inputs:
+  - `InitialGuess`
+  - `InitialLagrangeMultipliers`
+  - `InitialPenalty`
+- Health-check and shutdown operations through `ping()` and `kill()`
+
+The main MATLAB entry points are:
+
+- `OpEnTcpOptimizer`
+- `createOpEnTcpOptimizer`
+
+:::important
+The MATLAB API is a TCP client only. It does **not** start the optimizer
+server; the generated optimizer must already be running.
+:::
+
+## Getting Started
+
+Add the MATLAB API directory to your path:
+
+```matlab
+addpath(fullfile(pwd, 'matlab', 'api'));
+```
+
+Create a client using either:
+
+- `OpEnTcpOptimizer(port)`
+- `OpEnTcpOptimizer(port, ip)`
+- `OpEnTcpOptimizer(ip, port)`
+
+For example:
+
+```matlab
+client = OpEnTcpOptimizer(3301);
+pong = client.ping();
+disp(pong.Pong);
+```
+
+## Parametric Optimizers
+
+For a standard parametric optimizer, call `solve` with the flat parameter
+vector:
+
+```matlab
+client = OpEnTcpOptimizer(3301);
+
+response = client.solve([2.0, 10.0]);
+
+if response.ok
+    disp(response.solution);
+    disp(response.cost);
+    disp(response.exit_status);
+else
+    error('OpEn:SolverError', '%s', response.message);
+end
+```
+
+You can also provide warm-start data:
+
+```matlab
+response1 = client.solve([2.0, 10.0]);
+
+response2 = client.solve( ...
+    [2.0, 10.0], ...
+    'InitialGuess', response1.solution, ...
+    'InitialLagrangeMultipliers', response1.lagrange_multipliers, ...
+    'InitialPenalty', response1.penalty);
+```
+
+To stop the server gracefully:
+
+```matlab
+client.kill();
+```
+
+## OCP Optimizers
+
+For OCP-generated optimizers, the MATLAB API uses the optimizer manifest to
+pack named parameter blocks into the flat parameter vector expected by the
+underlying TCP solver.
+
+This matches the Python `GeneratedOptimizer.solve(...)` workflow conceptually,
+but in MATLAB you pass the values as **name-value pairs**.
+
+### Loading an OCP Manifest
+
+If `optimizer_manifest.json` and `optimizer.yml` are in the same generated
+optimizer directory, MATLAB can read the TCP endpoint automatically:
+
+```matlab
+manifestPath = fullfile( ...
+    pwd, ...
+    'python', ...
+    '.python_test_build_ocp', ...
+    'ocp_single_tcp', ...
+    'optimizer_manifest.json');
+
+client = OpEnTcpOptimizer('ManifestPath', manifestPath);
+disp(client.parameterNames());
+```
+
+You can also override the TCP endpoint explicitly:
+
+```matlab
+client = OpEnTcpOptimizer(3391, 'ManifestPath', manifestPath);
+```
+
+### Single-Shooting OCP Example
+
+The following example uses a generated OCP optimizer whose manifest defines
+the parameter blocks `x0` and `xref`:
+
+```matlab
+response = client.solve( ...
+    'x0', [1.0, -1.0], ...
+    'xref', [0.0, 0.0]);
+
+if response.ok
+    disp(response.solution);
+    disp(response.inputs);
+    disp(response.exit_status);
+else
+    error('OpEn:SolverError', '%s', response.message);
+end
+```
+
+If some manifest parameters have defaults, only the required ones need to be
+provided:
+
+```matlab
+manifestPath = fullfile( ...
+    pwd, ...
+    'python', ...
+    '.python_test_build_ocp', ...
+    'ocp_manifest_bindings', ...
+    'optimizer_manifest.json');
+
+client = OpEnTcpOptimizer('ManifestPath', manifestPath);
+response = client.solve('x0', [1.0, 0.0]);
+```
+
+### Multiple-Shooting OCP Example
+
+For multiple-shooting OCPs, the MATLAB response also contains the reconstructed
+state trajectory:
+
+```matlab
+manifestPath = fullfile( ...
+    pwd, ...
+    'python', ...
+    '.python_test_build_ocp', ...
+    'ocp_multiple_tcp', ...
+    'optimizer_manifest.json');
+
+client = OpEnTcpOptimizer('ManifestPath', manifestPath);
+
+response = client.solve( ...
+    'x0', [1.0, -1.0], ...
+    'xref', [0.0, 0.0]);
+
+disp(response.inputs);
+disp(response.states);
+```
+
+### OCP Warm-Start Example
+
+Warm-start options can be combined with the named OCP parameters:
+
+```matlab
+response1 = client.solve( ...
+    'x0', [1.0, -1.0], ...
+    'xref', [0.0, 0.0]);
+
+response2 = client.solve( ...
+    'x0', [1.0, -1.0], ...
+    'xref', [0.0, 0.0], ...
+    'InitialGuess', response1.solution, ...
+    'InitialLagrangeMultipliers', response1.lagrange_multipliers, ...
+    'InitialPenalty', response1.penalty);
+```
+
+## Response Format
+
+All successful solver calls return the low-level solver fields produced by the
+TCP server, together with a MATLAB-friendly `ok` flag.
+
+Typical fields include:
+
+- `ok`
+- `solution`
+- `cost`
+- `exit_status`
+- `solve_time_ms`
+- `penalty`
+- `num_outer_iterations`
+- `num_inner_iterations`
+- `last_problem_norm_fpr`
+- `f1_infeasibility`
+- `f2_norm`
+- `lagrange_multipliers`
+
+For OCP optimizers, the response also includes:
+
+- `packed_parameter`
+- `inputs`
+- `states` for multiple-shooting formulations
+
+## Related Pages
+
+- [Python TCP/IP interface](./python-tcp-ip)
+- [Python OCP guide](./python-ocp-1)
+- [Legacy MATLAB interface](./matlab-interface)
+- [MATLAB examples](./matlab-examples)
