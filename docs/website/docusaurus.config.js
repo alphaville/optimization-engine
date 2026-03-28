@@ -54,7 +54,7 @@ module.exports = {
       'classic',
       {
         docs: {
-          path: '../docs',
+          path: '../content',
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./sidebars.js'),
         },

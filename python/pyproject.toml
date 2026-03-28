@@ -49,7 +49,7 @@ dependencies = [
 Homepage = "https://github.com/alphaville/optimization-engine"
 Documentation = "https://alphaville.github.io/optimization-engine/"
 Repository = "https://github.com/alphaville/optimization-engine"
-Changelog = "https://github.com/alphaville/optimization-engine/blob/master/open-codegen/CHANGELOG.md"
+Changelog = "https://github.com/alphaville/optimization-engine/blob/master/python/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

@@ -2,6 +2,7 @@
 # cargo make docs
 # cargo make doc-katex
 [tasks.doc-katex]
+cwd = "rust"
 env = { "RUSTDOCFLAGS" = "--html-in-header katex-header.html" }
 command = "cargo"
 args = ["doc", "--no-deps"]
@@ -11,4 +12,3 @@ dependencies = [
     "docs",
     "doc-katex",
 ]
-

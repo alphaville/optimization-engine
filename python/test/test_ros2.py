@@ -65,8 +65,7 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
     @staticmethod
     def get_open_local_absolute_path():
         """Return the absolute path to the local OpEn repository root."""
-        cwd = os.getcwd()
-        return cwd.split('open-codegen')[0]
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))
 
     @classmethod
     def solverConfig(cls):
@@ -192,8 +191,7 @@ class Ros2BuildTestCase(unittest.TestCase):
     @staticmethod
     def get_open_local_absolute_path():
         """Return the absolute path to the local OpEn repository root."""
-        cwd = os.getcwd()
-        return cwd.split('open-codegen')[0]
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))
 
     @classmethod
     def solverConfig(cls):

@@ -1,7 +1,19 @@
 #!/bin/bash
 set -euxo pipefail
 
+# To use locally, from the root directory and from a bash shell...
+#
+# 1. To run the core Python tests:
+#    ci/script.sh python-tests
+#
+# 2. To run the Python OCP tests:
+#    ci/script.sh ocp-tests
+#
+# 3. To run the Python ROS2 tests:
+#   ci/script.sh ros2-tests
+
 SKIP_RPI_TEST="${SKIP_RPI_TEST:-0}"
+DO_DOCKER="${DO_DOCKER:-0}"
 TASK="${1:-all-python-tests}"
 
 function run_clippy_test() {
@@ -25,7 +37,7 @@ function run_clippy_test() {
 }
 
 setup_python_test_env() {
-    cd open-codegen
+    cd python
     export PYTHONPATH=.
 
     python -m venv venv
@@ -106,36 +118,37 @@ test_docker() {
 }
 
 main() {
-    if [ $DO_DOCKER -eq 0 ]; then
-        case "$TASK" in
-            python-tests)
-                echo "Running Python tests and generated Clippy tests"
-                setup_python_test_env
-                run_python_core_tests
-                ;;
-            ros2-tests)
-                echo "Running ROS2 Python tests"
-                setup_python_test_env
-                run_python_ros2_tests
-                ;;
-            ocp-tests)
-                echo "Running OCP Python tests"
-                setup_python_test_env
-                run_python_ocp_tests
-                ;;
-            all-python-tests)
-                echo "Running Python tests, generated Clippy tests, and OCP tests"
-                all_python_tests
-                ;;
-            *)
-                echo "Unknown task: $TASK"
-                exit 1
-                ;;
-        esac
-    else
+    if [ "$DO_DOCKER" -ne 0 ]; then
         echo "Building Docker image"
         test_docker
+        return
     fi
+
+    case "$TASK" in
+        python-tests)
+            echo "Running Python tests and generated Clippy tests"
+            setup_python_test_env
+            run_python_core_tests
+            ;;
+        ros2-tests)
+            echo "Running ROS2 Python tests"
+            setup_python_test_env
+            run_python_ros2_tests
+            ;;
+        ocp-tests)
+            echo "Running OCP Python tests"
+            setup_python_test_env
+            run_python_ocp_tests
+            ;;
+        all-python-tests)
+            echo "Running Python tests, generated Clippy tests, and OCP tests"
+            all_python_tests
+            ;;
+        *)
+            echo "Unknown task: $TASK"
+            exit 1
+            ;;
+    esac
 }
 
 main

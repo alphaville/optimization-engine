@@ -30,7 +30,7 @@ documentation = "https://docs.rs/optimization_engine"
 license = "MIT OR Apache-2.0"
 
 # README file
-readme = "README.md"
+readme = "../README.md"
 
 # Name of this crate
 name = "optimization_engine"
@@ -56,15 +56,7 @@ edition = "2018"
 # - Update the webpage (e.g., make a blog post)
 publish = true
 
-exclude = [
-    "design/*",
-    "docs/*",
-    "icasadi/*",
-    "matlab/*",
-    "open-clib/*",
-    "open-codegen/*",
-    "website/*",
-]
+exclude = []
 
 # --------------------------------------------------------------------------
 # D.O.C.S

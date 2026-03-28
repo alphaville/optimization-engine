@@ -115,7 +115,7 @@ fn main() {
 }
 ```
 
-A complete example is available at [`pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/pm.rs).
+A complete example is available at [`pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/rust/examples/pm.rs).
 
 ## Augmented Lagrangian 
 
@@ -323,7 +323,7 @@ the norm-distance of $F_1(u)$ from $C$. We see that this is indeed below $\delta
 
 ## Additional Examples
 
-See [`alm_pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/alm_pm.rs).
+See [`alm_pm.rs`](https://github.com/alphaville/optimization-engine/blob/master/rust/examples/alm_pm.rs).
 
 [`AlmOptimizer`]: https://docs.rs/optimization_engine/*/optimization_engine/alm/struct.AlmOptimizer.html
 [`AlmFactory`]: https://docs.rs/optimization_engine/*/optimization_engine/alm/struct.AlmFactory.html

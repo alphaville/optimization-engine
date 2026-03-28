@@ -31,8 +31,7 @@ precision arithmetic.
 
 <Tabs>
 
-
-  <TabItem value="using-f32" label="Single precision">
+  <TabItem value="default-f32" label="Single precision" default>
 
 ```rust
 use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};
@@ -65,7 +64,7 @@ assert!(status.has_converged());
 ```
   </TabItem>
 
-  <TabItem value="default-f64" label="Double precision" default>
+  <TabItem value="f64" label="Double precision">
 
 ```rust
 use optimization_engine::{constraints, panoc::PANOCCache, Problem, SolverError};

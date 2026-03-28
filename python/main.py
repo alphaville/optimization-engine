@@ -9,8 +9,7 @@ optimizer_name = "rosenbrock"
 
 
 def get_open_local_absolute_path():
-    cwd = os.getcwd()
-    return cwd.split('open-codegen')[0]
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "rust"))
 
 
 nu, np = 5, 2

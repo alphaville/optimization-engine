@@ -6,7 +6,7 @@ Firstly, you need to create a virtual environment, activate it, and install open
 ```
 pip install .
 ```
-from within `open-codegen`.
+from within `python`.
 
 
 ## Benchmarking
@@ -22,9 +22,9 @@ Then, firstly, create some necessary optimizers to be benchmarked
 python prepare_benchmarks.py
 ```
 
-Run this from within `open-codegen/opengen`. 
+Run this from within `python/`. 
 This will create a number of solvers to be benchmarked; 
-these will be stored in `open-codegen/opengen/.python_test_build/benchmarkable`.
+these will be stored in `python/.python_test_build/benchmarkable`.
 
 Then benchmark them with 
 ```

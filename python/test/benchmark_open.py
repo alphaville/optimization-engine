@@ -31,8 +31,7 @@ for name in os.listdir(TEST_DIR):
 
 
 def get_open_local_absolute_path():
-    cwd = os.getcwd()
-    return cwd.split('open-codegen')[0]
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))
 
 
 def t_benchmark1(solver):

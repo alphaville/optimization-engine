@@ -66,8 +66,8 @@ need to create such an environment, then activate it, and lastly, install
 `opengen` as above using `pip`. That is, you need to run:
 
 ```console
-virtualenv -p python3.6 venv36
-source venv36/bin/activate
+virtualenv -p python3.13 venv
+source venv/bin/activate
 pip install opengen
 ```
 
@@ -122,11 +122,11 @@ If you want to contribute to OpEn, you should rather *fork* OpEn on [github](htt
 
 ### Install opengen
 
-Go intro `optimization-engine/open-codegen` and create a virtual environment:
+Go into `optimization-engine/python` and create a virtual environment:
 
 ```sh
-cd optimization-engine/open-codegen
-virtualenv -p python3.6 venvopen
+cd optimization-engine/python
+virtualenv -p python3.13 venvopen
 source venvopen/bin/activate
 python setup.py install
 ```
@@ -139,7 +139,7 @@ Use the above virtual environment (`venvopen`) in PyCharm:
 
 - go to Run > Edit Configurations > Add new configuration
 - Script path: specify `main.py`
-- Working dir: `optimization-engine/open-codegen/opengen`
+- Working dir: `optimization-engine/python/opengen`
 - Python interpreter: `venvopen`
 
 ### Install OpEn in Rust
@@ -153,6 +153,6 @@ cargo build
 ```
 
 If you need to use `opengen` - the Python interface of OpEn - with a local
-version of the Rust library, use `with_open_version(local_path=...)` in 
+version of the Rust library, use `with_open_version(local_path="/path/to/optimization-engine/rust")` in
 your code. Read the [advanced options](python-advanced#build-options)
 for details.

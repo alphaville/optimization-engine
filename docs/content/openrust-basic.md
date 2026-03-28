@@ -220,7 +220,7 @@ fn main() {
 }
 ```
 
-This example can be found in [`examples/panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex1.rs).
+This example can be found in [`examples/panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/rust/examples/panoc_ex1.rs).
 
 ## Solving parametric problems
 
@@ -361,8 +361,8 @@ the imposition of a maximum allowed duration, the exit status will be
 
 ## Examples
 
-- [`panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex1.rs)
-- [`panoc_ex2.rs`](https://github.com/alphaville/optimization-engine/blob/master/examples/panoc_ex2.rs)
+- [`panoc_ex1.rs`](https://github.com/alphaville/optimization-engine/blob/master/rust/examples/panoc_ex1.rs)
+- [`panoc_ex2.rs`](https://github.com/alphaville/optimization-engine/blob/master/rust/examples/panoc_ex2.rs)
 
 <!-- Links -->
 

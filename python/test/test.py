@@ -36,8 +36,7 @@ class RustBuildTestCase(unittest.TestCase):
 
     @staticmethod
     def get_open_local_absolute_path():
-        cwd = os.getcwd()
-        return cwd.split('open-codegen')[0]
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))
 
     # Which version of OpEn Rust library to test against
     OPEN_RUSTLIB_VERSION = "*"

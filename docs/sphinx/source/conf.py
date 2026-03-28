@@ -5,7 +5,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath("../../open-codegen/opengen"))
+sys.path.insert(0, os.path.abspath("../../../python/opengen"))
 
 
 def skip(app, what, name, obj, would_skip, options):

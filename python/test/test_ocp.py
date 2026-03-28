@@ -69,7 +69,7 @@ class OcpTestCase(unittest.TestCase):
 
     @staticmethod
     def get_open_local_absolute_path():
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))
 
     @classmethod
     def setUpOCP1(cls):
