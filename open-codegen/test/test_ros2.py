@@ -244,11 +244,63 @@ class Ros2BuildTestCase(unittest.TestCase):
             .build()
 
     @classmethod
+    def _inject_deterministic_solver_error(cls):
+        """Patch the generated solver so negative `p[0]` triggers a known error."""
+        solver_root = os.path.join(cls.TEST_DIR, cls.OPTIMIZER_NAME)
+        target_lib = os.path.join(solver_root, "src", "lib.rs")
+        with open(target_lib, "r", encoding="utf-8") as fh:
+            solver_lib = fh.read()
+
+        if "forced solver error for ROS2 test" in solver_lib:
+            return
+
+        anchor = (
+            '    assert_eq!(u.len(), ROSENBROCK_ROS2_NUM_DECISION_VARIABLES, '
+            '"Wrong number of decision variables (u)");\n'
+        )
+        injected_guard = (
+            anchor +
+            '\n'
+            '    if p[0] < 0.0 {\n'
+            '        return Err(SolverError::Cost("forced solver error for ROS2 test"));\n'
+            '    }\n'
+        )
+        if anchor not in solver_lib:
+            raise RuntimeError("Could not inject deterministic solver error into ROS2 solver")
+
+        with open(target_lib, "w", encoding="utf-8") as fh:
+            fh.write(solver_lib.replace(anchor, injected_guard, 1))
+
+    @classmethod
+    def _rebuild_generated_solver_library(cls):
+        """Rebuild the generated Rust solver and refresh the ROS2 static library."""
+        solver_root = os.path.join(cls.TEST_DIR, cls.OPTIMIZER_NAME)
+        process = subprocess.Popen(
+            ["cargo", "build"],
+            cwd=solver_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        _stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            raise RuntimeError(
+                "Could not rebuild generated ROS2 solver:\n{}".format(stderr.decode())
+            )
+
+        generated_static_lib = os.path.join(
+            solver_root, "target", "debug", f"lib{cls.OPTIMIZER_NAME}.a")
+        ros2_static_lib = os.path.join(
+            cls.ros2_package_dir(), "extern_lib", f"lib{cls.OPTIMIZER_NAME}.a")
+        shutil.copyfile(generated_static_lib, ros2_static_lib)
+
+    @classmethod
     def setUpClass(cls):
         """Generate the ROS2 package once before all tests run."""
         if shutil.which("ros2") is None or shutil.which("colcon") is None:
             raise unittest.SkipTest("ROS2 CLI tools are not available in PATH")
         cls.setUpRos2PackageGeneration()
+        cls._inject_deterministic_solver_error()
+        cls._rebuild_generated_solver_library()
 
     @classmethod
     def ros2_package_dir(cls):
@@ -443,6 +495,12 @@ class Ros2BuildTestCase(unittest.TestCase):
         self.assertIn(f"error_code: {error_code}", echo_stdout)
         self.assertIn(error_message_fragment, echo_stdout)
 
+    def _assert_solver_error_message(self, echo_stdout, error_message_fragment):
+        """Assert that the echoed result message reports a solver-side failure."""
+        self.assertIn("status: 3", echo_stdout)
+        self.assertIn("error_code: 2000", echo_stdout)
+        self.assertIn(error_message_fragment, echo_stdout)
+
     def _publish_request_and_collect_result(self, ros2_dir, env, request_payload):
         """Publish one request and return one echoed result message."""
         _, setup_script = self.ros2_shell()
@@ -484,6 +542,38 @@ class Ros2BuildTestCase(unittest.TestCase):
             3003,
             "wrong number of parameters")
 
+    def _exercise_invalid_initial_guess(self, ros2_dir, env):
+        """Verify that invalid warm-start dimensions are reported clearly."""
+        echo_stdout = self._publish_request_and_collect_result(
+            ros2_dir,
+            env,
+            "{parameter: [1.0, 2.0], initial_guess: [0.0], initial_y: [], initial_penalty: 15.0}")
+        self._assert_invalid_request_message(
+            echo_stdout,
+            1600,
+            "initial guess has incompatible dimensions")
+
+    def _exercise_invalid_initial_y(self, ros2_dir, env):
+        """Verify that invalid multiplier dimensions are reported clearly."""
+        echo_stdout = self._publish_request_and_collect_result(
+            ros2_dir,
+            env,
+            "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [0.0], initial_penalty: 15.0}")
+        self._assert_invalid_request_message(
+            echo_stdout,
+            1700,
+            "wrong dimension of Lagrange multipliers")
+
+    def _exercise_solver_error(self, ros2_dir, env):
+        """Verify that solver-side failures propagate to the ROS2 result message."""
+        echo_stdout = self._publish_request_and_collect_result(
+            ros2_dir,
+            env,
+            "{parameter: [-1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}")
+        self._assert_solver_error_message(
+            echo_stdout,
+            "forced solver error for ROS2 test")
+
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
         ros2_dir = self.ros2_package_dir()
@@ -512,6 +602,9 @@ class Ros2BuildTestCase(unittest.TestCase):
             self._wait_for_node_and_topics(ros2_dir, env, node_process)
             self._exercise_running_optimizer(ros2_dir, env)
             self._exercise_invalid_request(ros2_dir, env)
+            self._exercise_invalid_initial_guess(ros2_dir, env)
+            self._exercise_invalid_initial_y(ros2_dir, env)
+            self._exercise_solver_error(ros2_dir, env)
             self._exercise_running_optimizer(ros2_dir, env)
         finally:
             if node_process.poll() is None:
@@ -535,6 +628,9 @@ class Ros2BuildTestCase(unittest.TestCase):
             self._wait_for_node_and_topics(ros2_dir, env, launch_process)
             self._exercise_running_optimizer(ros2_dir, env)
             self._exercise_invalid_request(ros2_dir, env)
+            self._exercise_invalid_initial_guess(ros2_dir, env)
+            self._exercise_invalid_initial_y(ros2_dir, env)
+            self._exercise_solver_error(ros2_dir, env)
             self._exercise_running_optimizer(ros2_dir, env)
         finally:
             if launch_process.poll() is None:
