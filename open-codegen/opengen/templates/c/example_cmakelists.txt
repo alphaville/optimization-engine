@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 # Project name
 project({{meta.optimizer_name}})
@@ -33,6 +33,21 @@ endif()
 
 if(CMAKE_DL_LIBS)
   target_link_libraries(optimizer PRIVATE ${CMAKE_DL_LIBS})
+endif()
+
+if(WIN32)
+  # Rust static libraries built with the MSVC toolchain depend on a small set
+  # of Windows system libraries that must be linked by the final C executable.
+  target_link_libraries(
+    optimizer
+    PRIVATE
+      advapi32
+      bcrypt
+      kernel32
+      ntdll
+      userenv
+      ws2_32
+  )
 endif()
 
 add_custom_target(run

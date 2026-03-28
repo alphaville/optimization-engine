@@ -975,23 +975,32 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_c_bindings(self):
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f1")
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("Converged", result["run_stdout"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f2")
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
         self.assertIn("Converged", result["run_stdout"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="plain")
         self.assertIn("Converged", result["run_stdout"])
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
@@ -1009,7 +1018,10 @@ class RustBuildTestCase(unittest.TestCase):
             RustBuildTestCase.patch_c_bindings_example_parameter_initializer(
                 optimizer_name="solver_error",
                 replacement_line=original_line)
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
         self.assertNotEqual(0, result["run_returncode"])
         self.assertIn("error code       : 2000", result["run_stdout"])
         self.assertIn("forced solver error for TCP test", result["run_stdout"])
@@ -1019,8 +1031,14 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_c_bindings_cmake_example_builds(self):
         result = RustBuildTestCase.c_bindings_cmake_helper(optimizer_name="plain")
-        self.assertEqual(0, result["configure_returncode"], msg=result["configure_stderr"])
-        self.assertEqual(0, result["build_returncode"], msg=result["build_stderr"])
+        self.assertEqual(
+            0,
+            result["configure_returncode"],
+            msg=result["configure_stdout"] + result["configure_stderr"])
+        self.assertEqual(
+            0,
+            result["build_returncode"],
+            msg=result["build_stdout"] + result["build_stderr"])
 
     def test_tcp_generated_server_builds(self):
         tcp_iface_dir = os.path.join(
