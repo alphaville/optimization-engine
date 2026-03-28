@@ -6,6 +6,7 @@ import datetime
 import logging
 import os
 import shutil
+import sys
 
 import jinja2
 
@@ -166,7 +167,10 @@ class _BaseRosBuilder:
             os.path.join(self._target_dir(), header_file_name))
         shutil.copyfile(original_include_file, target_include_filename)
 
-        lib_file_name = 'lib' + self._meta.optimizer_name + '.a'
+        if sys.platform == "win32":
+            lib_file_name = self._meta.optimizer_name + '.lib'
+        else:
+            lib_file_name = 'lib' + self._meta.optimizer_name + '.a'
         target_lib_file_name = os.path.abspath(
             os.path.join(target_ros_dir, 'extern_lib', lib_file_name))
         original_lib_file = os.path.abspath(

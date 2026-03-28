@@ -42,12 +42,22 @@ include_directories(
 set(NODE_NAME {{ros.node_name}})
 add_executable(${NODE_NAME} src/open_optimizer.cpp)
 ament_target_dependencies(${NODE_NAME} rclcpp)
+if(WIN32)
+  set(OPEN_STATIC_LIB ${PROJECT_SOURCE_DIR}/extern_lib/{{meta.optimizer_name}}.lib)
+else()
+  set(OPEN_STATIC_LIB ${PROJECT_SOURCE_DIR}/extern_lib/lib{{meta.optimizer_name}}.a)
+endif()
 target_link_libraries(
   ${NODE_NAME}
-  ${PROJECT_SOURCE_DIR}/extern_lib/lib{{meta.optimizer_name}}.a
-  m
-  dl
+  ${OPEN_STATIC_LIB}
 )
+if(NOT WIN32)
+  target_link_libraries(
+    ${NODE_NAME}
+    m
+    dl
+  )
+endif()
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(${NODE_NAME} "${cpp_typesupport_target}")
 

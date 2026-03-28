@@ -29,13 +29,24 @@ include_directories(
 
 set(NODE_NAME {{ros.node_name}})
 add_executable(${NODE_NAME} src/open_optimizer.cpp)
+if(WIN32)
+  set(OPEN_STATIC_LIB ${PROJECT_SOURCE_DIR}/extern_lib/{{meta.optimizer_name}}.lib)
+else()
+  set(OPEN_STATIC_LIB ${PROJECT_SOURCE_DIR}/extern_lib/lib{{meta.optimizer_name}}.a)
+endif()
 target_link_libraries(
     ${NODE_NAME}
-    ${PROJECT_SOURCE_DIR}/extern_lib/lib{{meta.optimizer_name}}.a)
+    ${OPEN_STATIC_LIB})
+if(WIN32)
+  target_link_libraries(
+      ${NODE_NAME}
+      ${catkin_LIBRARIES})
+else()
 target_link_libraries(
     ${NODE_NAME}
     m dl
     ${catkin_LIBRARIES})
+endif()
 add_dependencies(
     ${NODE_NAME}
     ${${PROJECT_NAME}_EXPORTED_TARGETS}
