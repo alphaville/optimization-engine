@@ -113,7 +113,7 @@ typedef struct exampleCache exampleCache;
 typedef struct {
   exampleExitStatus exit_status;
   int error_code;
-  char error_message[256];
+  char error_message[1024];
   unsigned long num_outer_iterations;
   unsigned long num_inner_iterations;
   double last_problem_norm_fpr;
