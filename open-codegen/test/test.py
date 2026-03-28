@@ -12,6 +12,9 @@ import logging
 import numpy as np
 
 
+
+
+
 class RustBuildTestCase(unittest.TestCase):
 
     TEST_DIR = ".python_test_build"
@@ -915,6 +918,16 @@ class RustBuildTestCase(unittest.TestCase):
             og.config.OptimizerMeta().with_version("0.1")
 
         self.assertIn("Cargo package version", str(context.exception))
+
+    def test_with_build_mode_rejects_invalid_values(self):
+        """`with_build_mode` should reject unsupported build modes."""
+        build_config = og.config.BuildConfiguration()
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "build mode must be either 'debug' or 'release'",
+        ):
+            build_config.with_build_mode("profile")
 
 
 if __name__ == '__main__':

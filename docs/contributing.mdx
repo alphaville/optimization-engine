@@ -253,3 +253,87 @@ git commit -m '[docit] update api docs' --allow-empty
 [fork]: https://github.com/alphaville/optimization-engine
 [API guidelines]: https://rust-lang-nursery.github.io/api-guidelines/about.html
 [API checklist]: https://rust-lang-nursery.github.io/api-guidelines/checklist.html
+
+## Running tests locally
+
+If you are working on the Python interface (`opengen`) or the website/docs,
+it is best to use a dedicated Python virtual environment.
+
+### Set up a virtual environment
+
+From within `open-codegen/`, create and activate a virtual environment:
+
+```bash
+cd open-codegen
+python3 -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -e .
+```
+
+If you plan to run the benchmark suite as well, install the extra dependency:
+
+```bash
+pip install pytest-benchmark[histogram]
+```
+
+### Run the Rust tests
+
+From the repository root, run:
+
+```bash
+cargo test
+```
+
+This will run all unit tests, including the examples in the docstrings. 
+To run only the library unit tests, do:
+
+```bash
+cargo test --lib
+```
+
+If you want a faster compile-only check, you can also run:
+
+```bash
+cargo check
+```
+
+### Run the Python and code-generation tests
+
+From within `open-codegen/`, run the following tests after you activate `venv`
+
+```bash
+# Activate venv first
+python -W ignore test/test_constraints.py -v
+python -W ignore test/test.py -v
+python -W ignore test/test_ocp.py -v
+```
+
+The ROS2 tests should normally be run from an environment where ROS2 is already
+installed and configured, for example a dedicated `micromamba` environment.
+They should not be assumed to run from the plain `venv` above unless that
+environment also contains a working ROS2 installation together with `ros2` and
+`colcon`.
+
+For example:
+
+```bash
+cd open-codegen
+micromamba activate ros_env
+pip install .
+python -W ignore test/test_ros2.py -v
+```
+
+If ROS2 is not installed locally, you can still run the rest of the Python
+test suite.
+
+### Run linting and extra checks
+
+From the repository root, it is also useful to run:
+
+```bash
+cargo clippy --all-targets
+```
+
+Before opening a pull request, please run the tests that are relevant to the
+part of the codebase you changed and make sure they pass locally.

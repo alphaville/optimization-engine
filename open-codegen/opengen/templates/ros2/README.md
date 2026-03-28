@@ -70,12 +70,19 @@ Then publish a request to the configured parameters topic
 ros2 topic pub --once /{{ros.subscriber_subtopic}} {{ros.package_name}}/msg/OptimizationParameters "{parameter: [YOUR_PARAMETER_VECTOR], initial_guess: [INITIAL_GUESS_OPTIONAL], initial_y: [], initial_penalty: 15.0}"
 ```
 
+If `initial_guess` is omitted or left empty, the node reuses the previous
+solution as a warm start. Likewise, an empty `initial_y` means "reuse the
+previous Lagrange multipliers".
+
 The result will be announced on the configured result topic
 (default: `/{{ros.publisher_subtopic}}`):
 
 ```bash
 ros2 topic echo /{{ros.publisher_subtopic}} --once
 ```
+
+Each request produces exactly one response message. The node does not keep
+republishing stale results on later timer ticks.
 
 To get the optimal solution you can do:
 
@@ -103,7 +110,30 @@ guess for the vector of Lagrange multipliers and the initial value
 of the penalty value. `OptimizationResult` is a message containing
 all information related to the solution of the optimization
 problem, including the optimal solution, the solver status,
-solution time, Lagrange multiplier vector and more.
+solution time, Lagrange multiplier vector and more. The ROS2
+result message also includes `error_code` and `error_message`
+fields so invalid requests and solver failures can be diagnosed
+without inspecting logs.
+
+A successful response contains `status: 0`, `error_code: 0`, and an empty
+`error_message`. If a request is invalid, the node publishes
+`status: 5` (`STATUS_INVALID_REQUEST`) and populates `error_code` and
+`error_message` with a more detailed explanation.
+
+For example, if the parameter vector has the wrong length, the node will
+return a response like:
+
+```yaml
+status: 5
+error_code: 3003
+error_message: 'wrong number of parameters: provided 1, expected <generated-parameter-dimension>'
+```
+
+Similarly, invalid warm-start data is reported with:
+
+- `error_code: 1600` for an incompatible `initial_guess`
+- `error_code: 1700` for incompatible `initial_y`
+- `error_code: 2000` for solver-side failures propagated from the generated bindings
 
 The message structures are defined in the following msg files:
 

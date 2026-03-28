@@ -5,7 +5,7 @@
 //
 
 {% if activate_clib_generation -%}
-use libc::{c_double, c_ulong, c_ulonglong};
+use libc::{c_char, c_double, c_int, c_ulong, c_ulonglong};
 {% endif %}
 use optimization_engine::{constraints::*, panoc::*, alm::*, *};
 

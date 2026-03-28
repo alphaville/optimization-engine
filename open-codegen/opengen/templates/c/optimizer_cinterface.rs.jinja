@@ -8,10 +8,29 @@ pub struct {{meta.optimizer_name}}Cache {
     cache: AlmCache,
 }
 
+const {{meta.optimizer_name|upper}}_NO_ERROR_CODE: c_int = 0;
+const {{meta.optimizer_name|upper}}_SOLVER_ERROR_CODE: c_int = 2000;
+const {{meta.optimizer_name|upper}}_ERROR_MESSAGE_CAPACITY: usize = 256;
+
 impl {{meta.optimizer_name}}Cache {
     pub fn new(cache: AlmCache) -> Self {
         {{meta.optimizer_name}}Cache { cache }
     }
+}
+
+fn empty_error_message() -> [c_char; 256] {
+    [0 as c_char; 256]
+}
+
+fn error_message_to_c_array(
+    message: &str,
+) -> [c_char; 256] {
+    let mut buffer = empty_error_message();
+    let max_len = {{meta.optimizer_name|upper}}_ERROR_MESSAGE_CAPACITY - 1;
+    for (idx, byte) in message.as_bytes().iter().copied().take(max_len).enumerate() {
+        buffer[idx] = byte as c_char;
+    }
+    buffer
 }
 
 /// {{meta.optimizer_name}} version of ExitStatus
@@ -41,6 +60,10 @@ pub enum {{meta.optimizer_name}}ExitStatus {
 pub struct {{meta.optimizer_name}}SolverStatus {
     /// Exit status
     exit_status: {{meta.optimizer_name}}ExitStatus,
+    /// Detailed error code (0 on success)
+    error_code: c_int,
+    /// Detailed error message (empty string on success)
+    error_message: [c_char; 256],
     /// Number of outer iterations
     num_outer_iterations: c_ulong,
     /// Total number of inner iterations
@@ -150,6 +173,8 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 core::ExitStatus::NotConvergedIterations => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedIterations,
                 core::ExitStatus::NotConvergedOutOfTime => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedOutOfTime,
             },
+            error_code: {{meta.optimizer_name|upper}}_NO_ERROR_CODE,
+            error_message: empty_error_message(),
             num_outer_iterations: status.num_outer_iterations() as c_ulong,
             num_inner_iterations: status.num_inner_iterations() as c_ulong,
             last_problem_norm_fpr: status.last_problem_norm_fpr(),
@@ -177,7 +202,9 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 }
             }
         },
-        Err(e) => {{meta.optimizer_name}}SolverStatus {
+        Err(e) => {
+            let error_message = format!("problem solution failed: {}", e);
+            {{meta.optimizer_name}}SolverStatus {
             exit_status: match e {
                 SolverError::Cost(_)
                 | SolverError::ProjectionFailed(_)
@@ -185,6 +212,8 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
                 | SolverError::InvalidProblemState(_) => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedCost,
                 SolverError::NotFiniteComputation(_) => {{meta.optimizer_name}}ExitStatus::{{meta.optimizer_name}}NotConvergedNotFiniteComputation,
             },
+            error_code: {{meta.optimizer_name|upper}}_SOLVER_ERROR_CODE,
+            error_message: error_message_to_c_array(&error_message),
             num_outer_iterations: u64::MAX as c_ulong,
             num_inner_iterations: u64::MAX as c_ulong,
             last_problem_norm_fpr: f64::INFINITY,
@@ -196,6 +225,7 @@ pub unsafe extern "C" fn {{meta.optimizer_name|lower}}_solve(
             lagrange: {%- if problem.dim_constraints_aug_lagrangian() > 0 -%}
                     [0.0; {{meta.optimizer_name|upper}}_N1]
                     {%- else -%}std::ptr::null::<c_double>(){%- endif %}
+        }
         },
     }
 }
