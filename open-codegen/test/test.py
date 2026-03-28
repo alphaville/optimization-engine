@@ -10,9 +10,24 @@ import opengen as og
 import subprocess
 import logging
 import numpy as np
+from pathlib import PureWindowsPath
 
 
 
+
+
+class BuildConfigurationTestCase(unittest.TestCase):
+
+    def test_local_path_is_toml_safe_on_windows(self):
+        # some windows-type path...
+        windows_style_path = PureWindowsPath("C:/temp/optimization-engine")
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=windows_style_path)
+
+        self.assertEqual(
+            "C:/temp/optimization-engine",
+            build_config.local_path
+        )
 
 
 class RustBuildTestCase(unittest.TestCase):
@@ -806,6 +821,54 @@ class RustBuildTestCase(unittest.TestCase):
 
     @staticmethod
     def c_bindings_helper(optimizer_name):
+        if sys.platform == "win32":
+            result = RustBuildTestCase.c_bindings_cmake_helper(
+                optimizer_name=optimizer_name,
+                build_dir_name="cmake-build-run")
+            compile_stdout = result["configure_stdout"] + result["build_stdout"]
+            compile_stderr = result["configure_stderr"] + result["build_stderr"]
+            compile_returncode = (
+                result["configure_returncode"]
+                if result["configure_returncode"] != 0
+                else result["build_returncode"]
+            )
+
+            run_stdout = ""
+            run_stderr = ""
+            run_returncode = None
+            if compile_returncode == 0:
+                executable_candidates = [
+                    os.path.join(result["build_dir"], "Debug", "optimizer.exe"),
+                    os.path.join(result["build_dir"], "optimizer.exe"),
+                    os.path.join(result["build_dir"], "Debug", "optimizer"),
+                    os.path.join(result["build_dir"], "optimizer"),
+                ]
+                executable_path = next(
+                    (candidate for candidate in executable_candidates if os.path.exists(candidate)),
+                    None,
+                )
+                if executable_path is None:
+                    raise RuntimeError("Could not locate built optimizer executable")
+
+                run_process = subprocess.Popen(
+                    [executable_path],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                run_stdout_bytes, run_stderr_bytes = run_process.communicate()
+                run_stdout = run_stdout_bytes.decode()
+                run_stderr = run_stderr_bytes.decode()
+                run_returncode = run_process.returncode
+
+            return {
+                "compile_returncode": compile_returncode,
+                "compile_stdout": compile_stdout,
+                "compile_stderr": compile_stderr,
+                "run_returncode": run_returncode,
+                "run_stdout": run_stdout,
+                "run_stderr": run_stderr,
+            }
+
         compile_process = subprocess.Popen(
             ["/usr/bin/gcc",
              RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
@@ -865,13 +928,13 @@ class RustBuildTestCase(unittest.TestCase):
         return original_line
 
     @staticmethod
-    def c_bindings_cmake_helper(optimizer_name):
+    def c_bindings_cmake_helper(optimizer_name, build_dir_name="cmake-build-test"):
         cmake_executable = shutil.which("cmake")
         if cmake_executable is None:
             raise unittest.SkipTest("cmake is not available in PATH")
 
         optimizer_dir = os.path.join(RustBuildTestCase.TEST_DIR, optimizer_name)
-        build_dir = os.path.join(optimizer_dir, "cmake-build-test")
+        build_dir = os.path.join(optimizer_dir, build_dir_name)
         if os.path.isdir(build_dir):
             shutil.rmtree(build_dir)
         os.makedirs(build_dir)
@@ -888,8 +951,11 @@ class RustBuildTestCase(unittest.TestCase):
         build_stderr = b""
         build_returncode = None
         if configure_process.returncode == 0:
+            build_command = [cmake_executable, "--build", "."]
+            if sys.platform == "win32":
+                build_command.extend(["--config", "Debug"])
             build_process = subprocess.Popen(
-                [cmake_executable, "--build", "."],
+                build_command,
                 cwd=build_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -904,27 +970,37 @@ class RustBuildTestCase(unittest.TestCase):
             "build_returncode": build_returncode,
             "build_stdout": build_stdout.decode(),
             "build_stderr": build_stderr.decode(),
+            "build_dir": build_dir,
         }
 
     def test_c_bindings(self):
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f1")
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("Converged", result["run_stdout"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f2")
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
         self.assertIn("Converged", result["run_stdout"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
         result = RustBuildTestCase.c_bindings_helper(optimizer_name="plain")
         self.assertIn("Converged", result["run_stdout"])
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
-        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stdout"] + result["run_stderr"])
         self.assertIn("exit status      : 0", result["run_stdout"])
         self.assertIn("error code       : 0", result["run_stdout"])
 
@@ -942,7 +1018,10 @@ class RustBuildTestCase(unittest.TestCase):
             RustBuildTestCase.patch_c_bindings_example_parameter_initializer(
                 optimizer_name="solver_error",
                 replacement_line=original_line)
-        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(
+            0,
+            result["compile_returncode"],
+            msg=result["compile_stdout"] + result["compile_stderr"])
         self.assertNotEqual(0, result["run_returncode"])
         self.assertIn("error code       : 2000", result["run_stdout"])
         self.assertIn("forced solver error for TCP test", result["run_stdout"])
@@ -952,8 +1031,14 @@ class RustBuildTestCase(unittest.TestCase):
 
     def test_c_bindings_cmake_example_builds(self):
         result = RustBuildTestCase.c_bindings_cmake_helper(optimizer_name="plain")
-        self.assertEqual(0, result["configure_returncode"], msg=result["configure_stderr"])
-        self.assertEqual(0, result["build_returncode"], msg=result["build_stderr"])
+        self.assertEqual(
+            0,
+            result["configure_returncode"],
+            msg=result["configure_stdout"] + result["configure_stderr"])
+        self.assertEqual(
+            0,
+            result["build_returncode"],
+            msg=result["build_stdout"] + result["build_stderr"])
 
     def test_tcp_generated_server_builds(self):
         tcp_iface_dir = os.path.join(

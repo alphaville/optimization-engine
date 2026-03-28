@@ -1,5 +1,7 @@
 import json
 import os
+import sys
+import tempfile
 import unittest
 
 import casadi.casadi as cs
@@ -60,7 +62,10 @@ class DummyDirectSolver:
 
 
 class OcpTestCase(unittest.TestCase):
-    TEST_DIR = ".python_test_build_ocp"
+    if sys.platform == "win32":
+        TEST_DIR = os.path.join(tempfile.gettempdir(), "og_ocp")
+    else:
+        TEST_DIR = ".python_test_build_ocp"
 
     @staticmethod
     def get_open_local_absolute_path():

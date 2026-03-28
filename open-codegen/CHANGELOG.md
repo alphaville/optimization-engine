@@ -23,6 +23,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - Added helpful `__repr__` methods to generated Python binding response/status/error objects, TCP solver response/error objects, and `GeneratedOptimizer` for easier inspection and debugging
 - Updated generated TCP server and C interface templates to work with the richer Rust solver error model and expose better failure information to clients. Updated auto-generated `CMakeLists.txt` file. Tighter unit tests.
 - ROS2 generated packages now publish detailed `error_code` and `error_message` fields, plus `STATUS_INVALID_REQUEST`, so invalid requests and solver failures are reported explicitly instead of being silently ignored
+- Extended GitHub Actions CI to run Python, OCP, and generated-code tests on Windows, and fixed multiple Windows-specific code generation, path, encoding, TCP, and C/CMake compatibility issues.
 
 
 ## [0.10.1] - 2026-03-25

@@ -25,6 +25,8 @@ jobs:
             os: ubuntu-latest
           - name: macOS
             os: macos-latest
+          - name: Windows
+            os: windows-latest
     steps:
       - uses: actions/checkout@v5
 
@@ -37,6 +39,7 @@ jobs:
         run: cargo test
 
       - name: Cargo tests (RP and JEM)
+        if: runner.os != 'Windows'
         run: |
           cargo test --features rp
           cargo test --features jem
@@ -57,6 +60,9 @@ jobs:
           - name: macOS
             os: macos-latest
             skip_rpi_test: 1
+          - name: Windows
+            os: windows-latest
+            skip_rpi_test: 1
     env:
       DO_DOCKER: 0
       SKIP_RPI_TEST: ${{ matrix.skip_rpi_test }}
@@ -73,7 +79,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
+          cache-dependency-path: open-codegen/pyproject.toml
 
       - uses: egor-tensin/setup-clang@v1
         if: runner.os == 'Linux'
@@ -102,6 +108,20 @@ jobs:
       - name: Run Python tests and generated Clippy checks
         if: runner.os == 'macOS'
         run: bash ./ci/script.sh python-tests
+
+      - name: Install Python package
+        if: runner.os == 'Windows'
+        working-directory: open-codegen
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Run Python test.py
+        if: runner.os == 'Windows'
+        working-directory: open-codegen
+        env:
+          PYTHONPATH: .
+        run: python -W ignore test/test.py -v
 
   ros2_tests:
     name: ROS2 tests
@@ -165,6 +185,8 @@ jobs:
             os: ubuntu-latest
           - name: macOS
             os: macos-latest
+          - name: Windows
+            os: windows-latest
     env:
       DO_DOCKER: 0
     steps:
@@ -179,7 +201,22 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
+          cache-dependency-path: open-codegen/pyproject.toml
 
       - name: Run OCP Python tests
+        if: runner.os != 'Windows'
         run: bash ./ci/script.sh ocp-tests
+
+      - name: Install Python package
+        if: runner.os == 'Windows'
+        working-directory: open-codegen
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Run OCP Python tests
+        if: runner.os == 'Windows'
+        working-directory: open-codegen
+        env:
+          PYTHONPATH: .
+        run: python -W ignore test/test_ocp.py -v
