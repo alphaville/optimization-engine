@@ -54,6 +54,7 @@ Changelog = "https://github.com/alphaville/optimization-engine/blob/master/pytho
 [project.optional-dependencies]
 dev = [
   "build>=1",
+  "pytest>=8",
   "twine>=5",
 ]
 

@@ -268,18 +268,18 @@ cd python
 python3 -m venv venv
 source venv/bin/activate
 python -m pip install --upgrade pip
-pip install -e .
+pip install -e '.[dev]'
 ```
 
 If you plan to run the benchmark suite as well, install the extra dependency:
 
 ```bash
-pip install pytest-benchmark[histogram]
+pip install "pytest-benchmark[histogram]"
 ```
 
 ### Run the Rust tests
 
-From the repository root, run:
+From the repository root, run: 
 
 ```bash
 cargo test
@@ -300,13 +300,29 @@ cargo check
 
 ### Run the Python and code-generation tests
 
-From within `python/`, run the following tests after you activate `venv`
+From within `python/`, run the following tests after you activate `venv`.
+The package's optional development dependencies include `pytest`, so the
+recommended install command is:
+
+```bash
+pip install -e '.[dev]'
+```
+
+You can keep using the existing `unittest` commands:
 
 ```bash
 # Activate venv first
 python -W ignore test/test_constraints.py -v
 python -W ignore test/test.py -v
 python -W ignore test/test_ocp.py -v
+```
+
+or execute the same files with `pytest`:
+
+```bash
+pytest test/test_constraints.py
+pytest test/test.py
+pytest test/test_ocp.py
 ```
 
 The ROS2 tests should normally be run from an environment where ROS2 is already
@@ -337,3 +353,78 @@ cargo clippy --all-targets
 
 Before opening a pull request, please run the tests that are relevant to the
 part of the codebase you changed and make sure they pass locally.
+
+### Run the benchmarks
+
+The Python benchmark suite uses `pytest-benchmark`. If you have not already
+installed the development dependencies, do:
+
+```bash
+cd python
+source venv/bin/activate
+pip install -e '.[dev]'
+pip install pytest-benchmark[histogram]
+```
+
+Before running the benchmarks, generate the benchmarkable optimizers:
+
+```bash
+python test/prepare_benchmarks.py
+```
+
+Then run the benchmark suite with `pytest`:
+
+```bash
+pytest test/benchmark_open.py --benchmark-only
+```
+
+To generate a histogram report, pass an output prefix:
+
+```bash
+pytest test/benchmark_open.py --benchmark-histogram=out
+```
+
+This will produce a file such as `out.svg` in the current directory.
+
+### Produce coverage reports
+
+For Python coverage reports, activate your virtual environment in `python/`
+and install `coverage` if needed:
+
+```bash
+cd python
+source venv/bin/activate
+pip install coverage
+```
+
+Then run the main Python test suite under coverage and print a summary:
+
+```bash
+coverage erase
+coverage run --source=opengen test/test_constraints.py
+coverage run -a --source=opengen test/test.py
+coverage run -a --source=opengen test/test_ocp.py
+coverage report -m
+```
+
+To generate an HTML report, run:
+
+```bash
+coverage html
+```
+
+This writes the report to `python/htmlcov/index.html`.
+
+For Rust coverage reports, install `cargo-llvm-cov` once:
+
+```bash
+cargo install cargo-llvm-cov
+```
+
+Then, from `rust/`, run:
+
+```bash
+cargo llvm-cov --html
+```
+
+The HTML report will be written to `rust/target/llvm-cov/html/index.html`.

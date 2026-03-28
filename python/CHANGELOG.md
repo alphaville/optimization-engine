@@ -15,6 +15,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - ROS2 package generation support via `BuildConfiguration.with_ros2(...)`, including auto-generated ROS2 templates, launcher, messages, and package wrapper code
 - Dedicated ROS2 tests covering package generation, build configuration behavior, rendered custom package settings, and end-to-end execution of a generated ROS2 node
 - More informative TCP solver error payloads, including clearer dimension/parameter validation failures and propagated solver-side failure messages
+- Additional unit tests for `BuildConfiguration`, `OcpSolution`, `AffineSpace`, `RosConfiguration`, and `SetYCalculator`, increasing Python coverage to 93%
 
 ### Changed
 
@@ -24,6 +25,17 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - Updated generated TCP server and C interface templates to work with the richer Rust solver error model and expose better failure information to clients. Updated auto-generated `CMakeLists.txt` file. Tighter unit tests.
 - ROS2 generated packages now publish detailed `error_code` and `error_message` fields, plus `STATUS_INVALID_REQUEST`, so invalid requests and solver failures are reported explicitly instead of being silently ignored
 - Extended GitHub Actions CI to run Python, OCP, and generated-code tests on Windows, and fixed multiple Windows-specific code generation, path, encoding, TCP, and C/CMake compatibility issues.
+- ROS/ROS2 messages: using `uint64` instead of `uint8` to avoid overflow
+- Tighter checks of provided arguments in build configuration
+- Added `pytest` to the optional `dev` dependencies and documented local test, benchmark, and coverage workflows for Python and Rust contributors
+
+### Fixed
+
+- Generated ROS and ROS2 wrappers now accept any meaningful positive `initial_penalty` instead of requiring values greater than `1.0`
+- Generated ROS and ROS2 result messages now use wide iteration counters so `inner_iterations` and `outer_iterations` cannot overflow
+- ROS2 generated packages now use `uint16` for `error_code`, matching the current positive error-code range while keeping the wire format compact
+- MATLAB-related Python docs now reference the new `python/` package layout instead of the removed `open-codegen/` path
+- ROS2 integration tests now clean stale nested `colcon` build artifacts and preserve the active shell environment more reliably in micromamba/conda setups
 
 
 ## [0.10.1] - 2026-03-25

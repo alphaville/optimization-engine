@@ -1,5 +1,6 @@
 from opengen.config.tcp_server_config import TcpServerConfiguration
 from opengen.config.ros_config import RosConfiguration
+from opengen.config.meta import SEMVER_PATTERN
 import random
 import string
 from enum import Enum
@@ -234,6 +235,13 @@ class BuildConfiguration:
 
         :return: current instance of BuildConfiguration
         """
+        if open_version != "*" and (
+            not isinstance(open_version, str) or not SEMVER_PATTERN.match(open_version)
+        ):
+            raise ValueError(
+                "invalid OpEn version {!r}; expected '*' or a Semantic Version "
+                "such as '0.1.0' or '1.2.3-alpha.1'".format(open_version)
+            )
         self.__open_version = open_version
         self.__local_path = None if local_path is None else str(local_path)
         return self
@@ -320,6 +328,10 @@ class BuildConfiguration:
 
         :return: current instance of BuildConfiguration
         """
+        if not isinstance(allocator, RustAllocator):
+            raise ValueError(
+                "allocator must be an instance of RustAllocator"
+            )
         self.__allocator = allocator
         return self
 

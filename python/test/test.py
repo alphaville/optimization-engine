@@ -11,6 +11,7 @@ import subprocess
 import logging
 import numpy as np
 from pathlib import PureWindowsPath
+from types import SimpleNamespace
 
 
 
@@ -28,6 +29,205 @@ class BuildConfigurationTestCase(unittest.TestCase):
             "C:/temp/optimization-engine",
             build_config.local_path
         )
+
+    def test_with_build_mode_rejects_invalid_values(self):
+        """`with_build_mode` should reject unsupported build modes."""
+        build_config = og.config.BuildConfiguration()
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "build mode must be either 'debug' or 'release'",
+        ):
+            build_config.with_build_mode("profile")
+
+    def test_with_allocator_accepts_valid_enum_value(self):
+        build_config = og.config.BuildConfiguration()
+        build_config.with_allocator(og.config.RustAllocator.JemAlloc)
+        self.assertEqual(og.config.RustAllocator.JemAlloc, build_config.allocator)
+
+    def test_with_allocator_rejects_invalid_value(self):
+        build_config = og.config.BuildConfiguration()
+        with self.assertRaisesRegex(
+            ValueError,
+            "allocator must be an instance of RustAllocator",
+        ):
+            build_config.with_allocator("jemalloc")
+
+    def test_with_open_version_accepts_wildcard(self):
+        build_config = og.config.BuildConfiguration().with_open_version("*")
+        self.assertEqual("*", build_config.open_version)
+
+    def test_with_open_version_accepts_semver(self):
+        build_config = og.config.BuildConfiguration().with_open_version("1.2.3-alpha.1+build.5")
+        self.assertEqual("1.2.3-alpha.1+build.5", build_config.open_version)
+
+    def test_with_open_version_rejects_invalid_version(self):
+        build_config = og.config.BuildConfiguration()
+        with self.assertRaisesRegex(
+            ValueError,
+            "invalid OpEn version",
+        ):
+            build_config.with_open_version("^1.2")
+
+
+class OcpSolutionTestCase(unittest.TestCase):
+
+    def test_ocp_solution_defaults_missing_raw_fields_to_none(self):
+        solution = og.ocp.OcpSolution(SimpleNamespace(), inputs=[], states=[])
+
+        self.assertEqual([], solution.solution)
+        self.assertIsNone(solution.cost)
+        self.assertIsNone(solution.exit_status)
+        self.assertIsNone(solution.solve_time_ms)
+        self.assertIsNone(solution.penalty)
+        self.assertIsNone(solution.num_outer_iterations)
+        self.assertIsNone(solution.num_inner_iterations)
+        self.assertIsNone(solution.last_problem_norm_fpr)
+        self.assertIsNone(solution.f1_infeasibility)
+        self.assertIsNone(solution.f2_norm)
+        self.assertIsNone(solution.lagrange_multipliers)
+
+    def test_ocp_solution_repr_formats_nested_values(self):
+        raw = SimpleNamespace(
+            solution=[1.0, -0.0],
+            cost=-0.0,
+            exit_status="Converged",
+            solve_time_ms=1.2345,
+            penalty=0.0,
+            num_outer_iterations=2,
+            num_inner_iterations=5,
+            last_problem_norm_fpr=0.125,
+            f1_infeasibility=(False, 0.0),
+            f2_norm=[3.5],
+            lagrange_multipliers=(1.0, 2.0),
+        )
+
+        solution = og.ocp.OcpSolution(
+            raw,
+            inputs=[(1.0, 2.0)],
+            states=[[0.0, -0.0]],
+        )
+
+        expected = "\n".join([
+            "OCP Solution:",
+            "  Exit status.......... Converged",
+            "  Cost................. 0.0",
+            "  Solve time [ms]...... 1.234",
+            "  Penalty.............. 0.0",
+            "  Outer iterations..... 2",
+            "  Inner iterations..... 5",
+            "  FPR.................. 0.125",
+            "  ALM infeasibility.... (False, 0.0)",
+            "  PM infeasibility..... [3.5]",
+            "  Decision variables... [1, 0.0]",
+            "  Inputs............... [(1, 2)]",
+            "  States............... [[0.0, 0.0]]",
+            "  Lagrange multipliers. (1, 2)",
+        ])
+
+        self.assertEqual(expected, repr(solution))
+        self.assertEqual(expected, str(solution))
+
+
+class AffineSpaceTestCase(unittest.TestCase):
+
+    def test_affine_space_exposes_its_data_and_shape_flags(self):
+        matrix = np.array([[1.0, 2.0], [3.0, 4.0]])
+        vector = np.array([5.0, 6.0])
+        affine_space = og.constraints.AffineSpace(matrix, vector)
+
+        np.testing.assert_array_equal(np.array([1.0, 2.0, 3.0, 4.0]), affine_space.matrix_a)
+        np.testing.assert_array_equal(vector, affine_space.vector_b)
+        self.assertTrue(affine_space.is_convex())
+        self.assertFalse(affine_space.is_compact())
+
+    def test_affine_space_distance_and_projection_are_not_implemented(self):
+        affine_space = og.constraints.AffineSpace(np.eye(2), np.array([1.0, 0.0]))
+
+        with self.assertRaises(NotImplementedError):
+            affine_space.distance_squared([0.0, 0.0])
+
+        with self.assertRaises(NotImplementedError):
+            affine_space.project([0.0, 0.0])
+
+
+class RosConfigurationTestCase(unittest.TestCase):
+
+    def test_ros_configuration_defaults_to_expected_values(self):
+        ros_config = og.config.RosConfiguration()
+
+        self.assertEqual({
+            "package_name": "open_ros",
+            "node_name": "ros_node_optimizer",
+            "description": "parametric optimization with OpEn",
+            "rate": 10.0,
+            "result_topic_queue_size": 100,
+            "params_topic_queue_size": 100,
+            "publisher_subtopic": "result",
+            "subscriber_subtopic": "parameters",
+        }, ros_config.to_dict())
+
+    def test_ros_configuration_supports_custom_values(self):
+        ros_config = og.config.RosConfiguration() \
+            .with_package_name("demo_pkg") \
+            .with_node_name("demo_node") \
+            .with_rate(25.0) \
+            .with_description("custom description") \
+            .with_queue_sizes(result_topic_queue_size=5, parameter_topic_queue_size=7) \
+            .with_publisher_subtopic("solutions") \
+            .with_subscriber_subtopic("requests")
+
+        self.assertEqual("demo_pkg", ros_config.package_name)
+        self.assertEqual("demo_node", ros_config.node_name)
+        self.assertEqual("solutions", ros_config.publisher_subtopic)
+        self.assertEqual("requests", ros_config.subscriber_subtopic)
+        self.assertEqual({
+            "package_name": "demo_pkg",
+            "node_name": "demo_node",
+            "description": "custom description",
+            "rate": 25.0,
+            "result_topic_queue_size": 5,
+            "params_topic_queue_size": 7,
+            "publisher_subtopic": "solutions",
+            "subscriber_subtopic": "requests",
+        }, ros_config.to_dict())
+
+    def test_ros_configuration_rejects_invalid_names(self):
+        ros_config = og.config.RosConfiguration()
+
+        with self.assertRaisesRegex(ValueError, "invalid package name"):
+            ros_config.with_package_name("invalid package")
+
+        with self.assertRaisesRegex(ValueError, "invalid node name"):
+            ros_config.with_node_name("invalid node")
+
+
+class SetYCalculatorTestCase(unittest.TestCase):
+
+    def test_set_y_for_rectangle_uses_large_bounds_only_where_needed(self):
+        rectangle = og.constraints.Rectangle(
+            xmin=[float("-inf"), -1.0],
+            xmax=[2.0, float("inf")],
+        )
+
+        y_set = og.builder.SetYCalculator(rectangle).obtain()
+
+        self.assertIsInstance(y_set, og.constraints.Rectangle)
+        self.assertEqual([0.0, -og.builder.SetYCalculator.LARGE_NUM], y_set.xmin)
+        self.assertEqual([og.builder.SetYCalculator.LARGE_NUM, 0.0], y_set.xmax)
+
+    def test_set_y_for_compact_set_returns_large_infinity_ball(self):
+        y_set = og.builder.SetYCalculator(og.constraints.Ball2(radius=1.0)).obtain()
+
+        self.assertIsInstance(y_set, og.constraints.BallInf)
+        self.assertIsNone(y_set.center)
+        self.assertEqual(og.builder.SetYCalculator.LARGE_NUM, y_set.radius)
+
+    def test_set_y_for_halfspace_raises_specific_error(self):
+        y_calc = og.builder.SetYCalculator(og.constraints.Halfspace([0.0, 0.0], 1.0))
+
+        with self.assertRaisesRegex(NotImplementedError, "you cannot use a Halfspace"):
+            y_calc.obtain()
 
 
 class RustBuildTestCase(unittest.TestCase):
@@ -1150,17 +1350,6 @@ class RustBuildTestCase(unittest.TestCase):
             og.config.OptimizerMeta().with_version("0.1")
 
         self.assertIn("Cargo package version", str(context.exception))
-
-    def test_with_build_mode_rejects_invalid_values(self):
-        """`with_build_mode` should reject unsupported build modes."""
-        build_config = og.config.BuildConfiguration()
-
-        with self.assertRaisesRegex(
-            ValueError,
-            "build mode must be either 'debug' or 'release'",
-        ):
-            build_config.with_build_mode("profile")
-
 
 if __name__ == '__main__':
     logging.getLogger('retry').setLevel(logging.ERROR)
