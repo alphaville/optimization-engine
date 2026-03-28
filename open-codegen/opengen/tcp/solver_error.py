@@ -1,5 +1,5 @@
 class SolverError:
-    """Class for storing solver status in the event of an error."""
+    """Structured solver error returned by TCP or direct Python bindings."""
 
     def __init__(self, error):
         """Constructs instance of :class:`~opengen.tcp.solver_error.SolverError`
@@ -38,3 +38,7 @@ class SolverError:
         :rtype: str
         """
         return self.__dict__["__message"]
+
+    def __repr__(self):
+        """Return a concise one-line representation of the error."""
+        return f"SolverError(code={self.code}, message={self.message!r})"

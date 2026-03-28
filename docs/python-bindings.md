@@ -70,6 +70,8 @@ so you will have to add it before you can import the optimizer.
 This can be done very easily:
 
 ```python
+import sys
+
 sys.path.insert(1, './my_optimizers/rosenbrock')
 import rosenbrock
 ```
@@ -78,13 +80,17 @@ Then you will be able to use it as follows:
 
 ```python
 solver = rosenbrock.solver()
-result = solver.run(p=[20., 1.])
+response = solver.run(p=[20., 1.])
+if not response.is_ok():
+    raise RuntimeError(response.get().message)
+
+result = response.get()
 u_star = result.solution
 ```
 
 In the first line, `solver = rosenbrock.solver()`, we obtain an instance of 
 `Solver`, which can be used to solve parametric optimization problems.
-In the second line, `result = solver.run(p=[20., 1.])`, we call the solver
+In the second line, `response = solver.run(p=[20., 1.])`, we call the solver
 with parameter $p=(20, 1)$. Method `run` accepts another three optional
 arguments, namely:
 
@@ -92,8 +98,32 @@ arguments, namely:
 - `initial_lagrange_multipliers`, and 
 - `initial_penalty`
 
-The solver returns an object of type `OptimizerSolution` with the following 
-properties:
+The solver returns an object of type `SolverResponse`, similar to the TCP
+interface. First call `response.is_ok()` to determine whether the call
+succeeded, then call `response.get()` to obtain either a `SolverStatus`
+object or a `SolverError`. This mirrors the Python TCP interface, but without
+the socket transport layer.
+
+```python
+response = solver.run(p=[20., 1.])
+if response.is_ok():
+    result = response.get()
+    u_star = result.solution
+else:
+    error = response.get()
+    print(error.code, error.message)
+```
+
+The returned objects also implement `__repr__`, which makes them convenient to
+inspect in a Python REPL or notebook:
+
+```python
+response = solver.run(p=[20., 1.])
+print(response)
+print(response.get())
+```
+
+The `SolverStatus` object exposes the following properties:
 
 
 | Property                 | Explanation                                 |
@@ -112,6 +142,25 @@ properties:
 
 These are the same properties as those of `opengen.tcp.SolverStatus`.
 
+For backward compatibility, the generated module also exposes
+`OptimizerSolution` as an alias of `SolverStatus`.
+
+If the call fails, `response.get()` returns a `SolverError` with:
+
+| Property  | Explanation |
+|-----------|-------------|
+| `code`    | Error code, aligned with the TCP interface |
+| `message` | Detailed error message |
+
+The most common error codes are:
+
+| Code | Meaning |
+|------|---------|
+| `1600` | Initial guess has incompatible dimensions |
+| `1700` | Wrong dimension of initial Lagrange multipliers |
+| `2000` | Problem solution failed; the message includes the solver-side reason |
+| `3003` | Wrong number of parameters |
+
 
 ## Importing optimizer with variable name
 
@@ -122,6 +171,9 @@ The limitation of this syntax is that it makes it difficult to change the name o
 A better syntax would be:
 
 ```python
+import os
+import sys
+
 optimizers_dir = "my_optimizers"
 optimizer_name = "rosenbrock"
 sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))

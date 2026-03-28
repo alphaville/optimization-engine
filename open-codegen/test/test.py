@@ -2,6 +2,9 @@ import os
 import unittest
 import json
 import socket
+import shutil
+import sys
+import importlib
 import casadi.casadi as cs
 import opengen as og
 import subprocess
@@ -58,6 +61,60 @@ class RustBuildTestCase(unittest.TestCase):
                                         build_configuration=build_config,
                                         solver_configuration=cls.solverConfig()) \
             .build()
+
+        target_lib = os.path.join(
+            RustBuildTestCase.TEST_DIR, "python_bindings", "src", "lib.rs")
+        with open(target_lib, "r", encoding="utf-8") as fh:
+            solver_lib = fh.read()
+
+        anchor = (
+            '    assert_eq!(u.len(), PYTHON_BINDINGS_NUM_DECISION_VARIABLES, '
+            '"Wrong number of decision variables (u)");\n'
+        )
+        injected_guard = (
+            anchor +
+            '\n'
+            '    if p[0] < 0.0 {\n'
+            '        return Err(SolverError::Cost("forced solver error for Python bindings test"));\n'
+            '    }\n'
+        )
+        if anchor not in solver_lib:
+            raise RuntimeError("Could not inject deterministic solver error into python_bindings")
+
+        with open(target_lib, "w", encoding="utf-8") as fh:
+            fh.write(solver_lib.replace(anchor, injected_guard, 1))
+
+        python_bindings_dir = os.path.join(
+            RustBuildTestCase.TEST_DIR, "python_bindings", "python_bindings_python_bindings")
+        process = subprocess.Popen(
+            ["cargo", "build"],
+            cwd=python_bindings_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        _stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            raise RuntimeError(
+                "Could not rebuild Python bindings:\n{}".format(stderr.decode())
+            )
+
+        extension_dict = {'linux': ('.so', '.so'),
+                          'darwin': ('.dylib', '.so'),
+                          'win32': ('.dll', '.pyd')}
+        (original_lib_extension,
+         target_lib_extension) = extension_dict[sys.platform]
+        optimizer_prefix = "lib" if sys.platform != "win32" else ""
+        generated_bindings = os.path.join(
+            python_bindings_dir,
+            "target",
+            "debug",
+            "{}python_bindings{}".format(optimizer_prefix, original_lib_extension),
+        )
+        target_bindings = os.path.join(
+            RustBuildTestCase.TEST_DIR,
+            "python_bindings",
+            "python_bindings{}".format(target_lib_extension))
+        shutil.copyfile(generated_bindings, target_bindings)
 
     @classmethod
     def setUpOnlyF1(cls):
@@ -314,24 +371,129 @@ class RustBuildTestCase(unittest.TestCase):
                 payload = payload.encode()
             conn_socket.sendall(payload)
 
+    @staticmethod
+    def import_generated_module(module_dir, module_name):
+        module_path = os.path.join(RustBuildTestCase.TEST_DIR, module_dir)
+        if module_path not in sys.path:
+            sys.path.insert(1, module_path)
+        importlib.invalidate_caches()
+        return importlib.import_module(module_name)
+
     def start_tcp_manager(self, manager):
         manager.start()
         self.addCleanup(manager.kill) # at the end, kill the TCP mngr
         return manager
 
     def test_python_bindings(self):
-        import sys
-        import os
-
-        # include the target directory into the path...
-        sys.path.insert(1, os.path.join(
-            RustBuildTestCase.TEST_DIR, "python_bindings"))
-        import python_bindings  # import python_bindings.so
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
 
         solver = python_bindings.solver()
-        # returns object of type OptimizerSolution
         result = solver.run([1., 2.])
-        self.assertIsNotNone(result.solution)
+        self.assertTrue(result.is_ok())
+        status = result.get()
+        self.assertEqual("Converged", status.exit_status)
+        self.assertIsNotNone(status.solution)
+
+    def test_python_bindings_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2., 3.])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(3003, error.code)
+        self.assertEqual(
+            "wrong number of parameters: provided 3, expected 2",
+            error.message
+        )
+
+    def test_python_bindings_initial_guess_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2.], initial_guess=[0.0])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(1600, error.code)
+        self.assertEqual(
+            "initial guess has incompatible dimensions: provided 1, expected 5",
+            error.message
+        )
+
+    def test_python_bindings_initial_lagrange_multipliers_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([1., 2.], initial_lagrange_multipliers=[0.1])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(1700, error.code)
+        self.assertEqual(
+            "wrong dimension of Langrange multipliers: provided 1, expected 0",
+            error.message
+        )
+
+    def test_python_bindings_solver_error_details(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+        result = solver.run([-1.0, 2.0])
+        self.assertFalse(result.is_ok())
+        error = result.get()
+        self.assertEqual(2000, error.code)
+        self.assertEqual(
+            "problem solution failed: cost or gradient evaluation failed: forced solver error for Python bindings test",
+            error.message
+        )
+
+    def test_python_bindings_repr(self):
+        python_bindings = RustBuildTestCase.import_generated_module(
+            "python_bindings", "python_bindings")
+
+        solver = python_bindings.solver()
+
+        ok_response = solver.run([1., 2.])
+        self.assertIn("SolverResponse(ok=True", repr(ok_response))
+        ok_status = ok_response.get()
+        self.assertIn("SolverStatus(", repr(ok_status))
+        self.assertIn('exit_status="Converged"', repr(ok_status))
+
+        error_response = solver.run([1., 2., 3.])
+        self.assertIn("SolverResponse(ok=False", repr(error_response))
+        error = error_response.get()
+        self.assertIn("SolverError(", repr(error))
+        self.assertIn("code=3003", repr(error))
+
+    def test_tcp_response_repr(self):
+        ok_response = og.tcp.SolverResponse({
+            "exit_status": "Converged",
+            "num_outer_iterations": 2,
+            "num_inner_iterations": 7,
+            "last_problem_norm_fpr": 1e-6,
+            "delta_y_norm_over_c": 0.0,
+            "f2_norm": 0.0,
+            "solve_time_ms": 1.2,
+            "penalty": 10.0,
+            "solution": [0.1, 0.2],
+            "lagrange_multipliers": [],
+            "cost": 0.5,
+        })
+        self.assertIn("SolverResponse(ok=True", repr(ok_response))
+        self.assertIn("exit_status='Converged'", repr(ok_response))
+
+        error_response = og.tcp.SolverResponse({
+            "type": "Error",
+            "code": 3003,
+            "message": "wrong number of parameters",
+        })
+        self.assertIn("SolverResponse(ok=False", repr(error_response))
+        self.assertIn("code=3003", repr(error_response))
+        self.assertIn("SolverError(", repr(error_response.get()))
 
     def test_rectangle_empty(self):
         xmin = [-1, 2]

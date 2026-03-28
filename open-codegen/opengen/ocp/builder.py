@@ -113,6 +113,19 @@ class GeneratedOptimizer:
         """Backend kind used by this optimizer wrapper."""
         return self.__backend_kind
 
+    def __repr__(self):
+        """Return a concise summary of the generated optimizer wrapper."""
+        return (
+            "GeneratedOptimizer("
+            f"optimizer_name={self.__optimizer_name!r}, "
+            f"backend_kind={self.__backend_kind!r}, "
+            f"shooting={self.__shooting.value!r}, "
+            f"nx={self.__nx}, "
+            f"nu={self.__nu}, "
+            f"horizon={self.__horizon}, "
+            f"target_dir={self.__target_dir!r})"
+        )
+
     def start(self):
         """Start the backend if it is a local TCP server.
 
@@ -229,6 +242,10 @@ class GeneratedOptimizer:
             return casadi_version
         return GeneratedOptimizer.__safe_package_version("casadi")
 
+    @staticmethod
+    def __format_backend_error(error):
+        return getattr(error, "message", str(error))
+
     def save(self, json_path=None):
         """Save a manifest that can later recreate this optimizer.
 
@@ -327,8 +344,10 @@ class GeneratedOptimizer:
         :param initial_penalty: optional initial penalty parameter
         :param parameter_values: named parameter values
         :return: :class:`OcpSolution`
+        :raises ValueError: if required named parameters are missing or have
+            incompatible dimensions
         :raises RuntimeError: if the backend is unavailable or the low-level
-            solve call fails
+            solve call fails; backend-specific error messages are propagated
         """
         packed_parameters = self.__pack_parameters(parameter_values)
 
@@ -341,6 +360,10 @@ class GeneratedOptimizer:
             )
             if raw is None:
                 raise RuntimeError("solver failed")
+            if hasattr(raw, "is_ok") and hasattr(raw, "get"):
+                if not raw.is_ok():
+                    raise RuntimeError(self.__format_backend_error(raw.get()))
+                raw = raw.get()
         elif self.__backend_kind == "tcp":
             self.start()
             response = self.__backend.call(
@@ -350,7 +373,7 @@ class GeneratedOptimizer:
                 initial_penalty=initial_penalty,
             )
             if not response.is_ok():
-                raise RuntimeError(str(response.get()))
+                raise RuntimeError(self.__format_backend_error(response.get()))
             raw = response.get()
         else:
             raise RuntimeError("optimizer backend is not available")

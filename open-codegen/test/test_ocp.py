@@ -21,10 +21,31 @@ class DummySolverStatus:
         self.lagrange_multipliers = []
 
 
+class DummySolverError:
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class DummySolverResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def is_ok(self):
+        return isinstance(self._payload, DummySolverStatus)
+
+    def get(self):
+        return self._payload
+
+
 class DummyDirectSolver:
     def __init__(self, solution):
         self.solution = solution
         self.last_call = None
+        self.error = None
 
     def run(self, p, initial_guess=None, initial_lagrange_multipliers=None, initial_penalty=None):
         self.last_call = {
@@ -33,7 +54,9 @@ class DummyDirectSolver:
             "initial_lagrange_multipliers": initial_lagrange_multipliers,
             "initial_penalty": initial_penalty,
         }
-        return DummySolverStatus(self.solution)
+        if self.error is not None:
+            return DummySolverResponse(self.error)
+        return DummySolverResponse(DummySolverStatus(self.solution))
 
 
 class OcpTestCase(unittest.TestCase):
@@ -516,6 +539,72 @@ class OcpTestCase(unittest.TestCase):
         self.assertEqual(result.last_problem_norm_fpr, 1e-6)
         self.assertEqual(result.f1_infeasibility, 2e-5)
         self.assertEqual(result.f2_norm, 3e-5)
+
+    def test_generated_optimizer_direct_error_response(self):
+        ocp = self.make_ocp()
+        backend = DummyDirectSolver(solution=[0.1, 0.2, 0.3])
+        backend.error = DummySolverError(3003, "wrong number of parameters")
+        optimizer = og.ocp.GeneratedOptimizer(
+            ocp=ocp,
+            optimizer_name="dummy_error",
+            target_dir=".",
+            backend=backend,
+            backend_kind="direct",
+        )
+
+        with self.assertRaises(RuntimeError) as context:
+            optimizer.solve(x0=[0.0, 0.0])
+
+        self.assertIn("wrong number of parameters", str(context.exception))
+
+    def test_generated_optimizer_missing_required_parameter(self):
+        loaded_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+
+        with self.assertRaises(ValueError) as context:
+            loaded_optimizer.solve(xref=[0.0, 0.0])
+
+        self.assertIn("missing values for parameters: x0", str(context.exception))
+
+    def test_generated_optimizer_parameter_dimension_mismatch_at_solve(self):
+        loaded_optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+
+        with self.assertRaises(ValueError) as context:
+            loaded_optimizer.solve(x0=[1.0])
+
+        self.assertIn("parameter 'x0' has incompatible dimension", str(context.exception))
+
+    def test_generated_optimizer_direct_invalid_initial_guess(self):
+        with self.assertRaises(RuntimeError) as context:
+            self.ocp1_optimizer.solve(
+                x0=[1.0, 0.0],
+                initial_guess=[0.0],
+            )
+
+        self.assertIn("initial guess has incompatible dimensions", str(context.exception))
+
+    def test_generated_optimizer_tcp_invalid_initial_guess(self):
+        optimizer = og.ocp.GeneratedOptimizer.load(self.ocp2_single_manifest_path)
+
+        try:
+            with self.assertRaises(RuntimeError) as context:
+                optimizer.solve(
+                    x0=[1.0, -1.0],
+                    xref=[0.0, 0.0],
+                    initial_guess=[0.0],
+                )
+
+            self.assertIn("initial guess has incompatible dimensions", str(context.exception))
+        finally:
+            optimizer.kill()
+
+    def test_generated_optimizer_repr(self):
+        optimizer = og.ocp.GeneratedOptimizer.load(self.ocp1_manifest_path)
+        optimizer_repr = repr(optimizer)
+
+        self.assertIn("GeneratedOptimizer(", optimizer_repr)
+        self.assertIn("optimizer_name='ocp_manifest_bindings'", optimizer_repr)
+        self.assertIn("backend_kind='direct'", optimizer_repr)
+        self.assertIn("shooting='single'", optimizer_repr)
 
     def test_optimizer_manifest_roundtrip(self):
         manifest_path = self.ocp1_manifest_path
