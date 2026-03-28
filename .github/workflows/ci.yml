@@ -113,17 +113,17 @@ jobs:
 
       - name: Install Python package
         if: runner.os == 'Windows'
-        working-directory: python
         run: |
+          Set-Location python
           python -m pip install --upgrade pip
           python -m pip install .
 
       - name: Run Python test.py
         if: runner.os == 'Windows'
-        working-directory: python
-        env:
-          PYTHONPATH: .
-        run: python -W ignore test/test.py -v
+        run: |
+          Set-Location python
+          $env:PYTHONPATH = "."
+          python -W ignore test/test.py -v
 
   ros2_tests:
     name: ROS2 tests
@@ -211,14 +211,14 @@ jobs:
 
       - name: Install Python package
         if: runner.os == 'Windows'
-        working-directory: python
         run: |
+          Set-Location python
           python -m pip install --upgrade pip
           python -m pip install .
 
       - name: Run OCP Python tests
         if: runner.os == 'Windows'
-        working-directory: python
-        env:
-          PYTHONPATH: .
-        run: python -W ignore test/test_ocp.py -v
+        run: |
+          Set-Location python
+          $env:PYTHONPATH = "."
+          python -W ignore test/test_ocp.py -v
