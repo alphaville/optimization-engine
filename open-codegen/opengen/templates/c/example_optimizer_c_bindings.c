@@ -48,7 +48,7 @@ int main(void) {
     int i;
 
     /* parameters             */
-    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {2.0, 10.0};
+    double p[{{meta.optimizer_name|upper}}_NUM_PARAMETERS] = {0};
 
     /* initial guess          */
     double u[{{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES] = {0};
