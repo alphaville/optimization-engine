@@ -91,10 +91,16 @@ class OptimizerTcpManager:
         with open(yaml_file, 'r') as stream:
             self.__optimizer_details = yaml.safe_load(stream)
 
+    @staticmethod
+    def __client_ip_for_connection(ip):
+        # `0.0.0.0` is a valid bind address for the server, but it is not a
+        # routable destination for a client connection on Windows.
+        return '127.0.0.1' if ip == '0.0.0.0' else ip
+
     @retry(tries=10, delay=1)
     def __obtain_socket_connection(self):
         tcp_data = self.__optimizer_details
-        ip = tcp_data['tcp']['ip']
+        ip = self.__client_ip_for_connection(tcp_data['tcp']['ip'])
         port = tcp_data['tcp']['port']
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         try:
@@ -132,7 +138,7 @@ class OptimizerTcpManager:
 
     def __check_if_server_is_running(self):
         tcp_data = self.__optimizer_details
-        ip = tcp_data['tcp']['ip']
+        ip = self.__client_ip_for_connection(tcp_data['tcp']['ip'])
         port = tcp_data['tcp']['port']
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as s:
             result = 0 == s.connect_ex((ip, port))

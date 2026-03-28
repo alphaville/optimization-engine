@@ -821,6 +821,54 @@ class RustBuildTestCase(unittest.TestCase):
 
     @staticmethod
     def c_bindings_helper(optimizer_name):
+        if sys.platform == "win32":
+            result = RustBuildTestCase.c_bindings_cmake_helper(
+                optimizer_name=optimizer_name,
+                build_dir_name="cmake-build-run")
+            compile_stdout = result["configure_stdout"] + result["build_stdout"]
+            compile_stderr = result["configure_stderr"] + result["build_stderr"]
+            compile_returncode = (
+                result["configure_returncode"]
+                if result["configure_returncode"] != 0
+                else result["build_returncode"]
+            )
+
+            run_stdout = ""
+            run_stderr = ""
+            run_returncode = None
+            if compile_returncode == 0:
+                executable_candidates = [
+                    os.path.join(result["build_dir"], "Debug", "optimizer.exe"),
+                    os.path.join(result["build_dir"], "optimizer.exe"),
+                    os.path.join(result["build_dir"], "Debug", "optimizer"),
+                    os.path.join(result["build_dir"], "optimizer"),
+                ]
+                executable_path = next(
+                    (candidate for candidate in executable_candidates if os.path.exists(candidate)),
+                    None,
+                )
+                if executable_path is None:
+                    raise RuntimeError("Could not locate built optimizer executable")
+
+                run_process = subprocess.Popen(
+                    [executable_path],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                run_stdout_bytes, run_stderr_bytes = run_process.communicate()
+                run_stdout = run_stdout_bytes.decode()
+                run_stderr = run_stderr_bytes.decode()
+                run_returncode = run_process.returncode
+
+            return {
+                "compile_returncode": compile_returncode,
+                "compile_stdout": compile_stdout,
+                "compile_stderr": compile_stderr,
+                "run_returncode": run_returncode,
+                "run_stdout": run_stdout,
+                "run_stderr": run_stderr,
+            }
+
         compile_process = subprocess.Popen(
             ["/usr/bin/gcc",
              RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
@@ -880,13 +928,13 @@ class RustBuildTestCase(unittest.TestCase):
         return original_line
 
     @staticmethod
-    def c_bindings_cmake_helper(optimizer_name):
+    def c_bindings_cmake_helper(optimizer_name, build_dir_name="cmake-build-test"):
         cmake_executable = shutil.which("cmake")
         if cmake_executable is None:
             raise unittest.SkipTest("cmake is not available in PATH")
 
         optimizer_dir = os.path.join(RustBuildTestCase.TEST_DIR, optimizer_name)
-        build_dir = os.path.join(optimizer_dir, "cmake-build-test")
+        build_dir = os.path.join(optimizer_dir, build_dir_name)
         if os.path.isdir(build_dir):
             shutil.rmtree(build_dir)
         os.makedirs(build_dir)
@@ -903,8 +951,11 @@ class RustBuildTestCase(unittest.TestCase):
         build_stderr = b""
         build_returncode = None
         if configure_process.returncode == 0:
+            build_command = [cmake_executable, "--build", "."]
+            if sys.platform == "win32":
+                build_command.extend(["--config", "Debug"])
             build_process = subprocess.Popen(
-                [cmake_executable, "--build", "."],
+                build_command,
                 cwd=build_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -919,6 +970,7 @@ class RustBuildTestCase(unittest.TestCase):
             "build_returncode": build_returncode,
             "build_stdout": build_stdout.decode(),
             "build_stderr": build_stderr.decode(),
+            "build_dir": build_dir,
         }
 
     def test_c_bindings(self):
