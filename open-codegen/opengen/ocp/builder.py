@@ -114,6 +114,7 @@ class GeneratedOptimizer:
         return self.__backend_kind
 
     def __repr__(self):
+        """Return a concise summary of the generated optimizer wrapper."""
         return (
             "GeneratedOptimizer("
             f"optimizer_name={self.__optimizer_name!r}, "
@@ -343,8 +344,10 @@ class GeneratedOptimizer:
         :param initial_penalty: optional initial penalty parameter
         :param parameter_values: named parameter values
         :return: :class:`OcpSolution`
+        :raises ValueError: if required named parameters are missing or have
+            incompatible dimensions
         :raises RuntimeError: if the backend is unavailable or the low-level
-            solve call fails
+            solve call fails; backend-specific error messages are propagated
         """
         packed_parameters = self.__pack_parameters(parameter_values)
 

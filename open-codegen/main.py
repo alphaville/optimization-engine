@@ -44,23 +44,23 @@ builder = og.builder.OpEnOptimizerBuilder(problem,
                                           meta,
                                           build_config,
                                           solver_cfg)
-builder.build()
+# builder.build()
 
 sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
 rosenbrock = __import__(optimizer_name)
 
 solver = rosenbrock.solver()
-result = solver.run(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0])
-print(" ")
-print(f"solution = {result.solution}")
-print(f"time = {result.solve_time_ms} ms")
-print(f"penalty = {result.penalty}")
-print(f"infeasibility f1 = {result.f1_infeasibility}")
-print(f"infeasibility f2 = {result.f2_norm}")
-print(f"status = {result.exit_status}")
-print(f"inner = {result.num_inner_iterations}")
-print(f"outer = {result.num_outer_iterations}")
-print(f"cost = {result.cost}")
+response = solver.run(p=[0.5, 8.5, 1.], initial_guess=[1, 2, 3, 4, 0])
+
+if response.is_ok():
+    # SolverResponse
+    result = response.get()
+    print(result)
+else:
+    # SolverError
+    error = response.get()
+    print(type(error))
+
 
 # Preconditioned    Non-preconditioned
 # -------------------------------------

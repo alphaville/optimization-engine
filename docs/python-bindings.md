@@ -84,8 +84,8 @@ response = solver.run(p=[20., 1.])
 if not response.is_ok():
     raise RuntimeError(response.get().message)
 
-status = response.get()
-u_star = status.solution
+result = response.get()
+u_star = result.solution
 ```
 
 In the first line, `solver = rosenbrock.solver()`, we obtain an instance of 
@@ -107,8 +107,8 @@ the socket transport layer.
 ```python
 response = solver.run(p=[20., 1.])
 if response.is_ok():
-    status = response.get()
-    u_star = status.solution
+    result = response.get()
+    u_star = result.solution
 else:
     error = response.get()
     print(error.code, error.message)
