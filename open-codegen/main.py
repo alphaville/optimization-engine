@@ -50,15 +50,13 @@ sys.path.insert(1, os.path.join(optimizers_dir, optimizer_name))
 rosenbrock = __import__(optimizer_name)
 
 solver = rosenbrock.solver()
-response = solver.run(p=[0.5, 8.5, 1.], initial_guess=[1, 2, 3, 4, 0])
+response = solver.run(p=[0.5, 8.5], initial_guess=[1, 2, 3, 4, 0]) # SolverResponse
 
-if response.is_ok():
-    # SolverResponse
-    result = response.get()
-    print(result)
-else:
-    # SolverError
-    error = response.get()
+if response.is_ok():    
+    result = response.get() # SolverStatus
+    print(type(result))
+else:    
+    error = response.get() # SolverError
     print(type(error))
 
 
