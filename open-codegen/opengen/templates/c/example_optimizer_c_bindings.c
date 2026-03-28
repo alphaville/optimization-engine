@@ -20,11 +20,29 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "{{meta.optimizer_name}}_bindings.h"
 
 /*
  * Feel free to customize the following code...
  */
+
+static const char *exit_status_to_string({{meta.optimizer_name}}ExitStatus exit_status) {
+    switch (exit_status) {
+        case {{meta.optimizer_name}}Converged:
+            return "Converged";
+        case {{meta.optimizer_name}}NotConvergedIterations:
+            return "NotConvergedIterations";
+        case {{meta.optimizer_name}}NotConvergedOutOfTime:
+            return "NotConvergedOutOfTime";
+        case {{meta.optimizer_name}}NotConvergedCost:
+            return "NotConvergedCost";
+        case {{meta.optimizer_name}}NotConvergedNotFiniteComputation:
+            return "NotConvergedNotFiniteComputation";
+        default:
+            return "Unknown";
+    }
+}
 
 int main(void) {
     int i;
@@ -45,9 +63,38 @@ int main(void) {
 
     /* obtain cache           */
     {{meta.optimizer_name}}Cache *cache = {{meta.optimizer_name}}_new();
+    if (cache == NULL) {
+        fprintf(stderr, "Could not allocate solver cache\n");
+        return EXIT_FAILURE;
+    }
 
     /* solve                  */
     {{meta.optimizer_name}}SolverStatus status = {{meta.optimizer_name}}_solve(cache, u, p, {% if problem.dim_constraints_aug_lagrangian() > 0 %}y{% else %}0{% endif %}, &init_penalty);
+
+    printf("\n\n-------------------------------------------------\n");
+    printf("  Solver Statistics\n");
+    printf("-------------------------------------------------\n");
+    printf("exit status      : %d (%s)\n", status.exit_status, exit_status_to_string(status.exit_status));
+    printf("error code       : %d\n", status.error_code);
+    printf("error message    : %s\n", status.error_message);
+    printf("iterations       : %lu\n", status.num_inner_iterations);
+    printf("outer iterations : %lu\n", status.num_outer_iterations);
+    printf("solve time       : %f ms\n", (double)status.solve_time_ns / 1000000.0);
+    printf("penalty          : %f\n", status.penalty);
+    printf("||Dy||/c         : %f\n", status.delta_y_norm_over_c);
+    printf("||F2(u)||        : %f\n", status.f2_norm);
+    printf("Cost             : %f\n", status.cost);
+    printf("||FRP||          : %f\n\n", status.last_problem_norm_fpr);
+
+    if (status.error_code != 0) {
+        fprintf(stderr, "Solver returned an error; solution vector is not printed.\n");
+        {{meta.optimizer_name}}_free(cache);
+        return EXIT_FAILURE;
+    }
+
+    if (status.exit_status != {{meta.optimizer_name}}Converged) {
+        fprintf(stderr, "Warning: solver did not converge, printing best available iterate.\n");
+    }
 
     /* print results */
     printf("\n\n-------------------------------------------------\n");
@@ -63,25 +110,10 @@ int main(void) {
         printf("y[%d] = %g\n", i, status.lagrange[i]);
     }
 
-    printf("\n\n-------------------------------------------------\n");
-    printf("  Solver Statistics\n");
-    printf("-------------------------------------------------\n");
-    printf("exit status      : %d\n", status.exit_status);
-    printf("error code       : %d\n", status.error_code);
-    printf("error message    : %s\n", status.error_message);
-    printf("iterations       : %lu\n", status.num_inner_iterations);
-    printf("outer iterations : %lu\n", status.num_outer_iterations);
-    printf("solve time       : %f ms\n", (double)status.solve_time_ns / 1000000.0);
-    printf("penalty          : %f\n", status.penalty);
-    printf("||Dy||/c         : %f\n", status.delta_y_norm_over_c);
-    printf("||F2(u)||        : %f\n", status.f2_norm);
-    printf("Cost             : %f\n", status.cost);
-    printf("||FRP||          : %f\n\n", status.last_problem_norm_fpr);
-
 
 
     /* free memory */
     {{meta.optimizer_name}}_free(cache);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
