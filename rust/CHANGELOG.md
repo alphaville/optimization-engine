@@ -11,7 +11,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 <!-- ---------------------
       v0.12.0
      --------------------- -->
-## [v0.12.0] - Unreleased
+## [v0.12.0] - 31 March 2026
 
 ### Added
 
@@ -26,6 +26,7 @@ Note: This is the main Changelog file for the Rust solver. The Changelog file fo
 - Swapped the cross-platform timer dependency to `web-time`, removed the old `instant`-specific wasm feature wiring, and updated optimizer timing call sites to use `web_time::Instant`
 - Improved Rust-side error handling across constraints and core solvers so projection failures and invalid numerical states are reported explicitly instead of being silently flattened
 - Refined `BallP`, `EpigraphSquaredNorm`, and related constraint implementations and docs for stronger numerical robustness and clearer behavior
+- Restructured folder structure of entire repo: OpEn moved to folder `rust`
 
 <!-- ---------------------
       v0.11.1
@@ -361,6 +362,7 @@ This is a breaking API change.
      --------------------- -->
 
 <!-- Releases -->
+[v0.12.0]: https://github.com/alphaville/optimization-engine/compare/v0.11.1...v0.12.0
 [v0.11.1]: https://github.com/alphaville/optimization-engine/compare/v0.11.0...v0.11.1
 [v0.11.0]: https://github.com/alphaville/optimization-engine/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/alphaville/optimization-engine/compare/v0.9.1...v0.10.0

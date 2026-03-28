@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 
 
-## [0.11.0] - Unreleased
+## [0.11.0] - 31 March 2026
 
 ### Added
 
@@ -28,6 +28,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - ROS/ROS2 messages: using `uint64` instead of `uint8` to avoid overflow
 - Tighter checks of provided arguments in build configuration
 - Added `pytest` to the optional `dev` dependencies and documented local test, benchmark, and coverage workflows for Python and Rust contributors
+- Restructured folder structure of entire repo: opengen moved to folder `python`
 
 ### Fixed
 
@@ -318,6 +319,7 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 * Fixed `lbfgs` typo
 
 
+[0.11.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.10.1...opengen-0.11.0
 [0.10.1]: https://github.com/alphaville/optimization-engine/compare/opengen-0.10.0...opengen-0.10.1
 [0.10.0]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.6...opengen-0.10.0
 [0.9.6]: https://github.com/alphaville/optimization-engine/compare/opengen-0.9.5...opengen-0.9.6

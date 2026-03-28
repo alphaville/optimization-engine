@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Note: This is the Changelog file for the MATLAB interface of OpEn.
 
 
-## [0.1.0] - Unreleased
+## 0.1.0 - 31 March 2026
 
 ### Added
 
@@ -22,3 +22,4 @@ Note: This is the Changelog file for the MATLAB interface of OpEn.
 ### Changed
 
 - Added a dedicated MATLAB API area under `matlab/api` for the current interface, separate from the legacy MATLAB code.
+- Code generation in MATLAB is now moved to `matlab/legacy`

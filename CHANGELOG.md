@@ -19,16 +19,16 @@ recorded.
 - Use the component changelogs above for detailed release notes, migration
   notes, and module-specific fixes.
 - Not every repository change appears here. Day-to-day implementation details
-  usually live only in the relevant component changelog.
+  usually live only in the relevant component changelog files.
 
 ## Versioning Notes
 
 OpEn is a multi-component project, and not every part evolves on the same
 version number or schedule.
 
-- The Rust solver has its own release history in `rust/CHANGELOG.md`.
+- The Rust solver has its own release history in [`rust/CHANGELOG.md`](rust/CHANGELOG.md).
 - The Python package `opengen` has its own release history in
-  `python/CHANGELOG.md`.
+  [`python/CHANGELOG.md`](python/CHANGELOG.md).
 - The MATLAB interface and Docker image also track their changes separately.
 
 When a release affects multiple parts of the repository, this root changelog can
@@ -57,5 +57,5 @@ The main components live in:
 - [docker/](docker/)
 - [docs/](docs/)
 
-This changelog is intentionally lightweight so it can remain a stable landing
+This changelog is intentionally lightweight, so it can remain a stable landing
 page even as individual components evolve independently.
