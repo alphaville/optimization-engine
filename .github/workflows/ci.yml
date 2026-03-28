@@ -36,10 +36,12 @@ jobs:
           rustflags: ""
 
       - name: Cargo tests
+        working-directory: rust
         run: cargo test
 
       - name: Cargo tests (RP and JEM)
         if: runner.os != 'Windows'
+        working-directory: rust
         run: |
           cargo test --features rp
           cargo test --features jem
@@ -79,7 +81,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/pyproject.toml
+          cache-dependency-path: python/pyproject.toml
 
       - uses: egor-tensin/setup-clang@v1
         if: runner.os == 'Linux'
@@ -111,14 +113,14 @@ jobs:
 
       - name: Install Python package
         if: runner.os == 'Windows'
-        working-directory: open-codegen
+        working-directory: python
         run: |
           python -m pip install --upgrade pip
           python -m pip install .
 
       - name: Run Python test.py
         if: runner.os == 'Windows'
-        working-directory: open-codegen
+        working-directory: python
         env:
           PYTHONPATH: .
         run: python -W ignore test/test.py -v
@@ -201,7 +203,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/pyproject.toml
+          cache-dependency-path: python/pyproject.toml
 
       - name: Run OCP Python tests
         if: runner.os != 'Windows'
@@ -209,14 +211,14 @@ jobs:
 
       - name: Install Python package
         if: runner.os == 'Windows'
-        working-directory: open-codegen
+        working-directory: python
         run: |
           python -m pip install --upgrade pip
           python -m pip install .
 
       - name: Run OCP Python tests
         if: runner.os == 'Windows'
-        working-directory: open-codegen
+        working-directory: python
         env:
           PYTHONPATH: .
         run: python -W ignore test/test_ocp.py -v
