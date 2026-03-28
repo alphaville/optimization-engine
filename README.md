@@ -7,8 +7,8 @@
 <p align="center">
   <a href="https://www.codefactor.io/repository/github/alphaville/optimization-engine"><img src="https://www.codefactor.io/repository/github/alphaville/optimization-engine/badge" alt="CodeFactor" />
   </a> 
-  <a href="https://github.com/alphaville/optimization-engine/actions?query=branch%3Amaster">
-    <img alt="GHA continuous integration" src="https://github.com/alphaville/optimization-engine/workflows/Continuous%20integration/badge.svg">
+  <a href="https://github.com/alphaville/optimization-engine/actions/workflows/ci.yml?query=branch%3Amaster">
+    <img alt="CI on master" src="https://github.com/alphaville/optimization-engine/actions/workflows/ci.yml/badge.svg?branch=master">
   </a>
   <a href="https://ci.appveyor.com/project/alphaville/optimization-engine/branch/master">
     <img alt="build status" src="https://ci.appveyor.com/api/projects/status/fy9tr4xmqq3ka4aj/branch/master?svg=true">
