@@ -3,17 +3,40 @@ cmake_minimum_required(VERSION 3.5)
 # Project name
 project({{meta.optimizer_name}})
 
+# Build the generated example as C99.
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Resolve the generated static library name for the current platform.
+if(WIN32)
+  set(OPEN_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/target/{{ build_config.build_mode }}/{{meta.optimizer_name}}.lib)
+else()
+  set(OPEN_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/target/{{ build_config.build_mode }}/lib{{meta.optimizer_name}}.a)
+endif()
+
+find_package(Threads REQUIRED)
+
 # Add the executable
 add_executable(optimizer example_optimizer.c)
 
 # Add libraries to the executable
-target_link_libraries(optimizer ${CMAKE_SOURCE_DIR}/target/{{ build_config.build_mode }}/lib{{meta.optimizer_name}}.a)
-target_link_libraries(optimizer m)
-target_link_libraries(optimizer dl)
-target_link_libraries(optimizer pthread)
+target_link_libraries(
+  optimizer
+  PRIVATE
+    ${OPEN_STATIC_LIB}
+    Threads::Threads
+)
+
+if(UNIX)
+  target_link_libraries(optimizer PRIVATE m)
+endif()
+
+if(CMAKE_DL_LIBS)
+  target_link_libraries(optimizer PRIVATE ${CMAKE_DL_LIBS})
+endif()
 
 add_custom_target(run
-    COMMAND optimizer
+    COMMAND $<TARGET_FILE:optimizer>
     DEPENDS optimizer
-    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

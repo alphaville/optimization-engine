@@ -1,5 +1,6 @@
 {% if activate_clib_generation -%}
-// ---Export functionality from Rust to C/C++------------------------------------------------------------
+{% set error_message_capacity = 1024 -%}
+// ---Export functionality from Rust to C/C++ --------------
 
 /// Solver cache (structure `{{meta.optimizer_name}}Cache`)
 ///
@@ -10,7 +11,7 @@ pub struct {{meta.optimizer_name}}Cache {
 
 const {{meta.optimizer_name|upper}}_NO_ERROR_CODE: c_int = 0;
 const {{meta.optimizer_name|upper}}_SOLVER_ERROR_CODE: c_int = 2000;
-const {{meta.optimizer_name|upper}}_ERROR_MESSAGE_CAPACITY: usize = 256;
+const {{meta.optimizer_name|upper}}_ERROR_MESSAGE_CAPACITY: usize = {{ error_message_capacity }};
 
 impl {{meta.optimizer_name}}Cache {
     pub fn new(cache: AlmCache) -> Self {
@@ -18,13 +19,13 @@ impl {{meta.optimizer_name}}Cache {
     }
 }
 
-fn empty_error_message() -> [c_char; 256] {
-    [0 as c_char; 256]
+fn empty_error_message() -> [c_char; {{ error_message_capacity }}] {
+    [0 as c_char; {{ error_message_capacity }}]
 }
 
 fn error_message_to_c_array(
     message: &str,
-) -> [c_char; 256] {
+) -> [c_char; {{ error_message_capacity }}] {
     let mut buffer = empty_error_message();
     let max_len = {{meta.optimizer_name|upper}}_ERROR_MESSAGE_CAPACITY - 1;
     for (idx, byte) in message.as_bytes().iter().copied().take(max_len).enumerate() {
@@ -63,7 +64,7 @@ pub struct {{meta.optimizer_name}}SolverStatus {
     /// Detailed error code (0 on success)
     error_code: c_int,
     /// Detailed error message (empty string on success)
-    error_message: [c_char; 256],
+    error_message: [c_char; {{ error_message_capacity }}],
     /// Number of outer iterations
     num_outer_iterations: c_ulong,
     /// Total number of inner iterations

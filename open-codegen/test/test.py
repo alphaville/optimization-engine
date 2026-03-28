@@ -304,7 +304,8 @@ class RustBuildTestCase(unittest.TestCase):
             .with_open_version(local_path=RustBuildTestCase.get_open_local_absolute_path()) \
             .with_build_directory(RustBuildTestCase.TEST_DIR) \
             .with_build_mode(og.config.BuildConfiguration.DEBUG_MODE) \
-            .with_tcp_interface_config(tcp_interface_config=tcp_config)
+            .with_tcp_interface_config(tcp_interface_config=tcp_config) \
+            .with_build_c_bindings()
         og.builder.OpEnOptimizerBuilder(problem,
                                         metadata=meta,
                                         build_configuration=build_config,
@@ -792,47 +793,167 @@ class RustBuildTestCase(unittest.TestCase):
         self.assertTrue(-sum([u[i] * c[i] for i in range(5)]) + b <= eps)
 
     @staticmethod
+    def rebuild_generated_staticlib(optimizer_name):
+        optimizer_dir = os.path.join(RustBuildTestCase.TEST_DIR, optimizer_name)
+        process = subprocess.Popen(
+            ["cargo", "build"],
+            cwd=optimizer_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        _stdout, stderr = process.communicate()
+        return process.returncode, stderr.decode()
+
+    @staticmethod
     def c_bindings_helper(optimizer_name):
-        p = subprocess.Popen(["/usr/bin/gcc",
-                              RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
-                              "-I" + RustBuildTestCase.TEST_DIR + "/" + optimizer_name,
-                              "-pthread",
-                              RustBuildTestCase.TEST_DIR + "/" + optimizer_name +
-                              "/target/debug/lib" + optimizer_name + ".a",
-                              "-lm",
-                              "-ldl",
-                              "-std=c99",
-                              "-o",
-                              RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/optimizer"],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+        compile_process = subprocess.Popen(
+            ["/usr/bin/gcc",
+             RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/example_optimizer.c",
+             "-I" + RustBuildTestCase.TEST_DIR + "/" + optimizer_name,
+             "-pthread",
+             RustBuildTestCase.TEST_DIR + "/" + optimizer_name +
+             "/target/debug/lib" + optimizer_name + ".a",
+             "-lm",
+             "-ldl",
+             "-std=c99",
+             "-o",
+             RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/optimizer"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
 
-        # Make sure it compiles
-        p.communicate()
-        rc1 = p.returncode
+        compile_stdout, compile_stderr = compile_process.communicate()
 
-        # Run the optimizer
-        p = subprocess.Popen([RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/optimizer"],
-                             stdout=subprocess.DEVNULL)
-        p.communicate()
-        rc2 = p.returncode
+        run_stdout = b""
+        run_stderr = b""
+        run_returncode = None
+        if compile_process.returncode == 0:
+            run_process = subprocess.Popen(
+                [RustBuildTestCase.TEST_DIR + "/" + optimizer_name + "/optimizer"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            run_stdout, run_stderr = run_process.communicate()
+            run_returncode = run_process.returncode
 
-        return rc1, rc2
+        return {
+            "compile_returncode": compile_process.returncode,
+            "compile_stdout": compile_stdout.decode(),
+            "compile_stderr": compile_stderr.decode(),
+            "run_returncode": run_returncode,
+            "run_stdout": run_stdout.decode(),
+            "run_stderr": run_stderr.decode(),
+        }
+
+    @staticmethod
+    def patch_c_bindings_example_parameter_initializer(optimizer_name, replacement_line):
+        example_file = os.path.join(
+            RustBuildTestCase.TEST_DIR, optimizer_name, "example_optimizer.c")
+        with open(example_file, "r", encoding="utf-8") as fh:
+            example_source = fh.read()
+
+        original_line = None
+        for line in example_source.splitlines():
+            if "double p[" in line and "= {" in line:
+                original_line = line
+                break
+
+        if original_line is None:
+            raise RuntimeError("Could not locate parameter initializer in example_optimizer.c")
+
+        with open(example_file, "w", encoding="utf-8") as fh:
+            fh.write(example_source.replace(original_line, replacement_line, 1))
+
+        return original_line
+
+    @staticmethod
+    def c_bindings_cmake_helper(optimizer_name):
+        cmake_executable = shutil.which("cmake")
+        if cmake_executable is None:
+            raise unittest.SkipTest("cmake is not available in PATH")
+
+        optimizer_dir = os.path.join(RustBuildTestCase.TEST_DIR, optimizer_name)
+        build_dir = os.path.join(optimizer_dir, "cmake-build-test")
+        if os.path.isdir(build_dir):
+            shutil.rmtree(build_dir)
+        os.makedirs(build_dir)
+
+        configure_process = subprocess.Popen(
+            [cmake_executable, ".."],
+            cwd=build_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        configure_stdout, configure_stderr = configure_process.communicate()
+
+        build_stdout = b""
+        build_stderr = b""
+        build_returncode = None
+        if configure_process.returncode == 0:
+            build_process = subprocess.Popen(
+                [cmake_executable, "--build", "."],
+                cwd=build_dir,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            build_stdout, build_stderr = build_process.communicate()
+            build_returncode = build_process.returncode
+
+        return {
+            "configure_returncode": configure_process.returncode,
+            "configure_stdout": configure_stdout.decode(),
+            "configure_stderr": configure_stderr.decode(),
+            "build_returncode": build_returncode,
+            "build_stdout": build_stdout.decode(),
+            "build_stderr": build_stderr.decode(),
+        }
 
     def test_c_bindings(self):
-        rc1, rc2 = RustBuildTestCase.c_bindings_helper(
-            optimizer_name="only_f1")
-        self.assertEqual(0, rc1)
-        self.assertEqual(0, rc2)
+        result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f1")
+        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertIn("Converged", result["run_stdout"])
+        self.assertIn("exit status      : 0", result["run_stdout"])
+        self.assertIn("error code       : 0", result["run_stdout"])
 
-        rc1, rc2 = RustBuildTestCase.c_bindings_helper(
-            optimizer_name="only_f2")
-        self.assertEqual(0, rc1)
-        self.assertEqual(0, rc2)
+        result = RustBuildTestCase.c_bindings_helper(optimizer_name="only_f2")
+        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertIn("Converged", result["run_stdout"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertIn("exit status      : 0", result["run_stdout"])
+        self.assertIn("error code       : 0", result["run_stdout"])
 
-        rc1, rc2 = RustBuildTestCase.c_bindings_helper(optimizer_name="plain")
-        self.assertEqual(0, rc1)
-        self.assertEqual(0, rc2)
+        result = RustBuildTestCase.c_bindings_helper(optimizer_name="plain")
+        self.assertIn("Converged", result["run_stdout"])
+        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertEqual(0, result["run_returncode"], msg=result["run_stderr"])
+        self.assertIn("exit status      : 0", result["run_stdout"])
+        self.assertIn("error code       : 0", result["run_stdout"])
+
+    def test_c_bindings_error_path(self):
+        rebuild_rc, rebuild_stderr = RustBuildTestCase.rebuild_generated_staticlib(
+            optimizer_name="solver_error")
+        self.assertEqual(0, rebuild_rc, msg=rebuild_stderr)
+
+        original_line = RustBuildTestCase.patch_c_bindings_example_parameter_initializer(
+            optimizer_name="solver_error",
+            replacement_line="    double p[SOLVER_ERROR_NUM_PARAMETERS] = {-1.0};")
+        try:
+            result = RustBuildTestCase.c_bindings_helper(optimizer_name="solver_error")
+        finally:
+            RustBuildTestCase.patch_c_bindings_example_parameter_initializer(
+                optimizer_name="solver_error",
+                replacement_line=original_line)
+        self.assertEqual(0, result["compile_returncode"], msg=result["compile_stderr"])
+        self.assertNotEqual(0, result["run_returncode"])
+        self.assertIn("error code       : 2000", result["run_stdout"])
+        self.assertIn("forced solver error for TCP test", result["run_stdout"])
+        self.assertIn(
+            "Solver returned an error; solution vector is not printed.",
+            result["run_stderr"])
+
+    def test_c_bindings_cmake_example_builds(self):
+        result = RustBuildTestCase.c_bindings_cmake_helper(optimizer_name="plain")
+        self.assertEqual(0, result["configure_returncode"], msg=result["configure_stderr"])
+        self.assertEqual(0, result["build_returncode"], msg=result["build_stderr"])
 
     def test_tcp_generated_server_builds(self):
         tcp_iface_dir = os.path.join(
