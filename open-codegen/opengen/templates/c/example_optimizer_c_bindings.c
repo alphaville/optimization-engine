@@ -67,6 +67,8 @@ int main(void) {
     printf("  Solver Statistics\n");
     printf("-------------------------------------------------\n");
     printf("exit status      : %d\n", status.exit_status);
+    printf("error code       : %d\n", status.error_code);
+    printf("error message    : %s\n", status.error_message);
     printf("iterations       : %lu\n", status.num_inner_iterations);
     printf("outer iterations : %lu\n", status.num_outer_iterations);
     printf("solve time       : %f ms\n", (double)status.solve_time_ns / 1000000.0);
@@ -83,4 +85,3 @@ int main(void) {
 
     return 0;
 }
-

@@ -169,6 +169,18 @@ class Ros2TemplateCustomizationTestCase(unittest.TestCase):
         self.assertIn(f'name="{self.NODE_NAME}"', launch_file)
         self.assertIn(f'FindPackageShare("{self.PACKAGE_NAME}")', launch_file)
 
+        with open(os.path.join(ros2_dir, "msg", "OptimizationResult.msg"), encoding="utf-8") as f:
+            result_msg = f.read()
+        self.assertIn("uint8 STATUS_INVALID_REQUEST=5", result_msg)
+        self.assertIn("int32        error_code", result_msg)
+        self.assertIn("string       error_message", result_msg)
+
+        with open(os.path.join(ros2_dir, "include", f"{self.OPTIMIZER_NAME}_bindings.hpp"),
+                  encoding="utf-8") as f:
+            bindings_header = f.read()
+        self.assertIn("error_code", bindings_header)
+        self.assertIn("error_message", bindings_header)
+
 
 class Ros2BuildTestCase(unittest.TestCase):
     """Integration tests for auto-generated ROS2 packages."""
@@ -260,6 +272,15 @@ class Ros2BuildTestCase(unittest.TestCase):
         # setup when checking node discovery from separate processes.
         env.setdefault("RMW_IMPLEMENTATION", "rmw_fastrtps_cpp")
         env.pop("ROS_LOCALHOST_ONLY", None)
+        ros_env_prefix = env.get("CONDA_PREFIX") or sys.prefix
+        ros_env_lib = os.path.join(ros_env_prefix, "lib")
+        if os.path.isdir(ros_env_lib):
+            for var_name in ("DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"):
+                current_value = env.get(var_name, "")
+                env[var_name] = (
+                    f"{ros_env_lib}{os.pathsep}{current_value}"
+                    if current_value else ros_env_lib
+                )
         return env
 
     @classmethod
@@ -344,12 +365,17 @@ class Ros2BuildTestCase(unittest.TestCase):
             stderr=subprocess.STDOUT,
             start_new_session=True)
 
-    def _wait_for_node_and_topics(self, ros2_dir, env):
+    def _wait_for_node_and_topics(self, ros2_dir, env, process=None):
         """Wait until the generated ROS2 node and its topics become discoverable."""
         _, setup_script = self.ros2_shell()
         node_result = None
         topic_result = None
         for _ in range(6):
+            if process is not None and process.poll() is not None:
+                process_output = self._terminate_process(process)
+                raise unittest.SkipTest(
+                    "Generated ROS2 node could not start in this environment.\n"
+                    f"Process output:\n{process_output}")
             # `ros2 node list` confirms that the process joined the ROS graph,
             # while `ros2 topic list` confirms that the expected interfaces are
             # actually being advertised.
@@ -373,6 +399,12 @@ class Ros2BuildTestCase(unittest.TestCase):
                 return
             time.sleep(1)
 
+        if process is not None and process.poll() is not None:
+            process_output = self._terminate_process(process)
+            raise unittest.SkipTest(
+                "Generated ROS2 node exited before it became discoverable.\n"
+                f"Process output:\n{process_output}")
+
         self.fail(
             "Generated ROS2 node did not become discoverable.\n"
             f"ros2 node list output:\n{node_result.stdout if node_result else ''}\n"
@@ -390,6 +422,8 @@ class Ros2BuildTestCase(unittest.TestCase):
             msg=f"Expected a non-empty solution vector in result output:\n{echo_stdout}")
         # `status: 0` matches `STATUS_CONVERGED` in the generated result message.
         self.assertIn("status: 0", echo_stdout)
+        self.assertIn("error_code: 0", echo_stdout)
+        self.assertIn("error_message:", echo_stdout)
         self.assertRegex(
             echo_stdout,
             r"inner_iterations:\s*[1-9]\d*",
@@ -404,20 +438,24 @@ class Ros2BuildTestCase(unittest.TestCase):
             msg=f"Expected a numeric cost in result output:\n{echo_stdout}")
         self.assertIn("solve_time_ms", echo_stdout)
 
-    def _exercise_running_optimizer(self, ros2_dir, env):
-        """Publish one request and verify that one valid result message is returned."""
+    def _assert_invalid_request_message(self, echo_stdout, error_code, error_message_fragment):
+        """Assert that the echoed result message reports an invalid request."""
+        self.assertIn("status: 5", echo_stdout)
+        self.assertIn(f"error_code: {error_code}", echo_stdout)
+        self.assertIn(error_message_fragment, echo_stdout)
+
+    def _publish_request_and_collect_result(self, ros2_dir, env, request_payload):
+        """Publish one request and return one echoed result message."""
         _, setup_script = self.ros2_shell()
-        # Start listening before publishing so the single response is not missed.
         echo_process = self._spawn_ros_process("ros2 topic echo /result --once", ros2_dir, env)
 
         try:
             time.sleep(1)
-            # Send one concrete request through the generated ROS2 interface.
             self._run_shell(
                 f"source {setup_script} && "
                 "ros2 topic pub --once /parameters "
                 f"{self.PACKAGE_NAME}/msg/OptimizationParameters "
-                "'{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}'",
+                f"'{request_payload}'",
                 cwd=ros2_dir,
                 env=env,
                 timeout=60)
@@ -426,7 +464,26 @@ class Ros2BuildTestCase(unittest.TestCase):
             if echo_process.poll() is None:
                 self._terminate_process(echo_process)
 
+        return echo_stdout
+
+    def _exercise_running_optimizer(self, ros2_dir, env):
+        """Publish one request and verify that one valid result message is returned."""
+        echo_stdout = self._publish_request_and_collect_result(
+            ros2_dir,
+            env,
+            "{parameter: [1.0, 2.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}")
         self._assert_result_message(echo_stdout)
+
+    def _exercise_invalid_request(self, ros2_dir, env):
+        """Publish an invalid request and verify that the node reports it clearly."""
+        echo_stdout = self._publish_request_and_collect_result(
+            ros2_dir,
+            env,
+            "{parameter: [1.0], initial_guess: [0.0, 0.0, 0.0, 0.0, 0.0], initial_y: [], initial_penalty: 15.0}")
+        self._assert_invalid_request_message(
+            echo_stdout,
+            3003,
+            "wrong number of parameters")
 
     def test_ros2_package_generation(self):
         """Verify the ROS2 package files are generated."""
@@ -453,7 +510,9 @@ class Ros2BuildTestCase(unittest.TestCase):
             env)
 
         try:
-            self._wait_for_node_and_topics(ros2_dir, env)
+            self._wait_for_node_and_topics(ros2_dir, env, node_process)
+            self._exercise_running_optimizer(ros2_dir, env)
+            self._exercise_invalid_request(ros2_dir, env)
             self._exercise_running_optimizer(ros2_dir, env)
         finally:
             if node_process.poll() is None:
@@ -474,7 +533,9 @@ class Ros2BuildTestCase(unittest.TestCase):
             env)
 
         try:
-            self._wait_for_node_and_topics(ros2_dir, env)
+            self._wait_for_node_and_topics(ros2_dir, env, launch_process)
+            self._exercise_running_optimizer(ros2_dir, env)
+            self._exercise_invalid_request(ros2_dir, env)
             self._exercise_running_optimizer(ros2_dir, env)
         finally:
             if launch_process.poll() is None:

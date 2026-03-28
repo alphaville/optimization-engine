@@ -103,7 +103,10 @@ guess for the vector of Lagrange multipliers and the initial value
 of the penalty value. `OptimizationResult` is a message containing
 all information related to the solution of the optimization
 problem, including the optimal solution, the solver status,
-solution time, Lagrange multiplier vector and more.
+solution time, Lagrange multiplier vector and more. The ROS2
+result message also includes `error_code` and `error_message`
+fields so invalid requests and solver failures can be diagnosed
+without inspecting logs.
 
 The message structures are defined in the following msg files:
 

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,10 @@ private:
     rclcpp::Subscription<OptimizationParametersMsg>::SharedPtr subscriber_;
     rclcpp::TimerBase::SharedPtr timer_;
 
+    static constexpr int32_t kInvalidInitialGuessErrorCode = 1600;
+    static constexpr int32_t kInvalidInitialYErrorCode = 1700;
+    static constexpr int32_t kInvalidParameterErrorCode = 3003;
+
     static std::chrono::milliseconds rateToPeriod(double rate)
     {
         if (rate <= 0.0) {
@@ -48,29 +53,90 @@ private:
         return std::chrono::milliseconds(period_ms);
     }
 
-    void updateInputData()
+    std::string makeDimensionErrorMessage(
+        const char* label,
+        size_t provided,
+        size_t expected) const
+    {
+        std::ostringstream oss;
+        oss << label << ": provided " << provided << ", expected " << expected;
+        return oss.str();
+    }
+
+    void setErrorResult(
+        uint8_t status,
+        int32_t error_code,
+        const std::string& error_message)
+    {
+        results_.solution.clear();
+        results_.lagrange_multipliers.clear();
+        results_.inner_iterations = 0;
+        results_.outer_iterations = 0;
+        results_.status = status;
+        results_.error_code = error_code;
+        results_.error_message = error_message;
+        results_.cost = 0.0;
+        results_.norm_fpr = 0.0;
+        results_.penalty = 0.0;
+        results_.infeasibility_f1 = 0.0;
+        results_.infeasibility_f2 = 0.0;
+        results_.solve_time_ms = 0.0;
+    }
+
+    bool validateAndUpdateInputData()
     {
         init_penalty_ = (params_.initial_penalty > 1.0)
             ? params_.initial_penalty
             : ROS2_NODE_{{meta.optimizer_name|upper}}_DEFAULT_INITIAL_PENALTY;
 
-        if (params_.parameter.size() == {{meta.optimizer_name|upper}}_NUM_PARAMETERS) {
-            for (size_t i = 0; i < {{meta.optimizer_name|upper}}_NUM_PARAMETERS; ++i) {
-                p_[i] = params_.parameter[i];
-            }
+        if (params_.parameter.size() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS) {
+            setErrorResult(
+                OptimizationResultMsg::STATUS_INVALID_REQUEST,
+                kInvalidParameterErrorCode,
+                makeDimensionErrorMessage(
+                    "wrong number of parameters",
+                    params_.parameter.size(),
+                    {{meta.optimizer_name|upper}}_NUM_PARAMETERS));
+            return false;
+        }
+        for (size_t i = 0; i < {{meta.optimizer_name|upper}}_NUM_PARAMETERS; ++i) {
+            p_[i] = params_.parameter[i];
         }
 
+        if (!params_.initial_guess.empty()
+            && params_.initial_guess.size() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES) {
+            setErrorResult(
+                OptimizationResultMsg::STATUS_INVALID_REQUEST,
+                kInvalidInitialGuessErrorCode,
+                makeDimensionErrorMessage(
+                    "initial guess has incompatible dimensions",
+                    params_.initial_guess.size(),
+                    {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES));
+            return false;
+        }
         if (params_.initial_guess.size() == {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES) {
             for (size_t i = 0; i < {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES; ++i) {
                 u_[i] = params_.initial_guess[i];
             }
         }
 
+        if (!params_.initial_y.empty() && params_.initial_y.size() != {{meta.optimizer_name|upper}}_N1) {
+            setErrorResult(
+                OptimizationResultMsg::STATUS_INVALID_REQUEST,
+                kInvalidInitialYErrorCode,
+                makeDimensionErrorMessage(
+                    "wrong dimension of Lagrange multipliers",
+                    params_.initial_y.size(),
+                    {{meta.optimizer_name|upper}}_N1));
+            return false;
+        }
         if (params_.initial_y.size() == {{meta.optimizer_name|upper}}_N1) {
             for (size_t i = 0; i < {{meta.optimizer_name|upper}}_N1; ++i) {
                 y_[i] = params_.initial_y[i];
             }
         }
+
+        return true;
     }
 
     {{meta.optimizer_name}}SolverStatus solve()
@@ -106,6 +172,8 @@ private:
         results_.cost = status.cost;
         results_.penalty = status.penalty;
         results_.status = static_cast<uint8_t>(status.exit_status);
+        results_.error_code = status.error_code;
+        results_.error_message = std::string(status.error_message);
         results_.solve_time_ms = static_cast<double>(status.solve_time_ns) / 1000000.0;
         results_.infeasibility_f2 = status.f2_norm;
         results_.infeasibility_f1 = status.delta_y_norm_over_c;
@@ -123,10 +191,15 @@ private:
             return;
         }
         initializeSolverIfNeeded();
-        updateInputData();
+        if (!validateAndUpdateInputData()) {
+            publisher_->publish(results_);
+            has_received_request_ = false;
+            return;
+        }
         {{meta.optimizer_name}}SolverStatus status = solve();
         updateResults(status);
         publisher_->publish(results_);
+        has_received_request_ = false;
     }
 
 public:
