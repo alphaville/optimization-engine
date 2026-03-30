@@ -88,3 +88,6 @@ class BallInf(Constraint):
 
     def is_compact(self):
         return True
+
+    def dimension(self):
+        return super().dimension()

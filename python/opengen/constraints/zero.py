@@ -28,3 +28,4 @@ class Zero(Constraint):
 
     def is_compact(self):
         return True
+

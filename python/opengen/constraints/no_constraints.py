@@ -21,3 +21,6 @@ class NoConstraints(Constraint):
 
     def is_compact(self):
         return False
+
+    def dimension(self):
+        return super().dimension()

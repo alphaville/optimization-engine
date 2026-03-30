@@ -124,3 +124,6 @@ class CartesianProduct(constraint.Constraint):
             if not set_i.is_compact():
                 return False
         return True
+
+    def dimension(self):
+        return super().dimension()
