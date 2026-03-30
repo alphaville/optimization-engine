@@ -37,6 +37,8 @@ Note: This is the Changelog file of `opengen` - the Python interface of OpEn
 - ROS2 generated packages now use `uint16` for `error_code`, matching the current positive error-code range while keeping the wire format compact
 - MATLAB-related Python docs now reference the new `python/` package layout instead of the removed `open-codegen/` path
 - ROS2 integration tests now clean stale nested `colcon` build artifacts and preserve the active shell environment more reliably in micromamba/conda setups
+- Fixed issues in `__init__.py`: lazy imports and discoverability
+- Now checking whether the constraints have the correct dimension before attempting to build an optimizer
 
 
 ## [0.10.1] - 2026-03-25
