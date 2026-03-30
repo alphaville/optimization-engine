@@ -7,15 +7,16 @@ import opengen.functions as fn
 class Zero(Constraint):
     """A set that contains only the origin
 
-    The singleton :math:`\{0\}`
+    The singleton :math:`\\{0\\}`
 
     """
 
     def __init__(self):
         """
-        Constructor for set :math:`Z = \{0\}`
+        Constructor for set :math:`Z = \\{0\\}`
 
         """
+        pass
 
     def distance_squared(self, u):
         return fn.norm2_squared(u)
@@ -28,3 +29,6 @@ class Zero(Constraint):
 
     def is_compact(self):
         return True
+
+    def dimension(self):
+        return None

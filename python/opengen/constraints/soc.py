@@ -85,3 +85,6 @@ class SecondOrderCone(Constraint):
 
     def is_compact(self):
         return False
+
+    def dimension(self):
+        return None

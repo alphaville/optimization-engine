@@ -7,7 +7,7 @@ import opengen.functions as fn
 class Ball2(Constraint):
     """A Euclidean ball constraint
 
-    A constraint of the form :math:`\|u-u_0\| \leq r`, where :math:`u_0` is the center
+    A constraint of the form :math:`\Vert u-u_0 \Vert \leq r`, where :math:`u_0` is the center
     of the ball and `r` is its radius
 
     """
@@ -91,3 +91,8 @@ class Ball2(Constraint):
 
     def is_compact(self):
         return True
+
+    def dimension(self):
+        if self.center is None:
+            return None 
+        return len(self.center)

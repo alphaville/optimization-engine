@@ -68,7 +68,25 @@ class BuildConfigurationTestCase(unittest.TestCase):
             "invalid OpEn version",
         ):
             build_config.with_open_version("^1.2")
+    
 
+class SmokeTests(unittest.TestCase):
+
+    def test_incompatible_constraints_dimensions(self):
+        u = cs.SX.sym("u", 5)
+        p = cs.SX.sym("p", 2)
+        phi = og.functions.rosenbrock(u, p)
+        bounds = og.constraints.Rectangle(xmin=[1, 2], xmax=[3, 4])
+        problem = og.builder.Problem(u, p, phi) \
+            .with_constraints(bounds)
+        meta = og.config.OptimizerMeta().with_optimizer_name("abcd")
+        build_config = og.config.BuildConfiguration() \
+            .with_open_version(local_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "rust"))) \
+            .with_build_directory(".whatever") 
+        solver_cfg = og.config.SolverConfiguration()
+        builder = og.builder.OpEnOptimizerBuilder(problem, meta, build_config, solver_cfg)
+        with self.assertRaises(ValueError):
+            builder.build()
 
 class OcpSolutionTestCase(unittest.TestCase):
 

@@ -54,3 +54,6 @@ class AffineSpace(Constraint):
         """Affine spaces are not compact sets
         """
         return False
+
+    def dimension(self):
+        return super().dimension()

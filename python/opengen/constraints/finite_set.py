@@ -7,7 +7,7 @@ import opengen.functions as fn
 class FiniteSet(Constraint):
     """Finite set
 
-    A set of the form :math:`A = \{a_1, a_2, \ldots, a_K\}`
+    A set of the form :math:`A = \\{a_1, a_2, \\ldots, a_K\\}`
     """
 
     def __init__(self, points=None):

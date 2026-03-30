@@ -75,3 +75,8 @@ class Sphere2(Constraint):
 
     def is_compact(self):
         return True
+
+    def dimension(self):
+        if self.center is None:
+            return None 
+        return len(self.center)

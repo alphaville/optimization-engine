@@ -31,7 +31,7 @@ class Rectangle(Constraint):
                 if xmin_element > xmax_element:
                     raise Exception("xmin must be <= xmax")
 
-    def __init__(self, xmin, xmax):
+    def __init__(self, xmin=None, xmax=None):
         """Construct a new instance of Rectangle
 
         :param xmin: minimum bounds (can be ``None``)

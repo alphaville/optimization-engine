@@ -32,3 +32,12 @@ class Constraint:
         Whether the set is compact
         """
         return False
+
+    def dimension(self):
+        """
+        Constraint dimension
+
+        Derived classes can override this method to return the dimension of the 
+        constraint, where possible, or return `None` if the constraint does not 
+        have a fixed dimension.
+        """

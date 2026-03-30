@@ -103,3 +103,6 @@ class Simplex(Constraint):
     def is_compact(self):
         """Whether the set is compact (`True`)"""
         return True
+
+    def dimension(self):
+        return None
