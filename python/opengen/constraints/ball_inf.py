@@ -90,4 +90,6 @@ class BallInf(Constraint):
         return True
 
     def dimension(self):
-        return super().dimension()
+        if self.center is None:
+            return None 
+        return len(self.center)

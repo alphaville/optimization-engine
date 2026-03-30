@@ -11,7 +11,7 @@ class ConstraintsTestCase(unittest.TestCase):
     # Infinity Ball
     # -----------------------------------------------------------------------
 
-    def test_ball_inf_origin(self):
+    def test_ball_inf_origin(self):        
         ball = og.constraints.BallInf(None, 1)
         x = np.array([3, 2])
         x_sym = cs.SX.sym("x", 2)
@@ -57,6 +57,13 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_ball_inf_origin_compact(self):
         ball = og.constraints.BallInf()
         self.assertTrue(ball.is_compact())
+
+    def test_dimension_ballInf(self):
+        ball = og.constraints.BallInf()
+        self.assertIsNone(ball.dimension())
+
+        ball = og.constraints.BallInf(center=[1., 2., -3.])
+        self.assertEqual(3, ball.dimension())
 
     # -----------------------------------------------------------------------
     # Euclidean Ball
@@ -121,6 +128,13 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_ball_euclidean_origin_compact(self):
         ball = og.constraints.Ball2()
         self.assertTrue(ball.is_compact())
+
+    def test_dimension_ball2(self):
+        ball = og.constraints.Ball2()
+        self.assertIsNone(ball.dimension())
+
+        ball = og.constraints.Ball2(center=[1., 2., -3.])
+        self.assertEqual(3, ball.dimension())
 
     # -----------------------------------------------------------------------
     # Rectangle
@@ -194,6 +208,14 @@ class ConstraintsTestCase(unittest.TestCase):
         self.assertFalse(rect.is_orthant())
         rect = og.constraints.Rectangle([-1.0, float('-inf')], [10.0, 3.0])
         self.assertFalse(rect.is_orthant())
+    
+    def test_rectangle_dimension(self):
+        rec_only_xmin = og.constraints.Rectangle(xmin=[1])
+        rec_only_xmax = og.constraints.Rectangle(xmax=[5, 6])
+        rec_xmin_and_xmax = og.constraints.Rectangle(xmin=[0, -1, 2], xmax=[1, 0, 2])
+        self.assertEqual(1, rec_only_xmin.dimension())
+        self.assertEqual(2, rec_only_xmax.dimension())
+        self.assertEqual(3, rec_xmin_and_xmax.dimension())
 
     # -----------------------------------------------------------------------
     # Second-Order Cone (SOC)
@@ -264,6 +286,10 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_second_order_cone_convex(self):
         soc = og.constraints.SecondOrderCone()
         self.assertFalse(soc.is_compact())
+    
+    def test_soc_dimension(self):
+        soc = og.constraints.SecondOrderCone()
+        self.assertIsNone(soc.dimension())
 
     # -----------------------------------------------------------------------
     # No Constraints
@@ -282,6 +308,10 @@ class ConstraintsTestCase(unittest.TestCase):
     def test_no_constraints_compact(self):
         whole_rn = og.constraints.NoConstraints()
         self.assertFalse(whole_rn.is_compact())
+    
+    def test_no_constraints_dimension(self):
+        whole_rn = og.constraints.NoConstraints()
+        self.assertIsNone(whole_rn.dimension())
 
     # -----------------------------------------------------------------------
     # Cartesian product of constraints
@@ -376,6 +406,18 @@ class ConstraintsTestCase(unittest.TestCase):
         cartesian = og.constraints.CartesianProduct(
             [5, 10, 11], [ball_inf, ball_eucl, free])
         self.assertFalse(cartesian.is_compact())
+
+    def test_cartesian_dimension(self):
+        inf = float('inf')
+        ball_inf = og.constraints.BallInf(None, 1)
+        ball_eucl = og.constraints.Ball2(None, 1)
+        rect = og.constraints.Rectangle(xmin=[0.0, 1.0, -inf, 2.0],
+                                        xmax=[1.0, inf, 10.0, 10.0])
+        cartesian = og.constraints.CartesianProduct(
+            [1, 4, 8], [ball_inf, ball_eucl, rect])
+        self.assertEqual(9, cartesian.dimension())
+        
+        
 
     # -----------------------------------------------------------------------
     # Finite Set
@@ -476,6 +518,10 @@ class ConstraintsTestCase(unittest.TestCase):
                     self.assertLessEqual(
                         np.dot(x-x_star, z-x_star), 1e-10, "Simplex optimality conditions failed")
 
+    def test_simplex_dimension(self):
+        simplex = og.constraints.Simplex(alpha=1.0)
+        self.assertIsNone(simplex.dimension())
+
     # -----------------------------------------------------------------------
     # Ball1
     # -----------------------------------------------------------------------
@@ -531,6 +577,13 @@ class ConstraintsTestCase(unittest.TestCase):
                 self.assertLessEqual(
                     np.dot(e-x_star, x-x_star), 1e-10, "Ball1 optimality conditions failed (2)")
 
+    def test_dimension_ball1(self):
+        ball = og.constraints.Ball1()
+        self.assertIsNone(ball.dimension())
+
+        ball = og.constraints.Ball1(center=[1., 2., -3.])
+        self.assertEqual(3, ball.dimension())
+
     # -----------------------------------------------------------------------
     # Sphere2
     # -----------------------------------------------------------------------
@@ -555,8 +608,23 @@ class ConstraintsTestCase(unittest.TestCase):
         sphere = og.constraints.Sphere2(radius=0.5)
         u = [0, 0, 0, 0]
         dist = sphere.distance_squared(u)
-        self.assertAlmostEqual(0.25, dist, places=12)
+        self.assertAlmostEqual(0.25, dist, places=12)    
+    
+    def test_dimension_sphere2(self):
+        sphere = og.constraints.Sphere2()
+        self.assertIsNone(sphere.dimension())
 
+        sphere = og.constraints.Sphere2(center=[1., 2., -3.])
+        self.assertEqual(3, sphere.dimension())
+    
+
+    # -----------------------------------------------------------------------
+    # Zero
+    # -----------------------------------------------------------------------
+
+    def test_zero_dimension(self):
+        z = og.opengen.constraints.Zero()
+        self.assertIsNone(z.dimension())
 
 if __name__ == '__main__':
     unittest.main()

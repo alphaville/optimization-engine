@@ -126,4 +126,4 @@ class CartesianProduct(constraint.Constraint):
         return True
 
     def dimension(self):
-        return super().dimension()
+        return self.segments[-1] + 1

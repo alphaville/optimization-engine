@@ -105,4 +105,4 @@ class Simplex(Constraint):
         return True
 
     def dimension(self):
-        return super().dimension()
+        return None

@@ -87,4 +87,4 @@ class SecondOrderCone(Constraint):
         return False
 
     def dimension(self):
-        return super().dimension()
+        return None
