@@ -645,6 +645,15 @@ class OpEnOptimizerBuilder:
 
     def __check_user_provided_parameters(self):
         self.__logger.info("Checking user parameters")
+        
+        # Check constraints dimensions
+        dim_constraints = self.__problem.constraints.dimension()        
+        dim_decision_variables = self.__problem.dim_decision_variables()
+        if dim_constraints is not None and dim_decision_variables != dim_constraints:
+            raise ValueError(f"Inconsistent dimensions - decision variables: {dim_decision_variables}", 
+                             f"set of constraints: {dim_constraints}")
+        
+        # Preconditioning...
         if self.__solver_config.preconditioning:
             # Preconditioning is not allowed when we have general ALM-type constraints of the form
             # F1(u, p) in C, unless C is {0} or an orthant (special case of rectangle).

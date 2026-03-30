@@ -1,7 +1,19 @@
-import opengen.definitions
-import opengen.builder
-import opengen.config
-import opengen.functions
-import opengen.constraints
-import opengen.tcp
-import opengen.ocp
+from . import (
+	definitions,
+	builder,
+	config,
+	functions,
+	constraints,
+	tcp,
+	ocp,
+)
+
+__all__ = [
+	"definitions",
+	"builder",
+	"config",
+	"functions",
+	"constraints",
+	"tcp",
+	"ocp",
+]

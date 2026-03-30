@@ -622,7 +622,7 @@ class ConstraintsTestCase(unittest.TestCase):
     # Zero
     # -----------------------------------------------------------------------
 
-    def test_zero_dimension(self):
+    def test_zero_dimension(self):        
         z = og.opengen.constraints.Zero()
         self.assertIsNone(z.dimension())
 
