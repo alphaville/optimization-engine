@@ -623,7 +623,7 @@ class ConstraintsTestCase(unittest.TestCase):
     # -----------------------------------------------------------------------
 
     def test_zero_dimension(self):        
-        z = og.opengen.constraints.Zero()
+        z = og.constraints.Zero()
         self.assertIsNone(z.dimension())
 
 if __name__ == '__main__':
