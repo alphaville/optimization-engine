@@ -2,6 +2,7 @@ import subprocess
 import shutil
 import yaml
 
+import opengen as og
 import opengen.config as og_cfg
 import opengen.definitions as og_dfn
 import opengen.constraints as og_cstr
@@ -43,10 +44,10 @@ class OpEnOptimizerBuilder:
     """
 
     def __init__(self,
-                 problem,
-                 metadata=og_cfg.OptimizerMeta(),
-                 build_configuration=og_cfg.BuildConfiguration(),
-                 solver_configuration=og_cfg.SolverConfiguration()):
+                 problem: og.builder.Problem,
+                 metadata: og_cfg.OptimizerMeta =og_cfg.OptimizerMeta(),
+                 build_configuration: og_cfg.BuildConfiguration =og_cfg.BuildConfiguration(),
+                 solver_configuration: og_cfg.SolverConfiguration=og_cfg.SolverConfiguration()):
         """Constructor of OpEnOptimizerBuilder
 
         :param problem: instance of :class:`~opengen.builder.problem.Problem`
@@ -645,7 +646,7 @@ class OpEnOptimizerBuilder:
 
     def __check_user_provided_parameters(self):
         self.__logger.info("Checking user parameters")
-        
+
         # Check constraints dimensions
         dim_constraints = self.__problem.constraints.dimension()        
         dim_decision_variables = self.__problem.dim_decision_variables()
