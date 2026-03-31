@@ -4,10 +4,40 @@
         <title>OpEn Blog</title>
         <link>https://alphaville.github.io/optimization-engine/blog</link>
         <description>OpEn Blog</description>
-        <lastBuildDate>Sat, 21 Mar 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 28 Mar 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Announcing OpEn 0.12.0 for Rust]]></title>
+            <link>https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0</link>
+            <guid>https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0</guid>
+            <pubDate>Sat, 28 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[OpEn 0.12.0 brings important updates to the core Rust library.]]></description>
+            <content:encoded><![CDATA[<p>OpEn 0.12.0 brings important updates to the core Rust library.
+The key changes are:</p>
+<ul>
+<li class="">Support for both <code>f32</code> and <code>f64</code> (<a class="" href="https://alphaville.github.io/optimization-engine/docs/openrust-arithmetic">docs</a>)</li>
+<li class="">Better error handling and reporting</li>
+<li class="">Using <a href="https://crates.io/crates/web-time" target="_blank" rel="noopener noreferrer" class="">web-time</a> which works in browsers</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="highlights">Highlights<a href="https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0#highlights" class="hash-link" aria-label="Direct link to Highlights" title="Direct link to Highlights" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="support-for-both-f32-and-f64">Support for both <code>f32</code> and <code>f64</code><a href="https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0#support-for-both-f32-and-f64" class="hash-link" aria-label="Direct link to support-for-both-f32-and-f64" title="Direct link to support-for-both-f32-and-f64" translate="no">​</a></h3>
+<p>The Rust solver now supports generic floating-point types, so you can work with either <code>f32</code> or <code>f64</code> depending on your target platform and performance needs.</p>
+<p>This is particularly useful for embedded and resource-constrained systems, where <code>f32</code> can be a better fit, while <code>f64</code> remains available for applications that need higher precision.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="replaced-instant-and-wasm-with-web-time">Replaced <code>instant</code> and wasm with <code>web-time</code><a href="https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0#replaced-instant-and-wasm-with-web-time" class="hash-link" aria-label="Direct link to replaced-instant-and-wasm-with-web-time" title="Direct link to replaced-instant-and-wasm-with-web-time" translate="no">​</a></h3>
+<p>The timing layer has been simplified by switching to <code>web-time</code>.</p>
+<p>This replaces the previous <code>instant</code> setup and the extra wasm-specific feature wiring around it, making timing support cleaner and more portable across native and web-oriented targets.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="better-error-handling">Better error handling<a href="https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0#better-error-handling" class="hash-link" aria-label="Direct link to Better error handling" title="Direct link to Better error handling" translate="no">​</a></h3>
+<p>Error reporting in the Rust library has been significantly improved.</p>
+<p>Projection failures, invalid numerical states, linear algebra failures, and other internal solver issues now surface as richer Rust-side errors with clearer, human-readable explanations. Constraint projections are also fallible now, which means these failures can propagate through FBS, PANOC, and ALM instead of being silently flattened into harder-to-debug behavior.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="see-also">See also<a href="https://alphaville.github.io/optimization-engine/blog/2026/03/28/open-0-12-0#see-also" class="hash-link" aria-label="Direct link to See also" title="Direct link to See also" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/openrust-basic">Rust documentation</a></li>
+<li class=""><a class="" href="https://alphaville.github.io/optimization-engine/docs/openrust-features">Rust features</a></li>
+<li class=""><a href="https://github.com/alphaville/optimization-engine" target="_blank" rel="noopener noreferrer" class="">Project repository</a></li>
+</ul>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[New Python OCP Module for Optimal Control and MPC]]></title>
             <link>https://alphaville.github.io/optimization-engine/blog/2026/03/21/python-ocp-module</link>

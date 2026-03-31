@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkoptimization_engine_docs=self.webpackChunkoptimization_engine_docs||[]).push([[6266],{3769(e){e.exports=JSON.parse('{"metadata":{"permalink":"/optimization-engine/blog","page":1,"postsPerPage":10,"totalPages":2,"totalCount":12,"nextPage":"/optimization-engine/blog/page/2","blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
