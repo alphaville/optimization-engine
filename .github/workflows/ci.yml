@@ -25,6 +25,8 @@ jobs:
             os: ubuntu-latest
           - name: macOS
             os: macos-latest
+          - name: Windows
+            os: windows-latest
     steps:
       - uses: actions/checkout@v5
 
@@ -34,16 +36,20 @@ jobs:
           rustflags: ""
 
       - name: Cargo tests
+        working-directory: rust
         run: cargo test
 
       - name: Cargo tests (RP and JEM)
+        if: runner.os != 'Windows'
+        working-directory: rust
         run: |
           cargo test --features rp
           cargo test --features jem
 
   python_tests:
     name: Python tests (${{ matrix.name }})
-    needs: rust_tests
+    needs:
+      - rust_tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -55,6 +61,9 @@ jobs:
             skip_rpi_test: 0
           - name: macOS
             os: macos-latest
+            skip_rpi_test: 1
+          - name: Windows
+            os: windows-latest
             skip_rpi_test: 1
     env:
       DO_DOCKER: 0
@@ -72,7 +81,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
+          cache-dependency-path: python/pyproject.toml
 
       - uses: egor-tensin/setup-clang@v1
         if: runner.os == 'Linux'
@@ -102,6 +111,69 @@ jobs:
         if: runner.os == 'macOS'
         run: bash ./ci/script.sh python-tests
 
+      - name: Install Python package
+        if: runner.os == 'Windows'
+        run: |
+          Set-Location python
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Run Python test.py
+        if: runner.os == 'Windows'
+        run: |
+          Set-Location python
+          $env:PYTHONPATH = "."
+          python -W ignore test/test.py -v
+
+  ros2_tests:
+    name: ROS2 tests
+    needs: python_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ubuntu:noble
+      options: --user 0
+    env:
+      DO_DOCKER: 0
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install container bootstrap dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            build-essential \
+            cmake \
+            curl \
+            ca-certificates \
+            git \
+            gnupg2 \
+            locales \
+            lsb-release
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          rustflags: ""
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Setup ROS 2
+        # `ros-tooling/setup-ros@v0.7` still runs as a Node.js 20 action.
+        # Force it onto Node 24 now so CI keeps working as GitHub deprecates
+        # Node 20, and upgrade `setup-ros` to a Node 24-compatible release
+        # when one becomes available.
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Run ROS2 Python tests
+        run: bash ./ci/script.sh ros2-tests
+
   ocp_tests:
     name: OCP tests (${{ matrix.name }})
     needs: python_tests
@@ -115,6 +187,8 @@ jobs:
             os: ubuntu-latest
           - name: macOS
             os: macos-latest
+          - name: Windows
+            os: windows-latest
     env:
       DO_DOCKER: 0
     steps:
@@ -129,7 +203,22 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: open-codegen/setup.py
+          cache-dependency-path: python/pyproject.toml
 
       - name: Run OCP Python tests
+        if: runner.os != 'Windows'
         run: bash ./ci/script.sh ocp-tests
+
+      - name: Install Python package
+        if: runner.os == 'Windows'
+        run: |
+          Set-Location python
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Run OCP Python tests
+        if: runner.os == 'Windows'
+        run: |
+          Set-Location python
+          $env:PYTHONPATH = "."
+          python -W ignore test/test_ocp.py -v

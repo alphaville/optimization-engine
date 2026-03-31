@@ -27,7 +27,7 @@ pip install sphinx
 pip install sphinx-rtd-theme
 
 # Install opengen
-pushd open-codegen
+pushd python
 pip install .
 popd # back to $GITHUB_WORKSPACE
 
@@ -48,11 +48,11 @@ git checkout $current_branch
 # Build the docs
 rm -rf sphinx
 mkdir -p sphinx
-pushd sphinx-dox
-sphinx-apidoc -o ./source/ ../open-codegen/opengen
+pushd docs/sphinx
+sphinx-apidoc -o ./source/ ../../python/opengen
 echo Last updated: $(date -u)  >> source/index.rst; sed '$d' source/index.rst; # update date at the end of file
 make html || :
-cp -r build/html/ ../sphinx
+cp -r build/html/ ../../sphinx
 git checkout source/index.rst # no need to commit this
 popd # back to $GITHUB_WORKSPACE
 

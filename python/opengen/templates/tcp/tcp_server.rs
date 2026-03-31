@@ -1,0 +1,341 @@
+///
+/// Auto-generated TCP server for optimizer: {{ meta.optimizer_name }}
+///
+use optimization_engine::alm::*;
+use serde::{Deserialize, Serialize};
+
+#[macro_use]
+extern crate clap;
+
+use std::{
+    io::{prelude::Read, Write},
+    net::{TcpListener, TcpStream},
+};
+
+use clap::{Arg, App};
+
+use {{ meta.optimizer_name }}::*;
+
+#[macro_use]
+extern crate log;
+
+/// IP of server (use 0.0.0.0 to bind to any IP)
+/// Can be overriden by the user
+const BIND_IP_DEFAULT: &str = "{{tcp_server_config.bind_ip}}";
+
+/// Port
+/// Can be overriden by the user
+const BIND_PORT_DEFAULT: u32 = {{tcp_server_config.bind_port}};
+
+/// Size of read buffer
+/// Can be overriden by the user
+const READ_BUFFER_SIZE: usize = 1024;
+
+/// Configuration of TCP server (provided by the user
+/// as command-line parameters)
+#[derive(Debug)]
+struct TcpServerConfiguration<'a> {
+   /// Bind IP
+   ip: &'a str,
+   /// Port
+   port: u32,
+}
+
+#[derive(Deserialize, Debug)]
+struct ExecutionParameter {
+    /// Parameter
+    parameter: Vec<f64>,
+    /// Initial guess (can be null)
+    initial_guess: Option<Vec<f64>>,
+    /// Initial Lagrange multipliers (can be null)
+    initial_lagrange_multipliers: Option<Vec<f64>>,
+    /// Initial penalty parameter, c0
+    initial_penalty: Option<f64>,
+}
+
+/// Request from the client
+#[derive(Deserialize, Debug)]
+enum ClientRequest {
+    /// Command: run solver
+    Run(ExecutionParameter),
+    /// Command: ping (check if server is up)
+    Ping(i32),
+    /// Command: kill gracefully
+    Kill(i32),
+}
+
+/// Solution and solution status of optimizer
+#[derive(Serialize, Debug)]
+struct OptimizerSolution<'a> {
+    exit_status: String,
+    num_outer_iterations: usize,
+    num_inner_iterations: usize,
+    last_problem_norm_fpr: f64,
+    delta_y_norm_over_c: f64,
+    f2_norm: f64,
+    solve_time_ms: f64,
+    penalty: f64,
+    solution: &'a [f64],
+    lagrange_multipliers: &'a [f64],
+    cost: f64,
+}
+
+fn write_bytes_to_stream(stream: &mut TcpStream, payload: &[u8], context: &str) -> bool {
+    if let Err(err) = stream.write_all(payload) {
+        warn!("{}: {}", context, err);
+        return false;
+    }
+    true
+}
+
+fn write_json_to_stream<T: Serialize>(
+    stream: &mut TcpStream,
+    payload: &T,
+    context: &str,
+) -> bool {
+    let payload_json = match serde_json::to_vec_pretty(payload) {
+        Ok(payload_json) => payload_json,
+        Err(err) => {
+            error!("{}: {}", context, err);
+            return false;
+        }
+    };
+    write_bytes_to_stream(stream, &payload_json, context)
+}
+
+fn pong(stream: &mut TcpStream, code: i32) {
+    let pong_message = format!(
+        {% raw %}"{{\n\t\"Pong\" : {}\n}}\n"{% endraw %},
+        code
+    );
+    write_bytes_to_stream(stream, pong_message.as_bytes(), "could not write pong to stream");
+}
+
+/// Writes an error to the communication stream
+#[derive(Serialize)]
+struct ErrorResponse<'a> {
+    #[serde(rename = "type")]
+    response_type: &'a str,
+    code: i32,
+    message: &'a str,
+}
+
+fn write_error_message(stream: &mut TcpStream, code: i32, error_msg: &str) {
+    let error_response = ErrorResponse {
+        response_type: "Error",
+        code,
+        message: error_msg,
+    };
+    warn!("TCP error {}: {}", code, error_msg);
+    write_json_to_stream(stream, &error_response, "could not write error response to stream");
+}
+
+/// Serializes the solution and solution status and returns it
+/// to the client
+fn return_solution_to_client(
+    status: AlmOptimizerStatus,
+    solution: &[f64],
+    stream: &mut TcpStream,
+) {
+    let empty_vec : [f64; 0] = Default::default();
+    let solution: OptimizerSolution = OptimizerSolution {
+        exit_status: format!("{:?}", status.exit_status()),
+        num_outer_iterations: status.num_outer_iterations(),
+        num_inner_iterations: status.num_inner_iterations(),
+        last_problem_norm_fpr: status.last_problem_norm_fpr(),
+        delta_y_norm_over_c: status.delta_y_norm_over_c(),
+        f2_norm: status.f2_norm(),
+        penalty: status.penalty(),
+        lagrange_multipliers: if let Some(y) = &status.lagrange_multipliers() { y } else { &empty_vec },
+        solve_time_ms: (status.solve_time().as_nanos() as f64) / 1e6,
+        solution,
+        cost: status.cost(),
+
+    };
+    write_json_to_stream(stream, &solution, "could not write optimizer solution to stream");
+}
+
+/// Handles an execution request
+fn execution_handler(
+    cache: &mut AlmCache,
+    execution_parameter: &ExecutionParameter,
+    u: &mut [f64],
+    p: &mut [f64],
+    stream: &mut TcpStream,
+) {
+    // ----------------------------------------------------
+    // Set initial value
+    // ----------------------------------------------------
+    let initial_guess = &execution_parameter.initial_guess;
+    match initial_guess {
+        None => {
+            info!("no initial guess provided");
+        },
+        Some(u0) => {
+            if u0.len() != {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES {
+                warn!("initial guess has incompatible dimensions");
+                let error_message = format!(
+                    "initial guess has incompatible dimensions: provided {}, expected {}",
+                    u0.len(),
+                    {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES
+                );
+                write_error_message(stream, 1600, &error_message);
+                return;
+            }
+            u.copy_from_slice(u0);
+        }
+    }
+
+    // ----------------------------------------------------
+    // Check lagrange multipliers
+    // ----------------------------------------------------
+    if let Some(y0) = &execution_parameter.initial_lagrange_multipliers {
+        if y0.len() != {{meta.optimizer_name|upper}}_N1 {
+            let error_message = format!(
+                "wrong dimension of Langrange multipliers: provided {}, expected {}",
+                y0.len(),
+                {{meta.optimizer_name|upper}}_N1
+            );
+            write_error_message(stream, 1700, &error_message);
+            return;
+        }
+    }
+
+    // ----------------------------------------------------
+    // Run solver
+    // ----------------------------------------------------
+    let parameter = &execution_parameter.parameter;
+    if parameter.len() != {{meta.optimizer_name|upper}}_NUM_PARAMETERS {
+        let error_message = format!(
+            "wrong number of parameters: provided {}, expected {}",
+            parameter.len(),
+            {{meta.optimizer_name|upper}}_NUM_PARAMETERS
+        );
+        write_error_message(stream, 3003, &error_message);
+        return;
+    }
+    p.copy_from_slice(parameter);
+    let status = solve(p,
+                       cache,
+                       u,
+                       &execution_parameter.initial_lagrange_multipliers,
+                       &execution_parameter.initial_penalty);
+    match status {
+        Ok(ok_status) => {
+            return_solution_to_client(ok_status, u, stream);
+        }
+        Err(err) => {
+            let error_message = format!("problem solution failed: {}", err);
+            write_error_message(stream, 2000, &error_message);
+        }
+    }
+}
+
+fn run_server(tcp_config: &TcpServerConfiguration) {
+    info!("Initializing cache...");
+    let mut p = [0.0; {{meta.optimizer_name|upper}}_NUM_PARAMETERS];
+    let mut cache = initialize_solver();
+    info!("Done");
+    let listener = match TcpListener::bind(format!("{}:{}", tcp_config.ip, tcp_config.port)) {
+        Ok(listener) => listener,
+        Err(err) => {
+            error!(
+                "failed to bind TCP server at {}:{}: {}",
+                tcp_config.ip,
+                tcp_config.port,
+                err
+            );
+            return;
+        }
+    };
+    let mut u = [0.0; {{meta.optimizer_name|upper}}_NUM_DECISION_VARIABLES];
+    info!("listening started, ready to accept connections at {}:{}", tcp_config.ip, tcp_config.port);
+    'incoming: for stream in listener.incoming() {
+        let mut stream = match stream {
+            Ok(stream) => stream,
+            Err(err) => {
+                warn!("failed to accept incoming TCP connection: {}", err);
+                continue;
+            }
+        };
+
+        //The following is more robust compared to `read_to_string`
+        let mut bytes_buffer = vec![0u8; READ_BUFFER_SIZE];
+        let mut read_data_length = 1;
+        let mut buffer = String::new();
+        while read_data_length != 0 {
+            read_data_length = match stream.read(&mut bytes_buffer) {
+                Ok(read_data_length) => read_data_length,
+                Err(err) => {
+                    warn!("could not read stream: {}", err);
+                    continue 'incoming;
+                }
+            };
+            let new_string = match String::from_utf8(bytes_buffer[0..read_data_length].to_vec()) {
+                Ok(new_string) => new_string,
+                Err(err) => {
+                    let error_message = format!(
+                        "invalid request: request body is not valid UTF-8 ({})",
+                        err.utf8_error()
+                    );
+                    write_error_message(&mut stream, 1000, &error_message);
+                    continue 'incoming;
+                }
+            };
+            buffer.push_str(&new_string);
+        }
+
+        let received_request: serde_json::Result<ClientRequest> = serde_json::from_str(&buffer);
+        trace!("Received new request");
+        match received_request {
+            Ok(request_content) => match request_content {
+                ClientRequest::Run(execution_param) => {
+                    trace!("Running solver");
+                    execution_handler(&mut cache,
+                                      &execution_param,
+                                      &mut u,
+                                      &mut p,
+                                      &mut stream);
+                }
+                ClientRequest::Kill(kill_code) => {
+                    info!("Quitting on request (kill code: {})", kill_code);
+                    break;
+                }
+                ClientRequest::Ping(ping_code) => {
+                    info!("Ping received");
+                    pong(&mut stream, ping_code);
+                }
+            },
+            Err(err) => {
+                let error_message = format!("invalid request: {}", err);
+                write_error_message(&mut stream, 1000, &error_message);
+            }
+        }
+    }
+}
+
+fn main() {
+    let matches = App::new("OpEn TCP Server [{{meta.optimizer_name}}]")
+        .version("{{meta.version}}")
+        .author("{{meta.authors | join(', ')}}")
+        .about("TCP interface of OpEn optimizer")
+        .arg(Arg::with_name("ip")
+                 .short("ip")
+                 .long("ip")
+                 .takes_value(true)
+                 .help("TCP server bind IP (0.0.0.0 for no restrictions)"))
+        .arg(Arg::with_name("port")
+                 .short("p")
+                 .long("port")
+                 .takes_value(true)
+                 .help("TCP server port"))
+        .get_matches();
+    let port = value_t!(matches, "port", u32).unwrap_or(BIND_PORT_DEFAULT);
+    let ip = matches.value_of("ip").unwrap_or(BIND_IP_DEFAULT);
+    let server_config = TcpServerConfiguration {ip, port};
+
+    pretty_env_logger::init();
+    info!("{:?}", server_config);
+    run_server(&server_config);
+    info!("Exiting... (adios!)");
+}

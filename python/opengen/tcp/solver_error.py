@@ -1,0 +1,44 @@
+class SolverError:
+    """Structured solver error returned by TCP or direct Python bindings."""
+
+    def __init__(self, error):
+        """Constructs instance of :class:`~opengen.tcp.solver_error.SolverError`
+
+        :param error: dictionary containing error attributes
+
+        :return: New instance of :class:`~opengen.tcp.solver_error.SolverError`
+        """
+
+        for k, v in error.items():
+            attribute_name = "__{}".format(k)
+            setattr(self, attribute_name, v)
+
+    @property
+    def code(self):
+        """Error code
+
+        Possible error codes are:
+
+        - **1000**: Invalid request: malformed JSON or invalid UTF-8 payload
+        - **1600**: Initial guess has incomplete dimensions
+        - **1700**: Wrong dimension of Lagrange multipliers
+        - **2000**: Problem solution failed (message may include the solver reason)
+        - **3003**: Parameter vector has wrong length
+
+        :return: Error code
+        """
+        return self.__dict__["__code"]
+
+    @property
+    def message(self):
+        """
+        Returns an appropriate error message matching the error code
+
+        :return: Error message
+        :rtype: str
+        """
+        return self.__dict__["__message"]
+
+    def __repr__(self):
+        """Return a concise one-line representation of the error."""
+        return f"SolverError(code={self.code}, message={self.message!r})"

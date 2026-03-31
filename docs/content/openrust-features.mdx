@@ -1,0 +1,60 @@
+---
+id: openrust-features
+title: Features
+description: Rust Features
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Features
+
+The following [features] are supported in OpEn:
+
+### Memory allocators
+
+You can use the feature `rp` to use the memory allocator `rpmalloc` and `jem` for `jemalloc`.
+Using a different allocator can be useful when your application solves optimization problems repeatedly and allocation overhead starts to matter. In performance-sensitive settings, such as embedded optimization, real-time control, or server workloads with many solver calls, an alternative allocator may reduce latency variation and improve throughput.
+
+For example, you can include OpEn as a dependency in your Rust project by adding one of the following entries to your `Cargo.toml` file:
+
+<Tabs>
+  <TabItem value="rpmalloc" label="rpmalloc" default>
+
+```toml
+[dependencies]
+optimization-engine = { version = "0.11", features = ["rp"] }
+```
+
+  </TabItem>
+  <TabItem value="jemalloc" label="jemalloc">
+
+```toml
+[dependencies]
+optimization-engine = { version = "0.11", features = ["jem"] }
+```
+
+  </TabItem>
+</Tabs>
+
+You cannot use both `rp` and `jem`.
+
+
+### WebAssembly Support
+
+:::warning
+In version 0.12.0 of OpEn, wasm was replaced by [`web-time`](https://crates.io/crates/web-time),
+so this feature is not supported any more. OpEn can still be used in WebAssembly without 
+the need to specify any features.
+:::
+
+If you intend to use OpEn in WebAssembly you need to use the feature `wasm`.
+
+```.toml
+[dependencies]
+optimization-engine = { version = "0.11", features = ["wasm"] }
+```
+
+<!-- Links -->
+
+[features]: https://doc.rust-lang.org/cargo/reference/features.html
