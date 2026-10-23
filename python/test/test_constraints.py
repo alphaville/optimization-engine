@@ -209,6 +209,19 @@ class ConstraintsTestCase(unittest.TestCase):
         rect = og.constraints.Rectangle([-1.0, float('-inf')], [10.0, 3.0])
         self.assertFalse(rect.is_orthant())
     
+    def test_rectangle_is_orthant_one_sided_and_degenerate(self):
+        cases = [
+            (None, [0], True),
+            ([0], None, True),
+            ([0], [0], False),
+            ([float('-inf')], [float('inf')], False),
+            ([-1], [1], False),
+        ]
+        for xmin, xmax, expected in cases:
+            with self.subTest(xmin=xmin, xmax=xmax):
+                self.assertEqual(
+                    og.constraints.Rectangle(xmin, xmax).is_orthant(), expected)
+
     def test_rectangle_dimension(self):
         rec_only_xmin = og.constraints.Rectangle(xmin=[1])
         rec_only_xmax = og.constraints.Rectangle(xmax=[5, 6])

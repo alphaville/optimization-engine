@@ -193,11 +193,12 @@ class Rectangle(Constraint):
 
         :rtype: boolean
         """
-        chk_orthant = True
-        for x_min_i in self.__xmin:
-            chk_orthant &= (x_min_i == 0 or x_min_i == float(
-                'inf') or x_min_i == float('-inf'))
-        for x_max_i in self.__xmax:
-            chk_orthant &= (x_max_i == 0 or x_max_i == float(
-                'inf') or x_max_i == float('-inf'))
-        return chk_orthant
+        xmin = ([float('-inf')] * self.dimension()
+                if self.__xmin is None else self.__xmin)
+        xmax = ([float('inf')] * self.dimension()
+                if self.__xmax is None else self.__xmax)
+        return all(
+            (lower == 0 and upper == float('inf')) or
+            (lower == float('-inf') and upper == 0)
+            for lower, upper in zip(xmin, xmax)
+        )
